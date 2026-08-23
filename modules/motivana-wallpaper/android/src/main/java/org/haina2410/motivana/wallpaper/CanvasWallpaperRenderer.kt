@@ -9,7 +9,15 @@ import kotlin.math.*
 
 data class RotationLayout(val quoteLeft: Float, val quoteTop: Float, val quoteRight: Float, val quoteBottom: Float, val fontSize: Float, val authorY: Float, val truncated: Boolean, val maxLines: Int? = null, val lineCount: Int = 0)
 data class RotationAccent(val centerX: Float, val centerY: Float, val radius: Float)
-class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val fonts: Map<String, Typeface>, private val assets: AssetManager? = null) {
+private data class RendererResources(val bitmapFactory: (Int, Int) -> Bitmap, val afterAllocation: (Bitmap) -> Unit)
+class CanvasWallpaperRenderer private constructor(
+  private val catalog: RotationCatalog,
+  private val fonts: Map<String, Typeface>,
+  private val assets: AssetManager?,
+  private val resources: RendererResources,
+) {
+  constructor(catalog: RotationCatalog, fonts: Map<String, Typeface>, assets: AssetManager? = null) : this(catalog, fonts, assets, RendererResources({ width, height -> Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) }, {}))
+  internal constructor(catalog: RotationCatalog, fonts: Map<String, Typeface>, assets: AssetManager?, bitmapFactory: (Int, Int) -> Bitmap, afterAllocation: (Bitmap) -> Unit) : this(catalog, fonts, assets, RendererResources(bitmapFactory, afterAllocation))
   private data class MeasuredQuote(val geometry: RotationLayout, val staticLayout: StaticLayout)
 
   fun layout(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): RotationLayout = measure(quote, preset, width, height).geometry
@@ -34,12 +42,20 @@ class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val 
     return MeasuredQuote(RotationLayout(left, quoteTop, right, quoteTop + quoteHeight, size.toFloat(), quoteTop + quoteHeight + gap, truncated, maxLines, quoteLayout.lineCount), quoteLayout)
   }
   fun render(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): Bitmap {
-    require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888); val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG); paint.shader = when (val bg = preset.background) { is RotationBackground.Solid -> null; is RotationBackground.Gradient -> gradient(bg, width, height) }; canvas.drawColor((preset.background as? RotationBackground.Solid)?.let { Color.parseColor(it.color) } ?: Color.TRANSPARENT); if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }
-    val measured = measure(quote, preset, width, height); val layout = measured.geometry
-    val accent = accentGeometry(layout, preset); paint.shader = null; paint.color = Color.argb((255 * .35f).toInt(), Color.red(Color.parseColor(preset.authorColor)), Color.green(Color.parseColor(preset.authorColor)), Color.blue(Color.parseColor(preset.authorColor))); canvas.drawCircle(accent.centerX, accent.centerY, accent.radius, paint)
-    paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize
-    canvas.save(); canvas.translate(layout.quoteLeft, layout.quoteTop); measured.staticLayout.draw(canvas); canvas.restore()
-    quote.author?.let { paint.color = Color.parseColor(preset.authorColor); paint.textSize = round(width*.028).toFloat(); paint.textAlign = when(preset.align) { "center" -> Paint.Align.CENTER; "right" -> Paint.Align.RIGHT; else -> Paint.Align.LEFT }; val authorX = when(preset.align) { "center" -> width/2f; "right" -> layout.quoteRight; else -> layout.quoteLeft }; canvas.drawText("— $it", authorX, layout.authorY + paint.textSize, paint) }; return bitmap
+    require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = resources.bitmapFactory(width, height)
+    try {
+      resources.afterAllocation(bitmap)
+      val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG); paint.shader = when (val bg = preset.background) { is RotationBackground.Solid -> null; is RotationBackground.Gradient -> gradient(bg, width, height) }; canvas.drawColor((preset.background as? RotationBackground.Solid)?.let { Color.parseColor(it.color) } ?: Color.TRANSPARENT); if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }
+      val measured = measure(quote, preset, width, height); val layout = measured.geometry
+      val accent = accentGeometry(layout, preset); paint.shader = null; paint.color = Color.argb((255 * .35f).toInt(), Color.red(Color.parseColor(preset.authorColor)), Color.green(Color.parseColor(preset.authorColor)), Color.blue(Color.parseColor(preset.authorColor))); canvas.drawCircle(accent.centerX, accent.centerY, accent.radius, paint)
+      paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize
+      canvas.save(); canvas.translate(layout.quoteLeft, layout.quoteTop); measured.staticLayout.draw(canvas); canvas.restore()
+      quote.author?.let { paint.color = Color.parseColor(preset.authorColor); paint.textSize = round(width*.028).toFloat(); paint.textAlign = when(preset.align) { "center" -> Paint.Align.CENTER; "right" -> Paint.Align.RIGHT; else -> Paint.Align.LEFT }; val authorX = when(preset.align) { "center" -> width/2f; "right" -> layout.quoteRight; else -> layout.quoteLeft }; canvas.drawText("— $it", authorX, layout.authorY + paint.textSize, paint) }
+      return bitmap
+    } catch (error: Throwable) {
+      bitmap.recycle()
+      throw error
+    }
   }
   /** Matches Task4 scene accent coordinates from the retained quote layout. */
   internal fun accentGeometry(layout: RotationLayout, preset: RotationPreset): RotationAccent {

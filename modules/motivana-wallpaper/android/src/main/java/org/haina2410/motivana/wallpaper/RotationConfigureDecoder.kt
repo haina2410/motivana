@@ -12,7 +12,11 @@ object RotationConfigureDecoder {
     val target = options["target"] as? String ?: invalid()
     val preset = options["selectedPresetId"] as? String ?: invalid()
     if (preset.isBlank()) invalid()
-    return RotationSnapshot(enabled, hours.toInt(), try { WallpaperTarget.parse(target) } catch (_: Exception) { invalid() }, preset, randomize, favorites.filterIsInstance<String>(), favoritesOnly)
+    val originalHours = hours.toDouble()
+    if (!originalHours.isFinite() || originalHours !in Int.MIN_VALUE.toDouble()..Int.MAX_VALUE.toDouble()) invalid()
+    val exactHours = hours.toLong()
+    if (originalHours != exactHours.toDouble() || exactHours !in setOf(6L, 12L, 24L)) invalid()
+    return RotationSnapshot(enabled, exactHours.toInt(), try { WallpaperTarget.parse(target) } catch (_: Exception) { invalid() }, preset, randomize, favorites.filterIsInstance<String>(), favoritesOnly)
   }
   private fun invalid(): Nothing = throw IllegalArgumentException("INVALID_CONFIGURATION")
 }

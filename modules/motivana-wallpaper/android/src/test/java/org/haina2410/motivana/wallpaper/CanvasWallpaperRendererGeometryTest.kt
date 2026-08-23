@@ -1,6 +1,7 @@
 package org.haina2410.motivana.wallpaper
 
 import android.graphics.Typeface
+import android.graphics.Bitmap
 import java.io.File
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -15,6 +16,30 @@ class CanvasWallpaperRendererGeometryTest {
   private val preset = RotationPreset("p", "Inter", "Regular", "center", .43, .064, .036, 1.18, "#FFFFFF", "#DDEEFF", RotationBackground.Gradient("#102A56", "#020617", 135.0))
   @Test fun fixtureRatiosKeepLongQuotesInsideEightAndTenPercentBounds() { listOf(1080 to 1920, 1080 to 2400).forEach { (width, height) -> val result = CanvasWallpaperRenderer(RotationCatalog(listOf(quote), listOf(preset)), emptyMap()).layout(quote, preset, width, height); assertTrue(result.quoteLeft >= width * .08f); assertTrue(result.quoteTop >= height * .1f); assertTrue(result.quoteBottom <= height * .9f); assertTrue(result.fontSize >= width * preset.minimumRatio) } }
   @Test fun allocationGuardRejectsMoreThanSixtyFourMebibytes() { assertTrue(!WallpaperImageSafety.hasSafeRgbaAllocation(5000, 5000)) }
+
+  @Test fun recyclesAllocatedBitmapWhenPostAllocationRenderFails() {
+    var allocated: Bitmap? = null
+    val renderer = CanvasWallpaperRenderer(
+      RotationCatalog(listOf(quote), listOf(preset)),
+      emptyMap(),
+      null,
+      { width, height -> Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { allocated = it } },
+      { throw IllegalStateException("draw failure") },
+    )
+    try {
+      renderer.render(quote, preset, 720, 1280)
+      throw AssertionError("Expected draw failure")
+    } catch (error: IllegalStateException) {
+      assertEquals("draw failure", error.message)
+    }
+    assertTrue(requireNotNull(allocated).isRecycled)
+  }
+
+  @Test fun successfulRenderLeavesBitmapForPipelineOwnership() {
+    val bitmap = CanvasWallpaperRenderer(RotationCatalog(listOf(quote), listOf(preset)), emptyMap()).render(quote, preset, 720, 1280)
+    assertTrue(!bitmap.isRecycled)
+    bitmap.recycle()
+  }
 
   private fun authoritativeCatalog(): RotationCatalog {
     val root = assetRoot()
