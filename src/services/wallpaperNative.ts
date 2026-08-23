@@ -19,6 +19,12 @@ const stableNativeCodes = new Set<WallpaperServiceErrorCode>([
   'DECODE_FAILED',
   'APPLY_FAILED',
   'NOT_IMPLEMENTED',
+  'DEBUG_ONLY',
+  'INVALID_CONFIGURATION',
+  'EMPTY_FAVORITES',
+  'CONFIGURE_FAILED',
+  'ASSET_FAILED',
+  'RENDER_FAILED',
 ]);
 
 export function validateWallpaperTarget(value: string): WallpaperTarget {
@@ -68,6 +74,13 @@ export async function setWallpaper(
 export async function configureRotation(
   options: ConfigureRotationOptions,
 ): Promise<void> {
+  validateWallpaperTarget(options.target);
+  if (![6, 12, 24].includes(options.intervalHours))
+    throw new WallpaperServiceError('INVALID_TARGET');
+  if (options.favoriteQuotesOnly && options.favoriteQuoteIds.length === 0)
+    throw new WallpaperServiceError(
+      'EMPTY_FAVORITES' as WallpaperServiceErrorCode,
+    );
   try {
     await nativeWallpaperModule.configureRotation(options);
   } catch (error) {

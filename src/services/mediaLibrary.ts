@@ -10,7 +10,13 @@ export type WallpaperServiceErrorCode =
   | 'LOCK_UNSUPPORTED'
   | 'DECODE_FAILED'
   | 'APPLY_FAILED'
-  | 'NOT_IMPLEMENTED';
+  | 'NOT_IMPLEMENTED'
+  | 'DEBUG_ONLY'
+  | 'INVALID_CONFIGURATION'
+  | 'EMPTY_FAVORITES'
+  | 'CONFIGURE_FAILED'
+  | 'ASSET_FAILED'
+  | 'RENDER_FAILED';
 
 const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
   PERMISSION_DENIED: 'Photo permission is needed to save this wallpaper.',
@@ -23,6 +29,12 @@ const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
   DECODE_FAILED: 'The exported wallpaper could not be opened.',
   APPLY_FAILED: 'Could not apply the wallpaper.',
   NOT_IMPLEMENTED: 'Wallpaper rotation is not available yet.',
+  DEBUG_ONLY: 'Run rotation now is available in development builds only.',
+  INVALID_CONFIGURATION: 'Check the rotation preferences and try again.',
+  EMPTY_FAVORITES: 'Add a favorite before using favorites-only rotation.',
+  CONFIGURE_FAILED: 'Could not save wallpaper rotation preferences.',
+  ASSET_FAILED: 'Wallpaper rotation assets are unavailable.',
+  RENDER_FAILED: 'Could not render the scheduled wallpaper.',
 };
 
 export class WallpaperServiceError extends Error {

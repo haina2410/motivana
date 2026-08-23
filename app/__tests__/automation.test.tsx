@@ -14,6 +14,12 @@ jest.mock('../../src/services/wallpaperNative', () => ({
     supportsHome: true,
     supportsLock: false,
   })),
+  configureRotation: jest.fn(async () => undefined),
+  getRotationStatus: jest.fn(async () => ({
+    enabled: false,
+    state: 'disabled',
+  })),
+  runRotationNow: jest.fn(async () => undefined),
 }));
 
 const nativeService = jest.requireMock(
@@ -67,7 +73,7 @@ test('Automation validates favorites-only scheduling while clearly reporting una
 
   expect(screen.getByText('Wallpaper targets available')).toBeOnTheScreen();
   expect(screen.getByText('Capability: available')).toBeOnTheScreen();
-  expect(screen.getByText('Status: unavailable')).toBeOnTheScreen();
+  expect(screen.getByText('Status: disabled')).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
   fireEvent.press(
     screen.getByRole('button', { name: 'Save automation preferences' }),
@@ -93,8 +99,9 @@ test('Automation stores supported preferences and keeps unavailable targets disa
   fireEvent.press(
     screen.getByRole('button', { name: 'Save automation preferences' }),
   );
-
-  expect(useAppStore.getState().rotationIntervalHours).toBe(6);
+  await waitFor(() =>
+    expect(useAppStore.getState().rotationIntervalHours).toBe(6),
+  );
   expect(useAppStore.getState().wallpaperTarget).toBe('home');
   expect(useAppStore.getState().rotationEnabled).toBe(false);
 });

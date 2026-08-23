@@ -8,13 +8,20 @@ jest.mock('../wallpaperNative', () => ({
     supportsHome: true,
     supportsLock: false,
   })),
+  getRotationStatus: jest.fn(async () => ({
+    enabled: false,
+    state: 'disabled',
+  })),
 }));
 
-test('reports native target capability while retaining truthful Task 7-unavailable rotation status', async () => {
+test('reports native target capability and live rotation status', async () => {
   const availability = await getWallpaperAutomationAvailability();
 
   expect(availability.capabilities.kind).toBe('available');
-  expect(availability.status.kind).toBe('unavailable');
+  expect(availability.status).toMatchObject({
+    kind: 'available',
+    state: 'disabled',
+  });
 });
 
 test.each([

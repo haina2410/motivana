@@ -10,6 +10,7 @@ export interface RotationStatus {
   state: 'disabled' | 'scheduled' | 'running' | 'succeeded' | 'failed';
   lastAppliedAt?: number;
   lastQuoteId?: string;
+  lastPresetId?: string;
   errorCode?: string;
 }
 

@@ -1,5 +1,5 @@
 import type { WallpaperTarget } from '../store/schema';
-import { getWallpaperCapabilities } from './wallpaperNative';
+import { getRotationStatus, getWallpaperCapabilities } from './wallpaperNative';
 
 export type WallpaperCapabilities =
   | {
@@ -11,9 +11,14 @@ export type WallpaperCapabilities =
       supportedTargets: Readonly<Record<WallpaperTarget, false>>;
     };
 
-export type WallpaperAutomationStatus =
-  | { kind: 'available'; label: string }
-  | { kind: 'unavailable'; label: string; message: string };
+export type WallpaperAutomationStatus = {
+  kind: 'available';
+  label: string;
+  state: 'disabled' | 'scheduled' | 'running' | 'succeeded' | 'failed';
+  lastAppliedAt?: number;
+  lastQuoteId?: string;
+  errorCode?: string;
+};
 
 export interface WallpaperAutomationAvailability {
   capabilities: WallpaperCapabilities;
@@ -25,20 +30,18 @@ export const wallpaperAutomationFallback: WallpaperAutomationAvailability = {
     kind: 'unavailable',
     supportedTargets: { home: false, lock: false, both: false },
   },
-  status: {
-    kind: 'unavailable',
-    label: 'Status: unavailable',
-    message:
-      'Scheduling remains unavailable until the Android wallpaper service arrives.',
-  },
+  status: { kind: 'available', label: 'Status: disabled', state: 'disabled' },
 };
 
 /**
- * Target support is native as of Task 6. Rotation remains deliberately
- * unavailable until Task 7 provides its native implementation.
+ * Capabilities and worker status both come from the Android boundary.
  */
 export async function getWallpaperAutomationAvailability(): Promise<WallpaperAutomationAvailability> {
-  const capabilities = await getWallpaperCapabilities();
+  const [capabilities, nativeStatus] = await Promise.all([
+    getWallpaperCapabilities(),
+    getRotationStatus(),
+  ]);
+  const status = nativeStatus ?? { enabled: false, state: 'disabled' as const };
   return {
     capabilities: {
       kind: 'available',
@@ -48,7 +51,14 @@ export async function getWallpaperAutomationAvailability(): Promise<WallpaperAut
         both: capabilities.supportsHome && capabilities.supportsLock,
       },
     },
-    status: wallpaperAutomationFallback.status,
+    status: {
+      kind: 'available',
+      label: `Status: ${status.state}`,
+      state: status.state,
+      lastAppliedAt: status.lastAppliedAt,
+      lastQuoteId: status.lastQuoteId,
+      errorCode: status.errorCode,
+    },
   };
 }
 
