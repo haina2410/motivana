@@ -1,16 +1,8 @@
 {
-  "quote": { "id": "golden-short", "text": "Start before your mood negotiates the day away.", "author": "Motivana", "category": "motivation" },
-  "preset": "midnight-focus",
-  "dimensions": { "width": 1080, "height": 2400 },
-  "expected": {
-    "safeLeftRatio": 0.08,
-    "safeTopRatio": 0.1,
-    "safeBottomRatio": 0.9,
-    "alignment": "center",
-    "authorGapRatio": 0.022,
-    "accent": { "markSizeFontMultiplier": 1.5, "centerYMarkSizeDivisor": 3, "radiusMarkSizeDivisor": 10 },
-    "withAuthor": { "truncated": false },
-    "withoutAuthor": { "truncated": false },
-    "minEllipsis": { "textLength": 250, "truncated": true }
-  }
+  "tolerance": 1.0,
+  "cases": [
+    { "name": "short-author-center-9x20", "quote": { "id": "golden-short", "text": "Start before your mood negotiates the day away.", "author": "Motivana", "category": "motivation" }, "preset": "midnight-focus", "dimensions": { "width": 1080, "height": 2400 }, "expected": { "alignment": "center", "quoteBox": { "x": [86.4, 86.4], "y": [950, 1100], "width": [907.2, 907.2], "height": [40, 170] }, "fontSize": [69, 69], "lineCount": [1, 2], "maxLines": null, "authorY": [1050, 1200], "truncated": false, "accent": { "x": [120, 140], "y": [970, 1020], "radius": [10, 11] } } },
+    { "name": "long-no-author-left-9x16", "quote": { "id": "golden-long", "text": "discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline", "author": null, "category": "discipline" }, "preset": "sunrise-drive", "dimensions": { "width": 1080, "height": 1920 }, "expected": { "alignment": "left", "quoteBox": { "x": [86.4, 86.4], "y": [190, 850], "width": [907.2, 907.2], "height": [40, 700] }, "fontSize": [38, 67], "lineCount": [1, 12], "maxLines": null, "authorY": null, "truncated": false, "accent": { "x": [110, 140], "y": [620, 820], "radius": [5, 11] } } },
+    { "name": "250-char-min-ellipsis-right-9x16", "quote": { "id": "golden-ellipsis", "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience", "author": "Motivana", "category": "growth" }, "preset": "ember-action", "dimensions": { "width": 1080, "height": 1920 }, "expected": { "alignment": "right", "quoteBox": { "x": [86.4, 86.4], "y": [190, 850], "width": [907.2, 907.2], "height": [40, 1200] }, "fontSize": [41, 71], "lineCount": [1, 20], "maxLines": [1, 20], "authorY": [250, 1400], "truncated": true, "ellipsis": "end", "accent": { "x": [930, 970], "y": [150, 820], "radius": [6, 12] } } }
+  ]
 }

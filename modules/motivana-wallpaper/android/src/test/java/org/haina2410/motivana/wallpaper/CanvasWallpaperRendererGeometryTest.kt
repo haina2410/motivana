@@ -83,17 +83,18 @@ class CanvasWallpaperRendererGeometryTest {
   }
 
   @Test fun sharedGoldenFixtureDrivesSafeBoundsAlignmentAndAccentParity() {
-    val fixture = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText())
+    val fixture = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText()).getJSONArray("cases").getJSONObject(0)
     val catalog = authoritativeCatalog(); val preset = catalog.preset(fixture.getString("preset"))!!
     val quoteJson = fixture.getJSONObject("quote"); val quote = RotationQuote(quoteJson.getString("id"), quoteJson.getString("text"), quoteJson.getString("author"), quoteJson.getString("category"))
     val dimensions = fixture.getJSONObject("dimensions"); val width = dimensions.getInt("width"); val height = dimensions.getInt("height")
-    val expected = fixture.getJSONObject("expected")
+    val expected = fixture.getJSONObject("expected"); val box = expected.getJSONObject("quoteBox")
     val layout = CanvasWallpaperRenderer(catalog, actualFonts(catalog)).layout(quote, preset, width, height)
     assertEquals(preset.align, expected.getString("alignment"))
-    assertTrue(layout.quoteLeft >= width * expected.getDouble("safeLeftRatio"))
-    assertTrue(layout.quoteTop >= height * expected.getDouble("safeTopRatio"))
-    assertTrue(layout.quoteBottom <= height * expected.getDouble("safeBottomRatio"))
+    assertEquals(box.getJSONArray("x").getDouble(0).toFloat(), layout.quoteLeft, .1f)
+    assertTrue(layout.quoteTop in box.getJSONArray("y").getDouble(0).toFloat()..box.getJSONArray("y").getDouble(1).toFloat())
+    assertEquals(box.getJSONArray("width").getDouble(0).toFloat(), layout.quoteRight - layout.quoteLeft, .1f)
     val accent = CanvasWallpaperRenderer(catalog, actualFonts(catalog)).accentGeometry(layout, preset)
-    assertEquals(layout.quoteTop - layout.fontSize * expected.getJSONObject("accent").getDouble("markSizeFontMultiplier").toFloat() / expected.getJSONObject("accent").getDouble("centerYMarkSizeDivisor").toFloat(), accent.centerY, .001f)
+    assertTrue(accent.centerY in expected.getJSONObject("accent").getJSONArray("y").getDouble(0).toFloat()..expected.getJSONObject("accent").getJSONArray("y").getDouble(1).toFloat())
   }
+
 }

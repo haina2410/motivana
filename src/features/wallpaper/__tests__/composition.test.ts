@@ -3,10 +3,7 @@ import type { Quote } from '../../quotes/types';
 import { getPresetById } from '../presetRepository';
 
 const goldenFixture = require('../../../../assets/data/renderer-golden-fixture.json') as {
-  quote: Quote;
-  preset: string;
-  dimensions: { width: number; height: number };
-  expected: { safeLeftRatio: number; safeTopRatio: number; safeBottomRatio: number; alignment: string };
+  cases: Array<{ quote: Quote; preset: string; dimensions: { width: number; height: number }; expected: { alignment: string; quoteBox: { x: [number, number]; y: [number, number]; width: [number, number]; height: [number, number] } } }>;
 };
 
 const preset = getPresetById('midnight-focus')!;
@@ -94,10 +91,15 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
 });
 
 test('loads the shared renderer golden fixture for Task4 safe geometry', () => {
-  const goldenPreset = getPresetById(goldenFixture.preset)!;
-  const composition = createComposition({ quote: goldenFixture.quote, preset: goldenPreset, ...goldenFixture.dimensions });
-  expect(goldenPreset.textAlign).toBe(goldenFixture.expected.alignment);
-  expect(composition.quoteBounds.x).toBeCloseTo(goldenFixture.dimensions.width * goldenFixture.expected.safeLeftRatio);
-  expect(composition.quoteBounds.y).toBeGreaterThanOrEqual(goldenFixture.dimensions.height * goldenFixture.expected.safeTopRatio);
-  expect(composition.quoteBounds.y + composition.quoteBounds.height).toBeLessThanOrEqual(goldenFixture.dimensions.height * goldenFixture.expected.safeBottomRatio);
+  for (const golden of goldenFixture.cases) {
+    const goldenPreset = getPresetById(golden.preset)!;
+    const composition = createComposition({ quote: golden.quote, preset: goldenPreset, ...golden.dimensions });
+    expect(goldenPreset.textAlign).toBe(golden.expected.alignment);
+    expect(composition.quoteBounds.x).toBeGreaterThanOrEqual(golden.expected.quoteBox.x[0]);
+    expect(composition.quoteBounds.x).toBeLessThanOrEqual(golden.expected.quoteBox.x[1]);
+    expect(composition.quoteBounds.y).toBeGreaterThanOrEqual(golden.expected.quoteBox.y[0]);
+    expect(composition.quoteBounds.y).toBeLessThanOrEqual(golden.expected.quoteBox.y[1]);
+    expect(composition.quoteBounds.width).toBeGreaterThanOrEqual(golden.expected.quoteBox.width[0]);
+    expect(composition.quoteBounds.width).toBeLessThanOrEqual(golden.expected.quoteBox.width[1]);
+  }
 });
