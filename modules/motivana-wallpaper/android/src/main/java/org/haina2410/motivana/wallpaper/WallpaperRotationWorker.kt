@@ -10,8 +10,12 @@ import androidx.work.WorkerParameters
 private class AndroidRotationBitmap(val bitmap: Bitmap) : RotationBitmap { override fun recycle() = bitmap.recycle() }
 fun interface RotationWorkerExecution { fun run(): RotationWorkResult }
 object WallpaperRotationWorkerFactory {
+  /** Test seam injects the same catalog/store/selector/renderer/applier pipeline used by doWork. */
+  @Volatile var testPipelineFactory: ((Context) -> RotationPipeline)? = null
   @Volatile var testExecution: (() -> RotationWorkerExecution)? = null
-  fun create(context: Context): RotationWorkerExecution = testExecution?.invoke() ?: default(context)
+  fun create(context: Context): RotationWorkerExecution = testExecution?.invoke()
+    ?: testPipelineFactory?.let { factory -> RotationWorkerExecution { factory(context).run() } }
+    ?: default(context)
   private fun default(context: Context): RotationWorkerExecution {
     val preferences = RotationPreferences(context)
     val catalog = try { RotationCatalogLoader.load(context.assets) } catch (e: CatalogException) {
