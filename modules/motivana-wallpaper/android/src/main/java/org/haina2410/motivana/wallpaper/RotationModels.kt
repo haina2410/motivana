@@ -1,5 +1,8 @@
 package org.haina2410.motivana.wallpaper
 
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 
 data class RotationQuote(val id: String, val text: String, val author: String?, val category: String = "")
 sealed class RotationBackground { data class Solid(val color: String) : RotationBackground(); data class Gradient(val start: String, val end: String, val angle: Double) : RotationBackground() }
@@ -18,16 +21,17 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
     fun parse(value: String?, catalog: RotationCatalog): RotationSnapshotResult {
       if (value == null) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
       return try {
-      if (!required.all { value.contains("\"$it\"") }) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val enabled = jsonBoolean(value, "enabled") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val randomize = jsonBoolean(value, "randomizePreset") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val favoritesOnly = jsonBoolean(value, "favoriteQuotesOnly") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val interval = jsonInt(value, "intervalHours") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val targetValue = jsonString(value, "target") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val preset = jsonString(value, "selectedPresetId") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val favorites = jsonArray(value, "favoriteQuoteIds") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val json = strictObject(value)
+      if (!required.all(json::has)) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val enabled = json.requiredBoolean("enabled") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val randomize = json.requiredBoolean("randomizePreset") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val favoritesOnly = json.requiredBoolean("favoriteQuotesOnly") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val interval = json.requiredExactInt("intervalHours") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val targetValue = json.requiredString("target") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val preset = json.requiredString("selectedPresetId") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val favorites = json.requiredStringArray("favoriteQuoteIds") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
       if (favorites.distinct().size != favorites.size) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, jsonString(value, "lastQuoteId"), jsonString(value, "lastPresetId"))
+      val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, json.optionalString("lastQuoteId"), json.optionalString("lastPresetId"))
       when {
         snapshot.intervalHours !in setOf(6, 12, 24) -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
         catalog.preset(snapshot.selectedPresetId) == null -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
@@ -42,11 +46,23 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
 sealed class RotationSnapshotResult { abstract val isValid: Boolean; data class Valid(val snapshot: RotationSnapshot) : RotationSnapshotResult() { override val isValid = true }; data class Invalid(val code: String) : RotationSnapshotResult() { override val isValid = false } }
 data class RotationStatus(val enabled: Boolean, val state: RotationState, val statusUpdatedAt: Long? = null, val lastAppliedAt: Long? = null, val quoteId: String? = null, val presetId: String? = null, val errorCode: String? = null) {
   fun toJson() = """{"enabled":$enabled,"state":"${state.name.lowercase()}"${statusUpdatedAt?.let { ",\"statusUpdatedAt\":$it" } ?: ""}${lastAppliedAt?.let { ",\"lastAppliedAt\":$it" } ?: ""}${quoteId?.let { ",\"quoteId\":\"$it\"" } ?: ""}${presetId?.let { ",\"presetId\":\"$it\"" } ?: ""}${errorCode?.let { ",\"errorCode\":\"$it\"" } ?: ""}}"""
-  companion object { fun parse(value: String?): RotationStatus { if (value == null) return RotationStatus(false, RotationState.DISABLED); val enabled = jsonBoolean(value, "enabled") ?: return RotationStatus(false, RotationState.DISABLED); val state = jsonString(value, "state")?.let(RotationState::parse) ?: return RotationStatus(false, RotationState.DISABLED); return RotationStatus(enabled, state, jsonLong(value, "statusUpdatedAt"), jsonLong(value, "lastAppliedAt"), jsonString(value, "quoteId"), jsonString(value, "presetId"), jsonString(value, "errorCode")) } }
+  companion object {
+    private val errors = setOf("INVALID_CONFIGURATION", "EMPTY_FAVORITES", "LOCK_UNSUPPORTED", "FONT_MISSING", "ASSET_INVALID", "ASSET_IO", "SYSTEM_FAILED", "RENDER_FAILED", "APPLY_FAILED", "NO_ELIGIBLE_QUOTES")
+    fun parse(value: String?): RotationStatus { return try {
+      if (value == null) return RotationStatus(false, RotationState.DISABLED)
+      val json = strictObject(value)
+      val enabled = json.requiredBoolean("enabled") ?: return RotationStatus(false, RotationState.DISABLED)
+      val state = json.requiredString("state")?.let(RotationState::parse) ?: return RotationStatus(false, RotationState.DISABLED)
+      val error = json.optionalString("errorCode")?.takeIf { it in errors } ?: if (json.has("errorCode") && !json.isNull("errorCode")) return RotationStatus(false, RotationState.DISABLED) else null
+      RotationStatus(enabled, state, json.optionalLong("statusUpdatedAt"), json.optionalLong("lastAppliedAt"), json.optionalString("quoteId"), json.optionalString("presetId"), error)
+    } catch (_: Exception) { RotationStatus(false, RotationState.DISABLED) } }
+  }
 }
 
-private fun jsonString(json: String, key: String): String? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").find(json)?.groupValues?.get(1)
-private fun jsonInt(json: String, key: String): Int? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toIntOrNull()
-private fun jsonLong(json: String, key: String): Long? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()
-private fun jsonBoolean(json: String, key: String): Boolean? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*(true|false)").find(json)?.groupValues?.get(1)?.toBooleanStrictOrNull()
-private fun jsonArray(json: String, key: String): List<String>? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*\\[([^]]*)]").find(json)?.groupValues?.get(1)?.let { raw -> if (raw.isBlank()) emptyList() else raw.split(',').map { it.trim().removePrefix("\"").removeSuffix("\"") }.takeIf { values -> values.all(String::isNotBlank) } }
+private fun JSONObject.requiredString(key: String): String? = if (has(key) && !isNull(key) && get(key) is String) getString(key).takeIf(String::isNotBlank) else null
+private fun strictObject(value: String): JSONObject { val tokener = JSONTokener(value); val parsed = tokener.nextValue() as? JSONObject ?: throw IllegalArgumentException("object required"); if (tokener.nextClean().code != 0) throw IllegalArgumentException("trailing JSON"); return parsed }
+private fun JSONObject.optionalString(key: String): String? = if (!has(key) || isNull(key)) null else (get(key) as? String)?.takeIf(String::isNotBlank)
+private fun JSONObject.requiredBoolean(key: String): Boolean? = if (has(key) && get(key) is Boolean) getBoolean(key) else null
+private fun JSONObject.requiredExactInt(key: String): Int? { val value = if (has(key)) get(key) else return null; return (value as? Number)?.let { number -> val long = number.toLong(); if (number.toDouble() == long.toDouble() && long in Int.MIN_VALUE..Int.MAX_VALUE) long.toInt() else null } }
+private fun JSONObject.optionalLong(key: String): Long? { if (!has(key) || isNull(key)) return null; val value = get(key) as? Number ?: return null; val long = value.toLong(); return long.takeIf { value.toDouble() == it.toDouble() } }
+private fun JSONObject.requiredStringArray(key: String): List<String>? { val array = if (has(key) && get(key) is JSONArray) getJSONArray(key) else return null; return (0 until array.length()).map { index -> array.opt(index) as? String ?: return null }.takeIf { it.all(String::isNotBlank) } }

@@ -4,7 +4,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class AutomationPreferencesContractTest {
   private val catalog = RotationCatalog(
     listOf(RotationQuote("q1", "A valid quote with enough characters.", null), RotationQuote("q2", "Another valid quote with enough characters.", "M")),
@@ -23,6 +26,10 @@ class AutomationPreferencesContractTest {
     assertFalse(RotationSnapshot.parse("{}", catalog).isValid)
     assertFalse(RotationSnapshot.parse("not-json", catalog).isValid)
     assertFalse(RotationSnapshot.parse(valid.replace("\"target\":\"home\",", ""), catalog).isValid)
+    assertFalse(RotationSnapshot.parse("$valid trailing", catalog).isValid)
+    assertFalse(RotationSnapshot.parse(valid.replace("\"intervalHours\":6", "\"intervalHours\":6.9"), catalog).isValid)
+    assertFalse(RotationSnapshot.parse(valid.replace("\"enabled\":true", "\"enabled\":\"true\""), catalog).isValid)
+    assertFalse(RotationSnapshot.parse(valid.replace("6", "9223372036854775808"), catalog).isValid)
   }
 
   @Test fun snapshotRejectsInvalidIntervalTargetAndFavoritesOnlyEligibility() {
@@ -36,5 +43,8 @@ class AutomationPreferencesContractTest {
     assertEquals(10L, parsed.lastAppliedAt)
     assertEquals(20L, parsed.statusUpdatedAt)
     assertTrue(parsed.state == RotationState.SUCCEEDED)
+    assertEquals(RotationState.DISABLED, RotationStatus.parse("{\"enabled\":true,\"state\":\"unknown\"}").state)
+    assertEquals(RotationState.DISABLED, RotationStatus.parse("{\"enabled\":true,\"state\":\"failed\",\"errorCode\":\"arbitrary\"}").state)
+    assertEquals(RotationState.DISABLED, RotationStatus.parse("{\"enabled\":true,\"state\":\"failed\"} garbage").state)
   }
 }

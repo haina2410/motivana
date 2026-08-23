@@ -71,6 +71,9 @@ test.each([
   'FILE_NOT_FOUND',
   'DECODE_FAILED',
   'APPLY_FAILED',
+  'ASSET_INVALID',
+  'ASSET_IO',
+  'FONT_MISSING',
 ])('preserves the stable native %s error code', (code) => {
   expect(normalizeWallpaperServiceError({ code })).toMatchObject({ code });
 });

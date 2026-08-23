@@ -2,6 +2,7 @@ package org.haina2410.motivana.wallpaper
 
 import android.content.res.AssetManager
 import android.graphics.Typeface
+import java.io.FileNotFoundException
 import java.io.IOException
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,6 +28,10 @@ object RotationCatalogLoader {
         Typeface.createFromAsset(assets, "fonts/$font.ttf") ?: throw CatalogException("FONT_MISSING")
       } catch (e: CatalogException) {
         throw e
+      } catch (_: FileNotFoundException) {
+        throw CatalogException("FONT_MISSING")
+      } catch (_: IOException) {
+        throw TransientRotationException("ASSET_IO")
       } catch (_: Exception) {
         throw CatalogException("FONT_MISSING")
       }

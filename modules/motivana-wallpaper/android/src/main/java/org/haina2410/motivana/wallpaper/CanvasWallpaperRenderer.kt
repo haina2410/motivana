@@ -8,6 +8,7 @@ import android.text.TextPaint
 import kotlin.math.*
 
 data class RotationLayout(val quoteLeft: Float, val quoteTop: Float, val quoteRight: Float, val quoteBottom: Float, val fontSize: Float, val authorY: Float, val truncated: Boolean, val maxLines: Int? = null)
+data class RotationAccent(val centerX: Float, val centerY: Float, val radius: Float)
 class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val fonts: Map<String, Typeface>, private val assets: AssetManager? = null) {
   private data class MeasuredQuote(val geometry: RotationLayout, val staticLayout: StaticLayout)
 
@@ -34,10 +35,17 @@ class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val 
   }
   fun render(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): Bitmap {
     require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888); val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG); paint.shader = when (val bg = preset.background) { is RotationBackground.Solid -> null; is RotationBackground.Gradient -> gradient(bg, width, height) }; canvas.drawColor((preset.background as? RotationBackground.Solid)?.let { Color.parseColor(it.color) } ?: Color.TRANSPARENT); if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }
-    paint.shader = null; paint.color = Color.argb(52, Color.red(Color.parseColor(preset.authorColor)), Color.green(Color.parseColor(preset.authorColor)), Color.blue(Color.parseColor(preset.authorColor))); canvas.drawCircle(width * .9f, height * .12f, min(width, height) * .035f, paint)
-    val measured = measure(quote, preset, width, height); val layout = measured.geometry; paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize
+    val measured = measure(quote, preset, width, height); val layout = measured.geometry
+    val accent = accentGeometry(layout, preset); paint.shader = null; paint.color = Color.argb((255 * .35f).toInt(), Color.red(Color.parseColor(preset.authorColor)), Color.green(Color.parseColor(preset.authorColor)), Color.blue(Color.parseColor(preset.authorColor))); canvas.drawCircle(accent.centerX, accent.centerY, accent.radius, paint)
+    paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize
     canvas.save(); canvas.translate(layout.quoteLeft, layout.quoteTop); measured.staticLayout.draw(canvas); canvas.restore()
     quote.author?.let { paint.color = Color.parseColor(preset.authorColor); paint.textSize = round(width*.028).toFloat(); paint.textAlign = when(preset.align) { "center" -> Paint.Align.CENTER; "right" -> Paint.Align.RIGHT; else -> Paint.Align.LEFT }; val authorX = when(preset.align) { "center" -> width/2f; "right" -> layout.quoteRight; else -> layout.quoteLeft }; canvas.drawText("— $it", authorX, layout.authorY + paint.textSize, paint) }; return bitmap
+  }
+  /** Matches Task4 scene accent coordinates from the retained quote layout. */
+  internal fun accentGeometry(layout: RotationLayout, preset: RotationPreset): RotationAccent {
+    val markSize = layout.fontSize * 1.5f
+    val markX = if (preset.align == "right") layout.quoteRight - markSize else layout.quoteLeft
+    return RotationAccent(markX + markSize / 2f, layout.quoteTop - markSize / 3f, markSize / 10f)
   }
   private fun quoteLayout(text: String, preset: RotationPreset, width: Float, size: Float, maxLines: Int?): StaticLayout {
     val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = typeface(preset); textSize = size; color = Color.parseColor(preset.textColor) }

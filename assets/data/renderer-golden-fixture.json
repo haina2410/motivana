@@ -1,0 +1,16 @@
+{
+  "quote": { "id": "golden-short", "text": "Start before your mood negotiates the day away.", "author": "Motivana", "category": "motivation" },
+  "preset": "midnight-focus",
+  "dimensions": { "width": 1080, "height": 2400 },
+  "expected": {
+    "safeLeftRatio": 0.08,
+    "safeTopRatio": 0.1,
+    "safeBottomRatio": 0.9,
+    "alignment": "center",
+    "authorGapRatio": 0.022,
+    "accent": { "markSizeFontMultiplier": 1.5, "centerYMarkSizeDivisor": 3, "radiusMarkSizeDivisor": 10 },
+    "withAuthor": { "truncated": false },
+    "withoutAuthor": { "truncated": false },
+    "minEllipsis": { "textLength": 250, "truncated": true }
+  }
+}

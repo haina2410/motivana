@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import org.json.JSONObject
 
 private class AndroidRotationBitmap(val bitmap: Bitmap) : RotationBitmap { override fun recycle() = bitmap.recycle() }
 fun interface RotationWorkerExecution { fun run(): RotationWorkResult }
@@ -18,13 +19,17 @@ object WallpaperRotationWorkerFactory {
     ?: default(context)
   private fun default(context: Context): RotationWorkerExecution {
     val preferences = RotationPreferences(context)
+    val persistedEnabled = runCatching {
+      val json = JSONObject(preferences.rawSnapshot() ?: return@runCatching false)
+      json.has("enabled") && json.get("enabled") is Boolean && json.getBoolean("enabled")
+    }.getOrDefault(false)
     val catalog = try { RotationCatalogLoader.load(context.assets) } catch (e: CatalogException) {
       val code = if (e.code == "FONT_MISSING") "FONT_MISSING" else "ASSET_INVALID"
-      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = code))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
+      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(persistedEnabled, RotationState.FAILED, System.currentTimeMillis(), errorCode = code))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
     } catch (_: TransientRotationException) {
-      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_IO"))) RotationWorkResult.RETRY else RotationWorkResult.RETRY }
+      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(persistedEnabled, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_IO"))) RotationWorkResult.RETRY else RotationWorkResult.RETRY }
     } catch (_: Exception) {
-      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_INVALID"))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
+      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(persistedEnabled, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_INVALID"))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
     }
     val manager = WallpaperManager.getInstance(context)
     val policy = WallpaperPlatformPolicy.capabilities(Build.VERSION.SDK_INT, manager.isWallpaperSupported, if (Build.VERSION.SDK_INT >= 24) manager.isSetWallpaperAllowed else true)

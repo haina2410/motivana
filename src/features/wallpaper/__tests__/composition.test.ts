@@ -2,6 +2,13 @@ import { createComposition, type TextMeasurer } from '../composition';
 import type { Quote } from '../../quotes/types';
 import { getPresetById } from '../presetRepository';
 
+const goldenFixture = require('../../../../assets/data/renderer-golden-fixture.json') as {
+  quote: Quote;
+  preset: string;
+  dimensions: { width: number; height: number };
+  expected: { safeLeftRatio: number; safeTopRatio: number; safeBottomRatio: number; alignment: string };
+};
+
 const preset = getPresetById('midnight-focus')!;
 
 const measuredByCharacters: TextMeasurer = {
@@ -84,4 +91,13 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
 
   expect(first.cacheKey).toBe('midnight-focus-quote-80-1080x2400');
   expect(second.cacheKey).toBe(first.cacheKey);
+});
+
+test('loads the shared renderer golden fixture for Task4 safe geometry', () => {
+  const goldenPreset = getPresetById(goldenFixture.preset)!;
+  const composition = createComposition({ quote: goldenFixture.quote, preset: goldenPreset, ...goldenFixture.dimensions });
+  expect(goldenPreset.textAlign).toBe(goldenFixture.expected.alignment);
+  expect(composition.quoteBounds.x).toBeCloseTo(goldenFixture.dimensions.width * goldenFixture.expected.safeLeftRatio);
+  expect(composition.quoteBounds.y).toBeGreaterThanOrEqual(goldenFixture.dimensions.height * goldenFixture.expected.safeTopRatio);
+  expect(composition.quoteBounds.y + composition.quoteBounds.height).toBeLessThanOrEqual(goldenFixture.dimensions.height * goldenFixture.expected.safeBottomRatio);
 });

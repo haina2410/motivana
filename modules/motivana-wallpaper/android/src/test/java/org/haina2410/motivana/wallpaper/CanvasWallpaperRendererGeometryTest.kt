@@ -2,6 +2,7 @@ package org.haina2410.motivana.wallpaper
 
 import android.graphics.Typeface
 import java.io.File
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -66,5 +67,33 @@ class CanvasWallpaperRendererGeometryTest {
     val two = renderer.render(catalog.quotes.first(), gradients[1], 720, 1280)
     assertTrue(!one.isRecycled && !two.isRecycled)
     one.recycle(); two.recycle()
+  }
+
+  @Test fun taskFourAccentUsesRetainedQuoteBoundsForEveryAlignment() {
+    val renderer = CanvasWallpaperRenderer(RotationCatalog(listOf(quote), listOf(preset)), emptyMap())
+    val layout = RotationLayout(80f, 420f, 1000f, 600f, 48f, 630f, false)
+    listOf("left", "center", "right").forEach { align ->
+      val accent = renderer.accentGeometry(layout, preset.copy(align = align))
+      val markSize = layout.fontSize * 1.5f
+      val expectedX = if (align == "right") layout.quoteRight - markSize / 2f else layout.quoteLeft + markSize / 2f
+      assertEquals(expectedX, accent.centerX, .001f)
+      assertEquals(layout.quoteTop - markSize / 3f, accent.centerY, .001f)
+      assertEquals(markSize / 10f, accent.radius, .001f)
+    }
+  }
+
+  @Test fun sharedGoldenFixtureDrivesSafeBoundsAlignmentAndAccentParity() {
+    val fixture = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText())
+    val catalog = authoritativeCatalog(); val preset = catalog.preset(fixture.getString("preset"))!!
+    val quoteJson = fixture.getJSONObject("quote"); val quote = RotationQuote(quoteJson.getString("id"), quoteJson.getString("text"), quoteJson.getString("author"), quoteJson.getString("category"))
+    val dimensions = fixture.getJSONObject("dimensions"); val width = dimensions.getInt("width"); val height = dimensions.getInt("height")
+    val expected = fixture.getJSONObject("expected")
+    val layout = CanvasWallpaperRenderer(catalog, actualFonts(catalog)).layout(quote, preset, width, height)
+    assertEquals(preset.align, expected.getString("alignment"))
+    assertTrue(layout.quoteLeft >= width * expected.getDouble("safeLeftRatio"))
+    assertTrue(layout.quoteTop >= height * expected.getDouble("safeTopRatio"))
+    assertTrue(layout.quoteBottom <= height * expected.getDouble("safeBottomRatio"))
+    val accent = CanvasWallpaperRenderer(catalog, actualFonts(catalog)).accentGeometry(layout, preset)
+    assertEquals(layout.quoteTop - layout.fontSize * expected.getJSONObject("accent").getDouble("markSizeFontMultiplier").toFloat() / expected.getJSONObject("accent").getDouble("centerYMarkSizeDivisor").toFloat(), accent.centerY, .001f)
   }
 }
