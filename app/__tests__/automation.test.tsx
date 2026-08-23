@@ -1,0 +1,39 @@
+import { fireEvent, render, screen } from '@testing-library/react-native';
+
+import AutomationScreen from '../automation';
+import { createDefaultPersistedAppState } from '../../src/store/schema';
+import { useAppStore } from '../../src/store/useAppStore';
+
+beforeEach(() => {
+  useAppStore.setState(createDefaultPersistedAppState());
+});
+
+test('Automation validates favorites-only scheduling while clearly reporting unavailable native status', () => {
+  render(<AutomationScreen />);
+
+  expect(screen.getByText('Wallpaper service unavailable')).toBeOnTheScreen();
+  expect(screen.getByText('Capability: unavailable')).toBeOnTheScreen();
+  expect(screen.getByText('Status: unavailable')).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Save automation preferences' }),
+  );
+
+  expect(
+    screen.getByText('Add a favorite before using favorites-only rotation.'),
+  ).toBeOnTheScreen();
+  expect(useAppStore.getState().rotationEnabled).toBe(false);
+});
+
+test('Automation stores valid interval and target preferences without claiming a schedule', () => {
+  render(<AutomationScreen />);
+  fireEvent.press(screen.getByLabelText('Every 6 hours'));
+  fireEvent.press(screen.getByLabelText('Apply to both screens'));
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Save automation preferences' }),
+  );
+
+  expect(useAppStore.getState().rotationIntervalHours).toBe(6);
+  expect(useAppStore.getState().wallpaperTarget).toBe('both');
+  expect(useAppStore.getState().rotationEnabled).toBe(false);
+});

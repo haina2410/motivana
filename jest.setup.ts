@@ -9,3 +9,6 @@ jest.mock('react-native-mmkv', () => ({
   }),
 }));
 jest.mock('react-native-nitro-modules', () => ({ NitroModules: {} }));
+jest.mock('expo-router', () => ({
+  router: { back: jest.fn(), push: jest.fn() },
+}));
