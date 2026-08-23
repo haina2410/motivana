@@ -1,4 +1,10 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -21,6 +27,13 @@ const presetIds = [
   'ocean-success',
   'ember-action',
   'mono-clarity',
+];
+const presetFonts = [
+  { fontFamily: 'Inter', fontWeight: 'Regular' },
+  { fontFamily: 'Inter', fontWeight: 'SemiBold' },
+  { fontFamily: 'Lora', fontWeight: 'Regular' },
+  { fontFamily: 'Lora', fontWeight: 'SemiBold' },
+  { fontFamily: 'Oswald', fontWeight: 'Medium' },
 ];
 
 const validPreset = {
@@ -52,7 +65,7 @@ function validQuotes() {
   );
 }
 
-function runVerifier(files: Record<string, string>) {
+function runVerifier(files: Record<string, string | Buffer>) {
   const cwd = mkdtempSync(join(tmpdir(), 'motivana-verify-data-'));
 
   try {
@@ -68,21 +81,47 @@ function runVerifier(files: Record<string, string>) {
   }
 }
 
-function serializedCatalogFiles() {
+function serializedCatalogFiles(): Record<string, string | Buffer> {
   return {
     'assets/data/quotes.json': JSON.stringify(validQuotes()),
     'assets/data/presets.json': JSON.stringify(
       Array.from({ length: 8 }, (_, index) => ({
         ...validPreset,
         id: presetIds[index],
+        ...presetFonts[index % presetFonts.length],
         background: {
           kind: 'solid',
           color: `#1118${String(index).padStart(2, '0')}`,
         },
       })),
     ),
-    'assets/fonts/Inter-Regular.ttf': 'test font',
+    'assets/fonts/Inter-Regular.ttf': readFileSync(
+      resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf'),
+    ),
+    'assets/fonts/Inter-SemiBold.ttf': readFileSync(
+      resolve(process.cwd(), 'assets/fonts/Inter-SemiBold.ttf'),
+    ),
+    'assets/fonts/Lora-Regular.ttf': readFileSync(
+      resolve(process.cwd(), 'assets/fonts/Lora-Regular.ttf'),
+    ),
+    'assets/fonts/Lora-SemiBold.ttf': readFileSync(
+      resolve(process.cwd(), 'assets/fonts/Lora-SemiBold.ttf'),
+    ),
+    'assets/fonts/Oswald-Medium.ttf': readFileSync(
+      resolve(process.cwd(), 'assets/fonts/Oswald-Medium.ttf'),
+    ),
   };
+}
+
+function getTableOffset(font: Buffer, expectedTag: string): number {
+  const tableCount = font.readUInt16BE(4);
+  for (let index = 0; index < tableCount; index += 1) {
+    const entryOffset = 12 + index * 16;
+    if (font.toString('latin1', entryOffset, entryOffset + 4) === expectedTag) {
+      return font.readUInt32BE(entryOffset + 8);
+    }
+  }
+  throw new Error(`Expected ${expectedTag} table`);
 }
 
 test('accepts valid catalog JSON and every referenced font asset', () => {
@@ -90,6 +129,64 @@ test('accepts valid catalog JSON and every referenced font asset', () => {
 
   expect(result.status).toBe(0);
   expect(result.stderr).toBe('');
+});
+
+test('rejects non-font bytes with the exact referenced font path', () => {
+  const files = serializedCatalogFiles();
+  files['assets/fonts/Inter-Regular.ttf'] = 'test font';
+
+  const result = runVerifier(files);
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain(
+    'assets/fonts/Inter-Regular.ttf: invalid TrueType SFNT signature',
+  );
+});
+
+test('rejects a truncated SFNT table directory with the exact font path', () => {
+  const files = serializedCatalogFiles();
+  files['assets/fonts/Inter-Regular.ttf'] = readFileSync(
+    resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf'),
+  ).subarray(0, 20);
+
+  const result = runVerifier(files);
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain(
+    'assets/fonts/Inter-Regular.ttf: malformed SFNT table directory',
+  );
+});
+
+test('rejects an SFNT table whose data range lies outside the font file', () => {
+  const files = serializedCatalogFiles();
+  const corruptedFont = Buffer.from(
+    readFileSync(resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf')),
+  );
+  corruptedFont.writeUInt32BE(corruptedFont.length, 20);
+  files['assets/fonts/Inter-Regular.ttf'] = corruptedFont;
+
+  const result = runVerifier(files);
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain(
+    'assets/fonts/Inter-Regular.ttf: SFNT table data lies outside file bounds',
+  );
+});
+
+test('rejects a corrupted head table inside an otherwise in-bounds SFNT', () => {
+  const files = serializedCatalogFiles();
+  const corruptedFont = Buffer.from(
+    readFileSync(resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf')),
+  );
+  corruptedFont.writeUInt32BE(0, getTableOffset(corruptedFont, 'head') + 12);
+  files['assets/fonts/Inter-Regular.ttf'] = corruptedFont;
+
+  const result = runVerifier(files);
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain(
+    'assets/fonts/Inter-Regular.ttf: invalid TrueType head table',
+  );
 });
 
 test('rejects malformed JSON with its catalog path', () => {
@@ -121,7 +218,7 @@ test('rejects invalid preset ratios with a precise data path', () => {
 });
 
 test('rejects a missing font asset with its exact path', () => {
-  const files: Record<string, string> = serializedCatalogFiles();
+  const files: Record<string, string | Buffer> = serializedCatalogFiles();
   delete files['assets/fonts/Inter-Regular.ttf'];
 
   const result = runVerifier(files);

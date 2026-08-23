@@ -269,6 +269,74 @@ function validatePresets(presets) {
   return referencedFonts;
 }
 
+function validateTrueTypeFont(path, font) {
+  if (font.length < 4 || font.readUInt32BE(0) !== 0x00010000) {
+    fail(path, 'invalid TrueType SFNT signature');
+  }
+  if (font.length < 12) {
+    fail(path, 'malformed SFNT header');
+  }
+
+  const tableCount = font.readUInt16BE(4);
+  const directoryEnd = 12 + tableCount * 16;
+  const largestPowerOfTwo = 2 ** Math.floor(Math.log2(tableCount));
+  const searchRange = font.readUInt16BE(6);
+  const entrySelector = font.readUInt16BE(8);
+  const rangeShift = font.readUInt16BE(10);
+  if (
+    tableCount === 0 ||
+    tableCount > 256 ||
+    directoryEnd > font.length ||
+    searchRange !== largestPowerOfTwo * 16 ||
+    entrySelector !== Math.log2(largestPowerOfTwo) ||
+    rangeShift !== tableCount * 16 - searchRange
+  ) {
+    fail(path, 'malformed SFNT table directory');
+  }
+
+  const tableRecords = new Map();
+  for (let index = 0; index < tableCount; index += 1) {
+    const entryOffset = 12 + index * 16;
+    const tag = font.toString('latin1', entryOffset, entryOffset + 4);
+    const tableOffset = font.readUInt32BE(entryOffset + 8);
+    const tableLength = font.readUInt32BE(entryOffset + 12);
+    if (!/^[ -~]{4}$/.test(tag) || tableRecords.has(tag)) {
+      fail(path, 'malformed SFNT table directory');
+    }
+    if (
+      tableLength === 0 ||
+      tableOffset < directoryEnd ||
+      tableOffset > font.length ||
+      tableLength > font.length - tableOffset
+    ) {
+      fail(path, 'SFNT table data lies outside file bounds');
+    }
+    tableRecords.set(tag, { offset: tableOffset, length: tableLength });
+  }
+
+  for (const table of [
+    'OS/2',
+    'cmap',
+    'glyf',
+    'head',
+    'hhea',
+    'hmtx',
+    'loca',
+    'maxp',
+    'name',
+    'post',
+  ]) {
+    if (!tableRecords.has(table)) {
+      fail(path, `missing essential TrueType table ${table}`);
+    }
+  }
+
+  const head = tableRecords.get('head');
+  if (head.length < 16 || font.readUInt32BE(head.offset + 12) !== 0x5f0f3cf5) {
+    fail(path, 'invalid TrueType head table');
+  }
+}
+
 try {
   const quotes = parseJson('assets/data/quotes.json');
   const presets = parseJson('assets/data/presets.json');
@@ -276,9 +344,10 @@ try {
   const referencedFonts = validatePresets(presets);
   for (const fontPath of referencedFonts) {
     const absolutePath = resolve(fontPath);
-    if (!existsSync(absolutePath) || readFileSync(absolutePath).length === 0) {
-      fail(fontPath, 'missing or empty referenced font asset');
+    if (!existsSync(absolutePath)) {
+      fail(fontPath, 'missing referenced font asset');
     }
+    validateTrueTypeFont(fontPath, readFileSync(absolutePath));
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
