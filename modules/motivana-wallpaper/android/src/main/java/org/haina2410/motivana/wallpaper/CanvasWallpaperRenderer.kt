@@ -7,7 +7,7 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import kotlin.math.*
 
-data class RotationLayout(val quoteLeft: Float, val quoteTop: Float, val quoteRight: Float, val quoteBottom: Float, val fontSize: Float, val authorY: Float, val truncated: Boolean, val maxLines: Int? = null)
+data class RotationLayout(val quoteLeft: Float, val quoteTop: Float, val quoteRight: Float, val quoteBottom: Float, val fontSize: Float, val authorY: Float, val truncated: Boolean, val maxLines: Int? = null, val lineCount: Int = 0)
 data class RotationAccent(val centerX: Float, val centerY: Float, val radius: Float)
 class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val fonts: Map<String, Typeface>, private val assets: AssetManager? = null) {
   private data class MeasuredQuote(val geometry: RotationLayout, val staticLayout: StaticLayout)
@@ -31,7 +31,7 @@ class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val 
     if (truncated) quoteLayout = quoteLayout(quote.text, preset, right - left, size.toFloat(), maxLines)
     val quoteHeight = quoteLayout.height.toFloat()
     val desired = height * preset.quotePositionY.toFloat() - quoteHeight / 2f; val quoteTop = desired.coerceIn(topSafe, bottomSafe - quoteHeight - gap - authorHeight)
-    return MeasuredQuote(RotationLayout(left, quoteTop, right, quoteTop + quoteHeight, size.toFloat(), quoteTop + quoteHeight + gap, truncated, maxLines), quoteLayout)
+    return MeasuredQuote(RotationLayout(left, quoteTop, right, quoteTop + quoteHeight, size.toFloat(), quoteTop + quoteHeight + gap, truncated, maxLines, quoteLayout.lineCount), quoteLayout)
   }
   fun render(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): Bitmap {
     require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888); val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG); paint.shader = when (val bg = preset.background) { is RotationBackground.Solid -> null; is RotationBackground.Gradient -> gradient(bg, width, height) }; canvas.drawColor((preset.background as? RotationBackground.Solid)?.let { Color.parseColor(it.color) } ?: Color.TRANSPARENT); if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }

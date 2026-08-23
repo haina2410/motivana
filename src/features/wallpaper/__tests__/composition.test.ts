@@ -2,9 +2,28 @@ import { createComposition, type TextMeasurer } from '../composition';
 import type { Quote } from '../../quotes/types';
 import { getPresetById } from '../presetRepository';
 
-const goldenFixture = require('../../../../assets/data/renderer-golden-fixture.json') as {
-  cases: Array<{ quote: Quote; preset: string; dimensions: { width: number; height: number }; expected: { alignment: string; quoteBox: { x: [number, number]; y: [number, number]; width: [number, number]; height: [number, number] } } }>;
-};
+const goldenFixture =
+  require('../../../../assets/data/renderer-golden-fixture.json') as {
+    foregroundTolerance: number;
+    cases: {
+      quote: Quote;
+      preset: string;
+      dimensions: { width: number; height: number };
+      expected: {
+        foreground: {
+          quoteBox: { x: number; y: number; width: number; height: number };
+          fontSize: number;
+          lineCount: number;
+          maxLines: number;
+          alignment: string;
+          authorY: number | null;
+          truncated: boolean;
+          ellipsis: boolean;
+          accent: { x: number; y: number; radius: number };
+        };
+      };
+    }[];
+  };
 
 const preset = getPresetById('midnight-focus')!;
 
@@ -90,16 +109,54 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
   expect(second.cacheKey).toBe(first.cacheKey);
 });
 
-test('loads the shared renderer golden fixture for Task4 safe geometry', () => {
+test('loads every shared renderer golden fixture with frozen Task4 geometry', () => {
   for (const golden of goldenFixture.cases) {
     const goldenPreset = getPresetById(golden.preset)!;
-    const composition = createComposition({ quote: golden.quote, preset: goldenPreset, ...golden.dimensions });
-    expect(goldenPreset.textAlign).toBe(golden.expected.alignment);
-    expect(composition.quoteBounds.x).toBeGreaterThanOrEqual(golden.expected.quoteBox.x[0]);
-    expect(composition.quoteBounds.x).toBeLessThanOrEqual(golden.expected.quoteBox.x[1]);
-    expect(composition.quoteBounds.y).toBeGreaterThanOrEqual(golden.expected.quoteBox.y[0]);
-    expect(composition.quoteBounds.y).toBeLessThanOrEqual(golden.expected.quoteBox.y[1]);
-    expect(composition.quoteBounds.width).toBeGreaterThanOrEqual(golden.expected.quoteBox.width[0]);
-    expect(composition.quoteBounds.width).toBeLessThanOrEqual(golden.expected.quoteBox.width[1]);
+    const composition = createComposition({
+      quote: golden.quote,
+      preset: goldenPreset,
+      ...golden.dimensions,
+    });
+    const expected = golden.expected.foreground;
+    const tolerance = goldenFixture.foregroundTolerance;
+    const markSize = composition.quoteFontSize * 1.5;
+    const markX =
+      goldenPreset.textAlign === 'right'
+        ? composition.quoteBounds.x + composition.quoteBounds.width - markSize
+        : composition.quoteBounds.x;
+    expect(
+      Math.abs(composition.quoteBounds.x - expected.quoteBox.x),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(composition.quoteBounds.y - expected.quoteBox.y),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(composition.quoteBounds.width - expected.quoteBox.width),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(composition.quoteBounds.height - expected.quoteBox.height),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(composition.quoteFontSize).toBe(expected.fontSize);
+    expect(composition.maxQuoteLines).toBe(expected.maxLines);
+    expect(composition.maxQuoteLines).toBe(expected.lineCount);
+    expect(goldenPreset.textAlign).toBe(expected.alignment);
+    expect(composition.truncated).toBe(expected.truncated);
+    expect(composition.truncated).toBe(expected.ellipsis);
+    if (expected.authorY === null) {
+      expect(golden.quote.author).toBeNull();
+    } else {
+      expect(
+        Math.abs(composition.authorY - expected.authorY),
+      ).toBeLessThanOrEqual(tolerance);
+    }
+    expect(
+      Math.abs(markX + markSize / 2 - expected.accent.x),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(composition.quoteBounds.y - markSize / 3 - expected.accent.y),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(markSize / 10 - expected.accent.radius),
+    ).toBeLessThanOrEqual(tolerance);
   }
 });

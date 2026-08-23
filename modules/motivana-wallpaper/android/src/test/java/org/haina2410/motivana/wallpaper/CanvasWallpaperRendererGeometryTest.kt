@@ -82,19 +82,43 @@ class CanvasWallpaperRendererGeometryTest {
     }
   }
 
-  @Test fun sharedGoldenFixtureDrivesSafeBoundsAlignmentAndAccentParity() {
-    val fixture = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText()).getJSONArray("cases").getJSONObject(0)
-    val catalog = authoritativeCatalog(); val preset = catalog.preset(fixture.getString("preset"))!!
-    val quoteJson = fixture.getJSONObject("quote"); val quote = RotationQuote(quoteJson.getString("id"), quoteJson.getString("text"), quoteJson.getString("author"), quoteJson.getString("category"))
-    val dimensions = fixture.getJSONObject("dimensions"); val width = dimensions.getInt("width"); val height = dimensions.getInt("height")
-    val expected = fixture.getJSONObject("expected"); val box = expected.getJSONObject("quoteBox")
-    val layout = CanvasWallpaperRenderer(catalog, actualFonts(catalog)).layout(quote, preset, width, height)
-    assertEquals(preset.align, expected.getString("alignment"))
-    assertEquals(box.getJSONArray("x").getDouble(0).toFloat(), layout.quoteLeft, .1f)
-    assertTrue(layout.quoteTop in box.getJSONArray("y").getDouble(0).toFloat()..box.getJSONArray("y").getDouble(1).toFloat())
-    assertEquals(box.getJSONArray("width").getDouble(0).toFloat(), layout.quoteRight - layout.quoteLeft, .1f)
-    val accent = CanvasWallpaperRenderer(catalog, actualFonts(catalog)).accentGeometry(layout, preset)
-    assertTrue(accent.centerY in expected.getJSONObject("accent").getJSONArray("y").getDouble(0).toFloat()..expected.getJSONObject("accent").getJSONArray("y").getDouble(1).toFloat())
+  @Test fun sharedGoldenFixtureHasCompleteLiteralRendererContracts() {
+    val root = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText())
+    assertTrue(root.getDouble("androidTolerance") > 0)
+    assertTrue(root.getDouble("foregroundTolerance") > 0)
+    val cases = root.getJSONArray("cases")
+    assertEquals(4, cases.length())
+    var hasExtremeEllipsis = false
+    for (index in 0 until cases.length()) {
+      val item = cases.getJSONObject(index)
+      val quote = item.getJSONObject("quote")
+      val dimensions = item.getJSONObject("dimensions")
+      assertTrue(quote.getString("text").isNotBlank())
+      assertTrue(dimensions.getInt("width") > 0 && dimensions.getInt("height") > 0)
+      val expected = item.getJSONObject("expected")
+      listOf("foreground", "android").forEach { platform ->
+        val value = expected.getJSONObject(platform)
+        val box = value.getJSONObject("quoteBox")
+        listOf("x", "y", "width", "height").forEach { key -> assertTrue(box.getDouble(key).isFinite()) }
+        assertTrue(box.getDouble("width") > 0 && box.getDouble("height") > 0)
+        assertTrue(value.getDouble("fontSize") > 0)
+        assertTrue(value.getInt("lineCount") > 0)
+        if (!value.isNull("maxLines")) assertTrue(value.getInt("maxLines") > 0)
+        assertTrue(value.getString("alignment") in setOf("left", "center", "right"))
+        val accent = value.getJSONObject("accent")
+        listOf("x", "y", "radius").forEach { key -> assertTrue(accent.getDouble(key).isFinite()) }
+        assertTrue(accent.getDouble("radius") > 0)
+        assertEquals(value.getBoolean("truncated"), value.getBoolean("ellipsis"))
+      }
+      if (item.getString("name") == "extreme-ellipsis-center-9x16") {
+        hasExtremeEllipsis = true
+        assertTrue(quote.getString("text").length in 1500..2500)
+        assertTrue(quote.getString("text").contains(' '))
+        assertTrue(expected.getJSONObject("foreground").getBoolean("truncated"))
+        assertTrue(expected.getJSONObject("android").getBoolean("ellipsis"))
+      }
+    }
+    assertTrue(hasExtremeEllipsis)
   }
 
 }

@@ -1,8 +1,156 @@
 {
-  "tolerance": 1.0,
+  "androidTolerance": 1.0,
+  "foregroundTolerance": 0.01,
   "cases": [
-    { "name": "short-author-center-9x20", "quote": { "id": "golden-short", "text": "Start before your mood negotiates the day away.", "author": "Motivana", "category": "motivation" }, "preset": "midnight-focus", "dimensions": { "width": 1080, "height": 2400 }, "expected": { "alignment": "center", "quoteBox": { "x": [86.4, 86.4], "y": [950, 1100], "width": [907.2, 907.2], "height": [40, 170] }, "fontSize": [69, 69], "lineCount": [1, 2], "maxLines": null, "authorY": [1050, 1200], "truncated": false, "accent": { "x": [120, 140], "y": [970, 1020], "radius": [10, 11] } } },
-    { "name": "long-no-author-left-9x16", "quote": { "id": "golden-long", "text": "discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline", "author": null, "category": "discipline" }, "preset": "sunrise-drive", "dimensions": { "width": 1080, "height": 1920 }, "expected": { "alignment": "left", "quoteBox": { "x": [86.4, 86.4], "y": [190, 850], "width": [907.2, 907.2], "height": [40, 700] }, "fontSize": [38, 67], "lineCount": [1, 12], "maxLines": null, "authorY": null, "truncated": false, "accent": { "x": [110, 140], "y": [620, 820], "radius": [5, 11] } } },
-    { "name": "250-char-right-9x16", "quote": { "id": "golden-250", "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience", "author": "Motivana", "category": "growth" }, "preset": "ember-action", "dimensions": { "width": 1080, "height": 1920 }, "expected": { "alignment": "right", "quoteBox": { "x": [86.4, 86.4], "y": [190, 850], "width": [907.2, 907.2], "height": [40, 1200] }, "fontSize": [41, 71], "lineCount": [1, 20], "maxLines": null, "authorY": [250, 1400], "truncated": false, "accent": { "x": [930, 970], "y": [150, 820], "radius": [6, 12] } } }
+    {
+      "name": "short-author-center-9x20",
+      "quote": {
+        "id": "golden-short",
+        "text": "Start before your mood negotiates the day away.",
+        "author": "Motivana",
+        "category": "motivation"
+      },
+      "preset": "midnight-focus",
+      "dimensions": { "width": 1080, "height": 2400 },
+      "expected": {
+        "foreground": {
+          "quoteBox": {
+            "x": 86.4,
+            "y": 950.58,
+            "width": 907.2,
+            "height": 162.84
+          },
+          "fontSize": 69,
+          "lineCount": 2,
+          "maxLines": 2,
+          "alignment": "center",
+          "authorY": 1166.22,
+          "truncated": false,
+          "ellipsis": false,
+          "accent": { "x": 138.15, "y": 916.08, "radius": 10.35 }
+        },
+        "android": {
+          "quoteBox": { "x": 86.4, "y": 940.5, "width": 907.2, "height": 183 },
+          "fontSize": 69,
+          "lineCount": 2,
+          "maxLines": null,
+          "alignment": "center",
+          "authorY": 1176.3,
+          "truncated": false,
+          "ellipsis": false,
+          "accent": { "x": 138.15, "y": 906, "radius": 10.35 }
+        }
+      }
+    },
+    {
+      "name": "long-no-author-left-9x16",
+      "quote": {
+        "id": "golden-long",
+        "text": "discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline",
+        "author": null,
+        "category": "discipline"
+      },
+      "preset": "sunrise-drive",
+      "dimensions": { "width": 1080, "height": 1920 },
+      "expected": {
+        "foreground": {
+          "quoteBox": { "x": 86.4, "y": 192, "width": 907.2, "height": 1534 },
+          "fontSize": 50,
+          "lineCount": 26,
+          "maxLines": 26,
+          "alignment": "left",
+          "authorY": null,
+          "truncated": false,
+          "ellipsis": false,
+          "accent": { "x": 123.9, "y": 167, "radius": 7.5 }
+        },
+        "android": {
+          "quoteBox": { "x": 86.4, "y": 192, "width": 907.2, "height": 1330 },
+          "fontSize": 47,
+          "lineCount": 20,
+          "maxLines": null,
+          "alignment": "left",
+          "authorY": null,
+          "truncated": false,
+          "ellipsis": false,
+          "accent": { "x": 121.65, "y": 168.5, "radius": 7.05 }
+        }
+      }
+    },
+    {
+      "name": "250-char-right-9x16",
+      "quote": {
+        "id": "golden-250",
+        "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience",
+        "author": "Motivana",
+        "category": "growth"
+      },
+      "preset": "ember-action",
+      "dimensions": { "width": 1080, "height": 1920 },
+      "expected": {
+        "foreground": {
+          "quoteBox": {
+            "x": 86.4,
+            "y": 293.04,
+            "width": 907.2,
+            "height": 988.32
+          },
+          "fontSize": 71,
+          "lineCount": 12,
+          "maxLines": 12,
+          "alignment": "right",
+          "authorY": 1323.6,
+          "truncated": false,
+          "ellipsis": false,
+          "accent": { "x": 940.35, "y": 257.54, "radius": 10.65 }
+        },
+        "android": {
+          "quoteBox": { "x": 86.4, "y": 242.2, "width": 907.2, "height": 1090 },
+          "fontSize": 71,
+          "lineCount": 9,
+          "maxLines": null,
+          "alignment": "right",
+          "authorY": 1374.44,
+          "truncated": false,
+          "ellipsis": false,
+          "accent": { "x": 940.35, "y": 206.7, "radius": 10.65 }
+        }
+      }
+    },
+    {
+      "name": "extreme-ellipsis-center-9x16",
+      "quote": {
+        "id": "golden-extreme",
+        "text": "A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin.",
+        "author": "Motivana",
+        "category": "focus"
+      },
+      "preset": "forest-discipline",
+      "dimensions": { "width": 720, "height": 1280 },
+      "expected": {
+        "foreground": {
+          "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 971.84 },
+          "fontSize": 24,
+          "lineCount": 32,
+          "maxLines": 32,
+          "alignment": "center",
+          "authorY": 1128,
+          "truncated": true,
+          "ellipsis": true,
+          "accent": { "x": 75.6, "y": 116, "radius": 3.6 }
+        },
+        "android": {
+          "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 943 },
+          "fontSize": 24,
+          "lineCount": 25,
+          "maxLines": 25,
+          "alignment": "center",
+          "authorY": 1099.16,
+          "truncated": true,
+          "ellipsis": true,
+          "accent": { "x": 75.6, "y": 116, "radius": 3.6 }
+        }
+      }
+    }
   ]
 }

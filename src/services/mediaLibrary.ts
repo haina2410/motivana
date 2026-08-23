@@ -39,9 +39,12 @@ const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
   EMPTY_FAVORITES: 'Add a favorite before using favorites-only rotation.',
   CONFIGURE_FAILED: 'Could not save wallpaper rotation preferences.',
   ASSET_FAILED: 'Wallpaper rotation assets are unavailable.',
-  ASSET_INVALID: 'Wallpaper rotation assets are invalid. Update or reinstall the app.',
-  ASSET_IO: 'Wallpaper rotation assets are temporarily unavailable. It will retry.',
-  FONT_MISSING: 'A required wallpaper font is unavailable. Update or reinstall the app.',
+  ASSET_INVALID:
+    'Wallpaper rotation assets are invalid. Update or reinstall the app.',
+  ASSET_IO:
+    'Wallpaper rotation assets are temporarily unavailable. It will retry.',
+  FONT_MISSING:
+    'A required wallpaper font is unavailable. Update or reinstall the app.',
   RENDER_FAILED: 'Could not render the scheduled wallpaper.',
   SCHEDULER_FAILED: 'Could not confirm wallpaper rotation scheduling.',
   SYSTEM_FAILED:
