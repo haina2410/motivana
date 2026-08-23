@@ -174,7 +174,9 @@ export default function AutomationScreen() {
             {availability?.status.label ?? 'Status: checking device support'}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
-            Approximate schedule: every {availability?.status.intervalHours ?? interval} hours on {availability?.status.target ?? target}.
+            Approximate schedule: every{' '}
+            {availability?.status.intervalHours ?? interval} hours on{' '}
+            {availability?.status.target ?? target}.
           </Text>
           {availability?.status.lastAppliedAt ? (
             <Text allowFontScaling style={styles.statusText}>
