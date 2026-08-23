@@ -1,0 +1,153 @@
+import {
+  Skia,
+  TextAlign,
+  TileMode,
+  type SkCanvas,
+  type SkParagraph,
+  type SkParagraphBuilder,
+  type SkTypefaceFontProvider,
+} from '@shopify/react-native-skia';
+
+import type { WallpaperComposition } from './composition';
+
+function paragraphAlignment(
+  alignment: WallpaperComposition['preset']['textAlign'],
+): TextAlign {
+  'worklet';
+  if (alignment === 'center') return TextAlign.Center;
+  if (alignment === 'right') return TextAlign.Right;
+  return TextAlign.Left;
+}
+
+function createParagraph(
+  text: string,
+  composition: WallpaperComposition,
+  fontSize: number,
+  color: string,
+  maxLines: number | undefined,
+  ellipsis: string | undefined,
+  fontProvider?: SkTypefaceFontProvider,
+): { builder: SkParagraphBuilder; paragraph: SkParagraph } {
+  'worklet';
+  const builder = Skia.ParagraphBuilder.Make(
+    {
+      textAlign: paragraphAlignment(composition.preset.textAlign),
+      heightMultiplier: composition.preset.lineHeight,
+      maxLines,
+      ...(ellipsis === undefined ? {} : { ellipsis }),
+      textStyle: {
+        color: Skia.Color(color),
+        fontFamilies: [composition.preset.fontFamily],
+        fontSize,
+      },
+    },
+    fontProvider,
+  );
+  builder.addText(text);
+  const paragraph = builder.build();
+  paragraph.layout(composition.quoteBounds.width);
+  return { builder, paragraph };
+}
+
+export function drawWallpaperScene(
+  target: unknown,
+  composition: WallpaperComposition,
+  fontProvider?: SkTypefaceFontProvider,
+): void {
+  'worklet';
+  const canvas = target as SkCanvas;
+  const backgroundPaint = Skia.Paint();
+  const markPaint = Skia.Paint();
+  let shader: ReturnType<typeof Skia.Shader.MakeLinearGradient> | undefined;
+  let quote: ReturnType<typeof createParagraph> | undefined;
+  let author: ReturnType<typeof createParagraph> | undefined;
+
+  try {
+    if (composition.preset.background.kind === 'solid') {
+      backgroundPaint.setColor(Skia.Color(composition.preset.background.color));
+    } else {
+      shader = Skia.Shader.MakeLinearGradient(
+        Skia.Point(0, 0),
+        Skia.Point(composition.width, composition.height),
+        [
+          Skia.Color(composition.preset.background.startColor),
+          Skia.Color(composition.preset.background.endColor),
+        ],
+        null,
+        TileMode.Clamp,
+      );
+      backgroundPaint.setShader(shader);
+    }
+    canvas.drawRect(
+      Skia.XYWHRect(0, 0, composition.width, composition.height),
+      backgroundPaint,
+    );
+
+    if (composition.preset.overlay) {
+      const overlayPaint = Skia.Paint();
+      try {
+        overlayPaint.setColor(Skia.Color(composition.preset.overlay));
+        canvas.drawRect(
+          Skia.XYWHRect(0, 0, composition.width, composition.height),
+          overlayPaint,
+        );
+      } finally {
+        overlayPaint.dispose();
+      }
+    }
+
+    markPaint.setColor(Skia.Color(composition.preset.authorColor));
+    markPaint.setAlphaf(0.35);
+    const markSize = composition.quoteFontSize * 1.5;
+    const markX =
+      composition.preset.textAlign === 'right'
+        ? composition.quoteBounds.x + composition.quoteBounds.width - markSize
+        : composition.quoteBounds.x;
+    canvas.drawCircle(
+      markX + markSize / 2,
+      composition.quoteBounds.y - markSize / 3,
+      markSize / 10,
+      markPaint,
+    );
+
+    quote = createParagraph(
+      composition.quote.text,
+      composition,
+      composition.quoteFontSize,
+      composition.preset.textColor,
+      composition.maxQuoteLines,
+      composition.truncated ? '…' : undefined,
+      fontProvider,
+    );
+    quote.paragraph.paint(
+      canvas,
+      composition.quoteBounds.x,
+      composition.quoteBounds.y,
+    );
+
+    if (composition.quote.author) {
+      author = createParagraph(
+        `— ${composition.quote.author}`,
+        composition,
+        composition.authorFontSize,
+        composition.preset.authorColor,
+        1,
+        undefined,
+        fontProvider,
+      );
+      author.paragraph.paint(
+        canvas,
+        composition.quoteBounds.x,
+        composition.authorY,
+      );
+    }
+  } finally {
+    author?.paragraph.dispose?.();
+    author?.builder.dispose?.();
+    quote?.paragraph.dispose?.();
+    quote?.builder.dispose?.();
+    shader?.dispose?.();
+    markPaint.dispose?.();
+    backgroundPaint.dispose?.();
+  }
+}
