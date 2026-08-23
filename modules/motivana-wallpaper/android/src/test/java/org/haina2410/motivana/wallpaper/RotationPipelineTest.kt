@@ -19,6 +19,11 @@ class RotationPipelineTest {
     val result = RotationPipeline(catalog, store, RotationSelector(Random(1)), throwRenderer(), throwApplier(), { 1L }).run()
     assertEquals(RotationWorkResult.FAILURE, result)
   }
+  @Test fun statusCommitFailureIsRetriedInsteadOfSilentlyClaimingPermanentResult() {
+    val store = object : RotationSnapshotStore { override fun read(c: RotationCatalog) = RotationSnapshotResult.Invalid("INVALID_CONFIGURATION"); override fun saveSnapshot(s: RotationSnapshot) = true; override fun saveStatus(s: RotationStatus) = false }
+    val result = RotationPipeline(catalog, store, RotationSelector(Random(1)), throwRenderer(), throwApplier(), { 1L }).run()
+    assertEquals(RotationWorkResult.RETRY, result)
+  }
   private fun throwRenderer() = object : RotationRenderer { override fun render(q: RotationQuote, p: RotationPreset): RotationBitmap = throw AssertionError("not reached") }
   private fun throwApplier() = object : RotationApplier { override fun apply(bitmap: RotationBitmap, target: WallpaperTarget) = Unit }
 }

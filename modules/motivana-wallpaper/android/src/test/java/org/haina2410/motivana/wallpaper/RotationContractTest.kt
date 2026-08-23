@@ -41,9 +41,9 @@ class RotationContractTest {
   @Test fun schedulerUsesExactUniqueNamesUpdateAndCancellation() {
     val calls = mutableListOf<String>()
     val scheduler = RotationScheduler(object : RotationWorkScheduler {
-      override fun updatePeriodic(name: String, intervalHours: Long) { calls += "$name:$intervalHours" }
-      override fun cancel(name: String) { calls += "cancel:$name" }
-      override fun enqueueDebug(name: String) { calls += "debug:$name" }
+      override fun updatePeriodic(name: String, intervalHours: Long): Boolean { calls += "$name:$intervalHours"; return true }
+      override fun cancel(name: String): Boolean { calls += "cancel:$name"; return true }
+      override fun enqueueDebug(name: String): Boolean { calls += "debug:$name"; return true }
     })
     scheduler.configure(true, 12)
     scheduler.configure(false, 12)
@@ -52,9 +52,9 @@ class RotationContractTest {
 
   @Test fun debugWorkIsRejectedOutsideDebugBuild() {
     val scheduler = RotationScheduler(object : RotationWorkScheduler {
-      override fun updatePeriodic(name: String, intervalHours: Long) = Unit
-      override fun cancel(name: String) = Unit
-      override fun enqueueDebug(name: String) = Unit
+      override fun updatePeriodic(name: String, intervalHours: Long) = true
+      override fun cancel(name: String) = true
+      override fun enqueueDebug(name: String) = true
     })
     assertEquals("DEBUG_ONLY", scheduler.runNow(false))
   }

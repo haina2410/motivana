@@ -12,6 +12,8 @@ export interface RotationStatus {
   lastQuoteId?: string;
   lastPresetId?: string;
   errorCode?: string;
+  intervalHours?: 6 | 12 | 24;
+  target?: WallpaperTarget;
 }
 
 export interface ConfigureRotationOptions {

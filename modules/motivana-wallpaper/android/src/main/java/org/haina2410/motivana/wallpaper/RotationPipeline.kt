@@ -5,6 +5,7 @@ interface RotationBitmap { fun recycle() }
 interface RotationRenderer { fun render(quote: RotationQuote, preset: RotationPreset): RotationBitmap }
 interface RotationApplier { fun apply(bitmap: RotationBitmap, target: WallpaperTarget) }
 class TransientRotationException(code: String) : RuntimeException(code)
+class PermanentRotationException(val code: String) : RuntimeException(code)
 
 class RotationPipeline(
   private val catalog: RotationCatalog,
@@ -27,11 +28,12 @@ class RotationPipeline(
       applier.apply(bitmap, snapshot.target)
       val now = clock()
       if (!store.saveSnapshot(snapshot.copy(lastQuoteId = selection.quote.id, lastPresetId = selection.preset.id)) || !store.saveStatus(RotationStatus(true, RotationState.SUCCEEDED, now, now, selection.quote.id, selection.preset.id))) RotationWorkResult.RETRY else RotationWorkResult.SUCCESS
-    } catch (_: TransientRotationException) { record(true, RotationState.FAILED, "SYSTEM_FAILED", RotationWorkResult.RETRY) }
+    } catch (e: PermanentRotationException) { record(true, RotationState.FAILED, e.code, RotationWorkResult.FAILURE) }
+      catch (_: TransientRotationException) { record(true, RotationState.FAILED, "SYSTEM_FAILED", RotationWorkResult.RETRY) }
       catch (_: OutOfMemoryError) { record(true, RotationState.FAILED, "RENDER_FAILED", RotationWorkResult.RETRY) }
       catch (_: Exception) { record(true, RotationState.FAILED, "APPLY_FAILED", RotationWorkResult.RETRY) }
       finally { bitmap?.recycle() }
   }
-  private fun record(enabled: Boolean, state: RotationState, code: String?, result: RotationWorkResult): RotationWorkResult { store.saveStatus(RotationStatus(enabled, state, clock(), errorCode = code)); return result }
+  private fun record(enabled: Boolean, state: RotationState, code: String?, result: RotationWorkResult): RotationWorkResult = if (store.saveStatus(RotationStatus(enabled, state, clock(), errorCode = code))) result else RotationWorkResult.RETRY
 }
 enum class RotationWorkResult { SUCCESS, RETRY, FAILURE }

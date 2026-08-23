@@ -16,7 +16,9 @@ export type WallpaperServiceErrorCode =
   | 'EMPTY_FAVORITES'
   | 'CONFIGURE_FAILED'
   | 'ASSET_FAILED'
-  | 'RENDER_FAILED';
+  | 'RENDER_FAILED'
+  | 'SCHEDULER_FAILED'
+  | 'SYSTEM_FAILED';
 
 const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
   PERMISSION_DENIED: 'Photo permission is needed to save this wallpaper.',
@@ -35,6 +37,9 @@ const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
   CONFIGURE_FAILED: 'Could not save wallpaper rotation preferences.',
   ASSET_FAILED: 'Wallpaper rotation assets are unavailable.',
   RENDER_FAILED: 'Could not render the scheduled wallpaper.',
+  SCHEDULER_FAILED: 'Could not confirm wallpaper rotation scheduling.',
+  SYSTEM_FAILED:
+    'Android could not apply the scheduled wallpaper. It will retry.',
 };
 
 export class WallpaperServiceError extends Error {

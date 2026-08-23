@@ -1,7 +1,7 @@
 package org.haina2410.motivana.wallpaper
 
 
-data class RotationQuote(val id: String, val text: String, val author: String?)
+data class RotationQuote(val id: String, val text: String, val author: String?, val category: String = "")
 sealed class RotationBackground { data class Solid(val color: String) : RotationBackground(); data class Gradient(val start: String, val end: String, val angle: Double) : RotationBackground() }
 data class RotationPreset(val id: String, val family: String, val weight: String, val align: String, val quotePositionY: Double, val preferredRatio: Double, val minimumRatio: Double, val lineHeight: Double, val textColor: String, val authorColor: String, val background: RotationBackground, val overlay: String? = null)
 data class RotationCatalog(val quotes: List<RotationQuote>, val presets: List<RotationPreset>) {
@@ -42,10 +42,11 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
 sealed class RotationSnapshotResult { abstract val isValid: Boolean; data class Valid(val snapshot: RotationSnapshot) : RotationSnapshotResult() { override val isValid = true }; data class Invalid(val code: String) : RotationSnapshotResult() { override val isValid = false } }
 data class RotationStatus(val enabled: Boolean, val state: RotationState, val statusUpdatedAt: Long? = null, val lastAppliedAt: Long? = null, val quoteId: String? = null, val presetId: String? = null, val errorCode: String? = null) {
   fun toJson() = """{"enabled":$enabled,"state":"${state.name.lowercase()}"${statusUpdatedAt?.let { ",\"statusUpdatedAt\":$it" } ?: ""}${lastAppliedAt?.let { ",\"lastAppliedAt\":$it" } ?: ""}${quoteId?.let { ",\"quoteId\":\"$it\"" } ?: ""}${presetId?.let { ",\"presetId\":\"$it\"" } ?: ""}${errorCode?.let { ",\"errorCode\":\"$it\"" } ?: ""}}"""
-  companion object { fun parse(value: String?): RotationStatus { if (value == null) return RotationStatus(false, RotationState.DISABLED); val enabled = jsonBoolean(value, "enabled") ?: return RotationStatus(false, RotationState.DISABLED); val state = jsonString(value, "state")?.let(RotationState::parse) ?: return RotationStatus(false, RotationState.DISABLED); return RotationStatus(enabled, state, jsonInt(value, "statusUpdatedAt")?.toLong(), jsonInt(value, "lastAppliedAt")?.toLong(), jsonString(value, "quoteId"), jsonString(value, "presetId"), jsonString(value, "errorCode")) } }
+  companion object { fun parse(value: String?): RotationStatus { if (value == null) return RotationStatus(false, RotationState.DISABLED); val enabled = jsonBoolean(value, "enabled") ?: return RotationStatus(false, RotationState.DISABLED); val state = jsonString(value, "state")?.let(RotationState::parse) ?: return RotationStatus(false, RotationState.DISABLED); return RotationStatus(enabled, state, jsonLong(value, "statusUpdatedAt"), jsonLong(value, "lastAppliedAt"), jsonString(value, "quoteId"), jsonString(value, "presetId"), jsonString(value, "errorCode")) } }
 }
 
 private fun jsonString(json: String, key: String): String? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").find(json)?.groupValues?.get(1)
 private fun jsonInt(json: String, key: String): Int? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toIntOrNull()
+private fun jsonLong(json: String, key: String): Long? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()
 private fun jsonBoolean(json: String, key: String): Boolean? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*(true|false)").find(json)?.groupValues?.get(1)?.toBooleanStrictOrNull()
 private fun jsonArray(json: String, key: String): List<String>? = Regex("\\\"${Regex.escape(key)}\\\"\\s*:\\s*\\[([^]]*)]").find(json)?.groupValues?.get(1)?.let { raw -> if (raw.isBlank()) emptyList() else raw.split(',').map { it.trim().removePrefix("\"").removeSuffix("\"") }.takeIf { values -> values.all(String::isNotBlank) } }

@@ -173,6 +173,9 @@ export default function AutomationScreen() {
           <Text allowFontScaling style={styles.statusText}>
             {availability?.status.label ?? 'Status: checking device support'}
           </Text>
+          <Text allowFontScaling style={styles.statusText}>
+            Approximate schedule: every {interval} hours on {target}.
+          </Text>
           {availability?.status.lastAppliedAt ? (
             <Text allowFontScaling style={styles.statusText}>
               Last applied:{' '}
@@ -296,8 +299,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  status: { flexDirection: 'row', gap: spacing.x2 },
-  statusText: { color: colors.mutedText, fontSize: 13 },
+  status: { gap: spacing.x1, minWidth: 0 },
+  statusText: { color: colors.mutedText, fontSize: 13, flexShrink: 1 },
   section: { gap: spacing.x1 },
   label: { color: colors.text, fontSize: 16, fontWeight: '700' },
   choices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.x1 },

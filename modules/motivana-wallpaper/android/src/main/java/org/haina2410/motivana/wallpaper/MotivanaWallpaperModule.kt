@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.net.Uri
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -78,12 +80,16 @@ class MotivanaWallpaperModule : Module() {
       val preferences = RotationPreferences(context)
       if (!preferences.saveSnapshot(snapshot)) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation preferences could not be saved.")
       val scheduler = RotationScheduler(AndroidRotationWorkScheduler(context))
-      scheduler.configure(snapshot.enabled, snapshot.intervalHours)
-      preferences.saveStatus(RotationStatus(snapshot.enabled, if (snapshot.enabled) RotationState.SCHEDULED else RotationState.DISABLED, System.currentTimeMillis()))
+      if (!scheduler.configure(snapshot.enabled, snapshot.intervalHours)) throw WallpaperException("SCHEDULER_FAILED", "Wallpaper rotation scheduling could not be confirmed.")
+      if (!preferences.saveStatus(RotationStatus(snapshot.enabled, if (snapshot.enabled) RotationState.SCHEDULED else RotationState.DISABLED, System.currentTimeMillis()))) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation status could not be saved.")
     }
     AsyncFunction("getRotationStatus") {
-      val status = RotationPreferences(context).status()
-      mapOf("enabled" to status.enabled, "state" to status.state.name.lowercase(), "lastAppliedAt" to status.lastAppliedAt, "lastQuoteId" to status.quoteId, "lastPresetId" to status.presetId, "errorCode" to status.errorCode)
+      val preferences = RotationPreferences(context)
+      val stored = preferences.status()
+      val workState = runCatching { WorkManager.getInstance(context).getWorkInfosForUniqueWork(RotationScheduler.PERIODIC_NAME).get().firstOrNull()?.state }.getOrNull()
+      val state = when (workState) { WorkInfo.State.RUNNING -> RotationState.RUNNING; WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED -> if (stored.enabled) RotationState.SCHEDULED else stored.state; else -> stored.state }
+      val snapshot = runCatching { RotationCatalogLoader.load(context.assets).let(preferences::snapshot).let { it as? RotationSnapshotResult.Valid }?.snapshot }.getOrNull()
+      mapOf("enabled" to stored.enabled, "state" to state.name.lowercase(), "lastAppliedAt" to stored.lastAppliedAt, "lastQuoteId" to stored.quoteId, "lastPresetId" to stored.presetId, "errorCode" to stored.errorCode, "intervalHours" to snapshot?.intervalHours, "target" to snapshot?.target?.name?.lowercase())
     }
     AsyncFunction("runRotationNow") {
       if (!BuildConfig.DEBUG) throw WallpaperException("DEBUG_ONLY", "Run rotation now is available in debug builds only.")

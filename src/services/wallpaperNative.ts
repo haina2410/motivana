@@ -25,6 +25,8 @@ const stableNativeCodes = new Set<WallpaperServiceErrorCode>([
   'CONFIGURE_FAILED',
   'ASSET_FAILED',
   'RENDER_FAILED',
+  'SCHEDULER_FAILED',
+  'SYSTEM_FAILED',
 ]);
 
 export function validateWallpaperTarget(value: string): WallpaperTarget {
