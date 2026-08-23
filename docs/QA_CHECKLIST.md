@@ -30,10 +30,9 @@ Expo SDK 57, arm64 debug APK (98 MiB)
   grid; [top](../artifacts/qa/screens/customize-top.png) and
   [lower](../artifacts/qa/screens/customize-bottom.png) captures were inspected.
 - [x] Renderer dimensions: foreground export and native renderer fixtures use
-  1080×2400 on this device. The earlier matching Task 7 arm64 instrumentation
-  run passed all four production `StaticLayout` golden cases; its raw scratch
-  output is intentionally not committed. Source commit `933c5a2` retains the
-  same fixture/renderer code; this is provenance reuse, not a fresh claim.
+  1080×2400 on this device. The final fresh arm64 instrumentation run passed
+  all four production `StaticLayout` golden cases. Its raw test output is not
+  committed.
 - [x] Save success: MediaStore save was observed in the Task 6 scoped emulator
   run with a 1080×2400 PNG. API 37 write-only media access may succeed without a
   user prompt; denied and permanent-denial/Open Settings branches are exercised
@@ -63,19 +62,21 @@ Expo SDK 57, arm64 debug APK (98 MiB)
 
 ## Fresh command summary
 
-`pnpm install --frozen-lockfile` completed. `pnpm verify` passed 24 suites / 139
-tests, and the smoke unit suite passed 6/6 after its delayed-React-tree
-regression. After a clean Android prebuild, the arm64 `:app:assembleDebug`, app
-lint, module lint, and native JVM suite passed with the local external-analyzer
-isolation described in the README.
+`pnpm install --frozen-lockfile` completed. `pnpm verify` passed 24 suites / 140
+tests, and the smoke unit suite passed 7/7 after its delayed-React-tree and
+persistent-loading regressions. After a clean Android prebuild, the arm64
+`:app:assembleDebug`, app lint, module lint, and native JVM suite passed with
+the local external-analyzer isolation described in the README. The native JVM
+reports contained 11 XML suites totaling 45 tests, with zero failures, errors,
+or skips.
 
-The fresh `:motivana-wallpaper:connectedDebugAndroidTest` invocation built its
-test APK but could not install it: `INSTALL_FAILED_INSUFFICIENT_STORAGE` with
-about 630 MiB free. No unrelated package/data was deleted; even uninstalling
-the target package was unavailable because it was absent at that point. The
-prior Task 7 final instrumentation evidence above is retained only with that
-explicit provenance. The universal debug APK is also too large for reliable
-emulator staging; the 98 MiB arm64 APK is the acceptance artifact.
+An earlier `:motivana-wallpaper:connectedDebugAndroidTest` attempt could not
+install its test APK (`INSTALL_FAILED_INSUFFICIENT_STORAGE` with about 630 MiB
+free). A final fresh invocation passed after uninstalling only
+`org.haina2410.motivana`; it started and finished its test run successfully and
+covered all four production `StaticLayout` golden cases. No unrelated
+package/data was deleted. The universal debug APK remains too large for
+reliable emulator staging; the 98 MiB arm64 APK is the acceptance artifact.
 
 Aggregate third-party dependency lint is intentionally not claimed: the
 generated Gradle configuration skips `lintAnalyze*` for external projects only

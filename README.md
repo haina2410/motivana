@@ -81,9 +81,11 @@ The app and local wallpaper module lint tasks are run explicitly. The generated
 root Gradle configuration deliberately excludes `lintAnalyze*` only from
 external dependency projects: current React Native Worklets/Reanimated analyzers
 crash under this toolchain. This is not a claim that aggregate dependency lint
-is clean. Emulator storage can also prevent the instrumentation test APK from
-installing; the current limitation and the prior matching evidence are recorded
-in [docs/QA_CHECKLIST.md](docs/QA_CHECKLIST.md).
+is clean. An earlier constrained-storage instrumentation install failure was
+resolved by uninstalling only `org.haina2410.motivana`; the final fresh arm64
+instrumentation run passed. The universal debug APK is still too large for
+reliable staging on this emulator, so the emulator matrix uses the arm64 APK.
+Details are recorded in [docs/QA_CHECKLIST.md](docs/QA_CHECKLIST.md).
 
 ## Architecture
 
