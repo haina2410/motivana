@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": ["org.haina2410.motivana.wallpaper.MotivanaWallpaperModule"]
+  }
+}

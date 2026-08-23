@@ -44,3 +44,6 @@ example
 # generated native folders
 /ios
 /android
+/artifacts/
+task-6-report.md
+modules/*/android/build/

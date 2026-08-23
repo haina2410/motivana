@@ -3,10 +3,17 @@ import {
   isWallpaperTargetAvailable,
 } from '../wallpaperAvailability';
 
-test('the Task 5 adapter explicitly reports unavailable native automation', () => {
-  const availability = getWallpaperAutomationAvailability();
+jest.mock('../wallpaperNative', () => ({
+  getWallpaperCapabilities: jest.fn(async () => ({
+    supportsHome: true,
+    supportsLock: false,
+  })),
+}));
 
-  expect(availability.capabilities.kind).toBe('unavailable');
+test('reports native target capability while retaining truthful Task 7-unavailable rotation status', async () => {
+  const availability = await getWallpaperAutomationAvailability();
+
+  expect(availability.capabilities.kind).toBe('available');
   expect(availability.status.kind).toBe('unavailable');
 });
 
@@ -16,11 +23,11 @@ test.each([
   ['both', false],
 ] as const)(
   '%s target availability is derived from capabilities',
-  (target, expected) => {
+  async (target, expected) => {
     expect(
       isWallpaperTargetAvailable(
         target,
-        getWallpaperAutomationAvailability().capabilities,
+        (await getWallpaperAutomationAvailability()).capabilities,
       ),
     ).toBe(expected);
   },

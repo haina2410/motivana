@@ -18,6 +18,33 @@ jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
 jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
   useWallpaperFonts: jest.fn(() => ({})),
 }));
+jest.mock('../../src/features/wallpaper/exportWallpaper', () => ({
+  exportWallpaper: jest.fn(),
+}));
+jest.mock('../../src/services/wallpaperNative', () => ({
+  getWallpaperCapabilities: jest.fn(async () => ({
+    supportsHome: true,
+    supportsLock: false,
+  })),
+  setWallpaper: jest.fn(),
+}));
+jest.mock('../../src/components/WallpaperActions', () => {
+  const { Pressable, View } = require('react-native');
+  return {
+    WallpaperActions: () => (
+      <View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Save wallpaper"
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Set wallpaper"
+        />
+      </View>
+    ),
+  };
+});
 const mockUseWallpaperFonts = jest.requireMock(
   '../../src/features/wallpaper/useWallpaperFonts',
 ).useWallpaperFonts as jest.Mock;
@@ -51,7 +78,7 @@ test('Home changes the quote and favorite state through accessible controls', ()
   expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
 });
 
-test('Home pushes each focused Stack route and keeps unavailable actions disabled', () => {
+test('Home pushes each focused Stack route and enables Android wallpaper actions', () => {
   render(<HomeScreen />);
 
   fireEvent.press(screen.getByLabelText('Customize wallpaper'));
@@ -63,13 +90,8 @@ test('Home pushes each focused Stack route and keeps unavailable actions disable
   expect(router.push).toHaveBeenCalledWith('/favorites');
   expect(router.push).toHaveBeenCalledWith('/automation');
   expect(router.push).toHaveBeenCalledWith('/settings');
-  expect(screen.getByRole('button', { name: 'Save wallpaper' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Set wallpaper' })).toBeDisabled();
-  expect(
-    screen.getByText(
-      'Saving and setting wallpapers arrives with Android support in Task 6.',
-    ),
-  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Save wallpaper' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Set wallpaper' })).toBeEnabled();
   expect(screen.getByLabelText('Next quote').props.accessibilityHint).toContain(
     'next',
   );

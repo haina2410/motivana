@@ -16,6 +16,9 @@ jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
 jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
   useWallpaperFonts: () => ({}),
 }));
+jest.mock('../../src/components/WallpaperActions', () => ({
+  WallpaperActions: () => null,
+}));
 
 test('renders the product name and loading preview state', () => {
   render(<HomeScreen />);

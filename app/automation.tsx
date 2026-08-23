@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import {
   getWallpaperAutomationAvailability,
   isWallpaperTargetAvailable,
+  wallpaperAutomationFallback,
 } from '../src/services/wallpaperAvailability';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -52,7 +53,16 @@ function Choice({
 
 export default function AutomationScreen() {
   const state = useAppStore();
-  const availability = getWallpaperAutomationAvailability();
+  const [availability, setAvailability] = useState(wallpaperAutomationFallback);
+  useEffect(() => {
+    let active = true;
+    getWallpaperAutomationAvailability()
+      .then((value) => active && setAvailability(value))
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
   const [interval, setInterval] = useState<RotationIntervalHours>(
     state.rotationIntervalHours,
   );
@@ -106,16 +116,8 @@ export default function AutomationScreen() {
           />
         </View>
         <ActionMessage
-          title={
-            availability.capabilities.kind === 'unavailable'
-              ? availability.capabilities.label
-              : 'Wallpaper service available'
-          }
-          message={
-            availability.capabilities.kind === 'unavailable'
-              ? availability.capabilities.message
-              : 'Wallpaper target support is available.'
-          }
+          title="Wallpaper targets available"
+          message="Target support is reported by this device. Rotation remains unavailable until it is installed."
         />
         <View
           accessible
@@ -123,7 +125,7 @@ export default function AutomationScreen() {
           style={styles.status}
         >
           <Text allowFontScaling style={styles.statusText}>
-            Capability: {availability.capabilities.kind}
+            Capability: live
           </Text>
           <Text allowFontScaling style={styles.statusText}>
             {availability.status.label}

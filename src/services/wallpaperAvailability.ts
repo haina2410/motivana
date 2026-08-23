@@ -1,16 +1,10 @@
 import type { WallpaperTarget } from '../store/schema';
+import { getWallpaperCapabilities } from './wallpaperNative';
 
-export type WallpaperCapabilities =
-  | {
-      kind: 'available';
-      supportedTargets: Readonly<Record<WallpaperTarget, boolean>>;
-    }
-  | {
-      kind: 'unavailable';
-      label: string;
-      message: string;
-      supportedTargets: Readonly<Record<WallpaperTarget, boolean>>;
-    };
+export interface WallpaperCapabilities {
+  kind: 'available';
+  supportedTargets: Readonly<Record<WallpaperTarget, boolean>>;
+}
 
 export type WallpaperAutomationStatus =
   | { kind: 'available'; label: string }
@@ -21,12 +15,9 @@ export interface WallpaperAutomationAvailability {
   status: WallpaperAutomationStatus;
 }
 
-const taskFiveAvailability: WallpaperAutomationAvailability = {
+export const wallpaperAutomationFallback: WallpaperAutomationAvailability = {
   capabilities: {
-    kind: 'unavailable',
-    label: 'Wallpaper service unavailable',
-    message:
-      'Scheduling will activate only after the Android wallpaper service is installed.',
+    kind: 'available',
     supportedTargets: { home: true, lock: false, both: false },
   },
   status: {
@@ -38,11 +29,22 @@ const taskFiveAvailability: WallpaperAutomationAvailability = {
 };
 
 /**
- * Task 5 is intentionally a read-only boundary. Task 6 can replace this
- * adapter with the Android service without changing UI capability handling.
+ * Target support is native as of Task 6. Rotation remains deliberately
+ * unavailable until Task 7 provides its native implementation.
  */
-export function getWallpaperAutomationAvailability(): WallpaperAutomationAvailability {
-  return taskFiveAvailability;
+export async function getWallpaperAutomationAvailability(): Promise<WallpaperAutomationAvailability> {
+  const capabilities = await getWallpaperCapabilities();
+  return {
+    capabilities: {
+      kind: 'available',
+      supportedTargets: {
+        home: capabilities.supportsHome,
+        lock: capabilities.supportsLock,
+        both: capabilities.supportsHome && capabilities.supportsLock,
+      },
+    },
+    status: wallpaperAutomationFallback.status,
+  };
 }
 
 export function isWallpaperTargetAvailable(

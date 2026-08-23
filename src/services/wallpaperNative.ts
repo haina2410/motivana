@@ -1,0 +1,91 @@
+import nativeWallpaperModule from '../../modules/motivana-wallpaper';
+import type {
+  ConfigureRotationOptions,
+  RotationStatus,
+  WallpaperCapabilities,
+  WallpaperTarget,
+} from '../../modules/motivana-wallpaper';
+
+import {
+  WallpaperServiceError,
+  type WallpaperServiceErrorCode,
+} from './mediaLibrary';
+
+const stableNativeCodes = new Set<WallpaperServiceErrorCode>([
+  'WALLPAPER_NOT_ALLOWED',
+  'LOCK_UNSUPPORTED',
+  'FILE_NOT_FOUND',
+  'DECODE_FAILED',
+  'APPLY_FAILED',
+  'NOT_IMPLEMENTED',
+]);
+
+export function validateWallpaperTarget(value: string): WallpaperTarget {
+  if (value === 'home' || value === 'lock' || value === 'both') return value;
+  throw new WallpaperServiceError('INVALID_TARGET');
+}
+
+export function normalizeWallpaperServiceError(
+  error: unknown,
+): WallpaperServiceError {
+  if (error instanceof WallpaperServiceError) return error;
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error
+      ? (error as { code?: unknown }).code
+      : undefined;
+  if (
+    typeof code === 'string' &&
+    stableNativeCodes.has(code as WallpaperServiceErrorCode)
+  ) {
+    return new WallpaperServiceError(code as WallpaperServiceErrorCode);
+  }
+  return new WallpaperServiceError('APPLY_FAILED');
+}
+
+export async function getWallpaperCapabilities(): Promise<WallpaperCapabilities> {
+  try {
+    return await nativeWallpaperModule.getCapabilities();
+  } catch (error) {
+    throw normalizeWallpaperServiceError(error);
+  }
+}
+
+export async function setWallpaper(
+  uri: string,
+  target: WallpaperTarget,
+): Promise<void> {
+  validateWallpaperTarget(target);
+  if (!uri.startsWith('file:'))
+    throw new WallpaperServiceError('FILE_NOT_FOUND');
+  try {
+    await nativeWallpaperModule.setWallpaper(uri, target);
+  } catch (error) {
+    throw normalizeWallpaperServiceError(error);
+  }
+}
+
+export async function configureRotation(
+  options: ConfigureRotationOptions,
+): Promise<void> {
+  try {
+    await nativeWallpaperModule.configureRotation(options);
+  } catch (error) {
+    throw normalizeWallpaperServiceError(error);
+  }
+}
+
+export async function getRotationStatus(): Promise<RotationStatus> {
+  try {
+    return await nativeWallpaperModule.getRotationStatus();
+  } catch (error) {
+    throw normalizeWallpaperServiceError(error);
+  }
+}
+
+export async function runRotationNow(): Promise<void> {
+  try {
+    await nativeWallpaperModule.runRotationNow();
+  } catch (error) {
+    throw normalizeWallpaperServiceError(error);
+  }
+}

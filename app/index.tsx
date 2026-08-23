@@ -14,6 +14,7 @@ import { AppIconButton } from '../src/components/AppIconButton';
 import { WallpaperActions } from '../src/components/WallpaperActions';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
+import type { WallpaperComposition } from '../src/features/wallpaper/composition';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
@@ -26,6 +27,19 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const fonts = useWallpaperFonts();
   const state = useAppStore();
+  let composition: WallpaperComposition | undefined;
+  if (fonts) {
+    try {
+      composition = createWallpaperComposition(
+        state.currentQuoteId,
+        state.selectedPresetId,
+        width,
+        height,
+      );
+    } catch {
+      composition = undefined;
+    }
+  }
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -74,12 +88,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <PreviewErrorBoundary>
-          <WallpaperPreview
-            quoteId={state.currentQuoteId}
-            presetId={state.selectedPresetId}
-            width={width}
-            height={height}
-          />
+          <WallpaperPreview composition={composition} />
         </PreviewErrorBoundary>
       )}
       <View style={styles.footer}>
@@ -113,34 +122,22 @@ export default function HomeScreen() {
             symbol="↻"
           />
         </View>
-        <WallpaperActions />
+        {fonts && composition ? (
+          <WallpaperActions composition={composition} fontProvider={fonts} />
+        ) : null}
       </View>
     </SafeAreaView>
   );
 }
 
 function WallpaperPreview({
-  quoteId,
-  presetId,
-  width,
-  height,
+  composition,
 }: {
-  quoteId: string;
-  presetId: string;
-  width: number;
-  height: number;
+  composition: WallpaperComposition | undefined;
 }) {
-  const quote = getQuoteById(quoteId);
-  const preset = getPresetById(presetId);
-  if (!quote || !preset) {
+  if (!composition) {
     throw new Error('The selected wallpaper data is unavailable.');
   }
-  const composition = createComposition({
-    quote,
-    preset,
-    width: Math.max(1, Math.round(width)),
-    height: Math.max(1, Math.round(height)),
-  });
   return (
     <View style={styles.preview}>
       <WallpaperCanvas
@@ -149,6 +146,25 @@ function WallpaperPreview({
       />
     </View>
   );
+}
+
+function createWallpaperComposition(
+  quoteId: string,
+  presetId: string,
+  width: number,
+  height: number,
+): WallpaperComposition {
+  const quote = getQuoteById(quoteId);
+  const preset = getPresetById(presetId);
+  if (!quote || !preset) {
+    throw new Error('The selected wallpaper data is unavailable.');
+  }
+  return createComposition({
+    quote,
+    preset,
+    width: Math.max(1, Math.round(width)),
+    height: Math.max(1, Math.round(height)),
+  });
 }
 
 interface PreviewErrorBoundaryProps {
