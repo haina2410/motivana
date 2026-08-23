@@ -2,6 +2,7 @@ import {
   chmodSync,
   existsSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -19,6 +20,7 @@ type FakeAdbMode =
   | 'offline'
   | 'missing-activity'
   | 'delayed-node'
+  | 'loading'
   | 'fatal-log';
 
 function createFakeAdb(directory: string, mode: FakeAdbMode): string {
@@ -42,6 +44,10 @@ if [[ "$1" == "exec-out" && "$2" == "screencap" ]]; then
   exit 0
 fi
 if [[ "$1" == "exec-out" && "$2" == "cat" ]]; then
+  if [[ "$mode" == "loading" ]]; then
+    printf '<hierarchy><node text="Motivana" content-desc="Motivana" /><node text="Preparing your wallpaper" content-desc="" /></hierarchy>\\n'
+    exit 0
+  fi
   if [[ "$mode" == "delayed-node" ]]; then
     state_file="${fakeAdb}.node-calls"
     calls="$(cat "$state_file" 2>/dev/null || printf 0)"
@@ -51,7 +57,7 @@ if [[ "$1" == "exec-out" && "$2" == "cat" ]]; then
       exit 0
     fi
   fi
-  printf '<hierarchy><node text="Motivana" content-desc="Motivana" /></hierarchy>\\n'
+  printf '<hierarchy><node text="Motivana" content-desc="Motivana" /><node text="" content-desc="Wallpaper preview" /><node text="" content-desc="Save wallpaper" /><node text="" content-desc="Set wallpaper" /></hierarchy>\\n'
   exit 0
 fi
 if [[ "$1" == "logcat" ]]; then
@@ -109,8 +115,11 @@ test('captures sanitized evidence after a package-scoped happy-path smoke run', 
   try {
     expect(run.result.status).toBe(0);
     expect(existsSync(join(run.artifacts, 'home.png'))).toBe(true);
-    expect(existsSync(join(run.artifacts, 'window.xml'))).toBe(true);
-    expect(existsSync(join(run.artifacts, 'logcat.txt'))).toBe(true);
+    expect(existsSync(join(run.artifacts, 'window.xml'))).toBe(false);
+    expect(existsSync(join(run.artifacts, 'logcat.txt'))).toBe(false);
+    expect(readFileSync(join(run.artifacts, 'summary.txt'), 'utf8')).toMatch(
+      /ready=true/,
+    );
   } finally {
     clean(run);
   }
@@ -121,6 +130,18 @@ test('waits for the loaded Motivana accessibility node after MainActivity appear
   try {
     expect(run.result.status).toBe(0);
     expect(existsSync(join(run.artifacts, 'home.png'))).toBe(true);
+  } finally {
+    clean(run);
+  }
+});
+
+test('rejects a persistent loading screen even when the header is visible', () => {
+  const run = runSmoke('loading', '1');
+  try {
+    expect(run.result.status).not.toBe(0);
+    expect(`${run.result.stdout}${run.result.stderr}`).toMatch(
+      /remained on loading|did not become ready/i,
+    );
   } finally {
     clean(run);
   }

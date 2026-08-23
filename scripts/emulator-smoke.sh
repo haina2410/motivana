@@ -11,6 +11,7 @@ readonly WAIT_SECONDS="${MOTIVANA_SMOKE_WAIT_SECONDS:-45}"
 
 METRO_PID=''
 METRO_STARTED=0
+DIAGNOSTICS=''
 
 fail() {
   printf 'emulator smoke: %s\n' "$*" >&2
@@ -21,6 +22,9 @@ cleanup() {
   if [[ "$METRO_STARTED" -eq 1 && -n "$METRO_PID" ]]; then
     kill "$METRO_PID" 2>/dev/null || true
     wait "$METRO_PID" 2>/dev/null || true
+  fi
+  if [[ -n "$DIAGNOSTICS" && -d "$DIAGNOSTICS" ]]; then
+    rm -rf -- "$DIAGNOSTICS"
   fi
 }
 trap cleanup EXIT
@@ -43,6 +47,7 @@ configure_artifacts() {
   [[ "$ARTIFACTS" == "$qa_root_real"/* ]] ||
     fail "artifacts must stay under $qa_root_real"
   readonly ARTIFACTS
+  DIAGNOSTICS="$(mktemp -d "${TMPDIR:-/tmp}/motivana-smoke.XXXXXX")"
 }
 
 ensure_adb_ready() {
@@ -52,7 +57,7 @@ ensure_adb_ready() {
 }
 
 install_apk() {
-  local install_log="$ARTIFACTS/install.txt"
+  local install_log="$DIAGNOSTICS/install.txt"
   if "$ADB" install -r "$APK" >"$install_log" 2>&1; then
     return
   fi
@@ -62,7 +67,7 @@ install_apk() {
       fail "adb install failed after safely uninstalling $PACKAGE"
     return
   fi
-  fail "adb install failed; see $install_log"
+  fail 'adb install failed'
 }
 
 metro_is_reachable() {
@@ -78,7 +83,7 @@ ensure_metro() {
   (
     cd "$REPOSITORY_ROOT"
     exec pnpm exec expo start --dev-client --lan --port 8081 --non-interactive
-  ) >"$ARTIFACTS/metro.log" 2>&1 &
+  ) >"$DIAGNOSTICS/metro.log" 2>&1 &
   METRO_PID="$!"
   METRO_STARTED=1
   local deadline=$((SECONDS + WAIT_SECONDS))
@@ -87,11 +92,11 @@ ensure_metro() {
       return
     fi
     if ! kill -0 "$METRO_PID" 2>/dev/null; then
-      fail "Metro exited before becoming reachable; see $ARTIFACTS/metro.log"
+      fail 'Metro exited before becoming reachable'
     fi
     sleep 1
   done
-  fail "Metro did not become reachable; see $ARTIFACTS/metro.log"
+  fail 'Metro did not become reachable'
 }
 
 wait_for_main_activity() {
@@ -114,29 +119,40 @@ wait_for_main_activity() {
 capture_accessibility() {
   local device_xml="/sdcard/${PACKAGE}-smoke-window.xml"
   local deadline=$((SECONDS + WAIT_SECONDS))
+  local saw_loading=0
   while (( SECONDS <= deadline )); do
     "$ADB" shell uiautomator dump --compressed "$device_xml" >/dev/null
-    "$ADB" exec-out cat "$device_xml" >"$ARTIFACTS/window.xml"
+    "$ADB" exec-out cat "$device_xml" >"$DIAGNOSTICS/window.xml"
     "$ADB" shell rm -f "$device_xml" >/dev/null 2>&1 || true
-    if rg -qi 'Unable to load script|Could not connect to development server|No bundle URL present|Unable to resolve module|red screen' "$ARTIFACTS/window.xml"; then
+    if rg -qi 'Unable to load script|Could not connect to development server|No bundle URL present|Unable to resolve module|red screen' "$DIAGNOSTICS/window.xml"; then
       fail 'The app displayed a missing-script or red-screen error'
     fi
-    if rg -q 'text="Motivana"|content-desc="Motivana"' "$ARTIFACTS/window.xml"; then
+    if rg -qi 'Preparing your wallpaper' "$DIAGNOSTICS/window.xml"; then
+      saw_loading=1
+      sleep 1
+      continue
+    fi
+    if rg -q 'content-desc="Wallpaper preview"' "$DIAGNOSTICS/window.xml" &&
+      rg -q 'content-desc="Save wallpaper"' "$DIAGNOSTICS/window.xml" &&
+      rg -q 'content-desc="Set wallpaper"' "$DIAGNOSTICS/window.xml"; then
       return
     fi
     sleep 1
   done
-  fail 'Motivana accessibility node was not found'
+  if [[ "$saw_loading" -eq 1 ]]; then
+    fail 'App remained on loading screen'
+  fi
+  fail 'Motivana did not become ready'
 }
 
 capture_logcat() {
   local pid
   pid="$($ADB shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r')"
   [[ "$pid" =~ ^[0-9]+$ ]] || fail "Unable to resolve a running PID for $PACKAGE"
-  "$ADB" logcat -d --pid="$pid" -v brief >"$ARTIFACTS/logcat.txt" 2>&1 ||
+  "$ADB" logcat -d --pid="$pid" -v brief >"$DIAGNOSTICS/logcat.txt" 2>&1 ||
     fail "Unable to collect filtered logcat for $PACKAGE"
-  if rg -q 'FATAL EXCEPTION' "$ARTIFACTS/logcat.txt"; then
-    fail "FATAL EXCEPTION found for $PACKAGE; see $ARTIFACTS/logcat.txt"
+  if rg -q 'FATAL EXCEPTION' "$DIAGNOSTICS/logcat.txt"; then
+    fail "FATAL EXCEPTION found for $PACKAGE"
   fi
 }
 
@@ -153,17 +169,17 @@ readonly APK
 configure_artifacts
 ensure_adb_ready
 install_apk
-"$ADB" shell pm clear "$PACKAGE" >"$ARTIFACTS/clear.txt" 2>&1 ||
+"$ADB" shell pm clear "$PACKAGE" >"$DIAGNOSTICS/clear.txt" 2>&1 ||
   fail "Could not clear clean-install state for $PACKAGE"
 ensure_metro
-"$ADB" reverse tcp:8081 tcp:8081 >"$ARTIFACTS/adb-reverse.txt" 2>&1 ||
+"$ADB" reverse tcp:8081 tcp:8081 >"$DIAGNOSTICS/adb-reverse.txt" 2>&1 ||
   fail 'Could not configure adb reverse for Metro'
 "$ADB" shell am force-stop "$PACKAGE"
-"$ADB" shell am start -n "$ACTIVITY" >"$ARTIFACTS/launch.txt" 2>&1 ||
+"$ADB" shell am start -n "$ACTIVITY" >"$DIAGNOSTICS/launch.txt" 2>&1 ||
   fail "Could not launch $ACTIVITY"
 wait_for_main_activity
 capture_accessibility
 capture_logcat
 capture_screenshot
-printf 'package=%s\napk=%s\nresult=PASS\n' "$PACKAGE" "$(basename "$APK")" >"$ARTIFACTS/summary.txt"
+printf 'package=%s\napk=%s\nready=true\nresult=PASS\n' "$PACKAGE" "$(basename "$APK")" >"$ARTIFACTS/summary.txt"
 printf 'emulator smoke: PASS (%s)\n' "$ARTIFACTS"

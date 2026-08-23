@@ -6,7 +6,9 @@ exports, package paths, emulator install-session data, credentials, and Task 6/7
 scratch artifacts.
 
 `smoke/summary.txt` and `smoke/home.png` were generated on 2026-08-24 by the
-arm64 debug APK smoke run. `screens/` is the same scoped API 37 emulator matrix:
+arm64 debug APK smoke run after its preview/action ready check. The
+`wallpaper-targets.txt` summary contains only the scoped target assertions from
+`dumpsys wallpaper`. `screens/` is the same scoped API 37 emulator matrix:
 Home/Customize/Favorites persistence, Automation, supported target application,
-and 1.3× font scale. The checklist documents any Task 6/7 evidence reused by
-provenance rather than copying raw data.
+launcher-after-Home, and 1.3× font scale. The checklist documents any Task 6/7
+evidence reused by provenance rather than copying raw data.

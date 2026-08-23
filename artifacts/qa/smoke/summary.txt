@@ -1,3 +1,4 @@
 package=org.haina2410.motivana
 apk=app-debug.apk
+ready=true
 result=PASS

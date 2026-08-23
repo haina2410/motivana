@@ -71,8 +71,10 @@ scripts/emulator-smoke.sh android/app/build/outputs/apk/debug/app-debug.apk
 
 `scripts/emulator-smoke.sh` installs only `org.haina2410.motivana`, clears
 only that package for a clean launch, starts or reuses Metro, waits for the
-actual Motivana accessibility node, saves a PNG screenshot, and rejects a
-package-scoped fatal exception or missing-script screen. Its output defaults to
+rendered wallpaper preview plus save/set actions, rejects a persistent loading,
+package-scoped fatal exception, or missing-script screen, and saves a PNG
+screenshot. Raw ADB diagnostics live in a trap-cleaned temporary directory;
+its committed output is the concise summary and screenshot in
 `artifacts/qa/smoke`.
 
 The app and local wallpaper module lint tasks are run explicitly. The generated

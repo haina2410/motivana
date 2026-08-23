@@ -1,0 +1,11 @@
+Scoped API 37 emulator wallpaper target assertions (2026-08-24)
+
+Home: `dumpsys wallpaper` reported `id=20`, `mWhich=1`,
+`mBindSource=SET_STATIC` after the Home action; the launcher capture is
+`screens/launcher-after-home.png`.
+
+Lock: `dumpsys wallpaper` reported `id=21`, `mWhich=2`,
+`mBindSource=SET_STATIC` after the Lock action.
+
+Both: `dumpsys wallpaper` reported `id=22`, `mWhich=3`,
+`mBindSource=SET_STATIC` after the Both action.

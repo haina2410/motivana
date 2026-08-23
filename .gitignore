@@ -50,6 +50,7 @@ example
 !/artifacts/qa/
 /artifacts/qa/*
 !/artifacts/qa/README.md
+!/artifacts/qa/wallpaper-targets.txt
 !/artifacts/qa/smoke/
 !/artifacts/qa/screens/
 /artifacts/qa/smoke/*
@@ -68,6 +69,7 @@ example
 !/artifacts/qa/screens/automation-font-scale-130.png
 !/artifacts/qa/screens/lock-apply.png
 !/artifacts/qa/screens/both-apply.png
+!/artifacts/qa/screens/launcher-after-home.png
 task-6-report.md
 task-7-report.md
 task-8-report.md

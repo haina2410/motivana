@@ -11,9 +11,10 @@ Expo SDK 57, arm64 debug APK (98 MiB)
 
 - [x] Clean install and cold launch: `scripts/emulator-smoke.sh` installed
   only the app package, cleared only its data, loaded Metro through ADB reverse,
-  found the real `Motivana` node, found no package fatal exception, and created
-  [smoke evidence](../artifacts/qa/smoke/summary.txt) plus a
-  [1080×2400 capture](../artifacts/qa/smoke/home.png).
+  required the rendered `Wallpaper preview`, `Save wallpaper`, and `Set
+  wallpaper` actions, rejected a persistent loading screen, found no package
+  fatal exception, and created [smoke evidence](../artifacts/qa/smoke/summary.txt)
+  plus a [ready 1080×2400 capture](../artifacts/qa/smoke/home.png).
 - [x] Accessibility: Home includes Motivana, wallpaper preview, quote controls,
   save/set, and route labels. Automation exposes status, interval/target,
   enable/save, and debug-run labels.
@@ -38,10 +39,14 @@ Expo SDK 57, arm64 debug APK (98 MiB)
   user prompt; denied and permanent-denial/Open Settings branches are exercised
   by `src/services/__tests__/mediaLibrary.test.ts` rather than fabricated from
   unrelated emulator permissions.
-- [x] Wallpaper targets: capabilities exposed Home, Lock, and Both. This
-  scoped emulator run applied Lock (`mWhich=2`, `SET_STATIC`) and Both
-  (`mWhich=3`, `SET_STATIC`); see [Lock](../artifacts/qa/screens/lock-apply.png)
-  and [Both](../artifacts/qa/screens/both-apply.png). Home is included by Both.
+- [x] Wallpaper targets: capabilities exposed Home, Lock, and Both. The scoped
+  emulator assertions record fresh static target state for Home (`mWhich=1`),
+  Lock (`mWhich=2`), and Both (`mWhich=3`) in
+  [the sanitized dumpsys summary](../artifacts/qa/wallpaper-targets.txt). See
+  [Lock UI](../artifacts/qa/screens/lock-apply.png),
+  [Both UI](../artifacts/qa/screens/both-apply.png), and the required
+  [launcher-after-Home capture](../artifacts/qa/screens/launcher-after-home.png).
+  Home is included by Both.
 - [x] Automation: enabled 6h Home, invoked debug rotation in foreground,
   updated to 12h, and cancelled; UI reported a last apply and the schedule
   status transitions. Evidence: [enabled](../artifacts/qa/screens/automation-enabled-6h.png),
