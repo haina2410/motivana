@@ -6,7 +6,7 @@
 
 **Architecture:** Expo SDK 57 and React Native own the reusable UI, quote/preset domain, local state, and Skia preview/export path. A local Expo module exposes a narrow Kotlin API for `WallpaperManager`, native automation state, a background bitmap renderer, and WorkManager. JSON under `assets/data` is authoritative for both TypeScript and Kotlin.
 
-**Tech Stack:** Node.js 22.13+, npm, Expo SDK 57, React Native 0.86, React 19.2, TypeScript strict mode, Expo Router, Zustand, React Native MMKV v4, React Native Skia 2.6, Expo FileSystem, Expo MediaLibrary, Kotlin, AndroidX WorkManager, Jest/`jest-expo`, React Native Testing Library, and Android emulator/ADB.
+**Tech Stack:** Node.js 22.13+, pnpm 10, Expo SDK 57, React Native 0.86, React 19.2, TypeScript strict mode, Expo Router, Zustand, React Native MMKV v4, React Native Skia 2.6, Expo FileSystem, Expo MediaLibrary, Kotlin, AndroidX WorkManager, Jest/`jest-expo`, React Native Testing Library, and Android emulator/ADB.
 
 **Spec:** `docs/superpowers/specs/2026-08-23-android-wallpaper-mvp-design.md`
 
@@ -16,6 +16,7 @@
 - Android `applicationId` and Kotlin namespace are `org.haina2410.motivana`.
 - The development run is Android-only and complete on the configured emulator; physical Android QA remains the release gate.
 - Use Expo SDK 57 stable with React Native 0.86, React 19.2.3, Node.js 22.13.x or newer, `compileSdkVersion` 36, and `targetSdkVersion` 36.
+- Use pnpm 10 with `packageManager: pnpm@10.33.0`; do not create npm, Yarn, or Bun lockfiles.
 - Do not use Expo Go; native development builds and prebuild are required.
 - Keep quotes, presets, favorites, settings, rendering, and automation offline with no backend or account.
 - Provide at least 100 English quotes and exactly six supported categories: motivation, discipline, focus, confidence, growth, and success.
@@ -99,12 +100,12 @@
 - Create: `.prettierignore`
 - Create: `.prettierrc.json`
 - Create: `scripts/android-env.sh`
-- Create/modify from Expo scaffold: `package.json`, `package-lock.json`, `app.json`, `tsconfig.json`, `eslint.config.js`, `jest.config.js`, `jest.setup.ts`, `app/_layout.tsx`, `app/index.tsx`
+- Create/modify from Expo scaffold: `package.json`, `pnpm-lock.yaml`, `app.json`, `tsconfig.json`, `eslint.config.js`, `jest.config.js`, `jest.setup.ts`, `app/_layout.tsx`, `app/index.tsx`
 - Test: `app/__tests__/bootstrap.test.tsx`
 
 **Interfaces:**
 - Consumes: configured emulator `Medium_Phone`, JDK at `/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home`, SDK at `/Users/nam/Library/Android/sdk`.
-- Produces: `npm run lint`, `npm run typecheck`, `npm test`, `npm run format:check`, `npm run android`, and a launchable `org.haina2410.motivana` debug app.
+- Produces: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check`, `pnpm android`, and a launchable `org.haina2410.motivana` debug app.
 
 - [ ] **Step 1: Generate the SDK 57 scaffold without touching Git history**
 
@@ -112,7 +113,7 @@ Use a temporary directory because the repository already contains specifications
 
 ```bash
 bootstrap_dir=$(mktemp -d /tmp/motivana-expo.XXXXXX)
-npx create-expo-app@latest "$bootstrap_dir/app" --template default@sdk-57 --yes
+pnpm dlx create-expo-app@latest "$bootstrap_dir/app" --template default@sdk-57 --yes
 rsync -a --exclude .git "$bootstrap_dir/app/" ./
 ```
 
@@ -165,7 +166,7 @@ Add these `package.json` scripts:
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "verify:data": "node scripts/verify-data.mjs",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run verify:data && npm test"
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm test"
   }
 }
 ```
@@ -173,12 +174,12 @@ Add these `package.json` scripts:
 - [ ] **Step 3: Install only the approved runtime and test dependencies**
 
 ```bash
-npx expo install @shopify/react-native-skia expo-file-system expo-font expo-media-library jest-expo react-native-mmkv react-native-nitro-modules
-npm install zustand
-npm install --save-dev @testing-library/react-native prettier eslint-config-prettier
+pnpm exec expo install @shopify/react-native-skia expo-file-system expo-font expo-media-library jest-expo react-native-mmkv react-native-nitro-modules
+pnpm add zustand
+pnpm add --save-dev @testing-library/react-native prettier eslint-config-prettier
 ```
 
-Use the versions selected by Expo SDK 57 compatibility checks. Run `npx expo install --check` and resolve every mismatch with `npx expo install --fix`; do not install canary packages.
+Use the versions selected by Expo SDK 57 compatibility checks. Run `pnpm exec expo install --check` and resolve every mismatch with `pnpm exec expo install --fix`; do not install canary packages. Add `"packageManager": "pnpm@10.33.0"` to `package.json` and remove any generated `package-lock.json`, `yarn.lock`, or `bun.lock` before the first commit.
 
 - [ ] **Step 4: Configure strict TypeScript, Jest, and formatting**
 
@@ -224,7 +225,7 @@ test('renders the product name and loading preview state', () => {
 
 - [ ] **Step 6: Run the test to verify the intentional failure**
 
-Run: `npm test -- app/__tests__/bootstrap.test.tsx`
+Run: `pnpm test -- app/__tests__/bootstrap.test.tsx`
 
 Expected: FAIL because the generated template does not render the required product title and accessible preview container.
 
@@ -249,8 +250,8 @@ The script must be sourced (`source scripts/android-env.sh`) and must not edit `
 
 ```bash
 source scripts/android-env.sh
-npx expo prebuild --clean --platform android
-npx expo run:android --no-bundler
+pnpm exec expo prebuild --clean --platform android
+pnpm exec expo run:android --no-bundler
 adb shell am force-stop org.haina2410.motivana
 adb shell monkey -p org.haina2410.motivana -c android.intent.category.LAUNCHER 1
 ```
@@ -259,12 +260,12 @@ Expected: Gradle builds successfully, the APK installs, and `adb shell pidof org
 
 - [ ] **Step 10: Verify and commit the bootstrap**
 
-Run: `npm run format && npm run verify && source scripts/android-env.sh && cd android && ./gradlew assembleDebug testDebugUnitTest`
+Run: `pnpm format && pnpm verify && source scripts/android-env.sh && cd android && ./gradlew assembleDebug testDebugUnitTest`
 
 Expected: all commands exit 0.
 
 ```bash
-git add .nvmrc .prettierignore .prettierrc.json app app.json assets eslint.config.js jest.config.js jest.setup.ts package.json package-lock.json scripts/android-env.sh tsconfig.json
+git add .nvmrc .prettierignore .prettierrc.json app app.json assets eslint.config.js jest.config.js jest.setup.ts package.json pnpm-lock.yaml scripts/android-env.sh tsconfig.json
 git commit -m "build: bootstrap Motivana Android app"
 ```
 
@@ -326,7 +327,7 @@ Also test forward/back wraparound, missing ID behavior, filtered selection, seed
 
 - [ ] **Step 3: Run tests to verify missing-module failures**
 
-Run: `npm test -- src/features/quotes src/features/wallpaper`
+Run: `pnpm test -- src/features/quotes src/features/wallpaper`
 
 Expected: FAIL because repositories and data do not exist.
 
@@ -373,11 +374,11 @@ Clamp the random index, exclude `previousId` when two or more eligible quotes ex
 
 - [ ] **Step 8: Add build-time integrity validation**
 
-`scripts/verify-data.mjs` must parse both JSON files, assert the same invariants as the tests, assert that every referenced font file exists, and exit nonzero with a precise path/message. Run it through `npm run verify:data`.
+`scripts/verify-data.mjs` must parse both JSON files, assert the same invariants as the tests, assert that every referenced font file exists, and exit nonzero with a precise path/message. Run it through `pnpm verify:data`.
 
 - [ ] **Step 9: Verify and commit catalogs**
 
-Run: `npm run format && npm run verify`
+Run: `pnpm format && pnpm verify`
 
 Expected: all tests and data validation pass.
 
@@ -431,7 +432,7 @@ test('repairs catalog IDs removed by an app update', () => {
 
 - [ ] **Step 3: Run tests to verify missing implementations**
 
-Run: `npm test -- src/store`
+Run: `pnpm test -- src/store`
 
 Expected: FAIL with unresolved storage/schema/store modules.
 
@@ -455,7 +456,7 @@ Expose `nextQuote`, `previousQuote`, `randomQuote`, `selectQuote`, `toggleFavori
 
 - [ ] **Step 6: Verify persistence in Jest and the development build**
 
-Run: `npm test -- src/store && npm run typecheck`
+Run: `pnpm test -- src/store && pnpm typecheck`
 
 Then launch the app, mutate a temporary store value through a small development-only invocation, force-stop/relaunch with ADB, and confirm the value rehydrates. Remove the temporary invocation before committing.
 
@@ -533,7 +534,7 @@ test('uses controlled ellipsis at minimum size instead of clipping', () => {
 
 - [ ] **Step 3: Run focused tests to verify failures**
 
-Run: `npm test -- src/features/wallpaper/__tests__/textFit.test.ts src/features/wallpaper/__tests__/composition.test.ts`
+Run: `pnpm test -- src/features/wallpaper/__tests__/textFit.test.ts src/features/wallpaper/__tests__/composition.test.ts`
 
 Expected: FAIL because fitting and composition modules are absent.
 
@@ -568,12 +569,12 @@ Temporarily render a preset/quote debug gallery reachable only under `__DEV__`. 
 
 - [ ] **Step 9: Verify and commit rendering**
 
-Run: `npm run verify && source scripts/android-env.sh && cd android && ./gradlew assembleDebug`
+Run: `pnpm verify && source scripts/android-env.sh && cd android && ./gradlew assembleDebug`
 
 Expected: all checks exit 0 and a manually exported PNG reports exact 1080×2400 dimensions with `file` or `identify`.
 
 ```bash
-git add src/features/wallpaper assets app.json package.json package-lock.json
+git add src/features/wallpaper assets app.json package.json pnpm-lock.yaml
 git commit -m "feat: render full-resolution motivational wallpapers"
 ```
 
@@ -605,7 +606,7 @@ test('selecting a preset updates the preview and returns home', async () => {
 
 - [ ] **Step 2: Run screen tests to verify failures**
 
-Run: `npm test -- app/__tests__`
+Run: `pnpm test -- app/__tests__`
 
 Expected: FAIL because final screens and components do not exist.
 
@@ -623,7 +624,7 @@ Fonts/catalog hydration shows a branded loading state. Favorites empty state inc
 
 - [ ] **Step 6: Run component and emulator interaction tests**
 
-Run: `npm test -- app/__tests__ && npm run verify`
+Run: `pnpm test -- app/__tests__ && pnpm verify`
 
 Use ADB to launch, tap through every route, change a preset, favorite a quote, force-stop, relaunch, and confirm persistence. Capture Home and Customize screenshots at 1080×2400 and inspect spacing, clipping, and contrast.
 
@@ -703,7 +704,7 @@ Abstract API-level/capability checks so JVM tests can cover API below 24, lock s
 
 - [ ] **Step 4: Run tests to verify missing implementations**
 
-Run: `npm test -- src/services`
+Run: `pnpm test -- src/services`
 
 Expected: FAIL with unresolved adapters. Native tests fail after module scaffolding until target/capability classes exist.
 
@@ -733,8 +734,8 @@ Home renders once per user action, disables duplicate taps while working, then c
 
 ```bash
 source scripts/android-env.sh
-npx expo prebuild --clean --platform android
-npx expo run:android --no-bundler
+pnpm exec expo prebuild --clean --platform android
+pnpm exec expo run:android --no-bundler
 cd android && ./gradlew testDebugUnitTest assembleDebug
 ```
 
@@ -743,7 +744,7 @@ Apply a generated wallpaper to Home, capture the launcher before/after with `adb
 - [ ] **Step 10: Commit saving and native application**
 
 ```bash
-git add app src/services src/components modules app.json package.json package-lock.json
+git add app src/services src/components modules app.json package.json pnpm-lock.yaml
 git commit -m "feat: save and apply Android wallpapers"
 ```
 
@@ -838,12 +839,12 @@ Capture launcher screenshots across at least three immediate runs and confirm no
 
 - [ ] **Step 11: Verify and commit automation**
 
-Run: `npm run verify && source scripts/android-env.sh && cd android && ./gradlew testDebugUnitTest assembleDebug lintDebug`
+Run: `pnpm verify && source scripts/android-env.sh && cd android && ./gradlew testDebugUnitTest assembleDebug lintDebug`
 
 Expected: all checks exit 0.
 
 ```bash
-git add app src modules package.json package-lock.json
+git add app src modules package.json pnpm-lock.yaml
 git commit -m "feat: rotate wallpapers with WorkManager"
 ```
 
@@ -868,7 +869,7 @@ git commit -m "feat: rotate wallpapers with WorkManager"
 - [ ] **Step 2: Run the complete automated suite and record failures**
 
 ```bash
-npm run verify
+pnpm verify
 source scripts/android-env.sh
 cd android
 ./gradlew clean testDebugUnitTest lintDebug assembleDebug
@@ -899,10 +900,10 @@ For every defect, add the narrowest failing Jest or JVM test, run it to see the 
 - [ ] **Step 6: Run final verification from a clean state**
 
 ```bash
-npm ci
-npm run verify
+pnpm install --frozen-lockfile
+pnpm verify
 source scripts/android-env.sh
-npx expo prebuild --clean --platform android
+pnpm exec expo prebuild --clean --platform android
 cd android
 ./gradlew clean testDebugUnitTest lintDebug assembleDebug
 cd ..
@@ -915,7 +916,7 @@ Expected: all automated commands exit 0; smoke screenshots show correct UI/wallp
 - [ ] **Step 7: Commit the completed emulator MVP**
 
 ```bash
-git add README.md docs scripts artifacts app src modules package.json package-lock.json
+git add README.md docs scripts artifacts app src modules package.json pnpm-lock.yaml
 git commit -m "docs: complete Android MVP emulator validation"
 ```
 
