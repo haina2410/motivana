@@ -14,11 +14,13 @@ object RotationCatalogLoader {
   } }
 }
 
-class RotationSelector(private val random: () -> Double) {
+class RotationSelector(private val random: java.util.Random) {
   fun select(catalog: RotationCatalog, eligibleIds: List<String>, previousQuoteId: String?, previousPresetId: String?, randomizePreset: Boolean, preferredPresetId: String): RotationSelection {
-    val eligible = catalog.quotes.filter { eligibleIds.isEmpty() || it.id in eligibleIds }.ifEmpty { catalog.quotes }
+    val eligible = if (eligibleIds.isEmpty()) catalog.quotes else catalog.quotes.filter { it.id in eligibleIds }
+    if (eligible.isEmpty()) throw SelectionException("NO_ELIGIBLE_QUOTES")
     val quoteChoices = eligible.filter { it.id != previousQuoteId }.ifEmpty { eligible }
     val presets = if (randomizePreset) catalog.presets.filter { it.id != previousPresetId }.ifEmpty { catalog.presets } else listOfNotNull(catalog.preset(preferredPresetId))
-    return RotationSelection(quoteChoices[(random() * quoteChoices.size).toInt().coerceIn(0, quoteChoices.lastIndex)], presets[(random() * presets.size).toInt().coerceIn(0, presets.lastIndex)])
+    if (presets.isEmpty()) throw SelectionException("INVALID_CONFIGURATION")
+    return RotationSelection(quoteChoices[random.nextInt(quoteChoices.size)], presets[random.nextInt(presets.size)])
   }
 }

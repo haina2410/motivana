@@ -2,6 +2,9 @@ package org.haina2410.motivana.wallpaper
 
 import android.graphics.*
 import android.content.res.AssetManager
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import kotlin.math.*
 
 data class RotationLayout(val quoteLeft: Float, val quoteTop: Float, val quoteRight: Float, val quoteBottom: Float, val fontSize: Float, val authorY: Float, val truncated: Boolean)
@@ -19,7 +22,14 @@ class CanvasWallpaperRenderer(private val catalog: RotationCatalog, private val 
   }
   fun render(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): Bitmap {
     require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888); val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG); paint.shader = when (val bg = preset.background) { is RotationBackground.Solid -> null; is RotationBackground.Gradient -> LinearGradient(0f, 0f, width.toFloat(), height.toFloat(), Color.parseColor(bg.start), Color.parseColor(bg.end), Shader.TileMode.CLAMP) }; canvas.drawColor((preset.background as? RotationBackground.Solid)?.let { Color.parseColor(it.color) } ?: Color.TRANSPARENT); if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }
-    val layout = layout(quote, preset, width, height); paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize; paint.textAlign = when(preset.align) { "center" -> Paint.Align.CENTER; "right" -> Paint.Align.RIGHT; else -> Paint.Align.LEFT }; val x = when(preset.align) { "center" -> width / 2f; "right" -> layout.quoteRight; else -> layout.quoteLeft }; val renderedText = if (layout.truncated) quote.text.take(220).plus("…") else quote.text; wrap(renderedText, paint, layout.quoteRight-layout.quoteLeft).forEachIndexed { i, line -> canvas.drawText(line, x, layout.quoteTop + paint.textSize + i * paint.fontSpacing * preset.lineHeight.toFloat(), paint) }; quote.author?.let { paint.color = Color.parseColor(preset.authorColor); paint.textSize = round(width*.028).toFloat(); canvas.drawText("— $it", x, layout.authorY + paint.textSize, paint) }; return bitmap
+    val layout = layout(quote, preset, width, height); paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize
+    val textPaint = TextPaint().apply { set(paint); textAlign = Paint.Align.LEFT }
+    val alignment = when (preset.align) { "center" -> Layout.Alignment.ALIGN_CENTER; "right" -> Layout.Alignment.ALIGN_OPPOSITE; else -> Layout.Alignment.ALIGN_NORMAL }
+    val text = if (layout.truncated) quote.text.takeWhile { it != '\n' }.trimEnd().plus("…") else quote.text
+    @Suppress("DEPRECATION")
+    val quoteLayout = StaticLayout(text, textPaint, (layout.quoteRight - layout.quoteLeft).toInt(), alignment, preset.lineHeight.toFloat(), 0f, false)
+    canvas.save(); canvas.translate(layout.quoteLeft, layout.quoteTop); quoteLayout.draw(canvas); canvas.restore()
+    quote.author?.let { paint.color = Color.parseColor(preset.authorColor); paint.textSize = round(width*.028).toFloat(); paint.textAlign = when(preset.align) { "center" -> Paint.Align.CENTER; "right" -> Paint.Align.RIGHT; else -> Paint.Align.LEFT }; val authorX = when(preset.align) { "center" -> width/2f; "right" -> layout.quoteRight; else -> layout.quoteLeft }; canvas.drawText("— $it", authorX, layout.authorY + paint.textSize, paint) }; return bitmap
   }
   private fun typeface(p: RotationPreset): Typeface = fonts["${p.family}-${p.weight}"] ?: assets?.let { runCatching { Typeface.createFromAsset(it, "fonts/${p.family}-${p.weight}.ttf") }.getOrNull() } ?: Typeface.DEFAULT
   private fun approximateWrap(text: String, width: Float, size: Float): List<String> { val chars = max(1, floor(width / (size * .52f)).toInt()); return text.chunked(chars) }

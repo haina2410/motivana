@@ -26,6 +26,7 @@ const nativeService = jest.requireMock(
   '../../src/services/wallpaperNative',
 ) as {
   getWallpaperCapabilities: jest.Mock;
+  configureRotation: jest.Mock;
 };
 
 beforeEach(() => {
@@ -34,6 +35,7 @@ beforeEach(() => {
     supportsHome: true,
     supportsLock: false,
   });
+  nativeService.configureRotation.mockResolvedValue(undefined);
 });
 
 test.each(['lock', 'both'] as const)(
@@ -104,4 +106,24 @@ test('Automation stores supported preferences and keeps unavailable targets disa
   );
   expect(useAppStore.getState().wallpaperTarget).toBe('home');
   expect(useAppStore.getState().rotationEnabled).toBe(false);
+});
+
+test('does not mutate Zustand when native scheduling rejects', async () => {
+  nativeService.configureRotation.mockRejectedValueOnce({
+    code: 'CONFIGURE_FAILED',
+  });
+  render(<AutomationScreen />);
+  await waitFor(() =>
+    expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
+  );
+  fireEvent.press(screen.getByLabelText('Every 6 hours'));
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Save automation preferences' }),
+  );
+  await waitFor(() =>
+    expect(nativeService.configureRotation).toHaveBeenCalledWith(
+      expect.objectContaining({ intervalHours: 6 }),
+    ),
+  );
+  expect(useAppStore.getState().rotationIntervalHours).toBe(24);
 });

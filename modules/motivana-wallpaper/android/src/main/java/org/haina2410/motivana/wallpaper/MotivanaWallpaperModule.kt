@@ -79,11 +79,11 @@ class MotivanaWallpaperModule : Module() {
       if (!preferences.saveSnapshot(snapshot)) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation preferences could not be saved.")
       val scheduler = RotationScheduler(AndroidRotationWorkScheduler(context))
       scheduler.configure(snapshot.enabled, snapshot.intervalHours)
-      preferences.saveStatus(RotationStatus(snapshot.enabled, if (snapshot.enabled) "scheduled" else "disabled", System.currentTimeMillis()))
+      preferences.saveStatus(RotationStatus(snapshot.enabled, if (snapshot.enabled) RotationState.SCHEDULED else RotationState.DISABLED, System.currentTimeMillis()))
     }
     AsyncFunction("getRotationStatus") {
       val status = RotationPreferences(context).status()
-      mapOf("enabled" to status.enabled, "state" to status.state, "lastAppliedAt" to status.at, "lastQuoteId" to status.quoteId, "lastPresetId" to status.presetId, "errorCode" to status.errorCode)
+      mapOf("enabled" to status.enabled, "state" to status.state.name.lowercase(), "lastAppliedAt" to status.lastAppliedAt, "lastQuoteId" to status.quoteId, "lastPresetId" to status.presetId, "errorCode" to status.errorCode)
     }
     AsyncFunction("runRotationNow") {
       if (!BuildConfig.DEBUG) throw WallpaperException("DEBUG_ONLY", "Run rotation now is available in debug builds only.")

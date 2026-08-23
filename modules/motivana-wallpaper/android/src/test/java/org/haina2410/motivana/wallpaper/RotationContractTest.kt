@@ -25,7 +25,7 @@ class RotationContractTest {
   }
 
   @Test fun selectionAvoidsImmediateQuoteAndPresetRepeatWhenAlternativesExist() {
-    val selected = RotationSelector({ 0.0 }).select(catalog, listOf("one", "two"), "one", "first", true, "first")
+    val selected = RotationSelector(java.util.Random(0)).select(catalog, listOf("one", "two"), "one", "first", true, "first")
     assertNotEquals("one", selected.quote.id)
     assertNotEquals("first", selected.preset.id)
   }
