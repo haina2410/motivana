@@ -62,26 +62,19 @@ class MotivanaWallpaperModule : Module() {
 
     AsyncFunction("configureRotation") { options: Map<String, Any?> ->
       val catalog = try { RotationCatalogLoader.load(context.assets) } catch (_: Exception) { throw WallpaperException("ASSET_FAILED", "Wallpaper rotation assets are unavailable.") }
-      val snapshot = try {
-        RotationSnapshot(
-          options["enabled"] as? Boolean ?: false,
-          (options["intervalHours"] as? Number)?.toInt() ?: 0,
-          WallpaperTarget.parse(options["target"] as? String ?: ""),
-          options["selectedPresetId"] as? String ?: "",
-          options["randomizePreset"] as? Boolean ?: false,
-          (options["favoriteQuoteIds"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-          options["favoriteQuotesOnly"] as? Boolean ?: false,
-        )
-      } catch (_: Exception) { throw WallpaperException("INVALID_CONFIGURATION", "Wallpaper rotation preferences are invalid.") }
+      val snapshot = try { RotationConfigureDecoder.decode(options) } catch (_: Exception) { throw WallpaperException("INVALID_CONFIGURATION", "Wallpaper rotation preferences are invalid.") }
       val validated = RotationSnapshot.parse(snapshot.toJson(), catalog)
       if (validated !is RotationSnapshotResult.Valid) throw WallpaperException((validated as RotationSnapshotResult.Invalid).code, "Wallpaper rotation preferences are invalid.")
       val manager = WallpaperManager.getInstance(context)
       if (snapshot.enabled && !capabilities(manager).supports(snapshot.target)) throw WallpaperException("LOCK_UNSUPPORTED", "The selected wallpaper target is unsupported.")
       val preferences = RotationPreferences(context)
-      if (!preferences.saveSnapshot(snapshot)) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation preferences could not be saved.")
-      val scheduler = RotationScheduler(AndroidRotationWorkScheduler(context))
-      if (!scheduler.configure(snapshot.enabled, snapshot.intervalHours)) throw WallpaperException("SCHEDULER_FAILED", "Wallpaper rotation scheduling could not be confirmed.")
-      if (!preferences.saveStatus(RotationStatus(snapshot.enabled, if (snapshot.enabled) RotationState.SCHEDULED else RotationState.DISABLED, System.currentTimeMillis()))) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation status could not be saved.")
+      val transaction = RotationConfigurationTransaction(object : RotationConfigurationStore {
+        override fun readSnapshot(catalog: RotationCatalog) = preferences.snapshot(catalog)
+        override fun readStatus() = preferences.status()
+        override fun saveSnapshot(snapshot: RotationSnapshot) = preferences.saveSnapshot(snapshot)
+        override fun saveStatus(status: RotationStatus) = preferences.saveStatus(status)
+      }, RotationScheduler(AndroidRotationWorkScheduler(context)), System::currentTimeMillis)
+      if (!transaction.apply(snapshot, catalog)) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation preferences could not be confirmed.")
     }
     AsyncFunction("getRotationStatus") {
       val preferences = RotationPreferences(context)

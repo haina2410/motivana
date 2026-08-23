@@ -11,11 +11,25 @@ gradle.beforeProject { project ->
   }
 }
 `;
+const lintMarker = '// Motivana external dependency lint isolation';
+const lintBlock = `
+${lintMarker}
+gradle.afterProject { project, _ ->
+  if (!(project.path in [':app', ':motivana-wallpaper'])) {
+    project.tasks.matching { it.name.startsWith('lintAnalyze') }.configureEach {
+      enabled = false
+    }
+  }
+}
+`;
 
 module.exports = ({ config }) =>
   withProjectBuildGradle(config, (gradleConfig) => {
     if (!gradleConfig.modResults.contents.includes(marker)) {
       gradleConfig.modResults.contents += compatibilityBlock;
+    }
+    if (!gradleConfig.modResults.contents.includes(lintMarker)) {
+      gradleConfig.modResults.contents += lintBlock;
     }
 
     return gradleConfig;
