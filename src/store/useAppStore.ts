@@ -14,6 +14,7 @@ import {
   serializePersistedAppState,
   type PersistedAppStateV1,
   type RotationIntervalHours,
+  type SafeWarningReporter,
   type WallpaperTarget,
 } from './schema';
 import {
@@ -45,10 +46,15 @@ export interface AppState extends PersistedAppStateV1 {
 export interface CreateAppStoreOptions {
   storage?: KeyValueStorage;
   random?: () => number;
+  warn?: SafeWarningReporter;
 }
 
 function persist(storage: KeyValueStorage, state: PersistedAppStateV1): void {
   storage.set(APP_STATE_STORAGE_KEY, serializePersistedAppState(state));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function createAppState(
@@ -56,16 +62,22 @@ function createAppState(
 ): StateCreator<AppState, [], [], AppState> {
   const storage = options.storage ?? appStorage;
   const random = options.random ?? Math.random;
+  const warn = options.warn ?? console.warn;
 
   return (set, get) => {
     const commit = (next: PersistedAppStateV1): boolean => {
+      try {
+        persist(storage, next);
+      } catch {
+        warn('Motivana preferences could not be saved.');
+        return false;
+      }
       set(next);
-      persist(storage, next);
       return true;
     };
 
     return {
-      ...hydrateAppState(storage),
+      ...hydrateAppState(storage, warn),
       nextQuote: () => {
         const next = getAdjacentQuote(get().currentQuoteId, 'next');
         return next === undefined
@@ -128,6 +140,7 @@ function createAppState(
       },
       setRotationConfiguration: (configuration) => {
         if (
+          !isRecord(configuration) ||
           typeof configuration.enabled !== 'boolean' ||
           !isValidRotationIntervalHours(configuration.intervalHours) ||
           !isValidWallpaperTarget(configuration.target)

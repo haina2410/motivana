@@ -15,6 +15,21 @@ function createMemoryStorage(): KeyValueStorage & {
   };
 }
 
+function createWriteFailingStorage(
+  initialEntries: Readonly<Record<string, string>>,
+): KeyValueStorage & { read(key: string): string | undefined } {
+  const values = new Map(Object.entries(initialEntries));
+
+  return {
+    getString: (key) => values.get(key),
+    set: () => {
+      throw new Error('storage write failed: secret-value');
+    },
+    remove: (key) => values.delete(key),
+    read: (key) => values.get(key),
+  };
+}
+
 // Mutation caught: reversing navigation direction or omitting modulo arithmetic would break catalog wraparound.
 test('moves to adjacent quotes and wraps at both catalog boundaries', () => {
   const store = createAppStore({ storage: createMemoryStorage() });
@@ -56,6 +71,37 @@ test('rejects an unknown quote selection without changing persisted state', () =
   expect(store.getState().selectQuote('gone')).toBe(false);
   expect(store.getState().currentQuoteId).toBe(before);
   expect(storage.read('motivana.app-state')).toBeUndefined();
+});
+
+// Mutation caught: publishing state before a storage write fails would leave UI state divergent from the persisted preferences.
+test('keeps state and persisted preferences unchanged when a storage write fails', () => {
+  const persisted = JSON.stringify({
+    version: 1,
+    favoriteQuoteIds: [],
+    currentQuoteId: getAllQuotes()[0]!.id,
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+  const warnings: string[] = [];
+  const storage = createWriteFailingStorage({
+    'motivana.app-state': persisted,
+  });
+  const store = createAppStore({
+    storage,
+    warn: (message) => warnings.push(message),
+  });
+  const before = store.getState();
+
+  expect(store.getState().selectPreset('sunrise-drive')).toBe(false);
+  expect(store.getState()).toEqual(before);
+  expect(storage.read('motivana.app-state')).toBe(persisted);
+  expect(warnings).toEqual(['Motivana preferences could not be saved.']);
+  expect(warnings.join(' ')).not.toContain('secret-value');
+  expect(warnings.join(' ')).not.toContain(persisted);
 });
 
 // Mutation caught: accepting an unknown preset or failing to persist valid customization choices would leave previews unrecoverable after relaunch.
@@ -133,6 +179,20 @@ test('persists only a valid complete rotation configuration', () => {
   ).toBe(false);
   expect(store.getState().rotationIntervalHours).toBe(12);
   expect(store.getState().wallpaperTarget).toBe('both');
+});
+
+// Mutation caught: dereferencing a malformed rotation configuration would crash instead of rejecting invalid runtime input.
+test('rejects null and undefined rotation configurations without changing state', () => {
+  const storage = createMemoryStorage();
+  const store = createAppStore({ storage });
+  const before = store.getState();
+  const setRotationConfiguration = store.getState()
+    .setRotationConfiguration as unknown as (configuration: unknown) => boolean;
+
+  expect(setRotationConfiguration(null)).toBe(false);
+  expect(setRotationConfiguration(undefined)).toBe(false);
+  expect(store.getState()).toEqual(before);
+  expect(storage.read('motivana.app-state')).toBeUndefined();
 });
 
 // Mutation caught: omitting migration during hydration would restore duplicate and removed favorites into live state.
