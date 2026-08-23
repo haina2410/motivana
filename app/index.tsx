@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Component, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  PixelRatio,
   StyleSheet,
   Text,
   View,
@@ -15,6 +16,7 @@ import { WallpaperActions } from '../src/components/WallpaperActions';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../src/features/wallpaper/composition';
+import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
@@ -27,14 +29,15 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const fonts = useWallpaperFonts();
   const state = useAppStore();
+  const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
   let composition: WallpaperComposition | undefined;
   if (fonts) {
     try {
       composition = createWallpaperComposition(
         state.currentQuoteId,
         state.selectedPresetId,
-        width,
-        height,
+        dimensions.width,
+        dimensions.height,
       );
     } catch {
       composition = undefined;

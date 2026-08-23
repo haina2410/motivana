@@ -35,6 +35,12 @@ function errorMessage(error: unknown): string {
       ? (error as { code?: unknown }).code
       : undefined;
   switch (code) {
+    case 'INVALID_DIMENSIONS':
+    case 'SURFACE_CREATION_FAILED':
+    case 'DRAW_FAILED':
+    case 'ENCODE_FAILED':
+    case 'FILE_WRITE_FAILED':
+      return `Export failed: ${code}.`;
     case 'PERMISSION_DENIED':
       return 'Photo permission is needed to save this wallpaper.';
     case 'WALLPAPER_NOT_ALLOWED':

@@ -133,3 +133,19 @@ test('Retry keeps the failed action and uses the already-rendered export', async
   expect(mockExportWallpaper).toHaveBeenCalledTimes(1);
   expect(mockSaveWallpaper).toHaveBeenCalledTimes(2);
 });
+
+test('shows a safe renderer failure code when foreground export fails', async () => {
+  mockExportWallpaper.mockRejectedValueOnce({ code: 'FILE_WRITE_FAILED' });
+  render(
+    <WallpaperActions composition={composition} fontProvider={fontProvider} />,
+  );
+
+  fireEvent.press(screen.getByRole('button', { name: 'Save wallpaper' }));
+
+  await waitFor(() =>
+    expect(
+      screen.getByText('Export failed: FILE_WRITE_FAILED.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(mockSaveWallpaper).not.toHaveBeenCalled();
+});
