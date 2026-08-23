@@ -53,6 +53,7 @@ test.each(['lock', 'both'] as const)(
     fireEvent.press(
       screen.getByRole('button', { name: 'Save automation preferences' }),
     );
+    await waitFor(() => expect(nativeService.configureRotation).toHaveBeenCalled());
     expect(useAppStore.getState().wallpaperTarget).toBe(target);
   },
 );

@@ -164,7 +164,7 @@ export default function AutomationScreen() {
         />
         <View
           accessible
-          accessibilityLabel={`Service status ${availability?.status.kind ?? 'loading'}`}
+          accessibilityLabel={`Service status ${availability?.status.state ?? 'loading'} ${availability?.status.intervalHours ?? ''} ${availability?.status.target ?? ''}`}
           style={styles.status}
         >
           <Text allowFontScaling style={styles.statusText}>
@@ -174,7 +174,7 @@ export default function AutomationScreen() {
             {availability?.status.label ?? 'Status: checking device support'}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
-            Approximate schedule: every {interval} hours on {target}.
+            Approximate schedule: every {availability?.status.intervalHours ?? interval} hours on {availability?.status.target ?? target}.
           </Text>
           {availability?.status.lastAppliedAt ? (
             <Text allowFontScaling style={styles.statusText}>
@@ -184,7 +184,7 @@ export default function AutomationScreen() {
           ) : null}
           {availability?.status.lastQuoteId ? (
             <Text allowFontScaling style={styles.statusText}>
-              Last quote: {lastQuote?.text ?? availability.status.lastQuoteId}
+              Last quote: {lastQuote?.text ?? 'saved quote'}
             </Text>
           ) : null}
           {availability?.status.errorCode ? (

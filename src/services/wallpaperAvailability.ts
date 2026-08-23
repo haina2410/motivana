@@ -18,6 +18,8 @@ export type WallpaperAutomationStatus = {
   lastAppliedAt?: number;
   lastQuoteId?: string;
   errorCode?: string;
+  intervalHours?: 6 | 12 | 24;
+  target?: WallpaperTarget;
 };
 
 export interface WallpaperAutomationAvailability {
@@ -58,6 +60,8 @@ export async function getWallpaperAutomationAvailability(): Promise<WallpaperAut
       lastAppliedAt: status.lastAppliedAt,
       lastQuoteId: status.lastQuoteId,
       errorCode: status.errorCode,
+      intervalHours: status.intervalHours,
+      target: status.target,
     },
   };
 }
