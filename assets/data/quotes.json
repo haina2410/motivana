@@ -1,0 +1,722 @@
+[
+  {
+    "id": "motivation-001",
+    "text": "Begin before your mood negotiates the day away.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-002",
+    "text": "A small honest start can pull a whole day into motion.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-003",
+    "text": "Give the next useful action more attention than the perfect plan.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-004",
+    "text": "Your energy often arrives after you invite it with movement.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-005",
+    "text": "Make progress visible enough that tomorrow wants to continue it.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-006",
+    "text": "The day changes direction when you do one thing on purpose.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-007",
+    "text": "Momentum is built from ordinary choices repeated without drama.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-008",
+    "text": "Use the hour you have; waiting for a better hour spends two.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-009",
+    "text": "Let the first step be imperfect, but let it be real.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-010",
+    "text": "A willing effort is already a vote for the person you are becoming.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-011",
+    "text": "Turn anticipation into action before doubt learns your schedule.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-012",
+    "text": "You do not need a louder dream; you need a nearer next move.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-013",
+    "text": "Show up early enough for possibility to recognize you.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-014",
+    "text": "The work begins where the excuse stops being interesting.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-015",
+    "text": "Collect beginnings, because finished things are made from them.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-016",
+    "text": "Let curiosity carry you through the doorway that confidence has not reached.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-017",
+    "text": "When your purpose feels distant, make the next task smaller rather than the dream smaller.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-018",
+    "text": "An unfinished task is not a verdict; it is an invitation waiting for a return visit.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-019",
+    "text": "You can restart a difficult afternoon with one clean decision and a little patience.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "motivation-020",
+    "text": "Each time you choose effort over avoidance, you teach your future self that progress is available even when the conditions are ordinary, the room is quiet, and nobody is watching for proof that you can keep going.",
+    "author": "Motivana",
+    "category": "motivation"
+  },
+  {
+    "id": "discipline-001",
+    "text": "Keep promises to yourself in sizes you can actually keep.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-002",
+    "text": "A routine becomes powerful when it survives an unremarkable day.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-003",
+    "text": "Choose the useful repeat over the exciting exception.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-004",
+    "text": "Make the right action easier to begin than the distraction.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-005",
+    "text": "Consistency is a quiet skill that gets stronger every time you use it.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-006",
+    "text": "Protect the habits that protect your attention.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-007",
+    "text": "Do the planned work before evaluating whether you feel like it.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-008",
+    "text": "Your calendar reveals which intentions received a real address.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-009",
+    "text": "Finish the simple obligation before inventing a more interesting one.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-010",
+    "text": "Boundaries are commitments with a door and a lock.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-011",
+    "text": "Prepare tonight for the decision you want to make tomorrow.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-012",
+    "text": "The system matters most on the days when inspiration is absent.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-013",
+    "text": "A delayed reward still counts when the work is done with care.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-014",
+    "text": "Reduce the number of decisions between you and the important work.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-015",
+    "text": "Honor the process long enough for its results to become visible.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-016",
+    "text": "Discipline is not harshness; it is giving your priorities dependable protection.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-017",
+    "text": "A missed day asks for a calm return, not a dramatic apology.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-018",
+    "text": "Build a life where the helpful choice is ready before the tempting choice appears.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-019",
+    "text": "When the task feels heavy, keep the agreement and lighten the pace.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "discipline-020",
+    "text": "The strongest routine is not the one that looks impressive from outside; it is the one you can return to after travel, stress, mistakes, and the inevitable days when your ambition wakes up later than your alarm.",
+    "author": "Motivana",
+    "category": "discipline"
+  },
+  {
+    "id": "focus-001",
+    "text": "Give one task the silence it needs to become clear.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-002",
+    "text": "Attention grows where you stop scattering it.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-003",
+    "text": "Close the extra doors so the chosen door can open fully.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-004",
+    "text": "Protect the next thirty minutes from unnecessary opinions.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-005",
+    "text": "The priority is the work you return to after every interruption.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-006",
+    "text": "Make your environment vote for concentration.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-007",
+    "text": "One finished priority outweighs a crowded list of intentions.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-008",
+    "text": "Name the task precisely enough that your mind cannot wander around it.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-009",
+    "text": "Clarity appears when you stop asking every task to happen at once.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-010",
+    "text": "Let the important work have the freshest part of your attention.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-011",
+    "text": "A notification is a request, not an instruction.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-012",
+    "text": "Concentration begins with deciding what will wait.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-013",
+    "text": "Return gently to the page, the problem, or the practice in front of you.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-014",
+    "text": "Your best work needs fewer tabs and more patience.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-015",
+    "text": "Protect a small block of deep effort like a meeting with your future.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-016",
+    "text": "Do not confuse being reachable with being useful.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-017",
+    "text": "The mind settles when the next action is visible and the rest is allowed to wait.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-018",
+    "text": "Choose a single meaningful target, then let repetition make it familiar.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-019",
+    "text": "A clear desk cannot do the work for you, but it can stop arguing with your attention.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "focus-020",
+    "text": "Focus is a series of returns: back from the message, back from the worry, back from the shiny alternative, until the work receives enough uninterrupted care to reveal the solution that distraction kept hidden.",
+    "author": "Motivana",
+    "category": "focus"
+  },
+  {
+    "id": "confidence-001",
+    "text": "Trust grows when you keep evidence of your own follow-through.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-002",
+    "text": "You are allowed to learn in public and improve in private.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-003",
+    "text": "Speak to yourself with the patience you offer a determined beginner.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-004",
+    "text": "Capability is often quieter than the fear that questions it.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-005",
+    "text": "Let preparation carry more weight than self-doubt.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-006",
+    "text": "You can be uncertain and still be ready for the next step.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-007",
+    "text": "A mistake can revise your method without reducing your worth.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-008",
+    "text": "Your voice becomes steadier each time you use it honestly.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-009",
+    "text": "Do not wait to feel complete before contributing something useful.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-010",
+    "text": "Practice makes room for courage to enter the conversation.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-011",
+    "text": "You know more than yesterday because you stayed present for today.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-012",
+    "text": "A calm question can be stronger than a rushed answer.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-013",
+    "text": "Claim your progress without needing to make it louder than anyone else’s.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-014",
+    "text": "Your next attempt deserves the benefit of what the last attempt taught.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-015",
+    "text": "Show your work the respect of believing it can get better.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-016",
+    "text": "Confidence is built by meeting a hard moment and noticing that you remained yourself.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-017",
+    "text": "You do not need universal approval to make a thoughtful decision.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-018",
+    "text": "Let competence be assembled one honest repetition at a time.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-019",
+    "text": "The room may be unfamiliar, but your ability to listen, learn, and respond still belongs there.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "confidence-020",
+    "text": "When you enter a challenge without a guarantee, remember that confidence is not a promise that nothing will go wrong; it is a practiced trust that you can observe, adapt, ask for help, and continue with dignity.",
+    "author": "Motivana",
+    "category": "confidence"
+  },
+  {
+    "id": "growth-001",
+    "text": "Learn slowly enough to keep what the lesson gives you.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-002",
+    "text": "A better question can change the direction of an entire effort.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-003",
+    "text": "Let feedback become information before it becomes identity.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-004",
+    "text": "The beginner’s version of you deserves a fair chance to practice.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-005",
+    "text": "Growth often feels ordinary while it is happening.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-006",
+    "text": "Keep a record of lessons so difficulty can become reusable wisdom.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-007",
+    "text": "Try a new method long enough to understand its language.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-008",
+    "text": "The gap between skill and ambition is a place to train, not hide.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-009",
+    "text": "Improvement begins when comparison becomes curiosity.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-010",
+    "text": "Keep revising the approach instead of repeating the disappointment.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-011",
+    "text": "A new skill rewards the person who can stay teachable through awkwardness.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-012",
+    "text": "Be patient with the part of progress that cannot be rushed into being visible.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-013",
+    "text": "Your future range expands every time you practice beyond familiar results.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-014",
+    "text": "Failure can become useful when you ask it a specific question.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-015",
+    "text": "Keep the humility to change and the courage to continue.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-016",
+    "text": "The person you want to become is shaped by what you are willing to study.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-017",
+    "text": "A rough first draft is a map of where your understanding can improve.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-018",
+    "text": "Every useful correction shortens the distance between intention and skill.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-019",
+    "text": "Keep choosing the version of practice that teaches you something new.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "growth-020",
+    "text": "Growth asks you to trade the comfort of already knowing for the richer discomfort of discovering: you test, notice, adjust, and try again until yesterday’s confusing terrain becomes a path you can walk with steadier steps.",
+    "author": "Motivana",
+    "category": "growth"
+  },
+  {
+    "id": "success-001",
+    "text": "Define success clearly enough to recognize it when it arrives.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-002",
+    "text": "A meaningful result usually begins as a modest commitment.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-003",
+    "text": "Build outcomes from actions you can repeat with integrity.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-004",
+    "text": "Let your standards guide the work after applause has left the room.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-005",
+    "text": "Celebrate the milestone, then make space for the next careful step.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-006",
+    "text": "Results improve when your effort has a direction and a measure.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-007",
+    "text": "A useful finish is better than an admired intention.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-008",
+    "text": "Choose goals that make your days more deliberate, not merely busier.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-009",
+    "text": "Measure the work by the value it creates, not only by the hours it consumes.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-010",
+    "text": "Good results often look like a thousand small decisions made with care.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-011",
+    "text": "Keep your ambition connected to the people and problems it can serve.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-012",
+    "text": "Finish what matters before chasing the next proof that you are capable.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-013",
+    "text": "A strong outcome is built twice: once in preparation and once in follow-through.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-014",
+    "text": "Make room to notice how far steady work has already carried you.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-015",
+    "text": "Let each achievement improve your responsibility, not just your résumé.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-016",
+    "text": "Success becomes sustainable when it leaves enough strength for the next season.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-017",
+    "text": "Do not borrow urgency from someone else’s scoreboard.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-018",
+    "text": "The most useful victory is one that enlarges what you can contribute tomorrow.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-019",
+    "text": "Aim for work you can respect when the result is no longer new.",
+    "author": "Motivana",
+    "category": "success"
+  },
+  {
+    "id": "success-020",
+    "text": "Success is more durable when it includes the way you arrived: the habits you kept, the people you treated well, the knowledge you shared, and the capacity you preserved to build again after the celebration has become a memory.",
+    "author": "Motivana",
+    "category": "success"
+  }
+]

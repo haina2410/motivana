@@ -1,0 +1,144 @@
+[
+  {
+    "id": "midnight-focus",
+    "name": "Midnight Focus",
+    "fontFamily": "Inter",
+    "fontWeight": "SemiBold",
+    "textAlign": "center",
+    "quotePositionY": 0.43,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D9E6FF",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.18,
+    "background": {
+      "kind": "linear-gradient",
+      "startColor": "#102A56",
+      "endColor": "#020617",
+      "angleDegrees": 135
+    }
+  },
+  {
+    "id": "sunrise-drive",
+    "name": "Sunrise Drive",
+    "fontFamily": "Inter",
+    "fontWeight": "SemiBold",
+    "textAlign": "left",
+    "quotePositionY": 0.4,
+    "textColor": "#1C1917",
+    "authorColor": "#3F2A18",
+    "preferredFontSizeRatio": 0.062,
+    "minimumFontSizeRatio": 0.035,
+    "lineHeight": 1.18,
+    "background": {
+      "kind": "linear-gradient",
+      "startColor": "#FF8A65",
+      "endColor": "#FFD166",
+      "angleDegrees": 135
+    }
+  },
+  {
+    "id": "forest-discipline",
+    "name": "Forest Discipline",
+    "fontFamily": "Lora",
+    "fontWeight": "SemiBold",
+    "textAlign": "center",
+    "quotePositionY": 0.46,
+    "textColor": "#FFFFFF",
+    "authorColor": "#DCFCE7",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.24,
+    "background": {
+      "kind": "linear-gradient",
+      "startColor": "#14532D",
+      "endColor": "#047857",
+      "angleDegrees": 135
+    }
+  },
+  {
+    "id": "violet-growth",
+    "name": "Violet Growth",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.42,
+    "textColor": "#FFFFFF",
+    "authorColor": "#EDE9FE",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.24,
+    "background": {
+      "kind": "linear-gradient",
+      "startColor": "#312E81",
+      "endColor": "#6D28D9",
+      "angleDegrees": 135
+    }
+  },
+  {
+    "id": "paper-confidence",
+    "name": "Paper Confidence",
+    "fontFamily": "Oswald",
+    "fontWeight": "Medium",
+    "textAlign": "left",
+    "quotePositionY": 0.39,
+    "textColor": "#292524",
+    "authorColor": "#57534E",
+    "preferredFontSizeRatio": 0.066,
+    "minimumFontSizeRatio": 0.038,
+    "lineHeight": 1.16,
+    "background": { "kind": "solid", "color": "#FFF7E6" }
+  },
+  {
+    "id": "ocean-success",
+    "name": "Ocean Success",
+    "fontFamily": "Inter",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.45,
+    "textColor": "#FFFFFF",
+    "authorColor": "#CCFBF1",
+    "preferredFontSizeRatio": 0.063,
+    "minimumFontSizeRatio": 0.035,
+    "lineHeight": 1.2,
+    "background": {
+      "kind": "linear-gradient",
+      "startColor": "#134E4A",
+      "endColor": "#075985",
+      "angleDegrees": 135
+    }
+  },
+  {
+    "id": "ember-action",
+    "name": "Ember Action",
+    "fontFamily": "Oswald",
+    "fontWeight": "Medium",
+    "textAlign": "right",
+    "quotePositionY": 0.41,
+    "textColor": "#FFFFFF",
+    "authorColor": "#FFE4E6",
+    "preferredFontSizeRatio": 0.066,
+    "minimumFontSizeRatio": 0.038,
+    "lineHeight": 1.16,
+    "background": {
+      "kind": "linear-gradient",
+      "startColor": "#7F1D1D",
+      "endColor": "#C2410C",
+      "angleDegrees": 135
+    }
+  },
+  {
+    "id": "mono-clarity",
+    "name": "Mono Clarity",
+    "fontFamily": "Inter",
+    "fontWeight": "Regular",
+    "textAlign": "left",
+    "quotePositionY": 0.47,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D4D4D8",
+    "preferredFontSizeRatio": 0.063,
+    "minimumFontSizeRatio": 0.035,
+    "lineHeight": 1.2,
+    "background": { "kind": "solid", "color": "#27272A" }
+  }
+]
