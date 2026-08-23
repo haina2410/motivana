@@ -65,10 +65,10 @@ export default function AutomationScreen() {
         if (!active) return;
         setAvailability(value);
         setTarget((current) =>
-          isWallpaperTargetAvailable(current, value.capabilities)
-            ? current
-            : isWallpaperTargetAvailable(persistedTarget, value.capabilities)
-              ? persistedTarget
+          isWallpaperTargetAvailable(persistedTarget, value.capabilities)
+            ? persistedTarget
+            : isWallpaperTargetAvailable(current, value.capabilities)
+              ? current
               : 'home',
         );
       })
@@ -189,6 +189,7 @@ export default function AutomationScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Save automation preferences"
+          disabled={!availability}
           onPress={save}
           style={styles.save}
         >

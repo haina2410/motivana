@@ -16,8 +16,46 @@ jest.mock('../../src/services/wallpaperNative', () => ({
   })),
 }));
 
+const nativeService = jest.requireMock(
+  '../../src/services/wallpaperNative',
+) as {
+  getWallpaperCapabilities: jest.Mock;
+};
+
 beforeEach(() => {
   useAppStore.setState(createDefaultPersistedAppState());
+  nativeService.getWallpaperCapabilities.mockResolvedValue({
+    supportsHome: true,
+    supportsLock: false,
+  });
+});
+
+test.each(['lock', 'both'] as const)(
+  'preserves supported persisted %s target when live capability arrives',
+  async (target) => {
+    useAppStore.setState({ wallpaperTarget: target });
+    nativeService.getWallpaperCapabilities.mockResolvedValue({
+      supportsHome: true,
+      supportsLock: true,
+    });
+    render(<AutomationScreen />);
+    await waitFor(() =>
+      expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
+    );
+    fireEvent.press(
+      screen.getByRole('button', { name: 'Save automation preferences' }),
+    );
+    expect(useAppStore.getState().wallpaperTarget).toBe(target);
+  },
+);
+
+test('disables Save while capability support is still loading', () => {
+  nativeService.getWallpaperCapabilities.mockReturnValue(new Promise(() => {}));
+  render(<AutomationScreen />);
+  expect(
+    screen.getByRole('button', { name: 'Save automation preferences' }),
+  ).toBeDisabled();
+  expect(screen.getByText('Capability: loading')).toBeOnTheScreen();
 });
 
 test('Automation validates favorites-only scheduling while clearly reporting unavailable native status', async () => {
