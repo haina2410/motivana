@@ -45,7 +45,7 @@ Debug builds expose **Run rotation now**. Release Kotlin rejects this path with
 
 ## Stable errors and recovery
 
-The public app error vocabulary is `PERMISSION_DENIED`, `FILE_NOT_FOUND`,
+The public `WallpaperServiceErrorCode` vocabulary is `PERMISSION_DENIED`, `FILE_NOT_FOUND`,
 `SAVE_FAILED`, `INVALID_TARGET`, `WALLPAPER_NOT_ALLOWED`, `LOCK_UNSUPPORTED`,
 `DECODE_FAILED`, `APPLY_FAILED`, `NOT_IMPLEMENTED`, `DEBUG_ONLY`,
 `INVALID_CONFIGURATION`, `EMPTY_FAVORITES`, `CONFIGURE_FAILED`,
@@ -53,6 +53,11 @@ The public app error vocabulary is `PERMISSION_DENIED`, `FILE_NOT_FOUND`,
 `SCHEDULER_FAILED`, and `SYSTEM_FAILED`. These are safe UI/native boundary
 codes; the UI keeps the active composition and does not surface raw Android
 exception messages.
+
+Foreground export has its own public `RenderError` codes: `INVALID_DIMENSIONS`,
+`SURFACE_CREATION_FAILED`, `DRAW_FAILED`, `ENCODE_FAILED`, and
+`FILE_WRITE_FAILED`. `WallpaperActions` presents these as explicit export
+failures and retains the composition for retry.
 
 The persisted worker `errorCode` is deliberately narrower:
 `INVALID_CONFIGURATION`, `EMPTY_FAVORITES`, `LOCK_UNSUPPORTED`, `FONT_MISSING`,
