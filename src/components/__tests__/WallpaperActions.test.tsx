@@ -149,3 +149,40 @@ test('shows a safe renderer failure code when foreground export fails', async ()
   );
   expect(mockSaveWallpaper).not.toHaveBeenCalled();
 });
+
+test('renders again for a separate completed action, but reuses a service-failed export on Retry', async () => {
+  mockSaveWallpaper.mockRejectedValueOnce({ code: 'SAVE_FAILED' });
+  render(
+    <WallpaperActions composition={composition} fontProvider={fontProvider} />,
+  );
+  fireEvent.press(screen.getByRole('button', { name: 'Save wallpaper' }));
+  await waitFor(() => expect(mockSaveWallpaper).toHaveBeenCalledTimes(1));
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Retry wallpaper action' }),
+  );
+  await waitFor(() => expect(mockSaveWallpaper).toHaveBeenCalledTimes(2));
+  expect(mockExportWallpaper).toHaveBeenCalledTimes(1);
+
+  fireEvent.press(screen.getByRole('button', { name: 'Save wallpaper' }));
+  await waitFor(() => expect(mockSaveWallpaper).toHaveBeenCalledTimes(3));
+  expect(mockExportWallpaper).toHaveBeenCalledTimes(2);
+});
+
+test('re-exports a missing retry file and exposes settings only after permanent denial', async () => {
+  mockSaveWallpaper
+    .mockRejectedValueOnce({ code: 'FILE_NOT_FOUND' })
+    .mockRejectedValueOnce({ code: 'PERMISSION_DENIED', canAskAgain: false });
+  render(
+    <WallpaperActions composition={composition} fontProvider={fontProvider} />,
+  );
+  fireEvent.press(screen.getByRole('button', { name: 'Save wallpaper' }));
+  await waitFor(() => expect(mockSaveWallpaper).toHaveBeenCalledTimes(1));
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Retry wallpaper action' }),
+  );
+  await waitFor(() => expect(mockSaveWallpaper).toHaveBeenCalledTimes(2));
+  expect(mockExportWallpaper).toHaveBeenCalledTimes(2);
+  expect(
+    screen.getByRole('button', { name: 'Open app settings' }),
+  ).toBeOnTheScreen();
+});

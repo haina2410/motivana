@@ -62,10 +62,15 @@ export function createMediaLibrarySaver(
     if (!isAppOwnedWallpaperUri(uri, dependencies.appCacheUri)) {
       throw new WallpaperServiceError('FILE_NOT_FOUND');
     }
-    const permission = await dependencies.requestPermissionsAsync({
-      writeOnly: true,
-      granularPermissions: ['photo'],
-    });
+    let permission: { granted: boolean; canAskAgain: boolean };
+    try {
+      permission = await dependencies.requestPermissionsAsync({
+        writeOnly: true,
+        granularPermissions: ['photo'],
+      });
+    } catch {
+      throw new WallpaperServiceError('SAVE_FAILED');
+    }
     if (!permission.granted) {
       throw new WallpaperServiceError('PERMISSION_DENIED', {
         canAskAgain: permission.canAskAgain,

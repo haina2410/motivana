@@ -1,6 +1,6 @@
 import { type SkTypefaceFontProvider } from '@shopify/react-native-skia';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type {
   WallpaperCapabilities,
@@ -75,7 +75,9 @@ export function WallpaperActions({
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
   const [retryAction, setRetryAction] = useState<WallpaperAction>();
-  const cachedExport = useRef<
+  const [permissionDeniedPermanently, setPermissionDeniedPermanently] =
+    useState(false);
+  const retryExport = useRef<
     { cacheKey: string; rendered: RenderedWallpaper } | undefined
   >(undefined);
   const busyRef = useRef(false);
@@ -90,26 +92,42 @@ export function WallpaperActions({
     };
   }, []);
 
-  const run = async (action: WallpaperAction) => {
+  const run = async (action: WallpaperAction, retry = false) => {
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
     setMessage(undefined);
     setError(undefined);
     setRetryAction(undefined);
+    setPermissionDeniedPermanently(false);
+    let rendered: RenderedWallpaper | undefined;
     try {
-      const rendered =
-        cachedExport.current?.cacheKey === composition.cacheKey
-          ? cachedExport.current.rendered
+      rendered =
+        retry && retryExport.current?.cacheKey === composition.cacheKey
+          ? retryExport.current.rendered
           : await exportWallpaper(composition, fontProvider);
-      cachedExport.current = { cacheKey: composition.cacheKey, rendered };
       if (action.kind === 'save') await saveWallpaper(rendered.uri);
       else await setWallpaper(rendered.uri, action.target);
+      retryExport.current = undefined;
       setShowTargets(false);
       setMessage(successMessage(action));
     } catch (caught) {
+      const code =
+        typeof caught === 'object' && caught !== null && 'code' in caught
+          ? (caught as { code?: unknown }).code
+          : undefined;
+      const canAskAgain =
+        typeof caught === 'object' && caught !== null && 'canAskAgain' in caught
+          ? (caught as { canAskAgain?: unknown }).canAskAgain
+          : undefined;
+      if (code === 'FILE_NOT_FOUND' || !rendered)
+        retryExport.current = undefined;
+      else retryExport.current = { cacheKey: composition.cacheKey, rendered };
       setError(errorMessage(caught));
       setRetryAction(action);
+      setPermissionDeniedPermanently(
+        code === 'PERMISSION_DENIED' && canAskAgain === false,
+      );
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -173,8 +191,16 @@ export function WallpaperActions({
           disabled={busy}
           hint="Repeats the failed action using the same exported wallpaper."
           label="Retry wallpaper action"
-          onPress={() => void run(retryAction)}
+          onPress={() => void run(retryAction, true)}
           symbol="↻"
+        />
+      ) : null}
+      {permissionDeniedPermanently ? (
+        <AppIconButton
+          hint="Opens this app's Android settings so photo permission can be enabled."
+          label="Open app settings"
+          onPress={() => void Linking.openSettings()}
+          symbol="⚙"
         />
       ) : null}
     </View>

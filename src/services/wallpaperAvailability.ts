@@ -1,10 +1,15 @@
 import type { WallpaperTarget } from '../store/schema';
 import { getWallpaperCapabilities } from './wallpaperNative';
 
-export interface WallpaperCapabilities {
-  kind: 'available';
-  supportedTargets: Readonly<Record<WallpaperTarget, boolean>>;
-}
+export type WallpaperCapabilities =
+  | {
+      kind: 'available';
+      supportedTargets: Readonly<Record<WallpaperTarget, boolean>>;
+    }
+  | {
+      kind: 'unavailable';
+      supportedTargets: Readonly<Record<WallpaperTarget, false>>;
+    };
 
 export type WallpaperAutomationStatus =
   | { kind: 'available'; label: string }
@@ -17,8 +22,8 @@ export interface WallpaperAutomationAvailability {
 
 export const wallpaperAutomationFallback: WallpaperAutomationAvailability = {
   capabilities: {
-    kind: 'available',
-    supportedTargets: { home: true, lock: false, both: false },
+    kind: 'unavailable',
+    supportedTargets: { home: false, lock: false, both: false },
   },
   status: {
     kind: 'unavailable',

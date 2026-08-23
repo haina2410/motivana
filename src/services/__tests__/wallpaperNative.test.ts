@@ -65,6 +65,7 @@ test('passes a validated cache URI and target to the native bridge', async () =>
 });
 
 test.each([
+  'INVALID_TARGET',
   'WALLPAPER_NOT_ALLOWED',
   'LOCK_UNSUPPORTED',
   'FILE_NOT_FOUND',

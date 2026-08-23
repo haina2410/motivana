@@ -24,11 +24,11 @@ test('Automation validates favorites-only scheduling while clearly reporting una
   render(<AutomationScreen />);
 
   await waitFor(() =>
-    expect(screen.getByText('Capability: live')).toBeOnTheScreen(),
+    expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
   );
 
   expect(screen.getByText('Wallpaper targets available')).toBeOnTheScreen();
-  expect(screen.getByText('Capability: live')).toBeOnTheScreen();
+  expect(screen.getByText('Capability: available')).toBeOnTheScreen();
   expect(screen.getByText('Status: unavailable')).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
   fireEvent.press(
@@ -44,7 +44,7 @@ test('Automation validates favorites-only scheduling while clearly reporting una
 test('Automation stores supported preferences and keeps unavailable targets disabled', async () => {
   render(<AutomationScreen />);
   await waitFor(() =>
-    expect(screen.getByText('Capability: live')).toBeOnTheScreen(),
+    expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
   );
   fireEvent.press(screen.getByLabelText('Every 6 hours'));
   fireEvent.press(screen.getByLabelText('Apply to both screens'));

@@ -11,6 +11,7 @@ import {
   isWallpaperTargetAvailable,
   wallpaperAutomationFallback,
 } from '../src/services/wallpaperAvailability';
+import type { WallpaperAutomationAvailability } from '../src/services/wallpaperAvailability';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
@@ -53,23 +54,31 @@ function Choice({
 
 export default function AutomationScreen() {
   const state = useAppStore();
-  const [availability, setAvailability] = useState(wallpaperAutomationFallback);
+  const [availability, setAvailability] =
+    useState<WallpaperAutomationAvailability>();
+  const [target, setTarget] = useState<WallpaperTarget>('home');
+  const [persistedTarget] = useState<WallpaperTarget>(state.wallpaperTarget);
   useEffect(() => {
     let active = true;
     getWallpaperAutomationAvailability()
-      .then((value) => active && setAvailability(value))
-      .catch(() => undefined);
+      .then((value) => {
+        if (!active) return;
+        setAvailability(value);
+        setTarget((current) =>
+          isWallpaperTargetAvailable(current, value.capabilities)
+            ? current
+            : isWallpaperTargetAvailable(persistedTarget, value.capabilities)
+              ? persistedTarget
+              : 'home',
+        );
+      })
+      .catch(() => active && setAvailability(wallpaperAutomationFallback));
     return () => {
       active = false;
     };
-  }, []);
+  }, [persistedTarget]);
   const [interval, setInterval] = useState<RotationIntervalHours>(
     state.rotationIntervalHours,
-  );
-  const [target, setTarget] = useState<WallpaperTarget>(() =>
-    isWallpaperTargetAvailable(state.wallpaperTarget, availability.capabilities)
-      ? state.wallpaperTarget
-      : 'home',
   );
   const [favoritesOnly, setFavoritesOnly] = useState(state.favoriteQuotesOnly);
   const [message, setMessage] = useState<string>();
@@ -87,7 +96,7 @@ export default function AutomationScreen() {
       state.setFavoriteQuotesOnly(favoritesOnly);
     setMessage(
       `Preferences saved. ${
-        availability.status.kind === 'unavailable'
+        availability && availability.status.kind === 'unavailable'
           ? availability.status.message
           : 'Scheduling status is available.'
       }`,
@@ -121,14 +130,14 @@ export default function AutomationScreen() {
         />
         <View
           accessible
-          accessibilityLabel={`Service status ${availability.status.kind}`}
+          accessibilityLabel={`Service status ${availability?.status.kind ?? 'loading'}`}
           style={styles.status}
         >
           <Text allowFontScaling style={styles.statusText}>
-            Capability: live
+            Capability: {availability?.capabilities.kind ?? 'loading'}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
-            {availability.status.label}
+            {availability?.status.label ?? 'Status: checking device support'}
           </Text>
         </View>
         <View style={styles.section}>
@@ -163,6 +172,7 @@ export default function AutomationScreen() {
                 label={label}
                 selected={target === value}
                 disabled={
+                  !availability ||
                   !isWallpaperTargetAvailable(value, availability.capabilities)
                 }
                 onPress={() => setTarget(value)}

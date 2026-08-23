@@ -4,9 +4,10 @@ data class WallpaperCapabilities(
   val apiLevel: Int,
   val isSetWallpaperAllowed: Boolean,
   val lockScreenSupported: Boolean,
+  val wallpaperSupported: Boolean = true,
 ) {
   val supportsHome: Boolean
-    get() = isSetWallpaperAllowed
+    get() = wallpaperSupported && isSetWallpaperAllowed
   val supportsLock: Boolean
     get() = apiLevel >= 24 && isSetWallpaperAllowed && lockScreenSupported
 

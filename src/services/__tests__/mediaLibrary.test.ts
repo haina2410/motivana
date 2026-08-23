@@ -80,3 +80,15 @@ test('rejects a non-app-owned URI before prompting for media permission', async 
   );
   expect(dependencies.requestPermissionsAsync).not.toHaveBeenCalled();
 });
+
+test('maps a rejected permission request to a safe save failure', async () => {
+  const dependencies = createDependencies({ granted: true, canAskAgain: true });
+  dependencies.requestPermissionsAsync.mockRejectedValueOnce(
+    new Error('secret'),
+  );
+  await expect(
+    createMediaLibrarySaver(dependencies)(
+      `${appCacheUri}/motivana-exports/forest.png`,
+    ),
+  ).rejects.toMatchObject({ code: 'SAVE_FAILED' });
+});

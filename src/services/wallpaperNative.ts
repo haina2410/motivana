@@ -12,6 +12,7 @@ import {
 } from './mediaLibrary';
 
 const stableNativeCodes = new Set<WallpaperServiceErrorCode>([
+  'INVALID_TARGET',
   'WALLPAPER_NOT_ALLOWED',
   'LOCK_UNSUPPORTED',
   'FILE_NOT_FOUND',

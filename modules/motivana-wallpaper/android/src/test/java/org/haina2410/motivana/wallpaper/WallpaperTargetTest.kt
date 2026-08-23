@@ -45,6 +45,22 @@ class WallpaperTargetTest {
   }
 
   @Test
+  fun unsupportedDeviceDoesNotAdvertiseHome() {
+    val capabilities = WallpaperPlatformPolicy.capabilities(36, false, true)
+    assertFalse(capabilities.supportsHome)
+    assertFalse(capabilities.supportsLock)
+  }
+
+  @Test
+  fun apiBelow24UsesLegacyHomeOnlyWithoutApi24Policy() {
+    val capabilities = WallpaperPlatformPolicy.capabilities(23, true, false)
+    assertTrue(capabilities.supportsHome)
+    assertFalse(capabilities.supportsLock)
+    assertTrue(WallpaperPlatformPolicy.usesLegacyHomeApply(23, WallpaperTarget.HOME))
+    assertFalse(WallpaperPlatformPolicy.usesLegacyHomeApply(23, WallpaperTarget.LOCK))
+  }
+
+  @Test
   fun bitmapSafetyRejectsRgbaAllocationsOver64MiBWithoutOverflow() {
     assertTrue(WallpaperImageSafety.hasSafeRgbaAllocation(1080, 2400))
     assertFalse(WallpaperImageSafety.hasSafeRgbaAllocation(5000, 5000))

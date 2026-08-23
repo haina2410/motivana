@@ -22,11 +22,7 @@ class MotivanaWallpaperModule : Module() {
 
     AsyncFunction("getCapabilities") {
       val manager = WallpaperManager.getInstance(context)
-      val capabilities = WallpaperCapabilities(
-        apiLevel = Build.VERSION.SDK_INT,
-        isSetWallpaperAllowed = manager.isSetWallpaperAllowed,
-        lockScreenSupported = manager.isWallpaperSupported,
-      )
+      val capabilities = capabilities(manager)
       mapOf(
         "supportsHome" to capabilities.supportsHome,
         "supportsLock" to capabilities.supportsLock,
@@ -37,14 +33,10 @@ class MotivanaWallpaperModule : Module() {
       val target = try {
         WallpaperTarget.parse(targetValue)
       } catch (_: IllegalArgumentException) {
-        throw WallpaperException("APPLY_FAILED", "Wallpaper target is invalid.")
+        throw WallpaperException("INVALID_TARGET", "Wallpaper target is invalid.")
       }
       val manager = WallpaperManager.getInstance(context)
-      val capabilities = WallpaperCapabilities(
-        apiLevel = Build.VERSION.SDK_INT,
-        isSetWallpaperAllowed = manager.isSetWallpaperAllowed,
-        lockScreenSupported = manager.isWallpaperSupported,
-      )
+      val capabilities = capabilities(manager)
       if (!capabilities.isSetWallpaperAllowed) {
         throw WallpaperException("WALLPAPER_NOT_ALLOWED", "Wallpaper changes are not allowed.")
       }
@@ -54,7 +46,11 @@ class MotivanaWallpaperModule : Module() {
       val file = resolveExportFile(uriString)
       val bitmap = decodeWallpaper(file)
       try {
-        manager.setBitmap(bitmap, null, true, target.flags)
+        if (WallpaperPlatformPolicy.usesLegacyHomeApply(Build.VERSION.SDK_INT, target)) {
+          manager.setBitmap(bitmap)
+        } else {
+          manager.setBitmap(bitmap, null, true, target.flags)
+        }
       } catch (_: Exception) {
         throw WallpaperException("APPLY_FAILED", "Wallpaper could not be applied.")
       } finally {
@@ -75,6 +71,13 @@ class MotivanaWallpaperModule : Module() {
 
   private fun rotationUnavailable(): Unit {
     throw WallpaperException("NOT_IMPLEMENTED", "Wallpaper rotation is not available yet.")
+  }
+
+  private fun capabilities(manager: WallpaperManager): WallpaperCapabilities {
+    val apiLevel = Build.VERSION.SDK_INT
+    val wallpaperSupported = manager.isWallpaperSupported
+    val setWallpaperAllowed = if (apiLevel >= 24) manager.isSetWallpaperAllowed else true
+    return WallpaperPlatformPolicy.capabilities(apiLevel, wallpaperSupported, setWallpaperAllowed)
   }
 
   private fun resolveExportFile(uriString: String): File {
