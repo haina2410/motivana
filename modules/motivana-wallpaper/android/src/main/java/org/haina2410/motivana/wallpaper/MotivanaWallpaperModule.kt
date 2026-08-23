@@ -61,7 +61,14 @@ class MotivanaWallpaperModule : Module() {
     }
 
     AsyncFunction("configureRotation") { options: Map<String, Any?> ->
-      val catalog = try { RotationCatalogLoader.load(context.assets) } catch (_: Exception) { throw WallpaperException("ASSET_FAILED", "Wallpaper rotation assets are unavailable.") }
+      val catalog = try { RotationCatalogLoader.load(context.assets) } catch (e: CatalogException) {
+        val code = if (e.code == "FONT_MISSING") "FONT_MISSING" else "ASSET_INVALID"
+        throw WallpaperException(code, "Wallpaper rotation assets are invalid.")
+      } catch (_: TransientRotationException) {
+        throw WallpaperException("ASSET_IO", "Wallpaper rotation assets are temporarily unavailable.")
+      } catch (_: Exception) {
+        throw WallpaperException("ASSET_INVALID", "Wallpaper rotation assets are invalid.")
+      }
       val snapshot = try { RotationConfigureDecoder.decode(options) } catch (_: Exception) { throw WallpaperException("INVALID_CONFIGURATION", "Wallpaper rotation preferences are invalid.") }
       val validated = RotationSnapshot.parse(snapshot.toJson(), catalog)
       if (validated !is RotationSnapshotResult.Valid) throw WallpaperException((validated as RotationSnapshotResult.Invalid).code, "Wallpaper rotation preferences are invalid.")
