@@ -3,9 +3,72 @@ import { exportWallpaper, type ExportDependencies } from '../exportWallpaper';
 import { RenderError } from '../renderErrors';
 import { getPresetById } from '../presetRepository';
 import type { Quote } from '../../quotes/types';
+import type { SkTypefaceFontProvider } from '@shopify/react-native-skia';
 
-jest.mock('@shopify/react-native-skia', () => ({}));
-jest.mock('expo-file-system', () => ({}));
+const mockParagraphProviders: unknown[] = [];
+const mockNativeCanvas = {
+  drawRect: () => undefined,
+  drawCircle: () => undefined,
+};
+const mockNativeSurface = {
+  getCanvas: () => mockNativeCanvas,
+  flush: () => undefined,
+  makeImageSnapshot: () => ({
+    encodeToBytes: () => new Uint8Array([137, 80, 78, 71]),
+    dispose: () => undefined,
+  }),
+  dispose: () => undefined,
+};
+
+jest.mock('@shopify/react-native-skia', () => ({
+  Skia: {
+    Color: (color: string) => color,
+    Paint: () => ({
+      setColor: () => undefined,
+      setAlphaf: () => undefined,
+      setShader: () => undefined,
+      dispose: () => undefined,
+    }),
+    Point: (x: number, y: number) => ({ x, y }),
+    XYWHRect: (x: number, y: number, width: number, height: number) => ({
+      x,
+      y,
+      width,
+      height,
+    }),
+    Shader: { MakeLinearGradient: () => undefined },
+    Surface: { MakeOffscreen: () => mockNativeSurface },
+    ParagraphBuilder: {
+      Make: (_style: unknown, provider: unknown) => {
+        mockParagraphProviders.push(provider);
+        return {
+          addText: () => undefined,
+          build: () => ({
+            layout: () => undefined,
+            paint: () => undefined,
+            dispose: () => undefined,
+          }),
+          dispose: () => undefined,
+        };
+      },
+    },
+  },
+  TextAlign: { Left: 0, Center: 1, Right: 2 },
+  TileMode: { Clamp: 0 },
+}));
+jest.mock('expo-file-system', () => ({
+  Directory: class {
+    create() {}
+  },
+  File: class {
+    uri = 'file:///cache/motivana-exports/default.png';
+    create() {}
+    write() {}
+  },
+  Paths: { cache: 'file:///cache' },
+}));
+
+const loadedFontProvider = {} as SkTypefaceFontProvider;
 
 const composition = createComposition({
   quote: {
@@ -52,11 +115,18 @@ function workingDependencies(): ExportDependencies & {
   };
 }
 
+function exportWithDependencies(
+  input: typeof composition,
+  dependencies: ExportDependencies,
+) {
+  return exportWallpaper(input, loadedFontProvider, dependencies);
+}
+
 // Mutation caught: allocating a preview-sized surface or omitting the scene draw would produce an unusable export.
 test('exports a drawn PNG at the exact full-resolution composition dimensions', async () => {
   const dependencies = workingDependencies();
 
-  const result = await exportWallpaper(composition, dependencies);
+  const result = await exportWithDependencies(composition, dependencies);
 
   expect(result).toEqual({
     uri: 'file:///cache/motivana-exports/midnight-focus-export-quote-1080x2400.png',
@@ -75,7 +145,7 @@ test.each([
   [{ ...composition, width: 5000, height: 5000 }, 'INVALID_DIMENSIONS'],
 ])('rejects invalid dimensions before export: %s', async (invalid, code) => {
   await expect(
-    exportWallpaper(invalid, workingDependencies()),
+    exportWithDependencies(invalid, workingDependencies()),
   ).rejects.toMatchObject({
     name: 'RenderError',
     code,
@@ -87,9 +157,20 @@ test('maps a missing Skia surface to SURFACE_CREATION_FAILED', async () => {
   const dependencies = workingDependencies();
   dependencies.createSurface = () => null;
 
-  await expect(exportWallpaper(composition, dependencies)).rejects.toEqual(
-    new RenderError('SURFACE_CREATION_FAILED'),
-  );
+  await expect(
+    exportWithDependencies(composition, dependencies),
+  ).rejects.toEqual(new RenderError('SURFACE_CREATION_FAILED'));
+});
+
+// Mutation caught: letting a native allocation exception escape would force UI callers to parse platform-specific errors.
+test('maps a throwing surface factory to SURFACE_CREATION_FAILED', async () => {
+  const dependencies = workingDependencies();
+  dependencies.createSurface = () => {
+    throw new Error('oom');
+  };
+  await expect(
+    exportWithDependencies(composition, dependencies),
+  ).rejects.toEqual(new RenderError('SURFACE_CREATION_FAILED'));
 });
 
 // Mutation caught: allowing a scene exception to escape leaks a native implementation error to the UI.
@@ -99,9 +180,9 @@ test('maps scene drawing failures to DRAW_FAILED', async () => {
     throw new Error('paragraph failure');
   };
 
-  await expect(exportWallpaper(composition, dependencies)).rejects.toEqual(
-    new RenderError('DRAW_FAILED'),
-  );
+  await expect(
+    exportWithDependencies(composition, dependencies),
+  ).rejects.toEqual(new RenderError('DRAW_FAILED'));
 });
 
 // Mutation caught: writing empty encoded bytes would create a corrupt wallpaper file.
@@ -117,9 +198,50 @@ test('maps PNG encode failure to ENCODE_FAILED', async () => {
     dispose: () => undefined,
   });
 
-  await expect(exportWallpaper(composition, dependencies)).rejects.toEqual(
-    new RenderError('ENCODE_FAILED'),
-  );
+  await expect(
+    exportWithDependencies(composition, dependencies),
+  ).rejects.toEqual(new RenderError('ENCODE_FAILED'));
+});
+
+// Mutation caught: snapshot/encoding native exceptions must be stable render errors and still release acquired native resources.
+test.each(['snapshot', 'encoder'])(
+  'maps a throwing %s path to ENCODE_FAILED and cleans up',
+  async (throwAt) => {
+    const dependencies = workingDependencies();
+    const disposeSurface = jest.fn();
+    const disposeImage = jest.fn();
+    dependencies.createSurface = () => ({
+      getCanvas: () => ({}),
+      flush: () => undefined,
+      makeImageSnapshot: () => {
+        if (throwAt === 'snapshot') throw new Error('snapshot');
+        return {
+          encodeToBytes: () => {
+            throw new Error('encode');
+          },
+          dispose: disposeImage,
+        };
+      },
+      dispose: disposeSurface,
+    });
+
+    await expect(
+      exportWithDependencies(composition, dependencies),
+    ).rejects.toEqual(new RenderError('ENCODE_FAILED'));
+    expect(disposeSurface).toHaveBeenCalledTimes(1);
+    expect(disposeImage).toHaveBeenCalledTimes(throwAt === 'encoder' ? 1 : 0);
+  },
+);
+
+// Mutation caught: treating the loaded provider as export dependencies or omitting it makes the default export use fallback typography.
+test('renders the default export scene with the loaded font provider', async () => {
+  mockParagraphProviders.length = 0;
+
+  await expect(
+    exportWallpaper(composition, loadedFontProvider),
+  ).resolves.toMatchObject({ width: 1080, height: 2400 });
+
+  expect(mockParagraphProviders).toContain(loadedFontProvider);
 });
 
 // Mutation caught: swallowing a filesystem exception would report an export whose PNG was never persisted.
@@ -129,7 +251,7 @@ test('maps file persistence failures to FILE_WRITE_FAILED', async () => {
     throw new Error('disk full');
   };
 
-  await expect(exportWallpaper(composition, dependencies)).rejects.toEqual(
-    new RenderError('FILE_WRITE_FAILED'),
-  );
+  await expect(
+    exportWithDependencies(composition, dependencies),
+  ).rejects.toEqual(new RenderError('FILE_WRITE_FAILED'));
 });

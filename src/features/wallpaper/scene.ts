@@ -10,6 +10,15 @@ import {
 
 import type { WallpaperComposition } from './composition';
 
+function skiaFontWeight(
+  weight: WallpaperComposition['preset']['fontWeight'],
+): number {
+  'worklet';
+  if (weight === 'Medium') return 500;
+  if (weight === 'SemiBold') return 600;
+  return 400;
+}
+
 function paragraphAlignment(
   alignment: WallpaperComposition['preset']['textAlign'],
 ): TextAlign {
@@ -33,12 +42,13 @@ function createParagraph(
     {
       textAlign: paragraphAlignment(composition.preset.textAlign),
       heightMultiplier: composition.preset.lineHeight,
-      maxLines,
+      ...(maxLines === undefined ? {} : { maxLines }),
       ...(ellipsis === undefined ? {} : { ellipsis }),
       textStyle: {
         color: Skia.Color(color),
         fontFamilies: [composition.preset.fontFamily],
         fontSize,
+        fontStyle: { weight: skiaFontWeight(composition.preset.fontWeight) },
       },
     },
     fontProvider,
@@ -115,7 +125,7 @@ export function drawWallpaperScene(
       composition,
       composition.quoteFontSize,
       composition.preset.textColor,
-      composition.maxQuoteLines,
+      composition.truncated ? composition.maxQuoteLines : undefined,
       composition.truncated ? '…' : undefined,
       fontProvider,
     );

@@ -27,7 +27,7 @@ export interface ExportDependencies {
 }
 
 export function createExportDependencies(
-  fontProvider?: SkTypefaceFontProvider,
+  fontProvider: SkTypefaceFontProvider,
 ): ExportDependencies {
   return {
     createSurface: (width, height) => Skia.Surface.MakeOffscreen(width, height),
@@ -59,16 +59,19 @@ function hasSafeExportDimensions(composition: WallpaperComposition): boolean {
 
 export async function exportWallpaper(
   composition: WallpaperComposition,
-  dependencies: ExportDependencies = createExportDependencies(),
+  fontProvider: SkTypefaceFontProvider,
+  dependencies: ExportDependencies = createExportDependencies(fontProvider),
 ): Promise<RenderedWallpaper> {
   if (!hasSafeExportDimensions(composition)) {
     throw new RenderError('INVALID_DIMENSIONS');
   }
 
-  const surface = dependencies.createSurface(
-    composition.width,
-    composition.height,
-  );
+  let surface: NativeSurface | null;
+  try {
+    surface = dependencies.createSurface(composition.width, composition.height);
+  } catch {
+    throw new RenderError('SURFACE_CREATION_FAILED');
+  }
   if (surface === null) {
     throw new RenderError('SURFACE_CREATION_FAILED');
   }
@@ -82,8 +85,13 @@ export async function exportWallpaper(
       throw new RenderError('DRAW_FAILED');
     }
 
-    image = surface.makeImageSnapshot();
-    const pngBytes = image.encodeToBytes();
+    let pngBytes: Uint8Array | null | undefined;
+    try {
+      image = surface.makeImageSnapshot();
+      pngBytes = image.encodeToBytes();
+    } catch {
+      throw new RenderError('ENCODE_FAILED');
+    }
     if (!pngBytes || pngBytes.length === 0) {
       throw new RenderError('ENCODE_FAILED');
     }
