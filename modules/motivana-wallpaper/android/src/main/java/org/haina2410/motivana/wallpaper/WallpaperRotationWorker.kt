@@ -14,8 +14,13 @@ object WallpaperRotationWorkerFactory {
   fun create(context: Context): RotationWorkerExecution = testExecution?.invoke() ?: default(context)
   private fun default(context: Context): RotationWorkerExecution {
     val preferences = RotationPreferences(context)
-    val catalog = try { RotationCatalogLoader.load(context.assets) } catch (_: Exception) {
-      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_FAILED"))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
+    val catalog = try { RotationCatalogLoader.load(context.assets) } catch (e: CatalogException) {
+      val code = if (e.code == "FONT_MISSING") "FONT_MISSING" else "ASSET_INVALID"
+      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = code))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
+    } catch (_: TransientRotationException) {
+      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_IO"))) RotationWorkResult.RETRY else RotationWorkResult.RETRY }
+    } catch (_: Exception) {
+      return RotationWorkerExecution { if (preferences.saveStatus(RotationStatus(false, RotationState.FAILED, System.currentTimeMillis(), errorCode = "ASSET_INVALID"))) RotationWorkResult.FAILURE else RotationWorkResult.RETRY }
     }
     val manager = WallpaperManager.getInstance(context)
     val policy = WallpaperPlatformPolicy.capabilities(Build.VERSION.SDK_INT, manager.isWallpaperSupported, if (Build.VERSION.SDK_INT >= 24) manager.isSetWallpaperAllowed else true)

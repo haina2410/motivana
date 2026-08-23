@@ -71,8 +71,12 @@ class MotivanaWallpaperModule : Module() {
       val transaction = RotationConfigurationTransaction(object : RotationConfigurationStore {
         override fun readSnapshot(catalog: RotationCatalog) = preferences.snapshot(catalog)
         override fun readStatus() = preferences.status()
+        override fun readRawSnapshot() = preferences.rawSnapshot()
+        override fun readRawStatus() = preferences.rawStatus()
         override fun saveSnapshot(snapshot: RotationSnapshot) = preferences.saveSnapshot(snapshot)
         override fun saveStatus(status: RotationStatus) = preferences.saveStatus(status)
+        override fun restoreRawSnapshot(value: String?) = preferences.restoreRawSnapshot(value)
+        override fun restoreRawStatus(value: String?) = preferences.restoreRawStatus(value)
       }, RotationScheduler(AndroidRotationWorkScheduler(context)), System::currentTimeMillis)
       if (!transaction.apply(snapshot, catalog)) throw WallpaperException("CONFIGURE_FAILED", "Wallpaper rotation preferences could not be confirmed.")
     }

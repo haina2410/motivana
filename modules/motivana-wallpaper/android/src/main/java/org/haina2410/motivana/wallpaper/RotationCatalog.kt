@@ -1,11 +1,37 @@
 package org.haina2410.motivana.wallpaper
 
 import android.content.res.AssetManager
+import android.graphics.Typeface
+import java.io.IOException
 import org.json.JSONArray
 import org.json.JSONObject
 
 object RotationCatalogLoader {
-  fun load(assets: AssetManager): RotationCatalog = RotationCatalog(parseQuotes(assets.open("data/quotes.json").bufferedReader().use { it.readText() }), parsePresets(assets.open("data/presets.json").bufferedReader().use { it.readText() })).also(RotationCatalogValidator::validate)
+  fun load(assets: AssetManager): RotationCatalog = try {
+    RotationCatalog(
+      parseQuotes(assets.open("data/quotes.json").bufferedReader().use { it.readText() }),
+      parsePresets(assets.open("data/presets.json").bufferedReader().use { it.readText() }),
+    ).also { catalog -> RotationCatalogValidator.validate(catalog); validateFonts(assets, catalog) }
+  } catch (e: CatalogException) {
+    throw e
+  } catch (e: IOException) {
+    throw TransientRotationException("ASSET_IO")
+  } catch (_: Exception) {
+    throw CatalogException("ASSET_INVALID")
+  }
+
+  private fun validateFonts(assets: AssetManager, catalog: RotationCatalog) {
+    catalog.presets.map { "${it.family}-${it.weight}" }.distinct().forEach { font ->
+      try {
+        assets.open("fonts/$font.ttf").use { it.read() }
+        Typeface.createFromAsset(assets, "fonts/$font.ttf") ?: throw CatalogException("FONT_MISSING")
+      } catch (e: CatalogException) {
+        throw e
+      } catch (_: Exception) {
+        throw CatalogException("FONT_MISSING")
+      }
+    }
+  }
   fun parseQuotes(source: String): List<RotationQuote> = JSONArray(source).let { array -> (0 until array.length()).map { index -> array.getJSONObject(index).let { RotationQuote(it.getString("id"), it.getString("text"), it.optString("author").takeIf(String::isNotBlank), it.getString("category")) } } }
   fun parsePresets(source: String): List<RotationPreset> = JSONArray(source).let { array -> (0 until array.length()).map { index ->
     val p = array.getJSONObject(index); val background = p.getJSONObject("background")
@@ -32,8 +58,8 @@ object RotationCatalogValidator {
 }
 
 class RotationSelector(private val random: java.util.Random) {
-  fun select(catalog: RotationCatalog, eligibleIds: List<String>, previousQuoteId: String?, previousPresetId: String?, randomizePreset: Boolean, preferredPresetId: String): RotationSelection {
-    val eligible = if (eligibleIds.isEmpty()) catalog.quotes else catalog.quotes.filter { it.id in eligibleIds }
+  fun select(catalog: RotationCatalog, eligibleIds: List<String>?, previousQuoteId: String?, previousPresetId: String?, randomizePreset: Boolean, preferredPresetId: String): RotationSelection {
+    val eligible = eligibleIds?.let { ids -> catalog.quotes.filter { it.id in ids } } ?: catalog.quotes
     if (eligible.isEmpty()) throw SelectionException("NO_ELIGIBLE_QUOTES")
     val quoteChoices = eligible.filter { it.id != previousQuoteId }.ifEmpty { eligible }
     val presets = if (randomizePreset) catalog.presets.filter { it.id != previousPresetId }.ifEmpty { catalog.presets } else listOfNotNull(catalog.preset(preferredPresetId))

@@ -1,5 +1,6 @@
 package org.haina2410.motivana.wallpaper
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -9,14 +10,19 @@ class RotationConfigurationTransactionTest {
   private val old = RotationSnapshot(false, 6, WallpaperTarget.HOME, "p", false, emptyList(), false)
   private val next = old.copy(enabled = true, intervalHours = 12)
   @Test fun updateCommitsSnapshotWorkThenStatus() { val fixture = Fixture(); assertTrue(fixture.transaction().apply(next, catalog)); assertTrue(fixture.snapshot.enabled) }
-  @Test fun scheduleFailureRestoresPriorSnapshotAndStatus() { val fixture = Fixture(schedule = false); assertFalse(fixture.transaction().apply(next, catalog)); assertFalse(fixture.snapshot.enabled) }
-  @Test fun statusFailureCompensatesTheWorkAndRestoresPriorState() { val fixture = Fixture(status = false); assertFalse(fixture.transaction().apply(next, catalog)); assertFalse(fixture.snapshot.enabled) }
-  private class Fixture(private val schedule: Boolean = true, private val status: Boolean = true) : RotationConfigurationStore {
-    var snapshot = RotationSnapshot(false, 6, WallpaperTarget.HOME, "p", false, emptyList(), false); var savedStatus = RotationStatus(false, RotationState.DISABLED)
+  @Test fun scheduleFailureRestoresExactPriorSnapshotAndStatus() { val fixture = Fixture(schedule = false); assertFalse(fixture.transaction().apply(next, catalog)); assertEquals(fixture.oldSnapshotRaw, fixture.rawSnapshot); assertEquals(fixture.oldStatusRaw, fixture.rawStatus) }
+  @Test fun disableDoesNotClaimDisabledUntilCancellationAndStatusCommitSucceed() { val fixture = Fixture(status = false); assertFalse(fixture.transaction().apply(old, catalog)); assertEquals(fixture.oldSnapshotRaw, fixture.rawSnapshot); assertEquals(fixture.oldStatusRaw, fixture.rawStatus) }
+  @Test fun compensationFailureStillReturnsConfigureFailure() { val fixture = Fixture(status = false, restore = false); assertFalse(fixture.transaction().apply(next, catalog)); assertTrue(fixture.calls >= 2) }
+  private class Fixture(private val schedule: Boolean = true, private val status: Boolean = true, private val restore: Boolean = true) : RotationConfigurationStore {
+    var snapshot = RotationSnapshot(false, 6, WallpaperTarget.HOME, "p", false, emptyList(), false); var savedStatus = RotationStatus(false, RotationState.DISABLED); val oldSnapshotRaw: String? = "old-snapshot"; val oldStatusRaw: String? = "old-status"; var rawSnapshot: String? = oldSnapshotRaw; var rawStatus: String? = oldStatusRaw; var calls = 0
     override fun readSnapshot(catalog: RotationCatalog) = RotationSnapshotResult.Valid(snapshot)
     override fun readStatus() = savedStatus
-    override fun saveSnapshot(snapshot: RotationSnapshot): Boolean { this.snapshot = snapshot; return true }
-    override fun saveStatus(status: RotationStatus): Boolean { if (!this.status) return false; savedStatus = status; return true }
-    fun transaction() = RotationConfigurationTransaction(this, RotationScheduler(object : RotationWorkScheduler { override fun updatePeriodic(name: String, intervalHours: Long) = schedule; override fun cancel(name: String) = schedule; override fun enqueueDebug(name: String) = true }), { 1L })
+    override fun readRawSnapshot() = rawSnapshot
+    override fun readRawStatus() = rawStatus
+    override fun saveSnapshot(snapshot: RotationSnapshot): Boolean { this.snapshot = snapshot; rawSnapshot = snapshot.toJson(); return true }
+    override fun saveStatus(status: RotationStatus): Boolean { if (!this.status) return false; savedStatus = status; rawStatus = status.toJson(); return true }
+    override fun restoreRawSnapshot(value: String?): Boolean { if (!restore) return false; rawSnapshot = value; return true }
+    override fun restoreRawStatus(value: String?): Boolean { if (!restore) return false; rawStatus = value; return true }
+    fun transaction() = RotationConfigurationTransaction(this, RotationScheduler(object : RotationWorkScheduler { override fun updatePeriodic(name: String, intervalHours: Long): Boolean { calls++; return schedule }; override fun cancel(name: String): Boolean { calls++; return schedule }; override fun enqueueDebug(name: String) = true }), { 1L })
   }
 }
