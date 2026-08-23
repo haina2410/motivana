@@ -1,0 +1,7 @@
+android/
+artifacts/
+coverage/
+.expo/
+node_modules/
+MVP_BUILD_SPEC.md
+docs/

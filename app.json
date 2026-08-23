@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Motivana",
+    "slug": "motivana",
+    "scheme": "motivana",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["android"],
+    "newArchEnabled": true,
+    "android": {
+      "package": "org.haina2410.motivana",
+      "permissions": ["android.permission.SET_WALLPAPER"]
+    },
+    "plugins": ["expo-router", "expo-media-library"]
+  }
+}
