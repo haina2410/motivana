@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { Component, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -26,18 +26,6 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const fonts = useWallpaperFonts();
   const state = useAppStore();
-  const [, retryPreview] = useState(0);
-  const quote = getQuoteById(state.currentQuoteId);
-  const preset = getPresetById(state.selectedPresetId);
-  const canRender = quote !== undefined && preset !== undefined;
-  const composition = canRender
-    ? createComposition({
-        quote,
-        preset,
-        width: Math.max(1, Math.round(width)),
-        height: Math.max(1, Math.round(height)),
-      })
-    : undefined;
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -84,15 +72,15 @@ export default function HomeScreen() {
             Preparing your wallpaper
           </Text>
         </View>
-      ) : !composition ? (
-        <RenderError onRetry={() => retryPreview((attempt) => attempt + 1)} />
       ) : (
-        <View style={styles.preview}>
-          <WallpaperCanvas
-            composition={composition}
-            style={StyleSheet.absoluteFill}
+        <PreviewErrorBoundary>
+          <WallpaperPreview
+            quoteId={state.currentQuoteId}
+            presetId={state.selectedPresetId}
+            width={width}
+            height={height}
           />
-        </View>
+        </PreviewErrorBoundary>
       )}
       <View style={styles.footer}>
         <View style={styles.controls}>
@@ -129,6 +117,67 @@ export default function HomeScreen() {
       </View>
     </SafeAreaView>
   );
+}
+
+function WallpaperPreview({
+  quoteId,
+  presetId,
+  width,
+  height,
+}: {
+  quoteId: string;
+  presetId: string;
+  width: number;
+  height: number;
+}) {
+  const quote = getQuoteById(quoteId);
+  const preset = getPresetById(presetId);
+  if (!quote || !preset) {
+    throw new Error('The selected wallpaper data is unavailable.');
+  }
+  const composition = createComposition({
+    quote,
+    preset,
+    width: Math.max(1, Math.round(width)),
+    height: Math.max(1, Math.round(height)),
+  });
+  return (
+    <View style={styles.preview}>
+      <WallpaperCanvas
+        composition={composition}
+        style={StyleSheet.absoluteFill}
+      />
+    </View>
+  );
+}
+
+interface PreviewErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface PreviewErrorBoundaryState {
+  hasError: boolean;
+}
+
+class PreviewErrorBoundary extends Component<
+  PreviewErrorBoundaryProps,
+  PreviewErrorBoundaryState
+> {
+  state: PreviewErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): PreviewErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  private retry = () => this.setState({ hasError: false });
+
+  render() {
+    return this.state.hasError ? (
+      <RenderError onRetry={this.retry} />
+    ) : (
+      this.props.children
+    );
+  }
 }
 
 function RenderError({ onRetry }: { onRetry: () => void }) {

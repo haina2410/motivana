@@ -14,6 +14,15 @@ import { typography } from '../src/theme/typography';
 export default function CustomizeScreen() {
   const state = useAppStore();
   const quote = getQuoteById(state.currentQuoteId);
+  const presets = getAllPresets();
+  const presetRows = presets.reduce<(typeof presets)[number][][]>(
+    (rows, preset, index) => {
+      if (index % 2 === 0) rows.push([preset]);
+      else rows[rows.length - 1]!.push(preset);
+      return rows;
+    },
+    [],
+  );
   if (!quote) return null;
   return (
     <SafeAreaView style={styles.screen}>
@@ -37,17 +46,22 @@ export default function CustomizeScreen() {
         contentContainerStyle={styles.grid}
         showsVerticalScrollIndicator={false}
       >
-        {getAllPresets().map((preset) => (
-          <PresetThumbnail
-            key={preset.id}
-            preset={preset}
-            quote={quote}
-            selected={state.selectedPresetId === preset.id}
-            onPress={() => {
-              state.selectPreset(preset.id);
-              router.back();
-            }}
-          />
+        {presetRows.map((row) => (
+          <View key={row[0]!.id} style={styles.row}>
+            {row.map((preset) => (
+              <View key={preset.id} style={styles.slot}>
+                <PresetThumbnail
+                  preset={preset}
+                  quote={quote}
+                  selected={state.selectedPresetId === preset.id}
+                  onPress={() => {
+                    state.selectPreset(preset.id);
+                    router.back();
+                  }}
+                />
+              </View>
+            ))}
+          </View>
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -67,9 +81,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.x2,
     paddingBottom: spacing.x4,
+    width: '100%',
   },
+  row: {
+    flexDirection: 'row',
+    gap: spacing.x2,
+    justifyContent: 'space-between',
+  },
+  slot: { flexBasis: '48%' },
 });

@@ -25,15 +25,19 @@ test('Automation validates favorites-only scheduling while clearly reporting una
   expect(useAppStore.getState().rotationEnabled).toBe(false);
 });
 
-test('Automation stores valid interval and target preferences without claiming a schedule', () => {
+test('Automation stores supported preferences and keeps unavailable targets disabled', () => {
   render(<AutomationScreen />);
   fireEvent.press(screen.getByLabelText('Every 6 hours'));
   fireEvent.press(screen.getByLabelText('Apply to both screens'));
+  fireEvent.press(screen.getByLabelText('Apply to Lock screen'));
+
+  expect(screen.getByLabelText('Apply to Lock screen')).toBeDisabled();
+  expect(screen.getByLabelText('Apply to both screens')).toBeDisabled();
   fireEvent.press(
     screen.getByRole('button', { name: 'Save automation preferences' }),
   );
 
   expect(useAppStore.getState().rotationIntervalHours).toBe(6);
-  expect(useAppStore.getState().wallpaperTarget).toBe('both');
+  expect(useAppStore.getState().wallpaperTarget).toBe('home');
   expect(useAppStore.getState().rotationEnabled).toBe(false);
 });

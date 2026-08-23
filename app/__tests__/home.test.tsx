@@ -10,9 +10,9 @@ import { createDefaultPersistedAppState } from '../../src/store/schema';
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
   const { View } = require('react-native');
   return {
-    WallpaperCanvas: () => (
+    WallpaperCanvas: jest.fn(() => (
       <View accessible accessibilityLabel="Wallpaper preview" />
-    ),
+    )),
   };
 });
 jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
@@ -21,10 +21,17 @@ jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
 const mockUseWallpaperFonts = jest.requireMock(
   '../../src/features/wallpaper/useWallpaperFonts',
 ).useWallpaperFonts as jest.Mock;
+const mockWallpaperCanvas = jest.requireMock(
+  '../../src/features/wallpaper/WallpaperCanvas',
+).WallpaperCanvas as jest.Mock;
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
   mockUseWallpaperFonts.mockReturnValue({});
+  mockWallpaperCanvas.mockImplementation(() => {
+    const { View } = require('react-native');
+    return <View accessible accessibilityLabel="Wallpaper preview" />;
+  });
   useAppStore.setState(createDefaultPersistedAppState());
 });
 
@@ -76,9 +83,43 @@ test('Home exposes branded loading and a retryable render error without losing s
 
   mockUseWallpaperFonts.mockReturnValue({});
   useAppStore.setState({ currentQuoteId: 'missing-quote' });
-  render(<HomeScreen />);
-  expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
-  fireEvent.press(screen.getByRole('button', { name: 'Retry preview' }));
-  expect(useAppStore.getState().currentQuoteId).toBe('missing-quote');
-  expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  try {
+    render(<HomeScreen />);
+    expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: 'Retry preview' }));
+    expect(useAppStore.getState().currentQuoteId).toBe('missing-quote');
+    expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
+  } finally {
+    errorSpy.mockRestore();
+  }
+});
+
+test('Home catches a thrown preview render and retries without changing the quote or preset', () => {
+  let shouldThrow = true;
+  mockWallpaperCanvas.mockImplementation(() => {
+    if (shouldThrow) {
+      throw new Error('Canvas failed to draw');
+    }
+    const { View } = require('react-native');
+    return <View accessible accessibilityLabel="Wallpaper preview" />;
+  });
+  const before = useAppStore.getState();
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+  try {
+    render(<HomeScreen />);
+    expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
+
+    shouldThrow = false;
+    fireEvent.press(screen.getByRole('button', { name: 'Retry preview' }));
+
+    expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
+    expect(useAppStore.getState().currentQuoteId).toBe(before.currentQuoteId);
+    expect(useAppStore.getState().selectedPresetId).toBe(
+      before.selectedPresetId,
+    );
+  } finally {
+    errorSpy.mockRestore();
+  }
 });

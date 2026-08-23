@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
@@ -36,13 +36,16 @@ export function SettingRow({
           {description}
         </Text>
       </View>
-      <Switch
-        value={value}
-        disabled={disabled}
-        onValueChange={onValueChange}
-        trackColor={{ false: colors.border, true: colors.accent }}
-        thumbColor={colors.text}
-      />
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        pointerEvents="none"
+        style={[styles.indicator, value && styles.indicatorOn]}
+      >
+        <Text allowFontScaling={false} style={styles.indicatorText}>
+          {value ? 'On' : 'Off'}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -64,4 +67,15 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.48 },
   label: { color: colors.text, fontSize: 16, fontWeight: '700' },
   description: { color: colors.mutedText, fontSize: 13, lineHeight: 18 },
+  indicator: {
+    alignItems: 'center',
+    backgroundColor: colors.border,
+    borderRadius: spacing.radius,
+    justifyContent: 'center',
+    minWidth: 46,
+    paddingHorizontal: spacing.x1,
+    paddingVertical: 6,
+  },
+  indicatorOn: { backgroundColor: colors.accent },
+  indicatorText: { color: colors.text, fontSize: 12, fontWeight: '800' },
 });

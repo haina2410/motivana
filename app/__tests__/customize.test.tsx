@@ -21,13 +21,21 @@ beforeEach(() => {
   useAppStore.setState(createDefaultPersistedAppState());
 });
 
-test('selecting every catalog preset persists it and returns Home', () => {
+test.each([
+  ['midnight-focus', 'Midnight Focus'],
+  ['sunrise-drive', 'Sunrise Drive'],
+  ['forest-discipline', 'Forest Discipline'],
+  ['violet-growth', 'Violet Growth'],
+  ['paper-confidence', 'Paper Confidence'],
+  ['ocean-success', 'Ocean Success'],
+  ['ember-action', 'Ember Action'],
+  ['mono-clarity', 'Mono Clarity'],
+])('selecting %s persists it and returns Home', (presetId, presetName) => {
   render(<CustomizeScreen />);
 
-  const presetButtons = screen.getAllByLabelText(/^Use .* preset$/);
-  expect(presetButtons).toHaveLength(8);
-  fireEvent.press(screen.getByLabelText('Use Forest Discipline preset'));
+  expect(screen.getAllByLabelText(/^Use .* preset$/)).toHaveLength(8);
+  fireEvent.press(screen.getByLabelText(`Use ${presetName} preset`));
 
-  expect(useAppStore.getState().selectedPresetId).toBe('forest-discipline');
+  expect(useAppStore.getState().selectedPresetId).toBe(presetId);
   expect(router.back).toHaveBeenCalledTimes(1);
 });
