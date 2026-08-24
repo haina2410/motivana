@@ -184,11 +184,7 @@ function WallpaperPreview({
   return <FittedPreview composition={composition} />;
 }
 
-function FittedPreview({
-  composition,
-}: {
-  composition: WallpaperComposition;
-}) {
+function FittedPreview({ composition }: { composition: WallpaperComposition }) {
   const [area, setArea] = useState<{ width: number; height: number }>();
   const onAreaLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
