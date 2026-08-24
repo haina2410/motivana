@@ -1,6 +1,21 @@
+import { getLocales } from 'expo-localization';
 import { getAllQuotes } from '../../features/quotes/quoteRepository';
-import { hydrateAppState, migratePersistedState } from '../schema';
+import {
+  createDefaultPersistedAppState,
+  hydrateAppState,
+  migratePersistedState,
+} from '../schema';
 import type { KeyValueStorage } from '../storage';
+
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageTag: 'en-US' }]),
+}));
+
+const mockedGetLocales = getLocales as jest.Mock;
+
+afterEach(() => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'en-US' }]);
+});
 
 function createMemoryStorage(
   initialEntries: Readonly<Record<string, string>> = {},
@@ -23,7 +38,7 @@ test('falls back to defaults when persisted JSON is corrupt', () => {
   );
 
   expect(state).toMatchObject({
-    version: 1,
+    version: 2,
     currentQuoteId: getAllQuotes()[0]!.id,
     selectedPresetId: 'midnight-focus',
     favoriteQuoteIds: [],
@@ -41,7 +56,7 @@ test('falls back from a future persisted version and emits a safe warning', () =
   const state = hydrateAppState(
     createMemoryStorage({
       'motivana.app-state': JSON.stringify({
-        version: 2,
+        version: 3,
         secret: 'do-not-log-me',
       }),
     }),
@@ -114,4 +129,87 @@ test('disables favorites-only when repaired favorites are empty', () => {
     favoriteQuoteIds: [],
     favoriteQuotesOnly: false,
   });
+});
+
+// Mutation caught: resetting on version 1 would erase every saved favorite when the reader updates the app.
+test('migrates version 1 state and keeps every favorite', () => {
+  const migrated = migratePersistedState({
+    version: 1,
+    favoriteQuoteIds: ['motivation-001', 'focus-002'],
+    currentQuoteId: 'motivation-001',
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: true,
+    favoriteQuotesOnly: true,
+    rotationEnabled: true,
+    rotationIntervalHours: 12,
+    wallpaperTarget: 'both',
+  });
+
+  expect(migrated.version).toBe(2);
+  expect(migrated.favoriteQuoteIds).toEqual(['motivation-001', 'focus-002']);
+  expect(migrated.randomizePreset).toBe(true);
+  expect(migrated.rotationIntervalHours).toBe(12);
+  expect(migrated.wallpaperTarget).toBe('both');
+  expect(migrated.appLocale).toBe('en');
+  expect(migrated.contentLocale).toBe('en');
+});
+
+// Mutation caught: sharing one locale field would tie the interface language to the quote language.
+test('keeps the interface and quote languages independent', () => {
+  const migrated = migratePersistedState({
+    version: 2,
+    appLocale: 'vi',
+    contentLocale: 'en',
+    favoriteQuoteIds: [],
+    currentQuoteId: 'motivation-001',
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+
+  expect(migrated.appLocale).toBe('vi');
+  expect(migrated.contentLocale).toBe('en');
+});
+
+// Mutation caught: accepting an unsupported stored locale would render undefined interface strings.
+test('replaces an unsupported stored locale with English', () => {
+  const migrated = migratePersistedState({
+    version: 2,
+    appLocale: 'fr',
+    contentLocale: 42,
+    favoriteQuoteIds: [],
+    currentQuoteId: 'motivation-001',
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+
+  expect(migrated.appLocale).toBe('en');
+  expect(migrated.contentLocale).toBe('en');
+});
+
+// Mutation caught: ignoring the device language would show a Vietnamese reader an English default on first launch.
+test('defaults both locales to the device language when it is supported', () => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'vi-VN' }]);
+
+  const state = createDefaultPersistedAppState();
+
+  expect(state.appLocale).toBe('vi');
+  expect(state.contentLocale).toBe('vi');
+});
+
+// Mutation caught: trusting an unsupported device language directly would produce a locale the catalog and strings do not have.
+test('falls back to English when the device language is unsupported', () => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'fr-FR' }]);
+
+  const state = createDefaultPersistedAppState();
+
+  expect(state.appLocale).toBe('en');
+  expect(state.contentLocale).toBe('en');
 });

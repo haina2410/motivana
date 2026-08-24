@@ -1,7 +1,7 @@
-import type { PersistedAppStateV1 } from './schema';
+import type { PersistedAppStateV2 } from './schema';
 
 export type RotationSynchronizer = (
-  state: PersistedAppStateV1,
+  state: PersistedAppStateV2,
 ) => Promise<void>;
 
 let synchronizer: RotationSynchronizer | undefined;
@@ -12,7 +12,7 @@ export function setRotationSynchronizer(value: RotationSynchronizer): void {
 }
 
 export async function synchronizeRotationState(
-  state: PersistedAppStateV1,
+  state: PersistedAppStateV2,
 ): Promise<void> {
   if (synchronizer === undefined) {
     throw new Error('Rotation synchronization is unavailable.');

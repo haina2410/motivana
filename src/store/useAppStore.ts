@@ -3,8 +3,10 @@ import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
 
 import {
   getAdjacentQuote,
+  getAllQuotes,
   selectRandomQuote,
 } from '../features/quotes/quoteRepository';
+import { isLocale, type Locale } from '../features/i18n/locale';
 import {
   hydrateAppState,
   isValidPresetId,
@@ -12,7 +14,7 @@ import {
   isValidRotationIntervalHours,
   isValidWallpaperTarget,
   serializePersistedAppState,
-  type PersistedAppStateV1,
+  type PersistedAppStateV2,
   type RotationIntervalHours,
   type SafeWarningReporter,
   type WallpaperTarget,
@@ -31,7 +33,7 @@ export interface RotationConfiguration {
   favoriteQuotesOnly?: boolean;
 }
 
-export interface AppState extends PersistedAppStateV1 {
+export interface AppState extends PersistedAppStateV2 {
   nextQuote(): boolean;
   previousQuote(): boolean;
   randomQuote(): boolean;
@@ -39,6 +41,8 @@ export interface AppState extends PersistedAppStateV1 {
   toggleFavorite(quoteId: string): Promise<boolean>;
   selectPreset(presetId: string): Promise<boolean>;
   setRandomizePreset(randomizePreset: boolean): Promise<boolean>;
+  setAppLocale(locale: Locale): Promise<boolean>;
+  setContentLocale(locale: Locale): Promise<boolean>;
   setFavoriteQuotesOnly(favoriteQuotesOnly: boolean): Promise<boolean>;
   setRotationConfiguration(
     configuration: RotationConfiguration,
@@ -51,10 +55,10 @@ export interface CreateAppStoreOptions {
   storage?: KeyValueStorage;
   random?: () => number;
   warn?: SafeWarningReporter;
-  synchronizeRotation?: (state: PersistedAppStateV1) => Promise<void>;
+  synchronizeRotation?: (state: PersistedAppStateV2) => Promise<void>;
 }
 
-function persist(storage: KeyValueStorage, state: PersistedAppStateV1): void {
+function persist(storage: KeyValueStorage, state: PersistedAppStateV2): void {
   storage.set(APP_STATE_STORAGE_KEY, serializePersistedAppState(state));
 }
 
@@ -72,7 +76,7 @@ function createAppState(
     options.synchronizeRotation ?? synchronizeRotationState;
 
   return (set, get) => {
-    const commit = (next: PersistedAppStateV1): boolean => {
+    const commit = (next: PersistedAppStateV2): boolean => {
       try {
         persist(storage, next);
       } catch {
@@ -84,7 +88,7 @@ function createAppState(
     };
     let automationQueue = Promise.resolve();
     const commitAutomation = (
-      update: (state: PersistedAppStateV1) => PersistedAppStateV1 | undefined,
+      update: (state: PersistedAppStateV2) => PersistedAppStateV2 | undefined,
       forceSynchronization = false,
     ): Promise<boolean> => {
       const operation = async () => {
@@ -129,18 +133,22 @@ function createAppState(
     return {
       ...hydrateAppState(storage, warn),
       nextQuote: () => {
-        // TODO(task 9): pass the reader's chosen quote language instead of this placeholder.
-        const next = getAdjacentQuote(get().currentQuoteId, 'next', 'en');
+        const state = get();
+        const next = getAdjacentQuote(
+          state.currentQuoteId,
+          'next',
+          state.contentLocale,
+        );
         return next === undefined
           ? false
           : commit({ ...toPersistedState(get()), currentQuoteId: next.id });
       },
       previousQuote: () => {
-        // TODO(task 9): pass the reader's chosen quote language instead of this placeholder.
+        const state = get();
         const previous = getAdjacentQuote(
-          get().currentQuoteId,
+          state.currentQuoteId,
           'previous',
-          'en',
+          state.contentLocale,
         );
         return previous === undefined
           ? false
@@ -148,9 +156,8 @@ function createAppState(
       },
       randomQuote: () => {
         const state = get();
-        // TODO(task 9): pass the reader's chosen quote language instead of this placeholder.
         const quote = selectRandomQuote({
-          locale: 'en',
+          locale: state.contentLocale,
           previousId: state.currentQuoteId,
           random,
         });
@@ -189,6 +196,29 @@ function createAppState(
       setRandomizePreset: (randomizePreset) =>
         typeof randomizePreset === 'boolean'
           ? commitAutomation((state) => ({ ...state, randomizePreset }))
+          : Promise.resolve(false),
+      setAppLocale: (locale) =>
+        isLocale(locale)
+          ? commitAutomation((state) => ({ ...state, appLocale: locale }))
+          : Promise.resolve(false),
+      setContentLocale: (locale) =>
+        isLocale(locale)
+          ? commitAutomation((state) => {
+              const pool = getAllQuotes(locale);
+              if (pool.length === 0) {
+                return undefined;
+              }
+              const currentStaysValid = pool.some(
+                (quote) => quote.id === state.currentQuoteId,
+              );
+              return {
+                ...state,
+                contentLocale: locale,
+                currentQuoteId: currentStaysValid
+                  ? state.currentQuoteId
+                  : pool[0]!.id,
+              };
+            })
           : Promise.resolve(false),
       setFavoriteQuotesOnly: (favoriteQuotesOnly) => {
         if (typeof favoriteQuotesOnly !== 'boolean')
@@ -235,9 +265,11 @@ function createAppState(
   };
 }
 
-function toPersistedState(state: AppState): PersistedAppStateV1 {
+function toPersistedState(state: AppState): PersistedAppStateV2 {
   const {
     version,
+    appLocale,
+    contentLocale,
     favoriteQuoteIds,
     currentQuoteId,
     lastAppliedQuoteId,
@@ -251,6 +283,8 @@ function toPersistedState(state: AppState): PersistedAppStateV1 {
 
   return {
     version,
+    appLocale,
+    contentLocale,
     favoriteQuoteIds,
     currentQuoteId,
     ...(lastAppliedQuoteId === undefined ? {} : { lastAppliedQuoteId }),

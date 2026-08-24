@@ -1,11 +1,21 @@
+import { getLocales } from 'expo-localization';
 import { getAllQuotes } from '../../features/quotes/quoteRepository';
 import { createAppStore, useAppStore } from '../useAppStore';
-import type { PersistedAppStateV1 } from '../schema';
+import type { PersistedAppStateV2 } from '../schema';
 import type { KeyValueStorage } from '../storage';
 
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageTag: 'en-US' }]),
+}));
 jest.mock('../../services/wallpaperNative', () => ({
   configureRotation: jest.fn(async () => undefined),
 }));
+
+const mockedGetLocales = getLocales as jest.Mock;
+
+afterEach(() => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'en-US' }]);
+});
 
 function createMemoryStorage(): KeyValueStorage & {
   read(key: string): string | undefined;
@@ -313,7 +323,7 @@ test('restores the native snapshot when local persistence rejects a synchronized
     rotationIntervalHours: 24,
     wallpaperTarget: 'home',
   });
-  const snapshots: PersistedAppStateV1[] = [];
+  const snapshots: PersistedAppStateV2[] = [];
   const store = createAppStore({
     storage: createWriteFailingStorage({ 'motivana.app-state': persisted }),
     synchronizeRotation: async (snapshot) => {
@@ -345,4 +355,60 @@ test('does not synchronize ordinary preference changes while rotation is disable
   await store.getState().toggleFavorite(getAllQuotes()[1]!.id);
 
   expect(synchronizeRotation).not.toHaveBeenCalled();
+});
+
+// Mutation caught: ignoring the device language on first launch would show a Vietnamese reader an English interface and English quotes.
+test('defaults the interface and quote language to a supported device language', () => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'vi-VN' }]);
+  const store = createAppStore({ storage: createMemoryStorage() });
+
+  expect(store.getState().appLocale).toBe('vi');
+  expect(store.getState().contentLocale).toBe('vi');
+});
+
+// Mutation caught: trusting an unsupported device language directly would produce a locale the app cannot render.
+test('falls back to English when the device reports an unsupported language', () => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'fr-FR' }]);
+  const store = createAppStore({ storage: createMemoryStorage() });
+
+  expect(store.getState().appLocale).toBe('en');
+  expect(store.getState().contentLocale).toBe('en');
+});
+
+// Mutation caught: sharing one locale field would make changing the interface language also change the quote language.
+test('changes the interface language without touching the quote language', async () => {
+  const storage = createMemoryStorage();
+  const store = createAppStore({ storage });
+
+  await expect(store.getState().setAppLocale('vi')).resolves.toBe(true);
+  expect(store.getState().appLocale).toBe('vi');
+  expect(store.getState().contentLocale).toBe('en');
+  expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
+    appLocale: 'vi',
+    contentLocale: 'en',
+  });
+});
+
+// Mutation caught: accepting an unsupported interface language would render undefined interface strings.
+test('rejects an unsupported interface language', async () => {
+  const store = createAppStore({ storage: createMemoryStorage() });
+
+  await expect(
+    (
+      store.getState().setAppLocale as unknown as (
+        locale: unknown,
+      ) => Promise<boolean>
+    )('fr'),
+  ).resolves.toBe(false);
+  expect(store.getState().appLocale).toBe('en');
+});
+
+// Mutation caught: moving the reader into a quote language with an empty catalog would silently strand them on an unreachable pool.
+test('rejects a quote language whose catalog is empty', async () => {
+  const store = createAppStore({ storage: createMemoryStorage() });
+  const before = store.getState().currentQuoteId;
+
+  await expect(store.getState().setContentLocale('vi')).resolves.toBe(false);
+  expect(store.getState().contentLocale).toBe('en');
+  expect(store.getState().currentQuoteId).toBe(before);
 });

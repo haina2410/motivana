@@ -1,12 +1,20 @@
+import { getLocales } from 'expo-localization';
 import { getQuoteById, getAllQuotes } from '../features/quotes/quoteRepository';
 import { getPresetById } from '../features/wallpaper/presetRepository';
+import {
+  isLocale,
+  resolveDeviceLocale,
+  type Locale,
+} from '../features/i18n/locale';
 import { APP_STATE_STORAGE_KEY, type KeyValueStorage } from './storage';
 
 export type RotationIntervalHours = 6 | 12 | 24;
 export type WallpaperTarget = 'home' | 'lock' | 'both';
 
-export interface PersistedAppStateV1 {
-  version: 1;
+export interface PersistedAppStateV2 {
+  version: 2;
+  appLocale: Locale;
+  contentLocale: Locale;
   favoriteQuoteIds: string[];
   currentQuoteId: string;
   lastAppliedQuoteId?: string;
@@ -18,14 +26,24 @@ export interface PersistedAppStateV1 {
   wallpaperTarget: WallpaperTarget;
 }
 
-export type PersistedAppState = PersistedAppStateV1;
+export type PersistedAppState = PersistedAppStateV2;
 export type SafeWarningReporter = (message: string) => void;
 
 const firstQuoteId = getAllQuotes()[0]!.id;
 
-export function createDefaultPersistedAppState(): PersistedAppStateV1 {
+function deviceLocale(): Locale {
+  try {
+    return resolveDeviceLocale(getLocales().map((entry) => entry.languageTag));
+  } catch {
+    return 'en';
+  }
+}
+
+export function createDefaultPersistedAppState(): PersistedAppStateV2 {
   return {
-    version: 1,
+    version: 2,
+    appLocale: deviceLocale(),
+    contentLocale: deviceLocale(),
     favoriteQuoteIds: [],
     currentQuoteId: firstQuoteId,
     selectedPresetId: 'midnight-focus',
@@ -83,9 +101,9 @@ export function isValidPresetId(value: unknown): value is string {
   return validPresetId(value);
 }
 
-export function migratePersistedState(input: unknown): PersistedAppStateV1 {
+export function migratePersistedState(input: unknown): PersistedAppStateV2 {
   const defaults = createDefaultPersistedAppState();
-  if (!isRecord(input) || input.version !== 1) {
+  if (!isRecord(input) || (input.version !== 1 && input.version !== 2)) {
     return defaults;
   }
 
@@ -100,7 +118,11 @@ export function migratePersistedState(input: unknown): PersistedAppStateV1 {
     : undefined;
 
   return {
-    version: 1,
+    version: 2,
+    appLocale: isLocale(input.appLocale) ? input.appLocale : deviceLocale(),
+    contentLocale: isLocale(input.contentLocale)
+      ? input.contentLocale
+      : deviceLocale(),
     favoriteQuoteIds,
     currentQuoteId,
     ...(lastAppliedQuoteId === undefined ? {} : { lastAppliedQuoteId }),
@@ -129,7 +151,7 @@ export function migratePersistedState(input: unknown): PersistedAppStateV1 {
 export function hydrateAppState(
   storage: KeyValueStorage,
   warn: SafeWarningReporter = console.warn,
-): PersistedAppStateV1 {
+): PersistedAppStateV2 {
   const serialized = storage.getString(APP_STATE_STORAGE_KEY);
   if (serialized === undefined) {
     return createDefaultPersistedAppState();
@@ -151,13 +173,13 @@ export function hydrateAppState(
     );
     return createDefaultPersistedAppState();
   }
-  if (parsed.version > 1) {
+  if (parsed.version > 2) {
     warn(
       'Motivana preferences were reset because the stored version is unsupported.',
     );
     return createDefaultPersistedAppState();
   }
-  if (parsed.version !== 1) {
+  if (parsed.version !== 1 && parsed.version !== 2) {
     warn(
       'Motivana preferences were reset because stored preferences are invalid.',
     );
@@ -167,6 +189,6 @@ export function hydrateAppState(
   return migratePersistedState(parsed);
 }
 
-export function serializePersistedAppState(state: PersistedAppStateV1): string {
+export function serializePersistedAppState(state: PersistedAppStateV2): string {
   return JSON.stringify(state);
 }
