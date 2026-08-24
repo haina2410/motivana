@@ -131,7 +131,7 @@ test('exports a drawn PNG at the exact full-resolution composition dimensions', 
   const result = await exportWithDependencies(composition, dependencies);
 
   expect(result).toEqual({
-    uri: 'file:///cache/motivana-exports/midnight-focus-export-quote-1080x2400.png',
+    uri: `file:///cache/motivana-exports/${composition.cacheKey}.png`,
     width: 1080,
     height: 2400,
   });

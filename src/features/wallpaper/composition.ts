@@ -44,6 +44,19 @@ export const deterministicTextMeasurer: TextMeasurer = {
   },
 };
 
+/**
+ * Hashes the rendered text with FNV-1a, so the cache key changes whenever the
+ * text changes. Base 36 keeps the key usable as an export filename.
+ */
+function textFingerprint(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36);
+}
+
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum);
 }
@@ -90,7 +103,7 @@ export function createComposition(
 
   return Object.freeze({
     ...input,
-    cacheKey: `${input.preset.id}-${input.quote.id}-${input.width}x${input.height}`,
+    cacheKey: `${input.preset.id}-${input.quote.id}-${input.width}x${input.height}-${textFingerprint(input.quote.text)}`,
     quoteBounds: Object.freeze({
       x: horizontalMargin,
       y: quoteY,

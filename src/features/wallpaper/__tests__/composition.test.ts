@@ -120,6 +120,43 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
     measuredByCharacters,
   );
 
-  expect(first.cacheKey).toBe('midnight-focus-quote-80-1080x2400');
+  expect(first.cacheKey).toMatch(
+    /^midnight-focus-quote-80-1080x2400-[0-9a-z]+$/,
+  );
   expect(second.cacheKey).toBe(first.cacheKey);
+});
+
+// Mutation caught: keying only on the quote id would serve a stale export after the quote text changes, whether from a locale switch or a reworded quote.
+test('changes the cache key when the rendered text changes under the same identity', () => {
+  const base: Quote = { ...quoteOfLength(80), text: 'A'.repeat(80) };
+  const reworded: Quote = { ...base, text: 'B'.repeat(80) };
+
+  const first = createComposition(
+    { quote: base, preset, width: 1080, height: 2400 },
+    measuredByCharacters,
+  );
+  const second = createComposition(
+    { quote: reworded, preset, width: 1080, height: 2400 },
+    measuredByCharacters,
+  );
+
+  expect(second.cacheKey).not.toBe(first.cacheKey);
+});
+
+// Mutation caught: a hash with unsafe characters would break the export filename built from the cache key.
+test('keeps the cache key safe for use as a filename', () => {
+  const composition = createComposition(
+    {
+      quote: {
+        ...quoteOfLength(40),
+        text: 'Quotes: "with" punctuation / slashes',
+      },
+      preset,
+      width: 1080,
+      height: 2400,
+    },
+    measuredByCharacters,
+  );
+
+  expect(composition.cacheKey).toMatch(/^[A-Za-z0-9._-]+$/);
 });
