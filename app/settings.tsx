@@ -29,7 +29,10 @@ export default function SettingsScreen() {
       }
     | undefined
   >();
-  const [languageMessage, setLanguageMessage] = useState<string>();
+  const [languageMessage, setLanguageMessage] = useState<{
+    text: string;
+    tone: 'default' | 'error';
+  }>();
   const updatePreference = async (
     kind: 'randomize' | 'favorites',
     value: boolean,
@@ -37,11 +40,17 @@ export default function SettingsScreen() {
     if (pending !== undefined) return;
     setPending(kind);
     setFeedback(undefined);
-    const saved =
-      kind === 'randomize'
-        ? await state.setRandomizePreset(value)
-        : await state.setFavoriteQuotesOnly(value);
-    setPending(undefined);
+    setLanguageMessage(undefined);
+    // finally, so a rejected write cannot leave every control disabled.
+    let saved: boolean;
+    try {
+      saved =
+        kind === 'randomize'
+          ? await state.setRandomizePreset(value)
+          : await state.setFavoriteQuotesOnly(value);
+    } finally {
+      setPending(undefined);
+    }
     setFeedback(
       saved
         ? {
@@ -62,15 +71,22 @@ export default function SettingsScreen() {
   ) => {
     if (pending !== undefined) return;
     setPending(kind);
-    const saved =
-      kind === 'app'
-        ? await state.setAppLocale(locale)
-        : await state.setContentLocale(locale);
-    setPending(undefined);
+    setFeedback(undefined);
+    setLanguageMessage(undefined);
+    // finally, so a rejected write cannot leave every control disabled.
+    let saved: boolean;
+    try {
+      saved =
+        kind === 'app'
+          ? await state.setAppLocale(locale)
+          : await state.setContentLocale(locale);
+    } finally {
+      setPending(undefined);
+    }
     setLanguageMessage(
       saved
-        ? translate('settings.language.updated')
-        : translate('settings.language.error'),
+        ? { text: translate('settings.language.updated'), tone: 'default' }
+        : { text: translate('settings.language.error'), tone: 'error' },
     );
   };
   const preset = getPresetById(state.selectedPresetId);
@@ -162,6 +178,7 @@ export default function SettingsScreen() {
                   name: translate(`language.${locale}` as StringKey),
                 })}
                 selected={state.appLocale === locale}
+                disabled={pending !== undefined}
                 onPress={() => void updateLanguage('app', locale)}
               />
             ))}
@@ -184,12 +201,18 @@ export default function SettingsScreen() {
                   { name: translate(`language.${locale}` as StringKey) },
                 )}
                 selected={state.contentLocale === locale}
+                disabled={pending !== undefined}
                 onPress={() => void updateLanguage('content', locale)}
               />
             ))}
           </View>
         </View>
-        {languageMessage ? <ActionMessage message={languageMessage} /> : null}
+        {languageMessage ? (
+          <ActionMessage
+            message={languageMessage.text}
+            tone={languageMessage.tone}
+          />
+        ) : null}
         <ActionMessage
           title={translate('settings.about.title')}
           message={translate('settings.about.message')}

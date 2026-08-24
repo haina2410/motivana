@@ -13,7 +13,6 @@ export type WallpaperCapabilities =
 
 export type WallpaperAutomationStatus = {
   kind: 'available';
-  label: string;
   state: 'disabled' | 'scheduled' | 'running' | 'succeeded' | 'failed';
   lastAppliedAt?: number;
   lastQuoteId?: string;
@@ -32,7 +31,7 @@ export const wallpaperAutomationFallback: WallpaperAutomationAvailability = {
     kind: 'unavailable',
     supportedTargets: { home: false, lock: false, both: false },
   },
-  status: { kind: 'available', label: 'Status: disabled', state: 'disabled' },
+  status: { kind: 'available', state: 'disabled' },
 };
 
 /**
@@ -55,7 +54,6 @@ export async function getWallpaperAutomationAvailability(): Promise<WallpaperAut
     },
     status: {
       kind: 'available',
-      label: `Status: ${status.state}`,
       state: status.state,
       lastAppliedAt: status.lastAppliedAt,
       lastQuoteId: status.lastQuoteId,

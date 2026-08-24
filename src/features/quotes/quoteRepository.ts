@@ -43,6 +43,12 @@ export function favoriteQuoteText(quote: Quote, locale: Locale): string {
   return quoteText(quote, locale) ?? quote.text[quote.sourceLocale]!;
 }
 
+/** True when the quote exists and carries text in that language. */
+export function quoteInLocale(id: string, locale: Locale): boolean {
+  const quote = quotesById.get(id);
+  return quote !== undefined && quoteText(quote, locale) !== undefined;
+}
+
 export function getAdjacentQuote(
   id: string,
   direction: 'next' | 'previous',

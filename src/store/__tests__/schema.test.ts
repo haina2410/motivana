@@ -213,3 +213,78 @@ test('falls back to English when the device language is unsupported', () => {
   expect(state.appLocale).toBe('en');
   expect(state.contentLocale).toBe('en');
 });
+
+// Mutation caught: keeping a stored quote that has no text in the reader's quote
+// language would show them the other language outside the favorites exception.
+test('moves the shown quote into the pool when the stored one is not in that language', () => {
+  const englishOnly = getAllQuotes('en').find(
+    (quote) => quote.text.vi === undefined,
+  )!;
+
+  const migrated = migratePersistedState({
+    version: 2,
+    appLocale: 'vi',
+    contentLocale: 'vi',
+    favoriteQuoteIds: [englishOnly.id],
+    currentQuoteId: englishOnly.id,
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+
+  expect(migrated.currentQuoteId).not.toBe(englishOnly.id);
+  expect(
+    getAllQuotes('vi').some((quote) => quote.id === migrated.currentQuoteId),
+  ).toBe(true);
+  // The favorites exception still holds: the id survives in any language.
+  expect(migrated.favoriteQuoteIds).toEqual([englishOnly.id]);
+});
+
+// Mutation caught: a version 1 user has no contentLocale, so the device language
+// decides the pool and the stored quote can fall outside it.
+test('repairs a version 1 quote that is missing from the device language pool', () => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'vi-VN' }]);
+  const englishOnly = getAllQuotes('en').find(
+    (quote) => quote.text.vi === undefined,
+  )!;
+
+  const migrated = migratePersistedState({
+    version: 1,
+    favoriteQuoteIds: [],
+    currentQuoteId: englishOnly.id,
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+
+  expect(migrated.contentLocale).toBe('vi');
+  expect(migrated.currentQuoteId).not.toBe(englishOnly.id);
+  expect(
+    getAllQuotes('vi').some((quote) => quote.id === migrated.currentQuoteId),
+  ).toBe(true);
+});
+
+// Mutation caught: only the invalid case was covered, so dropping a good
+// lastAppliedQuoteId would have gone unnoticed on the data-loss path.
+test('keeps a valid lastAppliedQuoteId across the migration', () => {
+  const migrated = migratePersistedState({
+    version: 1,
+    favoriteQuoteIds: [],
+    currentQuoteId: 'motivation-001',
+    lastAppliedQuoteId: 'focus-002',
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+
+  expect(migrated.lastAppliedQuoteId).toBe('focus-002');
+});

@@ -1,65 +1,67 @@
+import type { StringKey } from '../features/i18n/t';
+
 export type RotationStatusRecoveryAction = 'retry' | 'correct';
 
 export interface RotationStatusRecovery {
-  message: string;
+  messageKey: StringKey;
   action: RotationStatusRecoveryAction;
 }
 
 export interface RotationStatusRecoveryControl {
-  label: string;
-  hint: string;
+  labelKey: StringKey;
+  hintKey: StringKey;
   operation: 'run-now' | 'reschedule' | 'correct';
 }
 
+/**
+ * Holds catalog keys, not text, so the screen translates with the reader's
+ * app language and no caller can decide anything from the wording.
+ */
 const statusRecoveryByCode: Readonly<Record<string, RotationStatusRecovery>> = {
   EMPTY_FAVORITES: {
-    message: 'Rotation needs at least one saved favorite.',
+    messageKey: 'automation.recovery.emptyFavorites',
     action: 'correct',
   },
   NO_ELIGIBLE_QUOTES: {
-    message:
-      'Rotation has no eligible quotes. Use all quotes or save a favorite.',
+    messageKey: 'automation.recovery.noEligibleQuotes',
     action: 'correct',
   },
   INVALID_CONFIGURATION: {
-    message: 'Rotation preferences need to be saved again.',
+    messageKey: 'automation.recovery.invalidConfiguration',
     action: 'correct',
   },
   LOCK_UNSUPPORTED: {
-    message: 'This device cannot apply rotation to that screen.',
+    messageKey: 'automation.recovery.lockUnsupported',
     action: 'correct',
   },
   ASSET_INVALID: {
-    message:
-      'Rotation resources need attention. Review the rotation preferences.',
+    messageKey: 'automation.recovery.assetInvalid',
     action: 'correct',
   },
   FONT_MISSING: {
-    message:
-      'A required rotation font is unavailable. Review the rotation preferences.',
+    messageKey: 'automation.recovery.fontMissing',
     action: 'correct',
   },
   ASSET_IO: {
-    message: 'Rotation resources are temporarily unavailable. Try again.',
+    messageKey: 'automation.recovery.assetIo',
     action: 'retry',
   },
   SYSTEM_FAILED: {
-    message: 'Android could not finish the scheduled rotation. Try again.',
+    messageKey: 'automation.recovery.systemFailed',
     action: 'retry',
   },
   RENDER_FAILED: {
-    message: 'Android could not render the scheduled wallpaper. Try again.',
+    messageKey: 'automation.recovery.renderFailed',
     action: 'retry',
   },
   APPLY_FAILED: {
-    message: 'Android could not apply the scheduled wallpaper. Try again.',
+    messageKey: 'automation.recovery.applyFailed',
     action: 'retry',
   },
 };
 
 const unknownStatusRecovery: RotationStatusRecovery = {
-  message:
-    'Rotation did not complete. Review the rotation preferences and try again.',
+  messageKey: 'automation.recovery.unknown',
   action: 'correct',
 };
 
@@ -76,21 +78,21 @@ export function getRotationStatusRecoveryControl(
 ): RotationStatusRecoveryControl {
   if (recovery.action === 'correct') {
     return {
-      label: 'Correct rotation preferences',
-      hint: 'Saves corrected rotation preferences.',
+      labelKey: 'automation.recovery.correct.label',
+      hintKey: 'automation.recovery.correct.hint',
       operation: 'correct',
     };
   }
   if (isDebug) {
     return {
-      label: 'Retry rotation',
-      hint: 'Runs the rotation immediately in this debug build.',
+      labelKey: 'automation.recovery.retryNow.label',
+      hintKey: 'automation.recovery.retryNow.hint',
       operation: 'run-now',
     };
   }
   return {
-    label: 'Reschedule rotation',
-    hint: 'Saves the current rotation preferences so Android schedules a future run.',
+    labelKey: 'automation.recovery.reschedule.label',
+    hintKey: 'automation.recovery.reschedule.hint',
     operation: 'reschedule',
   };
 }

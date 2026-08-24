@@ -22,7 +22,11 @@ import {
 } from '../src/features/quotes/quoteRepository';
 import { Choice } from '../src/components/Choice';
 import { useTranslate } from '../src/features/i18n/useTranslate';
-import type { WallpaperAutomationAvailability } from '../src/services/wallpaperAvailability';
+import type {
+  WallpaperAutomationAvailability,
+  WallpaperAutomationStatus,
+} from '../src/services/wallpaperAvailability';
+import type { StringKey } from '../src/features/i18n/t';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
@@ -111,6 +115,20 @@ export default function AutomationScreen() {
   const lastQuote = availability?.status.lastQuoteId
     ? getQuoteById(availability.status.lastQuoteId)
     : undefined;
+  const stateText = (
+    state: WallpaperAutomationStatus['state'] | undefined,
+  ): string =>
+    state === undefined
+      ? translate('automation.status.loading')
+      : translate(`automation.state.${state}` as StringKey);
+  const targetText = (target: WallpaperTarget): string =>
+    translate(`automation.targetName.${target}` as StringKey);
+  const capabilityText = (
+    kind: 'available' | 'unavailable' | undefined,
+  ): string =>
+    kind === undefined
+      ? translate('automation.status.loading')
+      : translate(`automation.capability.${kind}` as StringKey);
   const statusRecovery = getRotationStatusRecovery(
     availability?.status.errorCode,
   );
@@ -161,29 +179,30 @@ export default function AutomationScreen() {
         <View
           accessible
           accessibilityLabel={translate('automation.status.label', {
-            state:
-              availability?.status.state ??
-              translate('automation.status.loading'),
+            state: stateText(availability?.status.state),
             intervalHours: availability?.status.intervalHours ?? '',
-            target: availability?.status.target ?? '',
+            target: availability?.status.target
+              ? targetText(availability.status.target)
+              : '',
           })}
           style={styles.status}
         >
           <Text allowFontScaling style={styles.statusText}>
             {translate('automation.status.capability', {
-              kind:
-                availability?.capabilities.kind ??
-                translate('automation.status.loading'),
+              kind: capabilityText(availability?.capabilities.kind),
             })}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
-            {availability?.status.label ??
-              translate('automation.status.checking')}
+            {availability === undefined
+              ? translate('automation.status.checking')
+              : translate('automation.status.value', {
+                  state: stateText(availability.status.state),
+                })}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
             {translate('automation.status.schedule', {
               hours: availability?.status.intervalHours ?? interval,
-              target: availability?.status.target ?? target,
+              target: targetText(availability?.status.target ?? target),
             })}
           </Text>
           {availability?.status.lastAppliedAt ? (
@@ -191,7 +210,7 @@ export default function AutomationScreen() {
               {translate('automation.status.lastApplied', {
                 date: new Date(
                   availability.status.lastAppliedAt,
-                ).toLocaleString(),
+                ).toLocaleString(state.appLocale),
               })}
             </Text>
           ) : null}
@@ -208,7 +227,7 @@ export default function AutomationScreen() {
             <ActionMessage
               tone="error"
               title={translate('automation.attention.title')}
-              message={statusRecovery.message}
+              message={translate(statusRecovery.messageKey)}
             />
           ) : null}
         </View>
@@ -290,8 +309,8 @@ export default function AutomationScreen() {
         ) : null}
         {statusRecovery ? (
           <AppIconButton
-            hint={statusRecoveryControl!.hint}
-            label={statusRecoveryControl!.label}
+            hint={translate(statusRecoveryControl!.hintKey)}
+            label={translate(statusRecoveryControl!.labelKey)}
             onPress={recoverFromStatusFailure}
             symbol="↻"
           />

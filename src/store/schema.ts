@@ -1,5 +1,9 @@
 import { getLocales } from 'expo-localization';
-import { getQuoteById, getAllQuotes } from '../features/quotes/quoteRepository';
+import {
+  getQuoteById,
+  getAllQuotes,
+  quoteInLocale,
+} from '../features/quotes/quoteRepository';
 import { getPresetById } from '../features/wallpaper/presetRepository';
 import {
   isLocale,
@@ -31,6 +35,11 @@ export type SafeWarningReporter = (message: string) => void;
 
 const firstQuoteId = getAllQuotes()[0]!.id;
 
+/** Falls back to the whole catalog only if a locale has no quotes at all. */
+function firstQuoteInLocale(locale: Locale): string {
+  return getAllQuotes(locale)[0]?.id ?? firstQuoteId;
+}
+
 function deviceLocale(): Locale {
   try {
     return resolveDeviceLocale(getLocales().map((entry) => entry.languageTag));
@@ -40,12 +49,14 @@ function deviceLocale(): Locale {
 }
 
 export function createDefaultPersistedAppState(): PersistedAppStateV2 {
+  // Resolved one time, so both languages start from the same device answer.
+  const locale = deviceLocale();
   return {
     version: 2,
-    appLocale: deviceLocale(),
-    contentLocale: deviceLocale(),
+    appLocale: locale,
+    contentLocale: locale,
     favoriteQuoteIds: [],
-    currentQuoteId: firstQuoteId,
+    currentQuoteId: firstQuoteInLocale(locale),
     selectedPresetId: 'midnight-focus',
     randomizePreset: false,
     favoriteQuotesOnly: false,
@@ -110,9 +121,16 @@ export function migratePersistedState(input: unknown): PersistedAppStateV2 {
   const favoriteQuoteIds = Array.isArray(input.favoriteQuoteIds)
     ? Array.from(new Set(input.favoriteQuoteIds.filter(validQuoteId)))
     : defaults.favoriteQuoteIds;
-  const currentQuoteId = validQuoteId(input.currentQuoteId)
-    ? input.currentQuoteId
-    : defaults.currentQuoteId;
+  const contentLocale = isLocale(input.contentLocale)
+    ? input.contentLocale
+    : deviceLocale();
+  // The shown quote must exist in the reader's quote language. A version 1 user
+  // has no contentLocale, so their stored quote can fall outside the new pool.
+  const currentQuoteId =
+    validQuoteId(input.currentQuoteId) &&
+    quoteInLocale(input.currentQuoteId, contentLocale)
+      ? input.currentQuoteId
+      : firstQuoteInLocale(contentLocale);
   const lastAppliedQuoteId = validQuoteId(input.lastAppliedQuoteId)
     ? input.lastAppliedQuoteId
     : undefined;
@@ -120,9 +138,7 @@ export function migratePersistedState(input: unknown): PersistedAppStateV2 {
   return {
     version: 2,
     appLocale: isLocale(input.appLocale) ? input.appLocale : deviceLocale(),
-    contentLocale: isLocale(input.contentLocale)
-      ? input.contentLocale
-      : deviceLocale(),
+    contentLocale,
     favoriteQuoteIds,
     currentQuoteId,
     ...(lastAppliedQuoteId === undefined ? {} : { lastAppliedQuoteId }),

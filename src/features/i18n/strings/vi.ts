@@ -73,6 +73,47 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.status.checking':
     'Trạng thái: đang kiểm tra khả năng hỗ trợ của thiết bị',
   'automation.status.schedule': 'Lịch gần đúng: mỗi {hours} giờ trên {target}.',
+  'automation.status.value': 'Trạng thái: {state}',
+  'automation.state.disabled': 'đã tắt',
+  'automation.state.scheduled': 'đã lên lịch',
+  'automation.state.running': 'đang chạy',
+  'automation.state.succeeded': 'đã xong',
+  'automation.state.failed': 'bị lỗi',
+  'automation.capability.available': 'có sẵn',
+  'automation.capability.unavailable': 'không có sẵn',
+  'automation.targetName.home': 'màn hình chính',
+  'automation.targetName.lock': 'màn hình khóa',
+  'automation.targetName.both': 'cả hai màn hình',
+  'automation.recovery.emptyFavorites':
+    'Tự động đổi cần ít nhất một câu đã lưu.',
+  'automation.recovery.noEligibleQuotes':
+    'Không có câu nào phù hợp. Hãy dùng tất cả câu hoặc lưu một câu.',
+  'automation.recovery.invalidConfiguration':
+    'Hãy lưu lại tùy chọn tự động đổi.',
+  'automation.recovery.lockUnsupported':
+    'Thiết bị này không đặt được hình cho màn hình đó.',
+  'automation.recovery.assetInvalid':
+    'Dữ liệu tự động đổi có vấn đề. Hãy xem lại tùy chọn tự động đổi.',
+  'automation.recovery.fontMissing':
+    'Thiếu một phông chữ cần thiết. Hãy xem lại tùy chọn tự động đổi.',
+  'automation.recovery.assetIo':
+    'Dữ liệu tự động đổi tạm thời không đọc được. Hãy thử lại.',
+  'automation.recovery.systemFailed':
+    'Android không hoàn thành lần đổi đã lên lịch. Hãy thử lại.',
+  'automation.recovery.renderFailed':
+    'Android không vẽ được hình nền đã lên lịch. Hãy thử lại.',
+  'automation.recovery.applyFailed':
+    'Android không đặt được hình nền đã lên lịch. Hãy thử lại.',
+  'automation.recovery.unknown':
+    'Tự động đổi chưa hoàn thành. Hãy xem lại tùy chọn và thử lại.',
+  'automation.recovery.correct.label': 'Sửa tùy chọn tự động đổi',
+  'automation.recovery.correct.hint': 'Lưu lại tùy chọn tự động đổi đã sửa.',
+  'automation.recovery.retryNow.label': 'Thử đổi lại',
+  'automation.recovery.retryNow.hint':
+    'Chạy lần đổi ngay trong bản gỡ lỗi này.',
+  'automation.recovery.reschedule.label': 'Lên lịch đổi lại',
+  'automation.recovery.reschedule.hint':
+    'Lưu tùy chọn hiện tại để Android lên lịch cho lần chạy sau.',
   'automation.status.lastApplied': 'Lần áp dụng gần nhất: {date}',
   'automation.status.loading': 'đang tải',
   'automation.favoritesOnly.error':

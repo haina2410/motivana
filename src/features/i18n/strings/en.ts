@@ -73,6 +73,47 @@ export const en = {
   'automation.status.checking': 'Status: checking device support',
   'automation.status.schedule':
     'Approximate schedule: every {hours} hours on {target}.',
+  'automation.status.value': 'Status: {state}',
+  'automation.state.disabled': 'disabled',
+  'automation.state.scheduled': 'scheduled',
+  'automation.state.running': 'running',
+  'automation.state.succeeded': 'succeeded',
+  'automation.state.failed': 'failed',
+  'automation.capability.available': 'available',
+  'automation.capability.unavailable': 'unavailable',
+  'automation.targetName.home': 'Home screen',
+  'automation.targetName.lock': 'Lock screen',
+  'automation.targetName.both': 'both screens',
+  'automation.recovery.emptyFavorites':
+    'Rotation needs at least one saved favorite.',
+  'automation.recovery.noEligibleQuotes':
+    'Rotation has no eligible quotes. Use all quotes or save a favorite.',
+  'automation.recovery.invalidConfiguration':
+    'Rotation preferences need to be saved again.',
+  'automation.recovery.lockUnsupported':
+    'This device cannot apply rotation to that screen.',
+  'automation.recovery.assetInvalid':
+    'Rotation resources need attention. Review the rotation preferences.',
+  'automation.recovery.fontMissing':
+    'A required rotation font is unavailable. Review the rotation preferences.',
+  'automation.recovery.assetIo':
+    'Rotation resources are temporarily unavailable. Try again.',
+  'automation.recovery.systemFailed':
+    'Android could not finish the scheduled rotation. Try again.',
+  'automation.recovery.renderFailed':
+    'Android could not render the scheduled wallpaper. Try again.',
+  'automation.recovery.applyFailed':
+    'Android could not apply the scheduled wallpaper. Try again.',
+  'automation.recovery.unknown':
+    'Rotation did not complete. Review the rotation preferences and try again.',
+  'automation.recovery.correct.label': 'Correct rotation preferences',
+  'automation.recovery.correct.hint': 'Saves corrected rotation preferences.',
+  'automation.recovery.retryNow.label': 'Retry rotation',
+  'automation.recovery.retryNow.hint':
+    'Runs the rotation immediately in this debug build.',
+  'automation.recovery.reschedule.label': 'Reschedule rotation',
+  'automation.recovery.reschedule.hint':
+    'Saves the current rotation preferences so Android schedules a future run.',
   'automation.status.lastApplied': 'Last applied: {date}',
   'automation.status.loading': 'loading',
   'automation.favoritesOnly.error':
