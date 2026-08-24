@@ -59,7 +59,8 @@
     "test:watch": "jest --watch",
     "verify:data": "node scripts/verify-data.mjs",
     "verify:android-permissions": "node scripts/verify-android-permissions.mjs",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test"
+    "verify:native": "node scripts/verify-native.mjs",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test && pnpm verify:native"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0"
