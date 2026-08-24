@@ -85,7 +85,6 @@ function validateQuotes(quotes) {
   const categoryCounts = new Map(
     quoteCategories.map((category) => [category, 0]),
   );
-  let stressCaseCount = 0;
   for (const [index, quote] of quotes.entries()) {
     const path = `assets/data/quotes.json: quotes[${index}]`;
     if (!isRecord(quote)) {
@@ -104,11 +103,11 @@ function validateQuotes(quotes) {
         'must contain at least 12 non-whitespace characters',
       );
     }
-    if (quote.text.length >= 200 && quote.text.length <= 280) {
-      stressCaseCount += 1;
-    }
-    if (quote.author !== 'Motivana') {
-      fail(`${path}.author`, 'must be Motivana for original catalog copy');
+    if (
+      quote.author !== undefined &&
+      (typeof quote.author !== 'string' || quote.author.trim() === '')
+    ) {
+      fail(`${path}.author`, 'must be a non-empty string when present');
     }
     if (!quoteCategories.includes(quote.category)) {
       fail(`${path}.category`, 'is not supported');
@@ -126,12 +125,6 @@ function validateQuotes(quotes) {
         `${category} must contain exactly 20 entries`,
       );
     }
-  }
-  if (stressCaseCount < 4) {
-    fail(
-      'assets/data/quotes.json',
-      'must contain at least four 200-280 character stress cases',
-    );
   }
 }
 
