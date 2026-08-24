@@ -14,9 +14,11 @@ test('returns the English text for a known key', () => {
   expect(t('en', 'common.back.label')).toBe('Back to Home');
 });
 
-// Mutation caught: an empty or duplicated catalog entry would leave a blank control in the interface.
+// Mutation caught: an empty catalog entry would leave a blank control in the interface.
 test('every English entry is non-empty', () => {
-  for (const value of Object.values(en)) {
-    expect(value.trim().length).toBeGreaterThan(0);
-  }
+  const blank = Object.entries(en)
+    .filter(([, value]) => value.trim().length === 0)
+    .map(([key]) => key);
+
+  expect(blank).toEqual([]);
 });
