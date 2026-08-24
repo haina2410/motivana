@@ -119,6 +119,7 @@ test('renders when Skia paragraph handles are lifecycle-managed by the native bo
     preset: getPresetById('paper-confidence')!,
     width: 1080,
     height: 2400,
+    locale: 'en',
   });
   const canvas = {
     drawRect: () => undefined,
@@ -146,6 +147,7 @@ test.each([
       preset: getPresetById(presetId)!,
       width,
       height,
+      locale: 'en',
     });
     const canvas = { drawRect: () => undefined, drawCircle: () => undefined };
 
@@ -203,6 +205,7 @@ test('matches the recorded bundled-font Skia foreground fixture', () => {
         quote: golden.quote,
         preset: getPresetById(golden.preset)!,
         ...golden.dimensions,
+        locale: 'en',
       }),
       {} as never,
     );
@@ -245,6 +248,7 @@ test.each([
       preset: getPresetById('midnight-focus')!,
       width: 1080,
       height: 2400,
+      locale: 'en',
     });
 
     const measured = measureSkiaComposition(input, {} as never);
@@ -270,6 +274,7 @@ test.each([
     preset: getPresetById(presetId)!,
     width: 1080,
     height: 2400,
+    locale: 'en',
   });
   drawWallpaperScene(
     { drawRect: () => undefined, drawCircle: () => undefined },
@@ -298,6 +303,7 @@ test('uses the configured 90-degree gradient axis in screen coordinates', () => 
     },
     width: 1080,
     height: 1440,
+    locale: 'en',
   });
 
   drawWallpaperScene(

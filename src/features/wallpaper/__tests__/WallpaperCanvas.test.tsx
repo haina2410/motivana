@@ -47,6 +47,7 @@ test('encodes the shared Skia scene as a displayable PNG data URI for Android pr
       preset: getPresetById('midnight-focus')!,
       width: 270,
       height: 600,
+      locale: 'en',
     }),
     {} as never,
   );
@@ -63,6 +64,7 @@ test('keeps the offscreen surface alive for the preview image lifetime', () => {
       preset: getPresetById('midnight-focus')!,
       width: 270,
       height: 600,
+      locale: 'en',
     }),
     {} as never,
   );

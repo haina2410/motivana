@@ -7,10 +7,12 @@ import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import type { Quote } from '../features/quotes/types';
+import type { Locale } from '../features/i18n/locale';
 
 interface PresetThumbnailProps {
   preset: WallpaperPreset;
   quote: Quote;
+  locale: Locale;
   selected: boolean;
   disabled?: boolean;
   onPress: () => void;
@@ -19,6 +21,7 @@ interface PresetThumbnailProps {
 export function PresetThumbnail({
   preset,
   quote,
+  locale,
   selected,
   disabled = false,
   onPress,
@@ -28,6 +31,7 @@ export function PresetThumbnail({
     quote,
     width: 180,
     height: 260,
+    locale,
   });
   return (
     <Pressable

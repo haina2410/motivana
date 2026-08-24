@@ -25,7 +25,13 @@ function quoteOfLength(length: number): Quote {
 // Mutation caught: changing safe margins or using a preview-only width would make geometry differ from the normalized export contract.
 test('derives the 9:20 safe margins and quote box from the requested pixels', () => {
   const composition = createComposition(
-    { quote: quoteOfLength(30), preset, width: 1080, height: 2400 },
+    {
+      quote: quoteOfLength(30),
+      preset,
+      width: 1080,
+      height: 2400,
+      locale: 'en',
+    },
     measuredByCharacters,
   );
 
@@ -50,7 +56,7 @@ test.each([
   'keeps a %i-character quote inside portrait safe bounds without author overlap',
   (length, width, height) => {
     const composition = createComposition(
-      { quote: quoteOfLength(length), preset, width, height },
+      { quote: quoteOfLength(length), preset, width, height, locale: 'en' },
       measuredByCharacters,
     );
     const top = height * 0.1;
@@ -88,6 +94,7 @@ test('keeps every alignment and stress length in the 1080x2400 canonical safe bo
         preset: current,
         width: 1080,
         height: 2400,
+        locale: 'en',
       });
       expect(composition.quoteBounds.y).toBeGreaterThanOrEqual(240);
       expect(
@@ -101,6 +108,7 @@ test('keeps every alignment and stress length in the 1080x2400 canonical safe bo
       preset: current,
       width: 1080,
       height: 2400,
+      locale: 'en',
     });
     expect(stress.quoteFontSize).toBe(
       Math.round(1080 * current.minimumFontSizeRatio),
@@ -113,11 +121,23 @@ test('keeps every alignment and stress length in the 1080x2400 canonical safe bo
 // Mutation caught: omitting quote and preset identity from the cache key would overwrite a visually different export.
 test('creates a stable cache key for the same quote, preset, and dimensions', () => {
   const first = createComposition(
-    { quote: quoteOfLength(80), preset, width: 1080, height: 2400 },
+    {
+      quote: quoteOfLength(80),
+      preset,
+      width: 1080,
+      height: 2400,
+      locale: 'en',
+    },
     measuredByCharacters,
   );
   const second = createComposition(
-    { quote: quoteOfLength(80), preset, width: 1080, height: 2400 },
+    {
+      quote: quoteOfLength(80),
+      preset,
+      width: 1080,
+      height: 2400,
+      locale: 'en',
+    },
     measuredByCharacters,
   );
 
@@ -133,11 +153,11 @@ test('changes the cache key when the rendered text changes under the same identi
   const reworded: Quote = { ...base, text: { en: 'B'.repeat(80) } };
 
   const first = createComposition(
-    { quote: base, preset, width: 1080, height: 2400 },
+    { quote: base, preset, width: 1080, height: 2400, locale: 'en' },
     measuredByCharacters,
   );
   const second = createComposition(
-    { quote: reworded, preset, width: 1080, height: 2400 },
+    { quote: reworded, preset, width: 1080, height: 2400, locale: 'en' },
     measuredByCharacters,
   );
 
@@ -155,9 +175,49 @@ test('keeps the cache key safe for use as a filename', () => {
       preset,
       width: 1080,
       height: 2400,
+      locale: 'en',
     },
     measuredByCharacters,
   );
 
   expect(composition.cacheKey).toMatch(/^[A-Za-z0-9._-]+$/);
+});
+
+// Mutation caught: rendering the source language regardless of the requested locale would keep the wallpaper English after the reader chooses Vietnamese.
+test('renders the text of the requested locale', () => {
+  const bilingual: Quote = {
+    id: 'bilingual-001',
+    category: 'motivation',
+    sourceLocale: 'en',
+    text: { en: 'A'.repeat(40), vi: 'B'.repeat(40) },
+  };
+
+  const english = createComposition(
+    { quote: bilingual, preset, width: 1080, height: 2400, locale: 'en' },
+    measuredByCharacters,
+  );
+  const vietnamese = createComposition(
+    { quote: bilingual, preset, width: 1080, height: 2400, locale: 'vi' },
+    measuredByCharacters,
+  );
+
+  expect(english.cacheKey).not.toBe(vietnamese.cacheKey);
+});
+
+// Mutation caught: using the pool rule here would render an empty wallpaper for a favorite saved in the other language.
+test('falls back to the source language for a quote missing the requested locale', () => {
+  const englishOnly: Quote = {
+    id: 'english-only-001',
+    category: 'motivation',
+    sourceLocale: 'en',
+    text: { en: 'A'.repeat(40) },
+  };
+
+  const composition = createComposition(
+    { quote: englishOnly, preset, width: 1080, height: 2400, locale: 'vi' },
+    measuredByCharacters,
+  );
+
+  expect(composition.quoteFontSize).toBeGreaterThan(0);
+  expect(composition.truncated).toBe(false);
 });

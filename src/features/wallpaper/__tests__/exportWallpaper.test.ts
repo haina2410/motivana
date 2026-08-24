@@ -83,6 +83,7 @@ const composition = createComposition({
   preset: getPresetById('midnight-focus')!,
   width: 1080,
   height: 2400,
+  locale: 'en',
 });
 
 function workingDependencies(): ExportDependencies & {

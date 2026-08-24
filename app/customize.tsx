@@ -83,6 +83,7 @@ export default function CustomizeScreen() {
                 <PresetThumbnail
                   preset={preset}
                   quote={quote}
+                  locale={state.contentLocale}
                   selected={state.selectedPresetId === preset.id}
                   disabled={pendingPresetId !== undefined}
                   onPress={() => void selectPreset(preset.id)}

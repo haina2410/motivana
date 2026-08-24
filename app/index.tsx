@@ -23,6 +23,7 @@ import {
   wallpaperPixelDimensions,
 } from '../src/features/wallpaper/dimensions';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
+import type { Locale } from '../src/features/i18n/locale';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
 import { useAppStore } from '../src/store/useAppStore';
@@ -67,6 +68,7 @@ export default function HomeScreen() {
         state.selectedPresetId,
         dimensions.width,
         dimensions.height,
+        state.contentLocale,
       );
     } catch {
       composition = undefined;
@@ -214,6 +216,7 @@ function createWallpaperComposition(
   presetId: string,
   width: number,
   height: number,
+  locale: Locale,
 ): WallpaperComposition {
   const quote = getQuoteById(quoteId);
   const preset = getPresetById(presetId);
@@ -225,6 +228,7 @@ function createWallpaperComposition(
     preset,
     width: Math.max(1, Math.round(width)),
     height: Math.max(1, Math.round(height)),
+    locale,
   });
 }
 

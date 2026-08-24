@@ -1,4 +1,6 @@
-import { quoteText, type Quote } from '../quotes/types';
+import { favoriteQuoteText } from '../quotes/quoteRepository';
+import type { Quote } from '../quotes/types';
+import type { Locale } from '../i18n/locale';
 import type { WallpaperPreset } from './types';
 import { fitText, type TextMeasurer } from './textFit';
 
@@ -9,6 +11,7 @@ export interface WallpaperCompositionInput {
   preset: WallpaperPreset;
   width: number;
   height: number;
+  locale: Locale;
 }
 
 export interface RenderedWallpaper {
@@ -83,8 +86,9 @@ export function createComposition(
     : 0;
   const authorGap = input.quote.author ? input.height * AUTHOR_GAP_RATIO : 0;
   const maxQuoteHeight = bottomSafe - topSafe - authorLineHeight - authorGap;
+  const renderedText = favoriteQuoteText(input.quote, input.locale);
   const fit = fitText({
-    text: quoteText(input.quote, 'en') ?? '',
+    text: renderedText,
     width: quoteWidth,
     preferredSize: Math.round(
       input.width * input.preset.preferredFontSizeRatio,
@@ -103,7 +107,7 @@ export function createComposition(
 
   return Object.freeze({
     ...input,
-    cacheKey: `${input.preset.id}-${input.quote.id}-${input.width}x${input.height}-${textFingerprint(quoteText(input.quote, 'en') ?? '')}`,
+    cacheKey: `${input.preset.id}-${input.quote.id}-${input.width}x${input.height}-${textFingerprint(renderedText)}`,
     quoteBounds: Object.freeze({
       x: horizontalMargin,
       y: quoteY,
