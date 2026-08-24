@@ -46,6 +46,8 @@ jest.mock('@shopify/react-native-skia', () => ({
           build: () => ({
             layout: () => undefined,
             paint: () => undefined,
+            getHeight: () => 160,
+            getLineMetrics: () => [{}],
             dispose: () => undefined,
           }),
           dispose: () => undefined,

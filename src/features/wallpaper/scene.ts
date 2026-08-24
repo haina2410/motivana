@@ -8,7 +8,11 @@ import {
   type SkTypefaceFontProvider,
 } from '@shopify/react-native-skia';
 
-import type { WallpaperComposition } from './composition';
+import {
+  createComposition,
+  type TextMeasurer,
+  type WallpaperComposition,
+} from './composition';
 import { gradientEndpoints } from './gradient';
 
 function skiaFontWeight(
@@ -37,6 +41,7 @@ function createParagraph(
   maxLines: number | undefined,
   ellipsis: string | undefined,
   fontProvider?: SkTypefaceFontProvider,
+  width = composition.quoteBounds.width,
 ): { builder: SkParagraphBuilder; paragraph: SkParagraph } {
   'worklet';
   const builder = Skia.ParagraphBuilder.Make(
@@ -56,8 +61,69 @@ function createParagraph(
   );
   builder.addText(text);
   const paragraph = builder.build();
-  paragraph.layout(composition.quoteBounds.width);
+  paragraph.layout(width);
   return { builder, paragraph };
+}
+
+/** Uses the same Skia paragraph engine that paints preview and export text. */
+export function createSkiaTextMeasurer(
+  composition: WallpaperComposition,
+  fontProvider: SkTypefaceFontProvider,
+): TextMeasurer {
+  return {
+    measure: (text, width, fontSize) => {
+      const measured = createParagraph(
+        text,
+        composition,
+        fontSize,
+        composition.preset.textColor,
+        undefined,
+        undefined,
+        fontProvider,
+        width,
+      );
+      try {
+        return {
+          height: measured.paragraph.getHeight(),
+          lineCount: Math.max(1, measured.paragraph.getLineMetrics().length),
+        };
+      } finally {
+        measured.paragraph.dispose?.();
+        measured.builder.dispose?.();
+      }
+    },
+    measureWithMaxLines: (text, width, fontSize, _lineHeight, maxLines) => {
+      const measured = createParagraph(
+        text,
+        composition,
+        fontSize,
+        composition.preset.textColor,
+        maxLines,
+        '…',
+        fontProvider,
+        width,
+      );
+      try {
+        return {
+          height: measured.paragraph.getHeight(),
+          lineCount: Math.max(1, measured.paragraph.getLineMetrics().length),
+        };
+      } finally {
+        measured.paragraph.dispose?.();
+        measured.builder.dispose?.();
+      }
+    },
+  };
+}
+
+export function measureSkiaComposition(
+  composition: WallpaperComposition,
+  fontProvider: SkTypefaceFontProvider,
+): WallpaperComposition {
+  return createComposition(
+    composition,
+    createSkiaTextMeasurer(composition, fontProvider),
+  );
 }
 
 export function drawWallpaperScene(
@@ -131,7 +197,7 @@ export function drawWallpaperScene(
       composition,
       composition.quoteFontSize,
       composition.preset.textColor,
-      composition.maxQuoteLines,
+      composition.truncated ? composition.maxQuoteLines : undefined,
       composition.truncated ? '…' : undefined,
       fontProvider,
     );

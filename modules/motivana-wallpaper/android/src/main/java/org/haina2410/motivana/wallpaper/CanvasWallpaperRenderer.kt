@@ -19,36 +19,30 @@ class CanvasWallpaperRenderer private constructor(
   constructor(catalog: RotationCatalog, fonts: Map<String, Typeface>, assets: AssetManager? = null) : this(catalog, fonts, assets, RendererResources({ width, height -> Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) }, {}))
   internal constructor(catalog: RotationCatalog, fonts: Map<String, Typeface>, assets: AssetManager?, bitmapFactory: (Int, Int) -> Bitmap, afterAllocation: (Bitmap) -> Unit) : this(catalog, fonts, assets, RendererResources(bitmapFactory, afterAllocation))
   private data class MeasuredQuote(val geometry: RotationLayout, val staticLayout: StaticLayout)
-  private data class CanonicalQuoteLayout(
-    val fontSize: Int,
-    val height: Float,
-    val truncated: Boolean,
-    val maxLines: Int,
-    val lineCount: Int,
-  )
 
   fun layout(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): RotationLayout = measure(quote, preset, width, height).geometry
+  internal fun staticQuoteLayout(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): StaticLayout = measure(quote, preset, width, height).staticLayout
 
-  /** Geometry follows the shared deterministic contract; render retains StaticLayout for shaping. */
+  /** Every fitting candidate is a real StaticLayout; rendering retains the selected layout. */
   private fun measure(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): MeasuredQuote {
     require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height))
     val left = width * .08f; val right = width - left; val topSafe = height * .10f; val bottomSafe = height * .90f
     val authorSize = round(width * .028).toFloat(); val gap = if (quote.author == null) 0f else height * .022f; val authorHeight = if (quote.author == null) 0f else authorSize * 1.2f
     val maxHeight = bottomSafe - topSafe - authorHeight - gap
-    val canonical = canonicalQuoteLayout(quote.text, width, right - left, preset, maxHeight)
-    val quoteLayout = quoteLayout(
-      quote.text,
-      preset,
-      right - left,
-      canonical.fontSize.toFloat(),
-      canonical.maxLines,
-      canonical.truncated,
-    )
-    val quoteHeight = canonical.height
+    val preferred = round(width * preset.preferredRatio).toInt(); val minimum = round(width * preset.minimumRatio).toInt(); var size = preferred; var quoteLayout: StaticLayout
+    while (true) { quoteLayout = quoteLayout(quote.text, preset, right - left, size.toFloat(), null); if (quoteLayout.height <= maxHeight || size == minimum) break; size-- }
+    val truncated = quoteLayout.height > maxHeight
+    val maxLines = if (truncated) {
+      var lines = quoteLayout.lineCount
+      while (lines > 1 && quoteLayout(quote.text, preset, right - left, size.toFloat(), lines).height > maxHeight) lines--
+      lines
+    } else null
+    if (truncated) quoteLayout = quoteLayout(quote.text, preset, right - left, size.toFloat(), maxLines)
+    val quoteHeight = quoteLayout.height.toFloat()
     val desired = height * preset.quotePositionY.toFloat() - quoteHeight / 2f
     val maximumQuoteTop = max(topSafe, bottomSafe - quoteHeight - gap - authorHeight)
     val quoteTop = desired.coerceIn(topSafe, maximumQuoteTop)
-    return MeasuredQuote(RotationLayout(left, quoteTop, right, quoteTop + quoteHeight, canonical.fontSize.toFloat(), quoteTop + quoteHeight + gap, canonical.truncated, canonical.maxLines, canonical.lineCount), quoteLayout)
+    return MeasuredQuote(RotationLayout(left, quoteTop, right, quoteTop + quoteHeight, size.toFloat(), quoteTop + quoteHeight + gap, truncated, maxLines, quoteLayout.lineCount), quoteLayout)
   }
   fun render(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): Bitmap {
     require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = resources.bitmapFactory(width, height)
@@ -72,35 +66,10 @@ class CanvasWallpaperRenderer private constructor(
     val markX = if (preset.align == "right") layout.quoteRight - markSize else layout.quoteLeft
     return RotationAccent(markX + markSize / 2f, layout.quoteTop - markSize / 3f, markSize / 10f)
   }
-  /**
-   * The shared foreground contract deliberately uses UTF-16 code-unit capacity,
-   * not platform glyph shaping: JavaScript's String.length and Kotlin's String
-   * length then agree exactly. StaticLayout remains responsible only for drawing
-   * within the resulting deterministic line budget.
-   */
-  private fun canonicalQuoteLayout(text: String, outputWidth: Int, quoteWidth: Float, preset: RotationPreset, maxHeight: Float): CanonicalQuoteLayout {
-    val preferred = round(outputWidth * preset.preferredRatio).toInt()
-    val minimum = round(outputWidth * preset.minimumRatio).toInt()
-    for (fontSize in preferred downTo minimum) {
-      val lineHeight = fontSize * preset.lineHeight
-      val charactersPerLine = max(1, floor(quoteWidth / (fontSize * .52)).toInt())
-      val lineCount = max(1, ceil(text.length.toDouble() / charactersPerLine).toInt())
-      val measuredHeight = (lineCount * lineHeight).toFloat()
-      if (measuredHeight <= maxHeight) {
-        return CanonicalQuoteLayout(fontSize, measuredHeight, false, lineCount, lineCount)
-      }
-    }
-    val lineHeight = minimum * preset.lineHeight
-    val maxLines = max(1, floor(maxHeight / lineHeight).toInt())
-    return CanonicalQuoteLayout(minimum, maxHeight, true, maxLines, maxLines)
-  }
-
-  private fun quoteLayout(text: String, preset: RotationPreset, width: Float, size: Float, maxLines: Int, truncated: Boolean): StaticLayout {
+  private fun quoteLayout(text: String, preset: RotationPreset, width: Float, size: Float, maxLines: Int?): StaticLayout {
     val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = typeface(preset); textSize = size; color = Color.parseColor(preset.textColor) }
     val alignment = when (preset.align) { "center" -> Layout.Alignment.ALIGN_CENTER; "right" -> Layout.Alignment.ALIGN_OPPOSITE; else -> Layout.Alignment.ALIGN_NORMAL }
-    val canonicalLineHeight = size * preset.lineHeight.toFloat()
-    val naturalLineHeight = (paint.fontMetrics.descent - paint.fontMetrics.ascent)
-    return StaticLayout.Builder.obtain(text, 0, text.length, paint, width.toInt()).setAlignment(alignment).setIncludePad(false).setLineSpacing(canonicalLineHeight - naturalLineHeight, 1f).setMaxLines(maxLines).apply { if (truncated) setEllipsize(android.text.TextUtils.TruncateAt.END).setEllipsizedWidth(width.toInt()) }.build()
+    return StaticLayout.Builder.obtain(text, 0, text.length, paint, width.toInt()).setAlignment(alignment).setIncludePad(false).setLineSpacing(0f, preset.lineHeight.toFloat()).apply { if (maxLines != null) setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).setEllipsizedWidth(width.toInt()) }.build()
   }
   private fun typeface(p: RotationPreset): Typeface = fonts["${p.family}-${p.weight}"] ?: assets?.let { runCatching { Typeface.createFromAsset(it, "fonts/${p.family}-${p.weight}.ttf") }.getOrElse { throw IllegalStateException("FONT_MISSING") } } ?: Typeface.DEFAULT
   internal fun gradientCoordinates(angle: Double, width: Int, height: Int): FloatArray { val radians = Math.toRadians(angle); val radius = hypot(width.toDouble(), height.toDouble()) / 2.0; val dx = cos(radians) * radius; val dy = sin(radians) * radius; return floatArrayOf((width / 2.0 - dx).toFloat(), (height / 2.0 - dy).toFloat(), (width / 2.0 + dx).toFloat(), (height / 2.0 + dy).toFloat()) }

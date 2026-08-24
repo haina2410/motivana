@@ -82,3 +82,30 @@ test('uses controlled ellipsis at minimum size instead of clipping', () => {
   });
   expect(result.maxLines).toBe(4);
 });
+
+// Mutation caught: deriving the cap from nominal line height can still overflow when
+// the paragraph engine's shaped line height is larger than the style multiplier.
+test('uses the renderer constrained measurement to choose a fitting ellipsis cap', () => {
+  const shapedMeasurer: TextMeasurer = {
+    measure: () => ({ height: 500, lineCount: 12 }),
+    measureWithMaxLines: (_text, _width, _fontSize, _lineHeight, maxLines) => ({
+      height: maxLines * 60,
+      lineCount: maxLines,
+    }),
+  };
+
+  expect(
+    fitText({
+      preferredSize: 72,
+      minimumSize: 40,
+      maxHeight: 200,
+      lineHeight: 1.2,
+      measure: shapedMeasurer,
+    }),
+  ).toMatchObject({
+    fontSize: 40,
+    measuredHeight: 180,
+    truncated: true,
+    maxLines: 3,
+  });
+});

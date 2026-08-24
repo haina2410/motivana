@@ -5,6 +5,14 @@ export interface TextMeasurer {
     fontSize: number,
     lineHeight: number,
   ): { height: number; lineCount: number };
+  /** Measures the paragraph after the renderer applies an explicit ellipsis cap. */
+  measureWithMaxLines?(
+    text: string,
+    width: number,
+    fontSize: number,
+    lineHeight: number,
+    maxLines: number,
+  ): { height: number; lineCount: number };
 }
 
 export interface FitTextOptions {
@@ -61,10 +69,34 @@ export function fitText(options: FitTextOptions): FittedText {
   }
 
   const lineHeight = minimumSize * options.lineHeight;
+  let maxLines = Math.max(1, Math.floor(options.maxHeight / lineHeight));
+  let measuredHeight = options.maxHeight;
+  if (options.measure.measureWithMaxLines) {
+    const text = options.text ?? '';
+    const width = options.width ?? Number.MAX_SAFE_INTEGER;
+    let constrained = options.measure.measureWithMaxLines(
+      text,
+      width,
+      minimumSize,
+      lineHeight,
+      maxLines,
+    );
+    while (maxLines > 1 && constrained.height > options.maxHeight) {
+      maxLines -= 1;
+      constrained = options.measure.measureWithMaxLines(
+        text,
+        width,
+        minimumSize,
+        lineHeight,
+        maxLines,
+      );
+    }
+    measuredHeight = Math.min(options.maxHeight, constrained.height);
+  }
   return {
     fontSize: minimumSize,
-    measuredHeight: options.maxHeight,
+    measuredHeight,
     truncated: true,
-    maxLines: Math.max(1, Math.floor(options.maxHeight / lineHeight)),
+    maxLines,
   };
 }

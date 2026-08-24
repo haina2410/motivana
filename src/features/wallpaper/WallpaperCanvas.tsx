@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import type { WallpaperComposition } from './composition';
-import { drawWallpaperScene } from './scene';
+import { drawWallpaperScene, measureSkiaComposition } from './scene';
 import { useWallpaperFonts } from './useWallpaperFonts';
 
 export interface WallpaperCanvasProps {
@@ -20,19 +20,23 @@ export interface WallpaperCanvasProps {
 
 export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   const fonts = useWallpaperFonts();
+  const measuredComposition = useMemo(
+    () => (fonts ? measureSkiaComposition(composition, fonts) : composition),
+    [composition, fonts],
+  );
   const fallbackUri = useMemo(
     () =>
       fonts && Platform.OS === 'android'
-        ? createPreviewDataUri(composition, fonts)
+        ? createPreviewDataUri(measuredComposition, fonts)
         : null,
-    [composition, fonts],
+    [fonts, measuredComposition],
   );
   const preview = useMemo(
     () =>
       fonts && Platform.OS !== 'android'
-        ? createPreviewImage(composition, fonts)
+        ? createPreviewImage(measuredComposition, fonts)
         : null,
-    [composition, fonts],
+    [fonts, measuredComposition],
   );
   useEffect(
     () => () => {
@@ -63,8 +67,8 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
           image={preview.image}
           x={0}
           y={0}
-          width={composition.width}
-          height={composition.height}
+          width={measuredComposition.width}
+          height={measuredComposition.height}
           fit="fill"
         />
       ) : null}

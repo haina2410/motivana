@@ -2,7 +2,7 @@ import { Skia, type SkTypefaceFontProvider } from '@shopify/react-native-skia';
 import { Directory, File, Paths } from 'expo-file-system';
 
 import type { RenderedWallpaper, WallpaperComposition } from './composition';
-import { drawWallpaperScene } from './scene';
+import { drawWallpaperScene, measureSkiaComposition } from './scene';
 import { RenderError } from './renderErrors';
 
 const MINIMUM_EXPORT_WIDTH = 720;
@@ -65,10 +65,14 @@ export async function exportWallpaper(
   if (!hasSafeExportDimensions(composition)) {
     throw new RenderError('INVALID_DIMENSIONS');
   }
+  const measuredComposition = measureSkiaComposition(composition, fontProvider);
 
   let surface: NativeSurface | null;
   try {
-    surface = dependencies.createSurface(composition.width, composition.height);
+    surface = dependencies.createSurface(
+      measuredComposition.width,
+      measuredComposition.height,
+    );
   } catch {
     throw new RenderError('SURFACE_CREATION_FAILED');
   }
@@ -79,7 +83,7 @@ export async function exportWallpaper(
   let image: NativeImage | undefined;
   try {
     try {
-      dependencies.drawScene(surface.getCanvas(), composition);
+      dependencies.drawScene(surface.getCanvas(), measuredComposition);
       surface.flush();
     } catch {
       throw new RenderError('DRAW_FAILED');
@@ -97,8 +101,12 @@ export async function exportWallpaper(
     }
 
     try {
-      const uri = dependencies.writePng(composition.cacheKey, pngBytes);
-      return { uri, width: composition.width, height: composition.height };
+      const uri = dependencies.writePng(measuredComposition.cacheKey, pngBytes);
+      return {
+        uri,
+        width: measuredComposition.width,
+        height: measuredComposition.height,
+      };
     } catch {
       throw new RenderError('FILE_WRITE_FAILED');
     }

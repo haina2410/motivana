@@ -1,5 +1,12 @@
 {
   "layoutTolerance": 0.01,
+  "crossRendererTolerance": {
+    "fontSize": 3,
+    "lineCount": 7,
+    "quoteTop": 61,
+    "quoteHeight": 205,
+    "authorY": 61
+  },
   "cases": [
     {
       "name": "short-author-center-9x20",

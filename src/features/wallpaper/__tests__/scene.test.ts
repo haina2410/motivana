@@ -1,6 +1,6 @@
 import { createComposition } from '../composition';
 import { getPresetById } from '../presetRepository';
-import { drawWallpaperScene } from '../scene';
+import { drawWallpaperScene, measureSkiaComposition } from '../scene';
 import type { Quote } from '../../quotes/types';
 
 const paragraphStyles: Record<string, unknown>[] = [];
@@ -8,11 +8,20 @@ const gradientCalls: {
   start: { x: number; y: number };
   end: { x: number; y: number };
 }[] = [];
+let mockCurrentParagraphStyle: Record<string, unknown> | undefined;
 
 jest.mock('@shopify/react-native-skia', () => {
   const paragraph = {
     layout: () => undefined,
     paint: () => undefined,
+    getHeight: () => {
+      const fontSize = (
+        mockCurrentParagraphStyle?.textStyle as
+          { fontSize?: number } | undefined
+      )?.fontSize;
+      return fontSize && fontSize >= 40 ? 5_000 : 40;
+    },
+    getLineMetrics: () => [{}, {}],
   };
   return {
     Skia: {
@@ -32,6 +41,7 @@ jest.mock('@shopify/react-native-skia', () => {
       ParagraphBuilder: {
         Make: (style: Record<string, unknown>) => {
           paragraphStyles.push(style);
+          mockCurrentParagraphStyle = style;
           return {
             addText: () => undefined,
             build: () => paragraph,
@@ -81,14 +91,15 @@ test('renders when Skia paragraph handles are lifecycle-managed by the native bo
   expect(() => drawWallpaperScene(canvas, composition)).not.toThrow();
 });
 
-// Mutation caught: omitting the canonical line budget lets a platform text shaper
-// extend outside the shared safe box even when the deterministic composition fits.
+// Mutation caught: a character heuristic line budget can be smaller than the
+// real Skia shaping result for wide glyphs, silently dropping an untruncated
+// quote. Only an exhausted minimum-size fit may install a cap/ellipsis.
 test.each([
   ['midnight-focus', 1080, 1920],
   ['forest-discipline', 1080, 2400],
   ['paper-confidence', 1440, 2560],
 ])(
-  'caps a non-truncated %s quote paragraph at its canonical line budget at %ix%i',
+  'does not cap a non-truncated %s quote paragraph at %ix%i',
   (presetId, width, height) => {
     const composition = createComposition({
       quote: { ...quote, text: `${quote.text} `.repeat(12) },
@@ -101,10 +112,37 @@ test.each([
     expect(composition.truncated).toBe(false);
     drawWallpaperScene(canvas, composition);
 
-    expect(paragraphStyles[0]).toMatchObject({
-      maxLines: composition.maxQuoteLines,
-    });
+    expect(paragraphStyles[0]).not.toHaveProperty('maxLines');
     expect(paragraphStyles[0]).not.toHaveProperty('ellipsis');
+  },
+);
+
+// Mutation caught: routing fit decisions through the character-count fallback
+// lets a wide glyph, an unbroken word, or a surrogate pair render at a size that
+// the actual Skia paragraph cannot fit.
+test.each([
+  'ＭＷ'.repeat(40),
+  'pneumonoultramicroscopicsilicovolcanoconiosis'.repeat(3),
+  '🚀'.repeat(80),
+])(
+  'measures %s with the Skia paragraph before deciding it is complete',
+  (text) => {
+    const input = createComposition({
+      quote: { ...quote, text },
+      preset: getPresetById('midnight-focus')!,
+      width: 1080,
+      height: 2400,
+    });
+
+    const measured = measureSkiaComposition(input, {} as never);
+    drawWallpaperScene(
+      { drawRect: () => undefined, drawCircle: () => undefined },
+      measured,
+    );
+
+    expect(measured.quoteFontSize).toBe(39);
+    expect(measured.truncated).toBe(false);
+    expect(paragraphStyles.at(-2)).not.toHaveProperty('maxLines');
   },
 );
 
