@@ -19,7 +19,9 @@ import { typography } from '../src/theme/typography';
 export default function SettingsScreen() {
   const state = useAppStore();
   const translate = useTranslate();
-  const [pending, setPending] = useState<'randomize' | 'favorites'>();
+  const [pending, setPending] = useState<
+    'randomize' | 'favorites' | 'app' | 'content'
+  >();
   const [feedback, setFeedback] = useState<
     | {
         message: string;
@@ -59,10 +61,12 @@ export default function SettingsScreen() {
     locale: (typeof locales)[number],
   ) => {
     if (pending !== undefined) return;
+    setPending(kind);
     const saved =
       kind === 'app'
         ? await state.setAppLocale(locale)
         : await state.setContentLocale(locale);
+    setPending(undefined);
     setLanguageMessage(
       saved
         ? translate('settings.language.updated')
@@ -154,6 +158,9 @@ export default function SettingsScreen() {
               <Choice
                 key={locale}
                 label={translate(`language.${locale}` as StringKey)}
+                accessibilityLabel={translate('settings.appLanguage.option', {
+                  name: translate(`language.${locale}` as StringKey),
+                })}
                 selected={state.appLocale === locale}
                 onPress={() => void updateLanguage('app', locale)}
               />
@@ -172,6 +179,10 @@ export default function SettingsScreen() {
               <Choice
                 key={locale}
                 label={translate(`language.${locale}` as StringKey)}
+                accessibilityLabel={translate(
+                  'settings.contentLanguage.option',
+                  { name: translate(`language.${locale}` as StringKey) },
+                )}
                 selected={state.contentLocale === locale}
                 onPress={() => void updateLanguage('content', locale)}
               />

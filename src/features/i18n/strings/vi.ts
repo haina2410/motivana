@@ -110,6 +110,8 @@ export const vi: Record<keyof typeof en, string> = {
     'Đặt ngôn ngữ cho các câu nói bạn xem.',
   'settings.language.updated': 'Đã cập nhật tùy chọn ngôn ngữ.',
   'settings.language.error': 'Không cập nhật được ngôn ngữ. Hãy thử lại.',
+  'settings.appLanguage.option': 'Ngôn ngữ giao diện: {name}',
+  'settings.contentLanguage.option': 'Ngôn ngữ câu nói: {name}',
   'language.en': 'English',
   'language.vi': 'Tiếng Việt',
 

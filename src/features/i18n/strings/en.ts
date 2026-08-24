@@ -113,6 +113,8 @@ export const en = {
     'Sets the language of the quotes you see.',
   'settings.language.updated': 'Language preference updated.',
   'settings.language.error': 'Could not update the language. Try again.',
+  'settings.appLanguage.option': 'Interface language: {name}',
+  'settings.contentLanguage.option': 'Quote language: {name}',
   'language.en': 'English',
   'language.vi': 'Tiếng Việt',
 

@@ -52,7 +52,7 @@ test('renders the interface in the stored app language', async () => {
 test('changes the interface language without changing the quote language', async () => {
   render(<SettingsScreen />);
 
-  fireEvent.press(screen.getAllByLabelText('Tiếng Việt')[0]!);
+  fireEvent.press(screen.getByLabelText('Interface language: Tiếng Việt'));
 
   await waitFor(() => expect(useAppStore.getState().appLocale).toBe('vi'));
   expect(useAppStore.getState().contentLocale).toBe('en');
@@ -62,7 +62,7 @@ test('changes the interface language without changing the quote language', async
 test('attempting to change the quote language leaves the interface language untouched', async () => {
   render(<SettingsScreen />);
 
-  fireEvent.press(screen.getAllByLabelText('Tiếng Việt')[1]!);
+  fireEvent.press(screen.getByLabelText('Quote language: Tiếng Việt'));
 
   await waitFor(() =>
     expect(

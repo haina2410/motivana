@@ -5,11 +5,13 @@ import { spacing } from '../theme/spacing';
 
 export function Choice({
   label,
+  accessibilityLabel,
   selected,
   disabled = false,
   onPress,
 }: {
   label: string;
+  accessibilityLabel?: string;
   selected: boolean;
   disabled?: boolean;
   onPress: () => void;
@@ -17,7 +19,7 @@ export function Choice({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected, disabled }}
       disabled={disabled}
       onPress={onPress}
