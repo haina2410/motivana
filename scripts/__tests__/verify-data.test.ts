@@ -60,7 +60,7 @@ function validQuotes() {
       text: {
         en:
           index === 0 && categories.indexOf(category) < 4
-            ? 'A deliberate practice makes tomorrow more capable when you return to it with enough patience to notice what changed, what resisted, and what small adjustment can make the next effort clearer, calmer, and more useful than the last.'
+            ? 'A deliberate practice makes tomorrow more capable when you return to it with enough patience to notice what changed and adjust with care.'
             : `A deliberate ${category} practice makes tomorrow more capable.`,
       },
       author: 'Motivana',

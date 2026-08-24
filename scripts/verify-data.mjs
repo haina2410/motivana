@@ -107,11 +107,12 @@ function validateQuotes(quotes) {
       if (!['en', 'vi'].includes(locale)) {
         fail(`${path}.text.${locale}`, 'is not a supported locale');
       }
-      if (typeof text !== 'string' || text.trim().length < 12) {
-        fail(
-          `${path}.text.${locale}`,
-          'must contain at least 12 non-whitespace characters',
-        );
+      if (
+        typeof text !== 'string' ||
+        text.trim().length < 12 ||
+        text.length > 160
+      ) {
+        fail(`${path}.text.${locale}`, 'must contain 12 to 160 characters');
       }
     }
     if (quote.text[quote.sourceLocale] === undefined) {

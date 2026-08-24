@@ -64,6 +64,26 @@ test('ships 120 unique English quotes across every category', () => {
   expect(quotes.every((quote) => quote.author === undefined)).toBe(true);
 });
 
+// Mutation caught: allowing text past the cap would render a 9-line paragraph instead of a quote.
+test('rejects text longer than the cap', () => {
+  expect(() =>
+    parseQuoteCatalog([{ ...validEntry, text: { en: 'A'.repeat(161) } }]),
+  ).toThrow(/text.en/);
+  expect(() =>
+    parseQuoteCatalog([{ ...validEntry, text: { en: 'A'.repeat(160) } }]),
+  ).not.toThrow();
+});
+
+// Mutation caught: a single long quote in the catalog would break the wallpaper layout the cap protects.
+test('keeps every catalog quote inside the cap', () => {
+  for (const quote of getAllQuotes()) {
+    for (const [locale, text] of Object.entries(quote.text)) {
+      expect(text.length).toBeLessThanOrEqual(160);
+      expect(locale).toMatch(/^(en|vi)$/);
+    }
+  }
+});
+
 test('returns a readonly catalog that cannot alter later reads', () => {
   const quotes = getAllQuotes() as Quote[];
 

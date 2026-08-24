@@ -1,4 +1,4 @@
-import { isLocale, locales, type Locale } from '../i18n/locale';
+import { isLocale, type Locale } from '../i18n/locale';
 
 export const quoteCategories = [
   'motivation',
@@ -52,9 +52,13 @@ function parseText(
         `${path}.${key} is not a supported locale`,
       );
     }
-    if (typeof entry !== 'string' || entry.trim().length < QUOTE_TEXT_MINIMUM) {
+    if (
+      typeof entry !== 'string' ||
+      entry.trim().length < QUOTE_TEXT_MINIMUM ||
+      entry.length > QUOTE_TEXT_MAXIMUM
+    ) {
       throw new QuoteCatalogValidationError(
-        `${path}.${key} must contain at least ${QUOTE_TEXT_MINIMUM} non-whitespace characters`,
+        `${path}.${key} must contain ${QUOTE_TEXT_MINIMUM} to ${QUOTE_TEXT_MAXIMUM} characters`,
       );
     }
     text[key] = entry;
