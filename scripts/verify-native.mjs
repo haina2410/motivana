@@ -11,8 +11,21 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const gradle = `${root}android/gradlew`;
 const task = ':motivana-wallpaper:testDebugUnitTest';
 
+// A build server must not inherit the skip below, or the gate goes quiet again.
+const required = process.env.MOTIVANA_REQUIRE_NATIVE === '1';
+
+function stopIfRequired(reason) {
+  if (required) {
+    console.error(
+      `verify-native: FAILED, ${reason}, and MOTIVANA_REQUIRE_NATIVE=1.`,
+    );
+    process.exit(1);
+  }
+}
+
 if (!existsSync(gradle)) {
   // android/ is generated and git-ignored, so a fresh checkout has no Gradle yet.
+  stopIfRequired('android/ is absent');
   console.error(
     'verify-native: SKIPPED, android/ is absent.\n' +
       '  The Kotlin rotation tests guard the shape of assets/data/quotes.json.\n' +
@@ -27,6 +40,7 @@ if (
   process.env.ANDROID_HOME === undefined &&
   process.env.ANDROID_SDK_ROOT === undefined
 ) {
+  stopIfRequired('no Android SDK is configured');
   console.error(
     'verify-native: SKIPPED, no ANDROID_HOME or ANDROID_SDK_ROOT.\n' +
       `  Run "cd android && ./gradlew ${task}" once the Android SDK is set up.`,

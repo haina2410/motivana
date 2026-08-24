@@ -36,6 +36,23 @@ import type {
   WallpaperTarget,
 } from '../src/store/schema';
 
+const stateKeys: Record<WallpaperAutomationStatus['state'], StringKey> = {
+  disabled: 'automation.state.disabled',
+  scheduled: 'automation.state.scheduled',
+  running: 'automation.state.running',
+  succeeded: 'automation.state.succeeded',
+  failed: 'automation.state.failed',
+};
+const targetKeys: Record<WallpaperTarget, StringKey> = {
+  home: 'automation.targetName.home',
+  lock: 'automation.targetName.lock',
+  both: 'automation.targetName.both',
+};
+const capabilityKeys: Record<'available' | 'unavailable', StringKey> = {
+  available: 'automation.capability.available',
+  unavailable: 'automation.capability.unavailable',
+};
+
 export default function AutomationScreen() {
   const state = useAppStore();
   const translate = useTranslate();
@@ -120,15 +137,15 @@ export default function AutomationScreen() {
   ): string =>
     state === undefined
       ? translate('automation.status.loading')
-      : translate(`automation.state.${state}` as StringKey);
+      : translate(stateKeys[state]);
   const targetText = (target: WallpaperTarget): string =>
-    translate(`automation.targetName.${target}` as StringKey);
+    translate(targetKeys[target]);
   const capabilityText = (
     kind: 'available' | 'unavailable' | undefined,
   ): string =>
     kind === undefined
       ? translate('automation.status.loading')
-      : translate(`automation.capability.${kind}` as StringKey);
+      : translate(capabilityKeys[kind]);
   const statusRecovery = getRotationStatusRecovery(
     availability?.status.errorCode,
   );
