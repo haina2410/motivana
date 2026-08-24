@@ -836,6 +836,134 @@ git commit -m "feat: store interface and quote languages separately"
 
 ---
 
+### Task 5b: Render the wallpaper in the quote language
+
+Task 2 left `composition.ts` and `scene.ts` reading `quoteText(quote, 'en')` as
+a placeholder. This task replaces the placeholder, so the wallpaper renders in
+the reader's quote language. Without it the feature does not work.
+
+**Files:**
+- Modify: `src/features/wallpaper/composition.ts`
+- Modify: `src/features/wallpaper/scene.ts:196`
+- Modify: `src/features/wallpaper/exportWallpaper.ts` (pass the locale through if it builds a composition)
+- Modify: `app/index.tsx` (the `WallpaperPreview` and `FittedPreview` path)
+- Modify: `src/components/WallpaperActions.tsx` (if it builds a composition)
+- Modify: `src/features/wallpaper/__tests__/composition.test.ts`
+- Modify: `src/features/wallpaper/__tests__/exportWallpaper.test.ts`
+- Modify: `src/features/wallpaper/__tests__/scene.test.ts`
+- Modify: `src/components/__tests__/WallpaperActions.test.tsx`
+- Modify: `src/features/wallpaper/__tests__/composition.test.ts` golden fixture runner, if it reads `cases[].quote`
+
+**Interfaces:**
+- Consumes: `Locale` (Task 1), `favoriteQuoteText` (Task 4), `contentLocale` (Task 5).
+- Produces: `WallpaperCompositionInput` gains `locale: Locale`. `WallpaperComposition` carries it through, because it spreads its input.
+
+- [ ] **Step 1: Write the failing test**
+
+Add to `src/features/wallpaper/__tests__/composition.test.ts`:
+
+```ts
+// Mutation caught: rendering the source language regardless of the requested locale would keep the wallpaper English after the reader chooses Vietnamese.
+test('renders the text of the requested locale', () => {
+  const bilingual: Quote = {
+    id: 'bilingual-001',
+    category: 'motivation',
+    sourceLocale: 'en',
+    text: { en: 'A'.repeat(40), vi: 'B'.repeat(40) },
+  };
+
+  const english = createComposition(
+    { quote: bilingual, preset, width: 1080, height: 2400, locale: 'en' },
+    measuredByCharacters,
+  );
+  const vietnamese = createComposition(
+    { quote: bilingual, preset, width: 1080, height: 2400, locale: 'vi' },
+    measuredByCharacters,
+  );
+
+  expect(english.cacheKey).not.toBe(vietnamese.cacheKey);
+});
+
+// Mutation caught: using the pool rule here would render an empty wallpaper for a favorite saved in the other language.
+test('falls back to the source language for a quote missing the requested locale', () => {
+  const englishOnly: Quote = {
+    id: 'english-only-001',
+    category: 'motivation',
+    sourceLocale: 'en',
+    text: { en: 'A'.repeat(40) },
+  };
+
+  const composition = createComposition(
+    { quote: englishOnly, preset, width: 1080, height: 2400, locale: 'vi' },
+    measuredByCharacters,
+  );
+
+  expect(composition.quoteFontSize).toBeGreaterThan(0);
+  expect(composition.truncated).toBe(false);
+});
+```
+
+- [ ] **Step 2: Run the test to verify it fails**
+
+Run: `pnpm jest src/features/wallpaper/__tests__/composition.test.ts`
+Expected: FAIL, `locale` is not a property of `WallpaperCompositionInput`.
+
+- [ ] **Step 3: Add the locale to the composition**
+
+In `src/features/wallpaper/composition.ts`:
+
+```ts
+import { favoriteQuoteText } from '../quotes/quoteRepository';
+import type { Locale } from '../i18n/locale';
+
+export interface WallpaperCompositionInput {
+  quote: Quote;
+  preset: WallpaperPreset;
+  width: number;
+  height: number;
+  locale: Locale;
+}
+```
+
+Inside `createComposition`, resolve the text once and use it for both the fit
+and the fingerprint:
+
+```ts
+  const renderedText = favoriteQuoteText(input.quote, input.locale);
+```
+
+Pass `renderedText` to `fitText` as `text`, and to `textFingerprint` in the
+cache key. Use `favoriteQuoteText`, not `quoteText`: the current quote can be a
+favorite that has no text in the active language, and the wallpaper must still
+render.
+
+In `src/features/wallpaper/scene.ts:196`, replace the text argument with
+`favoriteQuoteText(composition.quote, composition.locale)`.
+
+- [ ] **Step 4: Pass the locale from every caller**
+
+Find them with `grep -rn "createComposition" src app --include="*.ts" --include="*.tsx"`.
+In each screen or component, read the locale from the store with
+`useAppStore((state) => state.contentLocale)` and add `locale` to the
+`createComposition` argument. Add `locale: 'en'` to the existing test fixtures
+that build a composition, except the two new tests above.
+
+- [ ] **Step 5: Run the tests to verify they pass**
+
+Run: `pnpm test`
+Expected: PASS, all suites. The golden fixture cases keep `locale: 'en'`, so
+their expected geometry does not change.
+
+- [ ] **Step 6: Run the full check and commit**
+
+```bash
+pnpm verify
+git add -A
+git commit -m "feat: render the wallpaper in the quote language"
+```
+
+---
+
 ### Task 6: Interface string catalog
 
 Builds the English catalog and `t()`. No screen changes yet, so this task is safe to review on its own.
