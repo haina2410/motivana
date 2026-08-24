@@ -229,6 +229,80 @@
           "radius": 3.6
         }
       }
+    },
+    {
+      "name": "vietnamese-tall-diacritics-paper-9x20",
+      "quote": {
+        "id": "golden-vi-tall",
+        "category": "confidence",
+        "sourceLocale": "vi",
+        "text": {
+          "vi": "Mỗi lựa chọn nhỏ hôm nay quyết định điều bạn giữ được ngày mai."
+        }
+      },
+      "preset": "paper-confidence",
+      "dimensions": {
+        "width": 1080,
+        "height": 2400
+      },
+      "locale": "vi",
+      "expected": {
+        "quoteBox": {
+          "x": 86.4,
+          "y": 812.46,
+          "width": 907.2,
+          "height": 247.08
+        },
+        "fontSize": 71,
+        "lineCount": 3,
+        "maxLines": 3,
+        "alignment": "left",
+        "authorY": null,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": {
+          "x": 139.65,
+          "y": 776.96,
+          "radius": 10.65
+        }
+      }
+    },
+    {
+      "name": "vietnamese-tall-diacritics-ember-9x20",
+      "quote": {
+        "id": "golden-vi-tall",
+        "category": "confidence",
+        "sourceLocale": "vi",
+        "text": {
+          "vi": "Mỗi lựa chọn nhỏ hôm nay quyết định điều bạn giữ được ngày mai."
+        }
+      },
+      "preset": "ember-action",
+      "dimensions": {
+        "width": 1080,
+        "height": 2400
+      },
+      "locale": "vi",
+      "expected": {
+        "quoteBox": {
+          "x": 86.4,
+          "y": 860.46,
+          "width": 907.2,
+          "height": 247.08
+        },
+        "fontSize": 71,
+        "lineCount": 3,
+        "maxLines": 3,
+        "alignment": "right",
+        "authorY": null,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": {
+          "x": 940.35,
+          "y": 824.96,
+          "radius": 10.65
+        }
+      }
     }
   ]
 }

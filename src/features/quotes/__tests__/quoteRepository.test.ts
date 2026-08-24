@@ -58,7 +58,6 @@ test('ships 120 unique English quotes across every category', () => {
   expect(new Set(quotes.map((quote) => quote.category))).toEqual(
     new Set(quoteCategories),
   );
-  expect(quotes.every((quote) => quote.sourceLocale === 'en')).toBe(true);
   expect(
     quotes.every((quote) => (quote.text.en ?? '').trim().length >= 12),
   ).toBe(true);
@@ -161,9 +160,8 @@ test('offers only quotes that have text for the requested locale', () => {
   expect(vietnamese.length).toBeLessThan(english.length);
 });
 
-// Enabled by Task 9.
 // Mutation caught: stepping through the unfiltered catalog would land on a quote with no text in the active language.
-test.skip('steps only through quotes available in the locale', () => {
+test('steps only through quotes available in the locale', () => {
   const vietnamese = getAllQuotes('vi');
   const first = vietnamese[0]!;
   const next = getAdjacentQuote(first.id, 'next', 'vi');
@@ -171,12 +169,34 @@ test.skip('steps only through quotes available in the locale', () => {
   expect(next?.text.vi).toBeDefined();
 });
 
-// Enabled by Task 9.
 // Mutation caught: ignoring the locale in random selection would apply an untranslated wallpaper during rotation.
-test.skip('selects a random quote only from the locale pool', () => {
+test('selects a random quote only from the locale pool', () => {
   const quote = selectRandomQuote({ locale: 'vi', random: () => 0 });
 
   expect(quote.text.vi).toBeDefined();
+});
+
+// Mutation caught: an unbalanced first batch would leave a category with too few quotes and repeat during rotation.
+test('ships the Vietnamese first batch with 5 quotes in every category', () => {
+  const vietnamese = getAllQuotes('vi');
+
+  expect(vietnamese).toHaveLength(30);
+  for (const category of quoteCategories) {
+    expect(
+      vietnamese.filter((quote) => quote.category === category),
+    ).toHaveLength(5);
+  }
+});
+
+// Mutation caught: shipping only translations would leave the original-Vietnamese path untested.
+test('includes an original Vietnamese quote in every category', () => {
+  const original = getAllQuotes('vi').filter(
+    (quote) => quote.sourceLocale === 'vi',
+  );
+
+  expect(new Set(original.map((quote) => quote.category)).size).toBe(
+    quoteCategories.length,
+  );
 });
 
 // Mutation caught: raising an error for an empty locale pool at the wrong point would crash rotation instead of reporting it.

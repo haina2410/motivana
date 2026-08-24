@@ -2,9 +2,10 @@
   {
     "id": "motivation-001",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Begin before your mood negotiates the day away."
+      "en": "Today, only aim to be a little better than yesterday's version of you.",
+      "vi": "Hôm nay bạn chỉ cần tốt hơn phiên bản của chính mình hôm qua."
     }
   },
   {
@@ -12,7 +13,8 @@
     "category": "motivation",
     "sourceLocale": "en",
     "text": {
-      "en": "A small honest start can pull a whole day into motion."
+      "en": "A small honest start can pull a whole day into motion.",
+      "vi": "Một khởi đầu nhỏ và chân thành có thể kéo cả ngày chuyển động theo nó."
     }
   },
   {
@@ -20,7 +22,8 @@
     "category": "motivation",
     "sourceLocale": "en",
     "text": {
-      "en": "Give the next useful action more attention than the perfect plan."
+      "en": "Give the next useful action more attention than the perfect plan.",
+      "vi": "Hãy chú tâm vào hành động hữu ích tiếp theo, thay vì mải mê với kế hoạch hoàn hảo."
     }
   },
   {
@@ -28,7 +31,8 @@
     "category": "motivation",
     "sourceLocale": "en",
     "text": {
-      "en": "Your energy often arrives after you invite it with movement."
+      "en": "Your energy often arrives after you invite it with movement.",
+      "vi": "Năng lượng thường chỉ đến sau khi bạn chủ động bắt tay vào làm."
     }
   },
   {
@@ -36,7 +40,8 @@
     "category": "motivation",
     "sourceLocale": "en",
     "text": {
-      "en": "Make progress visible enough that tomorrow wants to continue it."
+      "en": "Make progress visible enough that tomorrow wants to continue it.",
+      "vi": "Hãy để tiến bộ hôm nay đủ rõ ràng, để ngày mai muốn tiếp tục nó."
     }
   },
   {
@@ -162,9 +167,10 @@
   {
     "id": "discipline-001",
     "category": "discipline",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Keep promises to yourself in sizes you can actually keep."
+      "en": "Discipline is keeping small promises to yourself, even when no one is watching.",
+      "vi": "Kỷ luật là giữ lời hứa nhỏ với chính mình, ngay cả khi không ai nhìn thấy."
     }
   },
   {
@@ -172,7 +178,8 @@
     "category": "discipline",
     "sourceLocale": "en",
     "text": {
-      "en": "A routine becomes powerful when it survives an unremarkable day."
+      "en": "A routine becomes powerful when it survives an unremarkable day.",
+      "vi": "Một thói quen trở nên mạnh mẽ khi nó vẫn tồn tại qua những ngày bình thường nhất."
     }
   },
   {
@@ -180,7 +187,8 @@
     "category": "discipline",
     "sourceLocale": "en",
     "text": {
-      "en": "Choose the useful repeat over the exciting exception."
+      "en": "Choose the useful repeat over the exciting exception.",
+      "vi": "Hãy chọn sự lặp lại có ích, thay vì một ngoại lệ hấp dẫn nhất thời."
     }
   },
   {
@@ -188,7 +196,8 @@
     "category": "discipline",
     "sourceLocale": "en",
     "text": {
-      "en": "Make the right action easier to begin than the distraction."
+      "en": "Make the right action easier to begin than the distraction.",
+      "vi": "Hãy làm cho hành động đúng đắn dễ bắt đầu hơn là sự xao nhãng."
     }
   },
   {
@@ -196,7 +205,8 @@
     "category": "discipline",
     "sourceLocale": "en",
     "text": {
-      "en": "Consistency is a quiet skill that gets stronger every time you use it."
+      "en": "Consistency is a quiet skill that gets stronger every time you use it.",
+      "vi": "Sự kiên trì là một kỹ năng thầm lặng, càng dùng nó càng trở nên mạnh mẽ."
     }
   },
   {
@@ -322,9 +332,10 @@
   {
     "id": "focus-001",
     "category": "focus",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Give one task the silence it needs to become clear."
+      "en": "One task done in stillness is often clearer than ten done in a rush.",
+      "vi": "Một việc được làm trong tĩnh lặng thường rõ ràng hơn mười việc làm vội vàng."
     }
   },
   {
@@ -332,7 +343,8 @@
     "category": "focus",
     "sourceLocale": "en",
     "text": {
-      "en": "Attention grows where you stop scattering it."
+      "en": "Attention grows where you stop scattering it.",
+      "vi": "Sự tập trung lớn lên ở nơi bạn ngừng phân tán nó."
     }
   },
   {
@@ -340,7 +352,8 @@
     "category": "focus",
     "sourceLocale": "en",
     "text": {
-      "en": "Close the extra doors so the chosen door can open fully."
+      "en": "Close the extra doors so the chosen door can open fully.",
+      "vi": "Hãy đóng những cánh cửa thừa, để cánh cửa bạn chọn mở ra trọn vẹn."
     }
   },
   {
@@ -348,7 +361,8 @@
     "category": "focus",
     "sourceLocale": "en",
     "text": {
-      "en": "Protect the next thirty minutes from unnecessary opinions."
+      "en": "Protect the next thirty minutes from unnecessary opinions.",
+      "vi": "Hãy bảo vệ ba mươi phút tiếp theo khỏi những ý kiến không cần thiết."
     }
   },
   {
@@ -356,7 +370,8 @@
     "category": "focus",
     "sourceLocale": "en",
     "text": {
-      "en": "The priority is the work you return to after every interruption."
+      "en": "The priority is the work you return to after every interruption.",
+      "vi": "Ưu tiên chính là việc bạn quay lại làm sau mỗi lần bị gián đoạn."
     }
   },
   {
@@ -482,9 +497,10 @@
   {
     "id": "confidence-001",
     "category": "confidence",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Trust grows when you keep evidence of your own follow-through."
+      "en": "Confidence grows from every time you keep your word to yourself.",
+      "vi": "Sự tự tin lớn lên từ những lần bạn giữ đúng lời hứa với chính mình."
     }
   },
   {
@@ -492,7 +508,8 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "You are allowed to learn in public and improve in private."
+      "en": "You are allowed to learn in public and improve in private.",
+      "vi": "Bạn được phép học hỏi trước mọi người và âm thầm tiến bộ."
     }
   },
   {
@@ -500,7 +517,8 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "Speak to yourself with the patience you offer a determined beginner."
+      "en": "Speak to yourself with the patience you offer a determined beginner.",
+      "vi": "Hãy nói với bản thân bằng sự kiên nhẫn bạn dành cho một người mới bắt đầu đầy quyết tâm."
     }
   },
   {
@@ -508,7 +526,8 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "Capability is often quieter than the fear that questions it."
+      "en": "Capability is often quieter than the fear that questions it.",
+      "vi": "Năng lực thường lặng lẽ hơn nỗi sợ đang nghi ngờ nó."
     }
   },
   {
@@ -516,7 +535,8 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "Let preparation carry more weight than self-doubt."
+      "en": "Let preparation carry more weight than self-doubt.",
+      "vi": "Hãy để sự chuẩn bị kỹ lưỡng nặng ký hơn sự nghi ngờ bản thân."
     }
   },
   {
@@ -642,9 +662,10 @@
   {
     "id": "growth-001",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Learn slowly enough to keep what the lesson gives you."
+      "en": "Real growth comes from the lessons you stay with long enough to fully understand.",
+      "vi": "Trưởng thành thực sự đến từ những bài học bạn chịu ở lại để hiểu hết."
     }
   },
   {
@@ -652,7 +673,8 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "A better question can change the direction of an entire effort."
+      "en": "A better question can change the direction of an entire effort.",
+      "vi": "Một câu hỏi hay hơn có thể thay đổi cả hướng đi của một nỗ lực."
     }
   },
   {
@@ -660,7 +682,8 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "Let feedback become information before it becomes identity."
+      "en": "Let feedback become information before it becomes identity.",
+      "vi": "Hãy để phản hồi trở thành thông tin, trước khi nó trở thành cái tôi."
     }
   },
   {
@@ -668,7 +691,8 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "The beginner’s version of you deserves a fair chance to practice."
+      "en": "The beginner’s version of you deserves a fair chance to practice.",
+      "vi": "Phiên bản mới bắt đầu của bạn xứng đáng có cơ hội để luyện tập."
     }
   },
   {
@@ -676,7 +700,8 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "Growth often feels ordinary while it is happening."
+      "en": "Growth often feels ordinary while it is happening.",
+      "vi": "Sự trưởng thành thường trông rất bình thường khi nó đang diễn ra."
     }
   },
   {
@@ -802,9 +827,10 @@
   {
     "id": "success-001",
     "category": "success",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Define success clearly enough to recognize it when it arrives."
+      "en": "Lasting success starts with small commitments you keep in full.",
+      "vi": "Thành công bền vững bắt đầu từ những cam kết nhỏ mà bạn giữ trọn."
     }
   },
   {
@@ -812,7 +838,8 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "A meaningful result usually begins as a modest commitment."
+      "en": "A meaningful result usually begins as a modest commitment.",
+      "vi": "Một kết quả ý nghĩa thường bắt đầu từ một cam kết khiêm tốn."
     }
   },
   {
@@ -820,7 +847,8 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "Build outcomes from actions you can repeat with integrity."
+      "en": "Build outcomes from actions you can repeat with integrity.",
+      "vi": "Hãy xây dựng kết quả từ những hành động bạn có thể lặp lại một cách chính trực."
     }
   },
   {
@@ -828,7 +856,8 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "Let your standards guide the work after applause has left the room."
+      "en": "Let your standards guide the work after applause has left the room.",
+      "vi": "Hãy để tiêu chuẩn của bạn dẫn dắt công việc, ngay cả khi tiếng vỗ tay đã tắt."
     }
   },
   {
@@ -836,7 +865,8 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "Celebrate the milestone, then make space for the next careful step."
+      "en": "Celebrate the milestone, then make space for the next careful step.",
+      "vi": "Hãy ăn mừng cột mốc, rồi dành chỗ cho bước đi cẩn trọng tiếp theo."
     }
   },
   {

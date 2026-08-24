@@ -2,6 +2,7 @@ import { createComposition } from '../composition';
 import { getPresetById } from '../presetRepository';
 import { drawWallpaperScene, measureSkiaComposition } from '../scene';
 import { quoteText, type Quote } from '../../quotes/types';
+import type { Locale } from '../../i18n/locale';
 
 const goldenFixture =
   require('../../../../assets/data/renderer-golden-fixture.json') as {
@@ -10,6 +11,7 @@ const goldenFixture =
       quote: Quote;
       preset: string;
       dimensions: { width: number; height: number };
+      locale?: Locale;
       expected: {
         quoteBox: { x: number; y: number; width: number; height: number };
         fontSize: number;
@@ -164,7 +166,8 @@ test.each([
 test('matches the recorded bundled-font Skia foreground fixture', () => {
   for (const golden of goldenFixture.cases) {
     const expected = golden.expected;
-    const key = `${quoteText(golden.quote, 'en')}|${expected.fontSize}`;
+    const locale = golden.locale ?? 'en';
+    const key = `${quoteText(golden.quote, locale)}|${expected.fontSize}`;
     for (
       let fontSize = Math.round(
         golden.dimensions.width *
@@ -174,7 +177,7 @@ test('matches the recorded bundled-font Skia foreground fixture', () => {
       fontSize -= 1
     ) {
       mockGoldenMeasurements.set(
-        `${quoteText(golden.quote, 'en')}|${fontSize}|uncapped`,
+        `${quoteText(golden.quote, locale)}|${fontSize}|uncapped`,
         {
           height: 5_000,
           lineCount: 99,
@@ -205,7 +208,7 @@ test('matches the recorded bundled-font Skia foreground fixture', () => {
         quote: golden.quote,
         preset: getPresetById(golden.preset)!,
         ...golden.dimensions,
-        locale: 'en',
+        locale,
       }),
       {} as never,
     );

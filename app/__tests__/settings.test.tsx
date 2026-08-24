@@ -58,18 +58,13 @@ test('changes the interface language without changing the quote language', async
   expect(useAppStore.getState().contentLocale).toBe('en');
 });
 
-// Mutation caught: wiring the quote-language picker through the interface-language setter would flip appLocale even though there is no Vietnamese quote content to switch into.
-test('attempting to change the quote language leaves the interface language untouched', async () => {
+// Mutation caught: wiring the quote-language picker through the interface-language setter would flip appLocale when the reader only wanted a Vietnamese quote language.
+test('changes the quote language without changing the interface language', async () => {
   render(<SettingsScreen />);
 
   fireEvent.press(screen.getByLabelText('Quote language: Tiếng Việt'));
 
-  await waitFor(() =>
-    expect(
-      screen.getByText('Could not update the language. Try again.'),
-    ).toBeOnTheScreen(),
-  );
-  expect(useAppStore.getState().contentLocale).toBe('en');
+  await waitFor(() => expect(useAppStore.getState().contentLocale).toBe('vi'));
   expect(useAppStore.getState().appLocale).toBe('en');
 });
 

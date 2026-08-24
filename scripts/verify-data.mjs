@@ -144,6 +144,26 @@ function validateQuotes(quotes) {
       );
     }
   }
+
+  const vietnameseByCategory = new Map(
+    quoteCategories.map((category) => [category, 0]),
+  );
+  for (const quote of quotes) {
+    if (quote.text.vi !== undefined) {
+      vietnameseByCategory.set(
+        quote.category,
+        vietnameseByCategory.get(quote.category) + 1,
+      );
+    }
+  }
+  for (const [category, count] of vietnameseByCategory) {
+    if (count !== 5) {
+      fail(
+        'assets/data/quotes.json',
+        `must carry 5 Vietnamese quotes in ${category}, found ${count}`,
+      );
+    }
+  }
 }
 
 function validatePreset(preset, index) {

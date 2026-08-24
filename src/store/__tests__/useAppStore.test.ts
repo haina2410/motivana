@@ -403,12 +403,12 @@ test('rejects an unsupported interface language', async () => {
   expect(store.getState().appLocale).toBe('en');
 });
 
-// Mutation caught: moving the reader into a quote language with an empty catalog would silently strand them on an unreachable pool.
-test('rejects a quote language whose catalog is empty', async () => {
+// Mutation caught: moving the reader into a quote language with an empty catalog would silently strand them on an unreachable pool. The Vietnamese batch now ships content, so the reachable current quote must be kept rather than rejected.
+test('accepts a quote language whose catalog has content', async () => {
   const store = createAppStore({ storage: createMemoryStorage() });
   const before = store.getState().currentQuoteId;
 
-  await expect(store.getState().setContentLocale('vi')).resolves.toBe(false);
-  expect(store.getState().contentLocale).toBe('en');
+  await expect(store.getState().setContentLocale('vi')).resolves.toBe(true);
+  expect(store.getState().contentLocale).toBe('vi');
   expect(store.getState().currentQuoteId).toBe(before);
 });

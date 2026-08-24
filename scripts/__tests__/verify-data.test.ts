@@ -62,6 +62,9 @@ function validQuotes() {
           index === 0 && categories.indexOf(category) < 4
             ? 'A deliberate practice makes tomorrow more capable when you return to it with enough patience to notice what changed and adjust with care.'
             : `A deliberate ${category} practice makes tomorrow more capable.`,
+        ...(index < 5
+          ? { vi: `Một sự luyện tập ${category} kiên trì mỗi ngày.` }
+          : {}),
       },
       author: 'Motivana',
     })),
