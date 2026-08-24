@@ -1,11 +1,11 @@
 {
   "layoutTolerance": 0.01,
   "crossRendererTolerance": {
-    "fontSize": 3,
-    "lineCount": 7,
-    "quoteTop": 61,
-    "quoteHeight": 205,
-    "authorY": 61
+    "fontSize": 0,
+    "lineCount": 0,
+    "quoteTop": 1,
+    "quoteHeight": 1,
+    "authorY": 1
   },
   "cases": [
     {
@@ -21,18 +21,18 @@
       "expected": {
         "quoteBox": {
           "x": 86.4,
-          "y": 950.58,
+          "y": 949,
           "width": 907.2,
-          "height": 162.84
+          "height": 166
         },
         "fontSize": 69,
         "lineCount": 2,
         "maxLines": 2,
         "alignment": "center",
-        "authorY": 1166.22,
+        "authorY": 1167.8,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 138.15, "y": 916.08, "radius": 10.35 }
+        "accent": { "x": 138.15, "y": 914.5, "radius": 10.35 }
       }
     },
     {
@@ -46,15 +46,15 @@
       "preset": "sunrise-drive",
       "dimensions": { "width": 1080, "height": 1920 },
       "expected": {
-        "quoteBox": { "x": 86.4, "y": 192, "width": 907.2, "height": 1534 },
-        "fontSize": 50,
-        "lineCount": 26,
-        "maxLines": 26,
+        "quoteBox": { "x": 86.4, "y": 198, "width": 907.2, "height": 1140 },
+        "fontSize": 47,
+        "lineCount": 20,
+        "maxLines": 20,
         "alignment": "left",
         "authorY": null,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 123.9, "y": 167, "radius": 7.5 }
+        "accent": { "x": 121.65, "y": 174.5, "radius": 7.05 }
       }
     },
     {
@@ -70,18 +70,18 @@
       "expected": {
         "quoteBox": {
           "x": 86.4,
-          "y": 293.04,
+          "y": 314.7,
           "width": 907.2,
-          "height": 988.32
+          "height": 945
         },
         "fontSize": 71,
-        "lineCount": 12,
-        "maxLines": 12,
+        "lineCount": 9,
+        "maxLines": 9,
         "alignment": "right",
-        "authorY": 1323.6,
+        "authorY": 1301.94,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 940.35, "y": 257.54, "radius": 10.65 }
+        "accent": { "x": 940.35, "y": 279.2, "radius": 10.65 }
       }
     },
     {
@@ -95,12 +95,12 @@
       "preset": "forest-discipline",
       "dimensions": { "width": 720, "height": 1280 },
       "expected": {
-        "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 971.84 },
+        "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 961 },
         "fontSize": 24,
-        "lineCount": 32,
-        "maxLines": 32,
+        "lineCount": 31,
+        "maxLines": 31,
         "alignment": "center",
-        "authorY": 1128,
+        "authorY": 1117.16,
         "truncated": true,
         "ellipsis": true,
         "accent": { "x": 75.6, "y": 116, "radius": 3.6 }

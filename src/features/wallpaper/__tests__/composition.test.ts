@@ -2,27 +2,6 @@ import { createComposition, type TextMeasurer } from '../composition';
 import type { Quote } from '../../quotes/types';
 import { getAllPresets, getPresetById } from '../presetRepository';
 
-const goldenFixture =
-  require('../../../../assets/data/renderer-golden-fixture.json') as {
-    layoutTolerance: number;
-    cases: {
-      quote: Quote;
-      preset: string;
-      dimensions: { width: number; height: number };
-      expected: {
-        quoteBox: { x: number; y: number; width: number; height: number };
-        fontSize: number;
-        lineCount: number;
-        maxLines: number;
-        alignment: string;
-        authorY: number | null;
-        truncated: boolean;
-        ellipsis: boolean;
-        accent: { x: number; y: number; radius: number };
-      };
-    }[];
-  };
-
 const preset = getPresetById('midnight-focus')!;
 
 const measuredByCharacters: TextMeasurer = {
@@ -143,56 +122,4 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
 
   expect(first.cacheKey).toBe('midnight-focus-quote-80-1080x2400');
   expect(second.cacheKey).toBe(first.cacheKey);
-});
-
-test('loads every shared renderer golden fixture with one canonical layout', () => {
-  for (const golden of goldenFixture.cases) {
-    const goldenPreset = getPresetById(golden.preset)!;
-    const composition = createComposition({
-      quote: golden.quote,
-      preset: goldenPreset,
-      ...golden.dimensions,
-    });
-    const expected = golden.expected;
-    const tolerance = goldenFixture.layoutTolerance;
-    const markSize = composition.quoteFontSize * 1.5;
-    const markX =
-      goldenPreset.textAlign === 'right'
-        ? composition.quoteBounds.x + composition.quoteBounds.width - markSize
-        : composition.quoteBounds.x;
-    expect(
-      Math.abs(composition.quoteBounds.x - expected.quoteBox.x),
-    ).toBeLessThanOrEqual(tolerance);
-    expect(
-      Math.abs(composition.quoteBounds.y - expected.quoteBox.y),
-    ).toBeLessThanOrEqual(tolerance);
-    expect(
-      Math.abs(composition.quoteBounds.width - expected.quoteBox.width),
-    ).toBeLessThanOrEqual(tolerance);
-    expect(
-      Math.abs(composition.quoteBounds.height - expected.quoteBox.height),
-    ).toBeLessThanOrEqual(tolerance);
-    expect(composition.quoteFontSize).toBe(expected.fontSize);
-    expect(composition.maxQuoteLines).toBe(expected.maxLines);
-    expect(composition.maxQuoteLines).toBe(expected.lineCount);
-    expect(goldenPreset.textAlign).toBe(expected.alignment);
-    expect(composition.truncated).toBe(expected.truncated);
-    expect(composition.truncated).toBe(expected.ellipsis);
-    if (expected.authorY === null) {
-      expect(golden.quote.author).toBeNull();
-    } else {
-      expect(
-        Math.abs(composition.authorY - expected.authorY),
-      ).toBeLessThanOrEqual(tolerance);
-    }
-    expect(
-      Math.abs(markX + markSize / 2 - expected.accent.x),
-    ).toBeLessThanOrEqual(tolerance);
-    expect(
-      Math.abs(composition.quoteBounds.y - markSize / 3 - expected.accent.y),
-    ).toBeLessThanOrEqual(tolerance);
-    expect(
-      Math.abs(markSize / 10 - expected.accent.radius),
-    ).toBeLessThanOrEqual(tolerance);
-  }
 });

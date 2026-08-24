@@ -3,26 +3,59 @@ import { getPresetById } from '../presetRepository';
 import { drawWallpaperScene, measureSkiaComposition } from '../scene';
 import type { Quote } from '../../quotes/types';
 
+const goldenFixture =
+  require('../../../../assets/data/renderer-golden-fixture.json') as {
+    layoutTolerance: number;
+    cases: {
+      quote: Quote;
+      preset: string;
+      dimensions: { width: number; height: number };
+      expected: {
+        quoteBox: { x: number; y: number; width: number; height: number };
+        fontSize: number;
+        lineCount: number;
+        maxLines: number;
+        authorY: number | null;
+        truncated: boolean;
+      };
+    }[];
+  };
+
 const paragraphStyles: Record<string, unknown>[] = [];
 const gradientCalls: {
   start: { x: number; y: number };
   end: { x: number; y: number };
 }[] = [];
-let mockCurrentParagraphStyle: Record<string, unknown> | undefined;
+let mockParagraphText = '';
+const mockGoldenMeasurements = new Map<
+  string,
+  { height: number; lineCount: number }
+>();
 
 jest.mock('@shopify/react-native-skia', () => {
-  const paragraph = {
+  const makeParagraph = (style: Record<string, unknown>, text: string) => ({
     layout: () => undefined,
     paint: () => undefined,
     getHeight: () => {
-      const fontSize = (
-        mockCurrentParagraphStyle?.textStyle as
-          { fontSize?: number } | undefined
-      )?.fontSize;
+      const measurement = mockGoldenMeasurements.get(
+        `${text}|${(style.textStyle as { fontSize?: number }).fontSize}|${
+          'maxLines' in style ? `capped-${style.maxLines}` : 'uncapped'
+        }`,
+      );
+      if (measurement) return measurement.height;
+      const fontSize = (style.textStyle as { fontSize?: number } | undefined)
+        ?.fontSize;
       return fontSize && fontSize >= 40 ? 5_000 : 40;
     },
-    getLineMetrics: () => [{}, {}],
-  };
+    getLineMetrics: () => {
+      const measurement = mockGoldenMeasurements.get(
+        `${text}|${(style.textStyle as { fontSize?: number }).fontSize}|${
+          'maxLines' in style ? `capped-${style.maxLines}` : 'uncapped'
+        }`,
+      );
+      return Array.from({ length: measurement?.lineCount ?? 2 }, () => ({}));
+    },
+  });
   return {
     Skia: {
       Color: (color: string) => color,
@@ -41,10 +74,12 @@ jest.mock('@shopify/react-native-skia', () => {
       ParagraphBuilder: {
         Make: (style: Record<string, unknown>) => {
           paragraphStyles.push(style);
-          mockCurrentParagraphStyle = style;
+          mockParagraphText = '';
           return {
-            addText: () => undefined,
-            build: () => paragraph,
+            addText: (text: string) => {
+              mockParagraphText = text;
+            },
+            build: () => makeParagraph(style, mockParagraphText),
           };
         },
       },
@@ -66,6 +101,7 @@ jest.mock('@shopify/react-native-skia', () => {
 beforeEach(() => {
   paragraphStyles.length = 0;
   gradientCalls.length = 0;
+  mockGoldenMeasurements.clear();
 });
 
 const quote: Quote = {
@@ -116,6 +152,76 @@ test.each([
     expect(paragraphStyles[0]).not.toHaveProperty('ellipsis');
   },
 );
+
+// Mutation caught: reverting this fixture path to createComposition's character
+// fallback would no longer reproduce the bundled-font Skia baseline.
+test('matches the recorded bundled-font Skia foreground fixture', () => {
+  for (const golden of goldenFixture.cases) {
+    const expected = golden.expected;
+    const key = `${golden.quote.text}|${expected.fontSize}`;
+    for (
+      let fontSize = Math.round(
+        golden.dimensions.width *
+          getPresetById(golden.preset)!.preferredFontSizeRatio,
+      );
+      fontSize > expected.fontSize;
+      fontSize -= 1
+    ) {
+      mockGoldenMeasurements.set(`${golden.quote.text}|${fontSize}|uncapped`, {
+        height: 5_000,
+        lineCount: 99,
+      });
+    }
+    if (expected.truncated) {
+      mockGoldenMeasurements.set(`${key}|uncapped`, {
+        height: 5_000,
+        lineCount: 99,
+      });
+      mockGoldenMeasurements.set(`${key}|capped-${expected.maxLines + 1}`, {
+        height: 5_000,
+        lineCount: expected.maxLines + 1,
+      });
+      mockGoldenMeasurements.set(`${key}|capped-${expected.maxLines}`, {
+        height: expected.quoteBox.height,
+        lineCount: expected.lineCount,
+      });
+    } else {
+      mockGoldenMeasurements.set(`${key}|uncapped`, {
+        height: expected.quoteBox.height,
+        lineCount: expected.lineCount,
+      });
+    }
+    const measured = measureSkiaComposition(
+      createComposition({
+        quote: golden.quote,
+        preset: getPresetById(golden.preset)!,
+        ...golden.dimensions,
+      }),
+      {} as never,
+    );
+    const tolerance = goldenFixture.layoutTolerance;
+    expect(
+      Math.abs(measured.quoteBounds.x - expected.quoteBox.x),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(measured.quoteBounds.y - expected.quoteBox.y),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(measured.quoteBounds.width - expected.quoteBox.width),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(
+      Math.abs(measured.quoteBounds.height - expected.quoteBox.height),
+    ).toBeLessThanOrEqual(tolerance);
+    expect(measured.quoteFontSize).toBe(expected.fontSize);
+    expect(measured.maxQuoteLines).toBe(expected.maxLines);
+    expect(measured.truncated).toBe(expected.truncated);
+    if (expected.authorY !== null) {
+      expect(Math.abs(measured.authorY - expected.authorY)).toBeLessThanOrEqual(
+        tolerance,
+      );
+    }
+  }
+});
 
 // Mutation caught: routing fit decisions through the character-count fallback
 // lets a wide glyph, an unbroken word, or a surrogate pair render at a size that

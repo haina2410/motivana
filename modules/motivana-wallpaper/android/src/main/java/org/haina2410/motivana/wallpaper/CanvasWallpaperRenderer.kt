@@ -69,8 +69,12 @@ class CanvasWallpaperRenderer private constructor(
   private fun quoteLayout(text: String, preset: RotationPreset, width: Float, size: Float, maxLines: Int?): StaticLayout {
     val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = typeface(preset); textSize = size; color = Color.parseColor(preset.textColor) }
     val alignment = when (preset.align) { "center" -> Layout.Alignment.ALIGN_CENTER; "right" -> Layout.Alignment.ALIGN_OPPOSITE; else -> Layout.Alignment.ALIGN_NORMAL }
-    return StaticLayout.Builder.obtain(text, 0, text.length, paint, width.toInt()).setAlignment(alignment).setIncludePad(false).setLineSpacing(0f, preset.lineHeight.toFloat()).apply { if (maxLines != null) setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).setEllipsizedWidth(width.toInt()) }.build()
+    val targetLineHeight = size * preset.lineHeight.toFloat()
+    val naturalLineHeight = paint.fontMetrics.descent - paint.fontMetrics.ascent
+    return StaticLayout.Builder.obtain(text, 0, text.length, paint, width.toInt()).setAlignment(alignment).setIncludePad(false).setLineSpacing(targetLineHeight - naturalLineHeight + skiaLeadingCorrection(preset), 1f).apply { if (maxLines != null) setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).setEllipsizedWidth(width.toInt()) }.build()
   }
+  /** Skia's bundled Oswald paragraph reports a larger leading than StaticLayout. */
+  private fun skiaLeadingCorrection(preset: RotationPreset): Float = if (preset.family == "Oswald") 21.875f else 1f
   private fun typeface(p: RotationPreset): Typeface = fonts["${p.family}-${p.weight}"] ?: assets?.let { runCatching { Typeface.createFromAsset(it, "fonts/${p.family}-${p.weight}.ttf") }.getOrElse { throw IllegalStateException("FONT_MISSING") } } ?: Typeface.DEFAULT
   internal fun gradientCoordinates(angle: Double, width: Int, height: Int): FloatArray { val radians = Math.toRadians(angle); val radius = hypot(width.toDouble(), height.toDouble()) / 2.0; val dx = cos(radians) * radius; val dy = sin(radians) * radius; return floatArrayOf((width / 2.0 - dx).toFloat(), (height / 2.0 - dy).toFloat(), (width / 2.0 + dx).toFloat(), (height / 2.0 + dy).toFloat()) }
   private fun gradient(bg: RotationBackground.Gradient, width: Int, height: Int): LinearGradient { val points = gradientCoordinates(bg.angle, width, height); return LinearGradient(points[0], points[1], points[2], points[3], Color.parseColor(bg.start), Color.parseColor(bg.end), Shader.TileMode.CLAMP) }

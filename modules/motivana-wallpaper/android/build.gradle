@@ -22,6 +22,15 @@ android {
   }
 }
 
+// CanvasWallpaperRenderer's device tests use Android framework Canvas and
+// StaticLayout only. Strip transitive JNI payload from this one test-APK task;
+// it does not alter the app, the library AAR, or any runtime dependency graph.
+afterEvaluate {
+  tasks.named("packageDebugAndroidTest") {
+    jniFolders.setFrom(files())
+  }
+}
+
 dependencies {
   implementation 'androidx.work:work-runtime-ktx:2.10.3'
   testImplementation 'junit:junit:4.13.2'
