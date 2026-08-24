@@ -2,10 +2,13 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import FavoritesScreen from '../favorites';
-import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
-import { quoteText } from '../../src/features/quotes/types';
+import {
+  favoriteQuoteText,
+  getAllQuotes,
+} from '../../src/features/quotes/quoteRepository';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
+import { t } from '../../src/features/i18n/t';
 
 beforeEach(() => {
   jest.mocked(router.back).mockClear();
@@ -15,7 +18,7 @@ beforeEach(() => {
 test('Favorites explains how to add the first quote when empty', () => {
   render(<FavoritesScreen />);
   expect(
-    screen.getByText('Favorite a quote from Home to use it here.'),
+    screen.getByText(t('en', 'favorites.empty.message')),
   ).toBeOnTheScreen();
 });
 
@@ -24,7 +27,10 @@ test('selecting a favorite persists it and returns Home', () => {
   useAppStore.setState({ favoriteQuoteIds: [quote.id] });
   render(<FavoritesScreen />);
 
-  fireEvent.press(screen.getByLabelText(`Use ${quoteText(quote, 'en')}`));
+  const text = favoriteQuoteText(quote, useAppStore.getState().contentLocale);
+  fireEvent.press(
+    screen.getByLabelText(t('en', 'favorites.item.label', { text })),
+  );
   expect(useAppStore.getState().currentQuoteId).toBe(quote.id);
   expect(router.back).toHaveBeenCalledTimes(1);
 });

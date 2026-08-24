@@ -8,6 +8,8 @@ import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import type { Quote } from '../features/quotes/types';
 import type { Locale } from '../features/i18n/locale';
+import { useTranslate } from '../features/i18n/useTranslate';
+import type { StringKey } from '../features/i18n/t';
 
 interface PresetThumbnailProps {
   preset: WallpaperPreset;
@@ -26,6 +28,7 @@ export function PresetThumbnail({
   disabled = false,
   onPress,
 }: PresetThumbnailProps) {
+  const translate = useTranslate();
   const composition = createComposition({
     preset,
     quote,
@@ -33,11 +36,12 @@ export function PresetThumbnail({
     height: 260,
     locale,
   });
+  const name = translate(`preset.${preset.id}.name` as StringKey);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Use ${preset.name} preset`}
-      accessibilityHint="Applies this wallpaper style and returns to Home."
+      accessibilityLabel={translate('preset.thumbnail.label', { name })}
+      accessibilityHint={translate('preview.item.hint')}
       accessibilityState={{ selected, disabled }}
       disabled={disabled}
       onPress={onPress}
@@ -54,10 +58,12 @@ export function PresetThumbnail({
         />
       </View>
       <Text allowFontScaling style={typography.button}>
-        {preset.name}
+        {name}
       </Text>
       <Text allowFontScaling style={styles.caption}>
-        {selected ? 'Selected' : 'Tap to use'}
+        {selected
+          ? translate('preset.thumbnail.selected')
+          : translate('preset.thumbnail.tapToUse')}
       </Text>
     </Pressable>
   );

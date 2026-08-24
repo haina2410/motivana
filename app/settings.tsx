@@ -8,12 +8,15 @@ import { AppIconButton } from '../src/components/AppIconButton';
 import { SettingRow } from '../src/components/SettingRow';
 import { useAppStore } from '../src/store/useAppStore';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
+import { useTranslate } from '../src/features/i18n/useTranslate';
+import type { StringKey } from '../src/features/i18n/t';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
 
 export default function SettingsScreen() {
   const state = useAppStore();
+  const translate = useTranslate();
   const [pending, setPending] = useState<'randomize' | 'favorites'>();
   const [feedback, setFeedback] = useState<
     | {
@@ -39,16 +42,19 @@ export default function SettingsScreen() {
         ? {
             message:
               kind === 'randomize'
-                ? 'Random preset preference updated.'
-                : 'Favorite quote preference updated.',
+                ? translate('settings.randomize.updated')
+                : translate('settings.favoritesOnly.updated'),
           }
         : {
-            message: 'Could not update rotation preferences. Try again.',
+            message: translate('settings.error'),
             retry: { kind, value },
           },
     );
   };
   const preset = getPresetById(state.selectedPresetId);
+  const presetName = preset
+    ? translate(`preset.${preset.id}.name` as StringKey)
+    : undefined;
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView
@@ -58,44 +64,44 @@ export default function SettingsScreen() {
         <View style={styles.header}>
           <View>
             <Text allowFontScaling style={typography.eyebrow}>
-              KEEP IT YOURS
+              {translate('settings.eyebrow')}
             </Text>
             <Text allowFontScaling style={typography.screenTitle}>
-              Settings
+              {translate('settings.title')}
             </Text>
           </View>
           <AppIconButton
-            label="Back to Home"
-            hint="Returns to the wallpaper preview."
+            label={translate('common.back.label')}
+            hint={translate('common.back.hint')}
             onPress={() => router.back()}
             symbol="‹"
           />
         </View>
         <ActionMessage
-          title="Current preset"
-          message={preset?.name ?? 'Choose a wallpaper preset.'}
+          title={translate('settings.preset.title')}
+          message={presetName ?? translate('home.customize.hint')}
         />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Customize preset"
-          accessibilityHint="Opens Customize to choose your preferred wallpaper preset."
+          accessibilityLabel={translate('settings.preset.action')}
+          accessibilityHint={translate('settings.preset.hint')}
           onPress={() => router.push('/customize')}
           style={styles.customize}
         >
           <Text allowFontScaling style={typography.button}>
-            Customize preset
+            {translate('settings.preset.action')}
           </Text>
         </Pressable>
         <SettingRow
-          label="Randomize preset"
-          description="Use a different curated style when rotation becomes available."
+          label={translate('settings.randomize.label')}
+          description={translate('settings.randomize.description')}
           value={state.randomizePreset}
           disabled={pending !== undefined}
           onValueChange={(value) => void updatePreference('randomize', value)}
         />
         <SettingRow
-          label="Use favorite quotes only"
-          description="Keep future rotation focused on saved quotes."
+          label={translate('settings.favoritesOnly.label')}
+          description={translate('settings.favoritesOnly.description')}
           value={state.favoriteQuotesOnly}
           disabled={
             pending !== undefined || state.favoriteQuoteIds.length === 0
@@ -110,8 +116,8 @@ export default function SettingsScreen() {
         ) : null}
         {feedback?.retry ? (
           <AppIconButton
-            label="Retry preference update"
-            hint="Retries updating the preference used by wallpaper rotation."
+            label={translate('settings.retry.label')}
+            hint={translate('settings.retry.hint')}
             onPress={() =>
               void updatePreference(feedback.retry!.kind, feedback.retry!.value)
             }
@@ -119,8 +125,8 @@ export default function SettingsScreen() {
           />
         ) : null}
         <ActionMessage
-          title="About Motivana"
-          message="Create a focused wallpaper from a thought worth returning to."
+          title={translate('settings.about.title')}
+          message={translate('settings.about.message')}
         />
         <Text allowFontScaling style={styles.version}>
           Motivana 1.0.0

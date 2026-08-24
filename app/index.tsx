@@ -24,6 +24,7 @@ import {
 } from '../src/features/wallpaper/dimensions';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import type { Locale } from '../src/features/i18n/locale';
+import { useTranslate } from '../src/features/i18n/useTranslate';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
 import { useAppStore } from '../src/store/useAppStore';
@@ -35,6 +36,7 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const fonts = useWallpaperFonts();
   const state = useAppStore();
+  const translate = useTranslate();
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [favoriteFeedback, setFavoriteFeedback] = useState<
     { message: string; retryQuoteId?: string } | undefined
@@ -50,11 +52,11 @@ export default function HomeScreen() {
       saved
         ? {
             message: wasFavorite
-              ? 'Quote removed from favorites.'
-              : 'Quote added to favorites.',
+              ? translate('home.favorite.removed')
+              : translate('home.favorite.added'),
           }
         : {
-            message: 'Could not update favorites for rotation. Try again.',
+            message: translate('home.favorite.error'),
             retryQuoteId: quoteId,
           },
     );
@@ -80,34 +82,34 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text allowFontScaling style={typography.eyebrow}>
-            MAKE YOUR FOCUS VISIBLE
+            {translate('home.eyebrow')}
           </Text>
           <Text allowFontScaling style={styles.title}>
-            Motivana
+            {translate('home.title')}
           </Text>
         </View>
         <View style={styles.nav}>
           <AppIconButton
-            label="Customize wallpaper"
-            hint="Choose a wallpaper preset."
+            label={translate('home.customize.label')}
+            hint={translate('home.customize.hint')}
             onPress={() => router.push('/customize')}
             symbol="✦"
           />
           <AppIconButton
-            label="Open favorites"
-            hint="Browse favorite quotes."
+            label={translate('home.favorites.label')}
+            hint={translate('home.favorites.hint')}
             onPress={() => router.push('/favorites')}
             symbol="♥"
           />
           <AppIconButton
-            label="Open automation"
-            hint="Review wallpaper rotation preferences."
+            label={translate('home.automation.label')}
+            hint={translate('home.automation.hint')}
             onPress={() => router.push('/automation')}
             symbol="◷"
           />
           <AppIconButton
-            label="Open settings"
-            hint="Change application preferences."
+            label={translate('home.settings.label')}
+            hint={translate('home.settings.hint')}
             onPress={() => router.push('/settings')}
             symbol="⚙"
           />
@@ -117,7 +119,7 @@ export default function HomeScreen() {
         <View accessibilityRole="progressbar" style={styles.loading}>
           <ActivityIndicator color={colors.accent} />
           <Text allowFontScaling style={styles.loadingText}>
-            Preparing your wallpaper
+            {translate('home.loading')}
           </Text>
         </View>
       ) : (
@@ -128,14 +130,14 @@ export default function HomeScreen() {
       <View style={styles.footer}>
         <View style={styles.controls}>
           <AppIconButton
-            label="Previous quote"
-            hint="Shows the previous motivational quote."
+            label={translate('home.previous.label')}
+            hint={translate('home.previous.hint')}
             onPress={state.previousQuote}
             symbol="‹"
           />
           <AppIconButton
-            label="Next quote"
-            hint="Shows a random motivational quote."
+            label={translate('home.next.label')}
+            hint={translate('home.next.hint')}
             onPress={state.randomQuote}
             symbol="›"
           />
@@ -143,10 +145,10 @@ export default function HomeScreen() {
             disabled={favoriteBusy}
             label={
               state.favoriteQuoteIds.includes(state.currentQuoteId)
-                ? 'Unfavorite quote'
-                : 'Favorite quote'
+                ? translate('home.favorite.remove.label')
+                : translate('home.favorite.add.label')
             }
-            hint="Adds or removes the current quote from favorites."
+            hint={translate('home.favorite.hint')}
             onPress={() => void updateFavorite(state.currentQuoteId)}
             symbol="♥"
           />
@@ -161,8 +163,8 @@ export default function HomeScreen() {
         ) : null}
         {favoriteFeedback?.retryQuoteId ? (
           <AppIconButton
-            label="Retry favorite update"
-            hint="Retries updating the favorite used by wallpaper rotation."
+            label={translate('home.favorite.retry.label')}
+            hint={translate('home.favorite.retry.hint')}
             onPress={() => void updateFavorite(favoriteFeedback.retryQuoteId!)}
             symbol="↻"
           />
@@ -262,16 +264,17 @@ class PreviewErrorBoundary extends Component<
 }
 
 function RenderError({ onRetry }: { onRetry: () => void }) {
+  const translate = useTranslate();
   return (
     <View style={styles.loading}>
       <ActionMessage
         tone="error"
-        title="Wallpaper preview"
-        message="Preview could not render."
+        title={translate('home.preview.title')}
+        message={translate('home.preview.error')}
       />
       <AppIconButton
-        label="Retry preview"
-        hint="Tries to render the current wallpaper again."
+        label={translate('home.preview.retry.label')}
+        hint={translate('home.preview.retry.hint')}
         onPress={onRetry}
         symbol="↻"
       />

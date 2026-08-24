@@ -8,6 +8,7 @@ import { ActionMessage } from '../src/components/ActionMessage';
 import { PresetThumbnail } from '../src/components/PresetThumbnail';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { getAllPresets } from '../src/features/wallpaper/presetRepository';
+import { useTranslate } from '../src/features/i18n/useTranslate';
 import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -15,6 +16,7 @@ import { typography } from '../src/theme/typography';
 
 export default function CustomizeScreen() {
   const state = useAppStore();
+  const translate = useTranslate();
   const [pendingPresetId, setPendingPresetId] = useState<string>();
   const [failedPresetId, setFailedPresetId] = useState<string>();
   const selectPreset = async (presetId: string) => {
@@ -45,28 +47,25 @@ export default function CustomizeScreen() {
       <View style={styles.header}>
         <View>
           <Text allowFontScaling style={typography.eyebrow}>
-            YOUR VISUAL RHYTHM
+            {translate('customize.eyebrow')}
           </Text>
           <Text allowFontScaling style={typography.screenTitle}>
-            Customize
+            {translate('customize.title')}
           </Text>
         </View>
         <AppIconButton
-          label="Back to Home"
-          hint="Returns to the wallpaper preview."
+          label={translate('common.back.label')}
+          hint={translate('common.back.hint')}
           onPress={() => router.back()}
           symbol="‹"
         />
       </View>
       {failedPresetId ? (
         <View style={styles.feedback}>
-          <ActionMessage
-            tone="error"
-            message="Could not update the preset used for rotation. Try again."
-          />
+          <ActionMessage tone="error" message={translate('customize.error')} />
           <AppIconButton
-            label="Retry preset update"
-            hint="Retries updating the preset used by wallpaper rotation."
+            label={translate('customize.retry.label')}
+            hint={translate('customize.retry.hint')}
             onPress={() => void selectPreset(failedPresetId)}
             symbol="↻"
           />

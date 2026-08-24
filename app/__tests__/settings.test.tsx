@@ -11,6 +11,7 @@ import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
+import { t } from '../../src/features/i18n/t';
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
@@ -36,6 +37,15 @@ test('Settings persists random preset and favorites-only choices through store a
     }),
   );
   expect(screen.getByText('Motivana 1.0.0')).toBeOnTheScreen();
+});
+
+// Mutation caught: reading a hard-coded English string would leave the interface English after the reader picks Vietnamese.
+test('renders the interface in the stored app language', async () => {
+  useAppStore.setState({ appLocale: 'vi' });
+
+  render(<SettingsScreen />);
+
+  expect(await screen.findByText(t('vi', 'settings.title'))).toBeTruthy();
 });
 
 test('Settings names the current preset and exposes one accessible control per setting', () => {

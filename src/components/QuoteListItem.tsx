@@ -1,6 +1,9 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { quoteText, type Quote } from '../features/quotes/types';
+import { favoriteQuoteText } from '../features/quotes/quoteRepository';
+import type { Quote } from '../features/quotes/types';
+import { useTranslate } from '../features/i18n/useTranslate';
+import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 
@@ -11,16 +14,19 @@ export function QuoteListItem({
   quote: Quote;
   onPress: () => void;
 }) {
+  const translate = useTranslate();
+  const contentLocale = useAppStore((state) => state.contentLocale);
+  const text = favoriteQuoteText(quote, contentLocale);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Use ${quoteText(quote, 'en') ?? ''}`}
-      accessibilityHint="Uses this favorite quote on the Home wallpaper."
+      accessibilityLabel={translate('favorites.item.label', { text })}
+      accessibilityHint={translate('favorites.item.hint')}
       onPress={onPress}
       style={({ pressed }) => [styles.item, pressed && styles.pressed]}
     >
       <Text allowFontScaling style={styles.quote}>
-        “{quoteText(quote, 'en') ?? ''}”
+        “{text}”
       </Text>
       {quote.author ? (
         <Text allowFontScaling style={styles.author}>

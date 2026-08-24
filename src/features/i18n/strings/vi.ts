@@ -20,6 +20,11 @@ export const vi: Record<keyof typeof en, string> = {
   'home.next.label': 'Next quote',
   'home.next.hint': 'Shows a random motivational quote.',
   'home.favorite.hint': 'Adds or removes the current quote from favorites.',
+  'home.favorite.add.label': 'Favorite quote',
+  'home.favorite.remove.label': 'Unfavorite quote',
+  'home.favorite.added': 'Quote added to favorites.',
+  'home.favorite.removed': 'Quote removed from favorites.',
+  'home.favorite.error': 'Could not update favorites for rotation. Try again.',
   'home.favorite.retry.label': 'Retry favorite update',
   'home.favorite.retry.hint':
     'Retries updating the favorite used by wallpaper rotation.',
@@ -41,6 +46,7 @@ export const vi: Record<keyof typeof en, string> = {
   'favorites.empty.title': 'No favorites yet',
   'favorites.empty.message': 'Favorite a quote from Home to use it here.',
   'favorites.item.hint': 'Uses this favorite quote on the Home wallpaper.',
+  'favorites.item.label': 'Use {text}',
 
   'automation.eyebrow': 'AUTOMATION',
   'automation.title': 'Rotation',
@@ -65,6 +71,20 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.lastQuote': 'Last quote: {text}',
   'automation.lastQuote.fallback': 'saved quote',
   'automation.status.label': 'Service status {state} {intervalHours} {target}',
+  'automation.status.capability': 'Capability: {kind}',
+  'automation.status.checking': 'Status: checking device support',
+  'automation.status.schedule':
+    'Approximate schedule: every {hours} hours on {target}.',
+  'automation.status.lastApplied': 'Last applied: {date}',
+  'automation.status.loading': 'loading',
+  'automation.favoritesOnly.error':
+    'Add a favorite before using favorites-only rotation.',
+  'automation.save.error':
+    'Could not update rotation. Review the preferences and retry.',
+  'automation.save.enabled': 'Rotation scheduled.',
+  'automation.save.disabled': 'Rotation disabled.',
+  'automation.run.success': 'Rotation started.',
+  'automation.run.error': 'Could not start rotation. Try again.',
 
   'settings.eyebrow': 'KEEP IT YOURS',
   'settings.title': 'Settings',
@@ -100,6 +120,8 @@ export const vi: Record<keyof typeof en, string> = {
 
   'preview.item.hint': 'Applies this wallpaper style and returns to Home.',
   'preset.thumbnail.label': 'Use {name} preset',
+  'preset.thumbnail.selected': 'Selected',
+  'preset.thumbnail.tapToUse': 'Tap to use',
 
   'actions.save.label': 'Save wallpaper',
   'actions.save.hint':
@@ -114,6 +136,26 @@ export const vi: Record<keyof typeof en, string> = {
   'actions.appSettings.hint':
     "Opens this app's Android settings so photo permission can be enabled.",
   'actions.export.failed': 'Export failed: {code}.',
+  'actions.error.permissionDenied':
+    'Photo permission is needed to save this wallpaper.',
+  'actions.error.wallpaperNotAllowed':
+    'This device does not allow changing the wallpaper.',
+  'actions.error.lockUnsupported':
+    'This device does not support setting the lock screen.',
+  'actions.error.fileNotFound':
+    'The exported wallpaper is unavailable. Render it again and retry.',
+  'actions.error.decodeFailed': 'The exported wallpaper could not be opened.',
+  'actions.error.saveFailed': 'Could not save the wallpaper.',
+  'actions.error.default': 'Could not apply the wallpaper.',
+  'actions.error.capabilitiesUnavailable':
+    'Wallpaper controls are unavailable.',
+  'actions.success.save': 'Wallpaper saved to your photos.',
+  'actions.success.home': 'Wallpaper applied to your Home screen.',
+  'actions.success.lock': 'Wallpaper applied to your Lock screen.',
+  'actions.success.both': 'Wallpaper applied to your Home and Lock screens.',
+  'actions.target.home': 'Set Home screen',
+  'actions.target.lock': 'Set Lock screen',
+  'actions.target.both': 'Set both screens',
 
   'preset.midnight-focus.name': 'Midnight Focus',
   'preset.sunrise-drive.name': 'Sunrise Drive',

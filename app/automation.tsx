@@ -16,8 +16,12 @@ import {
   getRotationStatusRecovery,
   getRotationStatusRecoveryControl,
 } from '../src/services/rotationStatus';
-import { getQuoteById } from '../src/features/quotes/quoteRepository';
-import { quoteText } from '../src/features/quotes/types';
+import {
+  getQuoteById,
+  favoriteQuoteText,
+} from '../src/features/quotes/quoteRepository';
+import { Choice } from '../src/components/Choice';
+import { useTranslate } from '../src/features/i18n/useTranslate';
 import type { WallpaperAutomationAvailability } from '../src/services/wallpaperAvailability';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -28,39 +32,9 @@ import type {
   WallpaperTarget,
 } from '../src/store/schema';
 
-function Choice({
-  label,
-  selected,
-  disabled = false,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  disabled?: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ selected, disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={[
-        styles.choice,
-        selected && styles.selected,
-        disabled && styles.disabled,
-      ]}
-    >
-      <Text allowFontScaling style={styles.choiceText}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
 export default function AutomationScreen() {
   const state = useAppStore();
+  const translate = useTranslate();
   const [availability, setAvailability] =
     useState<WallpaperAutomationAvailability>();
   const [target, setTarget] = useState<WallpaperTarget>('home');
@@ -89,14 +63,19 @@ export default function AutomationScreen() {
   );
   const [favoritesOnly, setFavoritesOnly] = useState(state.favoriteQuotesOnly);
   const [enabled, setEnabled] = useState(state.rotationEnabled);
-  const [message, setMessage] = useState<string>();
+  const [message, setMessage] = useState<
+    { text: string; tone: 'default' | 'error' } | undefined
+  >();
   const refresh = () =>
     getWallpaperAutomationAvailability()
       .then(setAvailability)
       .catch(() => setAvailability(wallpaperAutomationFallback));
   const save = async (nextFavoritesOnly = favoritesOnly) => {
     if (nextFavoritesOnly && state.favoriteQuoteIds.length === 0) {
-      setMessage('Add a favorite before using favorites-only rotation.');
+      setMessage({
+        text: translate('automation.favoritesOnly.error'),
+        tone: 'error',
+      });
       return;
     }
     const saved = await state.setRotationConfiguration({
@@ -106,21 +85,27 @@ export default function AutomationScreen() {
       favoriteQuotesOnly: nextFavoritesOnly,
     });
     if (!saved) {
-      setMessage(
-        'Could not update rotation. Review the preferences and retry.',
-      );
+      setMessage({ text: translate('automation.save.error'), tone: 'error' });
       return;
     }
-    setMessage(enabled ? 'Rotation scheduled.' : 'Rotation disabled.');
+    setMessage({
+      text: enabled
+        ? translate('automation.save.enabled')
+        : translate('automation.save.disabled'),
+      tone: 'default',
+    });
     refresh();
   };
   const runNow = async () => {
     try {
       await runRotationNow();
-      setMessage('Rotation started.');
+      setMessage({
+        text: translate('automation.run.success'),
+        tone: 'default',
+      });
       refresh();
     } catch {
-      setMessage('Could not start rotation. Try again.');
+      setMessage({ text: translate('automation.run.error'), tone: 'error' });
     }
   };
   const lastQuote = availability?.status.lastQuoteId
@@ -156,76 +141,92 @@ export default function AutomationScreen() {
         <View style={styles.header}>
           <View>
             <Text allowFontScaling style={typography.eyebrow}>
-              AUTOMATION
+              {translate('automation.eyebrow')}
             </Text>
             <Text allowFontScaling style={typography.screenTitle}>
-              Rotation
+              {translate('automation.title')}
             </Text>
           </View>
           <AppIconButton
-            label="Back to Home"
-            hint="Returns to the wallpaper preview."
+            label={translate('common.back.label')}
+            hint={translate('common.back.hint')}
             onPress={() => router.back()}
             symbol="‹"
           />
         </View>
         <ActionMessage
-          title="Wallpaper targets available"
-          message="Rotation runs at an approximate interval; Android may defer work to preserve battery."
+          title={translate('automation.available.title')}
+          message={translate('automation.available.message')}
         />
         <View
           accessible
-          accessibilityLabel={`Service status ${availability?.status.state ?? 'loading'} ${availability?.status.intervalHours ?? ''} ${availability?.status.target ?? ''}`}
+          accessibilityLabel={translate('automation.status.label', {
+            state:
+              availability?.status.state ??
+              translate('automation.status.loading'),
+            intervalHours: availability?.status.intervalHours ?? '',
+            target: availability?.status.target ?? '',
+          })}
           style={styles.status}
         >
           <Text allowFontScaling style={styles.statusText}>
-            Capability: {availability?.capabilities.kind ?? 'loading'}
+            {translate('automation.status.capability', {
+              kind:
+                availability?.capabilities.kind ??
+                translate('automation.status.loading'),
+            })}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
-            {availability?.status.label ?? 'Status: checking device support'}
+            {availability?.status.label ??
+              translate('automation.status.checking')}
           </Text>
           <Text allowFontScaling style={styles.statusText}>
-            Approximate schedule: every{' '}
-            {availability?.status.intervalHours ?? interval} hours on{' '}
-            {availability?.status.target ?? target}.
+            {translate('automation.status.schedule', {
+              hours: availability?.status.intervalHours ?? interval,
+              target: availability?.status.target ?? target,
+            })}
           </Text>
           {availability?.status.lastAppliedAt ? (
             <Text allowFontScaling style={styles.statusText}>
-              Last applied:{' '}
-              {new Date(availability.status.lastAppliedAt).toLocaleString()}
+              {translate('automation.status.lastApplied', {
+                date: new Date(
+                  availability.status.lastAppliedAt,
+                ).toLocaleString(),
+              })}
             </Text>
           ) : null}
           {availability?.status.lastQuoteId ? (
             <Text allowFontScaling style={styles.statusText}>
-              Last quote:{' '}
-              {lastQuote
-                ? (quoteText(lastQuote, 'en') ?? 'saved quote')
-                : 'saved quote'}
+              {translate('automation.lastQuote', {
+                text: lastQuote
+                  ? favoriteQuoteText(lastQuote, state.contentLocale)
+                  : translate('automation.lastQuote.fallback'),
+              })}
             </Text>
           ) : null}
           {statusRecovery ? (
             <ActionMessage
               tone="error"
-              title="Rotation needs attention"
+              title={translate('automation.attention.title')}
               message={statusRecovery.message}
             />
           ) : null}
         </View>
         <SettingRow
-          label="Enable automatic rotation"
-          description="Apply a new wallpaper on the selected schedule."
+          label={translate('automation.enable.label')}
+          description={translate('automation.enable.description')}
           value={enabled}
           onValueChange={setEnabled}
         />
         <View style={styles.section}>
           <Text allowFontScaling style={styles.label}>
-            Every
+            {translate('automation.interval.label')}
           </Text>
           <View style={styles.choices}>
             {([6, 12, 24] as const).map((hours) => (
               <Choice
                 key={hours}
-                label={`Every ${hours} hours`}
+                label={translate('automation.interval.option', { hours })}
                 selected={interval === hours}
                 onPress={() => setInterval(hours)}
               />
@@ -234,14 +235,14 @@ export default function AutomationScreen() {
         </View>
         <View style={styles.section}>
           <Text allowFontScaling style={styles.label}>
-            Apply to
+            {translate('automation.target.label')}
           </Text>
           <View style={styles.choices}>
             {(
               [
-                ['home', 'Apply to Home screen'],
-                ['lock', 'Apply to Lock screen'],
-                ['both', 'Apply to both screens'],
+                ['home', translate('automation.target.home')],
+                ['lock', translate('automation.target.lock')],
+                ['both', translate('automation.target.both')],
               ] as const
             ).map(([value, label]) => (
               <Choice
@@ -258,32 +259,32 @@ export default function AutomationScreen() {
           </View>
         </View>
         <SettingRow
-          label="Use favorite quotes only"
-          description="Rotation will use only your saved quotes."
+          label={translate('automation.favoritesOnly.label')}
+          description={translate('automation.favoritesOnly.description')}
           value={favoritesOnly}
           onValueChange={setFavoritesOnly}
         />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Save automation preferences"
+          accessibilityLabel={translate('automation.save')}
           disabled={!availability}
           onPress={() => void save()}
           style={styles.save}
         >
           <Text allowFontScaling style={typography.button}>
-            Save automation preferences
+            {translate('automation.save')}
           </Text>
         </Pressable>
         {__DEV__ ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Run rotation now"
+            accessibilityLabel={translate('automation.run')}
             disabled={!availability || !enabled}
             onPress={runNow}
             style={styles.save}
           >
             <Text allowFontScaling style={typography.button}>
-              Run rotation now
+              {translate('automation.run')}
             </Text>
           </Pressable>
         ) : null}
@@ -296,14 +297,7 @@ export default function AutomationScreen() {
           />
         ) : null}
         {message ? (
-          <ActionMessage
-            tone={
-              message.startsWith('Add') || message.startsWith('Could')
-                ? 'error'
-                : 'default'
-            }
-            message={message}
-          />
+          <ActionMessage tone={message.tone} message={message.text} />
         ) : null}
       </ScrollView>
     </SafeAreaView>

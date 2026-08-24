@@ -9,6 +9,7 @@ import AutomationScreen from '../automation';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { useAppStore } from '../../src/store/useAppStore';
+import { t } from '../../src/features/i18n/t';
 
 jest.mock('../../src/services/wallpaperNative', () => ({
   getWallpaperCapabilities: jest.fn(async () => ({
@@ -67,10 +68,14 @@ test.each(['lock', 'both'] as const)(
     });
     render(<AutomationScreen />);
     await waitFor(() =>
-      expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
+      expect(
+        screen.getByText(
+          t('en', 'automation.status.capability', { kind: 'available' }),
+        ),
+      ).toBeOnTheScreen(),
     );
     fireEvent.press(
-      screen.getByRole('button', { name: 'Save automation preferences' }),
+      screen.getByRole('button', { name: t('en', 'automation.save') }),
     );
     await waitFor(() =>
       expect(nativeService.configureRotation).toHaveBeenCalled(),
@@ -83,28 +88,46 @@ test('disables Save while capability support is still loading', () => {
   nativeService.getWallpaperCapabilities.mockReturnValue(new Promise(() => {}));
   render(<AutomationScreen />);
   expect(
-    screen.getByRole('button', { name: 'Save automation preferences' }),
+    screen.getByRole('button', { name: t('en', 'automation.save') }),
   ).toBeDisabled();
-  expect(screen.getByText('Capability: loading')).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      t('en', 'automation.status.capability', {
+        kind: t('en', 'automation.status.loading'),
+      }),
+    ),
+  ).toBeOnTheScreen();
 });
 
 test('Automation validates favorites-only scheduling while clearly reporting unavailable native status', async () => {
   render(<AutomationScreen />);
 
   await waitFor(() =>
-    expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
-  );
-
-  expect(screen.getByText('Wallpaper targets available')).toBeOnTheScreen();
-  expect(screen.getByText('Capability: available')).toBeOnTheScreen();
-  expect(screen.getByText('Status: disabled')).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
-  fireEvent.press(
-    screen.getByRole('button', { name: 'Save automation preferences' }),
+    expect(
+      screen.getByText(
+        t('en', 'automation.status.capability', { kind: 'available' }),
+      ),
+    ).toBeOnTheScreen(),
   );
 
   expect(
-    screen.getByText('Add a favorite before using favorites-only rotation.'),
+    screen.getByText(t('en', 'automation.available.title')),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      t('en', 'automation.status.capability', { kind: 'available' }),
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Status: disabled')).toBeOnTheScreen();
+  fireEvent.press(
+    screen.getByLabelText(t('en', 'automation.favoritesOnly.label')),
+  );
+  fireEvent.press(
+    screen.getByRole('button', { name: t('en', 'automation.save') }),
+  );
+
+  expect(
+    screen.getByText(t('en', 'automation.favoritesOnly.error')),
   ).toBeOnTheScreen();
   expect(useAppStore.getState().rotationEnabled).toBe(false);
 });
@@ -112,16 +135,26 @@ test('Automation validates favorites-only scheduling while clearly reporting una
 test('Automation stores supported preferences and keeps unavailable targets disabled', async () => {
   render(<AutomationScreen />);
   await waitFor(() =>
-    expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
+    expect(
+      screen.getByText(
+        t('en', 'automation.status.capability', { kind: 'available' }),
+      ),
+    ).toBeOnTheScreen(),
   );
-  fireEvent.press(screen.getByLabelText('Every 6 hours'));
-  fireEvent.press(screen.getByLabelText('Apply to both screens'));
-  fireEvent.press(screen.getByLabelText('Apply to Lock screen'));
-
-  expect(screen.getByLabelText('Apply to Lock screen')).toBeDisabled();
-  expect(screen.getByLabelText('Apply to both screens')).toBeDisabled();
   fireEvent.press(
-    screen.getByRole('button', { name: 'Save automation preferences' }),
+    screen.getByLabelText(t('en', 'automation.interval.option', { hours: 6 })),
+  );
+  fireEvent.press(screen.getByLabelText(t('en', 'automation.target.both')));
+  fireEvent.press(screen.getByLabelText(t('en', 'automation.target.lock')));
+
+  expect(
+    screen.getByLabelText(t('en', 'automation.target.lock')),
+  ).toBeDisabled();
+  expect(
+    screen.getByLabelText(t('en', 'automation.target.both')),
+  ).toBeDisabled();
+  fireEvent.press(
+    screen.getByRole('button', { name: t('en', 'automation.save') }),
   );
   await waitFor(() =>
     expect(useAppStore.getState().rotationIntervalHours).toBe(6),
@@ -136,11 +169,17 @@ test('does not mutate Zustand when native scheduling rejects', async () => {
   });
   render(<AutomationScreen />);
   await waitFor(() =>
-    expect(screen.getByText('Capability: available')).toBeOnTheScreen(),
+    expect(
+      screen.getByText(
+        t('en', 'automation.status.capability', { kind: 'available' }),
+      ),
+    ).toBeOnTheScreen(),
   );
-  fireEvent.press(screen.getByLabelText('Every 6 hours'));
   fireEvent.press(
-    screen.getByRole('button', { name: 'Save automation preferences' }),
+    screen.getByLabelText(t('en', 'automation.interval.option', { hours: 6 })),
+  );
+  fireEvent.press(
+    screen.getByRole('button', { name: t('en', 'automation.save') }),
   );
   await waitFor(() =>
     expect(nativeService.configureRotation).toHaveBeenCalledWith(

@@ -1,7 +1,6 @@
 [
   {
     "id": "midnight-focus",
-    "name": "Midnight Focus",
     "fontFamily": "Inter",
     "fontWeight": "SemiBold",
     "textAlign": "center",
@@ -20,7 +19,6 @@
   },
   {
     "id": "sunrise-drive",
-    "name": "Sunrise Drive",
     "fontFamily": "Inter",
     "fontWeight": "SemiBold",
     "textAlign": "left",
@@ -39,7 +37,6 @@
   },
   {
     "id": "forest-discipline",
-    "name": "Forest Discipline",
     "fontFamily": "Lora",
     "fontWeight": "SemiBold",
     "textAlign": "center",
@@ -58,7 +55,6 @@
   },
   {
     "id": "violet-growth",
-    "name": "Violet Growth",
     "fontFamily": "Lora",
     "fontWeight": "Regular",
     "textAlign": "center",
@@ -77,7 +73,6 @@
   },
   {
     "id": "paper-confidence",
-    "name": "Paper Confidence",
     "fontFamily": "Oswald",
     "fontWeight": "Medium",
     "textAlign": "left",
@@ -87,11 +82,13 @@
     "preferredFontSizeRatio": 0.066,
     "minimumFontSizeRatio": 0.038,
     "lineHeight": 1.16,
-    "background": { "kind": "solid", "color": "#FFF7E6" }
+    "background": {
+      "kind": "solid",
+      "color": "#FFF7E6"
+    }
   },
   {
     "id": "ocean-success",
-    "name": "Ocean Success",
     "fontFamily": "Inter",
     "fontWeight": "Regular",
     "textAlign": "center",
@@ -110,7 +107,6 @@
   },
   {
     "id": "ember-action",
-    "name": "Ember Action",
     "fontFamily": "Oswald",
     "fontWeight": "Medium",
     "textAlign": "right",
@@ -129,7 +125,6 @@
   },
   {
     "id": "mono-clarity",
-    "name": "Mono Clarity",
     "fontFamily": "Inter",
     "fontWeight": "Regular",
     "textAlign": "left",
@@ -139,6 +134,9 @@
     "preferredFontSizeRatio": 0.063,
     "minimumFontSizeRatio": 0.035,
     "lineHeight": 1.2,
-    "background": { "kind": "solid", "color": "#27272A" }
+    "background": {
+      "kind": "solid",
+      "color": "#27272A"
+    }
   }
 ]

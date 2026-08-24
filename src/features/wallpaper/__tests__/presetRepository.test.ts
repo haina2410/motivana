@@ -1,9 +1,9 @@
 import { getAllPresets, getPresetById } from '../presetRepository';
 import { parseWallpaperPresetCatalog, type WallpaperPreset } from '../types';
+import { en } from '../../i18n/strings/en';
 
 const validPreset = {
   id: 'test-preset',
-  name: 'Test preset',
   fontFamily: 'Inter',
   fontWeight: 'Regular',
   textAlign: 'center',
@@ -81,6 +81,13 @@ test('rejects an unknown background kind at catalog load', () => {
       { ...validPreset, background: { kind: 'radial', color: '#111827' } },
     ]),
   ).toThrow('presets[0].background.kind');
+});
+
+// Mutation caught: a preset without a catalog entry would render an empty name in Customize.
+test('every preset has a name in the string catalog', () => {
+  for (const preset of getAllPresets()) {
+    expect(en[`preset.${preset.id}.name` as keyof typeof en]).toBeTruthy();
+  }
 });
 
 test('rejects quote text colors that fail WCAG AA contrast', () => {

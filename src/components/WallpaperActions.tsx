@@ -21,6 +21,8 @@ import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { AppIconButton } from './AppIconButton';
 import { Toast } from './Toast';
+import { useTranslate } from '../features/i18n/useTranslate';
+import type { StringKey } from '../features/i18n/t';
 
 type WallpaperAction =
   { kind: 'save' } | { kind: 'set'; target: WallpaperTarget };
@@ -30,7 +32,12 @@ interface WallpaperActionsProps {
   fontProvider: SkTypefaceFontProvider;
 }
 
-function errorMessage(error: unknown): string {
+type Translate = (
+  key: StringKey,
+  params?: Record<string, string | number>,
+) => string;
+
+function errorMessage(error: unknown, translate: Translate): string {
   const code =
     typeof error === 'object' && error !== null && 'code' in error
       ? (error as { code?: unknown }).code
@@ -41,29 +48,29 @@ function errorMessage(error: unknown): string {
     case 'DRAW_FAILED':
     case 'ENCODE_FAILED':
     case 'FILE_WRITE_FAILED':
-      return `Export failed: ${code}.`;
+      return translate('actions.export.failed', { code });
     case 'PERMISSION_DENIED':
-      return 'Photo permission is needed to save this wallpaper.';
+      return translate('actions.error.permissionDenied');
     case 'WALLPAPER_NOT_ALLOWED':
-      return 'This device does not allow changing the wallpaper.';
+      return translate('actions.error.wallpaperNotAllowed');
     case 'LOCK_UNSUPPORTED':
-      return 'This device does not support setting the lock screen.';
+      return translate('actions.error.lockUnsupported');
     case 'FILE_NOT_FOUND':
-      return 'The exported wallpaper is unavailable. Render it again and retry.';
+      return translate('actions.error.fileNotFound');
     case 'DECODE_FAILED':
-      return 'The exported wallpaper could not be opened.';
+      return translate('actions.error.decodeFailed');
     case 'SAVE_FAILED':
-      return 'Could not save the wallpaper.';
+      return translate('actions.error.saveFailed');
     default:
-      return 'Could not apply the wallpaper.';
+      return translate('actions.error.default');
   }
 }
 
-function successMessage(action: WallpaperAction): string {
-  if (action.kind === 'save') return 'Wallpaper saved to your photos.';
-  if (action.target === 'home') return 'Wallpaper applied to your Home screen.';
-  if (action.target === 'lock') return 'Wallpaper applied to your Lock screen.';
-  return 'Wallpaper applied to your Home and Lock screens.';
+function successMessage(action: WallpaperAction, translate: Translate): string {
+  if (action.kind === 'save') return translate('actions.success.save');
+  if (action.target === 'home') return translate('actions.success.home');
+  if (action.target === 'lock') return translate('actions.success.lock');
+  return translate('actions.success.both');
 }
 
 export function WallpaperActions({
@@ -71,6 +78,7 @@ export function WallpaperActions({
   fontProvider,
 }: WallpaperActionsProps) {
   const appState = useAppStore();
+  const translate = useTranslate();
   const [capabilities, setCapabilities] = useState<WallpaperCapabilities>();
   const [showTargets, setShowTargets] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -88,10 +96,17 @@ export function WallpaperActions({
     let active = true;
     getWallpaperCapabilities()
       .then((value) => active && setCapabilities(value))
-      .catch(() => active && setError('Wallpaper controls are unavailable.'));
+      .catch(
+        () =>
+          active &&
+          setError(translate('actions.error.capabilitiesUnavailable')),
+      );
     return () => {
       active = false;
     };
+    // Checks capability support once on mount; re-running this on every
+    // interface-language change would needlessly re-query the native side.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const run = async (action: WallpaperAction, retry = false) => {
@@ -115,7 +130,7 @@ export function WallpaperActions({
       }
       retryExport.current = undefined;
       setShowTargets(false);
-      setMessage(successMessage(action));
+      setMessage(successMessage(action, translate));
     } catch (caught) {
       const code =
         typeof caught === 'object' && caught !== null && 'code' in caught
@@ -128,7 +143,7 @@ export function WallpaperActions({
       if (code === 'FILE_NOT_FOUND' || !rendered)
         retryExport.current = undefined;
       else retryExport.current = { cacheKey: composition.cacheKey, rendered };
-      setError(errorMessage(caught));
+      setError(errorMessage(caught, translate));
       setRetryAction(action);
       setPermissionDeniedPermanently(
         code === 'PERMISSION_DENIED' && canAskAgain === false,
@@ -140,9 +155,9 @@ export function WallpaperActions({
   };
 
   const targets: readonly [WallpaperTarget, string][] = [
-    ['home', 'Set Home screen'],
-    ['lock', 'Set Lock screen'],
-    ['both', 'Set both screens'],
+    ['home', translate('actions.target.home')],
+    ['lock', translate('actions.target.lock')],
+    ['both', translate('actions.target.both')],
   ];
   const supports = (target: WallpaperTarget) =>
     target === 'home'
@@ -156,15 +171,15 @@ export function WallpaperActions({
       <View style={styles.row}>
         <AppIconButton
           disabled={busy}
-          hint="Exports the current wallpaper and saves it to your photos."
-          label="Save wallpaper"
+          hint={translate('actions.save.hint')}
+          label={translate('actions.save.label')}
           onPress={() => void run({ kind: 'save' })}
           symbol="↓"
         />
         <AppIconButton
           disabled={busy || !capabilities?.supportsHome}
-          hint="Choose which supported screen receives the current wallpaper."
-          label="Set wallpaper"
+          hint={translate('actions.set.hint')}
+          label={translate('actions.set.label')}
           onPress={() => setShowTargets((visible) => !visible)}
           symbol="▣"
         />
@@ -196,16 +211,16 @@ export function WallpaperActions({
       {retryAction ? (
         <AppIconButton
           disabled={busy}
-          hint="Repeats the failed action using the same exported wallpaper."
-          label="Retry wallpaper action"
+          hint={translate('actions.retry.hint')}
+          label={translate('actions.retry.label')}
           onPress={() => void run(retryAction, true)}
           symbol="↻"
         />
       ) : null}
       {permissionDeniedPermanently ? (
         <AppIconButton
-          hint="Opens this app's Android settings so photo permission can be enabled."
-          label="Open app settings"
+          hint={translate('actions.appSettings.hint')}
+          label={translate('actions.appSettings.label')}
           onPress={() => void Linking.openSettings()}
           symbol="⚙"
         />

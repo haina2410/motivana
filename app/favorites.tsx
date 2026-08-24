@@ -6,6 +6,7 @@ import { ActionMessage } from '../src/components/ActionMessage';
 import { AppIconButton } from '../src/components/AppIconButton';
 import { QuoteListItem } from '../src/components/QuoteListItem';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
+import { useTranslate } from '../src/features/i18n/useTranslate';
 import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -13,6 +14,7 @@ import { typography } from '../src/theme/typography';
 
 export default function FavoritesScreen() {
   const state = useAppStore();
+  const translate = useTranslate();
   const favorites = state.favoriteQuoteIds.flatMap((id) => {
     const quote = getQuoteById(id);
     return quote ? [quote] : [];
@@ -22,15 +24,15 @@ export default function FavoritesScreen() {
       <View style={styles.header}>
         <View>
           <Text allowFontScaling style={typography.eyebrow}>
-            KEEP WHAT LANDS
+            {translate('favorites.eyebrow')}
           </Text>
           <Text allowFontScaling style={typography.screenTitle}>
-            Favorites
+            {translate('favorites.title')}
           </Text>
         </View>
         <AppIconButton
-          label="Back to Home"
-          hint="Returns to the wallpaper preview."
+          label={translate('common.back.label')}
+          hint={translate('common.back.hint')}
           onPress={() => router.back()}
           symbol="‹"
         />
@@ -38,8 +40,8 @@ export default function FavoritesScreen() {
       {favorites.length === 0 ? (
         <View style={styles.empty}>
           <ActionMessage
-            title="No favorites yet"
-            message="Favorite a quote from Home to use it here."
+            title={translate('favorites.empty.title')}
+            message={translate('favorites.empty.message')}
           />
         </View>
       ) : (

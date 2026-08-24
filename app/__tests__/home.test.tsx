@@ -12,6 +12,7 @@ import HomeScreen from '../index';
 import { useAppStore } from '../../src/store/useAppStore';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
+import { t } from '../../src/features/i18n/t';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
   const { View } = require('react-native');
@@ -79,19 +80,17 @@ test('Home shows a safe retry when favorite synchronization fails', async () => 
   useAppStore.setState({ rotationEnabled: true });
   render(<HomeScreen />);
 
-  fireEvent.press(screen.getByLabelText('Favorite quote'));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.favorite.add.label')));
   await waitFor(() =>
-    expect(
-      screen.getByText('Could not update favorites for rotation. Try again.'),
-    ).toBeOnTheScreen(),
+    expect(screen.getByText(t('en', 'home.favorite.error'))).toBeOnTheScreen(),
   );
   expect(screen.queryByText('native secret')).toBeNull();
   fireEvent.press(
-    screen.getByRole('button', { name: 'Retry favorite update' }),
+    screen.getByRole('button', { name: t('en', 'home.favorite.retry.label') }),
   );
 
   await waitFor(() =>
-    expect(screen.getByText('Quote added to favorites.')).toBeOnTheScreen(),
+    expect(screen.getByText(t('en', 'home.favorite.added'))).toBeOnTheScreen(),
   );
   expect(attempts).toBe(2);
 });
@@ -103,7 +102,7 @@ test('Home changes the quote and favorite state through accessible controls', as
   fireEvent.press(screen.getByLabelText('Next quote'));
   expect(useAppStore.getState().currentQuoteId).not.toBe(initialQuoteId);
 
-  fireEvent.press(screen.getByLabelText('Favorite quote'));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.favorite.add.label')));
   await waitFor(() =>
     expect(useAppStore.getState().favoriteQuoteIds).toContain(
       useAppStore.getState().currentQuoteId,
@@ -116,10 +115,10 @@ test('Home changes the quote and favorite state through accessible controls', as
 test('Home pushes each focused Stack route and enables Android wallpaper actions', () => {
   render(<HomeScreen />);
 
-  fireEvent.press(screen.getByLabelText('Customize wallpaper'));
-  fireEvent.press(screen.getByLabelText('Open favorites'));
-  fireEvent.press(screen.getByLabelText('Open automation'));
-  fireEvent.press(screen.getByLabelText('Open settings'));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.customize.label')));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.favorites.label')));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.automation.label')));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.settings.label')));
 
   expect(router.push).toHaveBeenCalledWith('/customize');
   expect(router.push).toHaveBeenCalledWith('/favorites');
@@ -135,7 +134,7 @@ test('Home pushes each focused Stack route and enables Android wallpaper actions
 test('Home exposes branded loading and a retryable render error without losing state', () => {
   mockUseWallpaperFonts.mockReturnValue(null);
   const { unmount } = render(<HomeScreen />);
-  expect(screen.getByText('Preparing your wallpaper')).toBeOnTheScreen();
+  expect(screen.getByText(t('en', 'home.loading'))).toBeOnTheScreen();
   unmount();
 
   mockUseWallpaperFonts.mockReturnValue({});
@@ -143,10 +142,12 @@ test('Home exposes branded loading and a retryable render error without losing s
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   try {
     render(<HomeScreen />);
-    expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
-    fireEvent.press(screen.getByRole('button', { name: 'Retry preview' }));
+    expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
+    fireEvent.press(
+      screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
+    );
     expect(useAppStore.getState().currentQuoteId).toBe('missing-quote');
-    expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
+    expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
   } finally {
     errorSpy.mockRestore();
   }
@@ -166,10 +167,12 @@ test('Home catches a thrown preview render and retries without changing the quot
 
   try {
     render(<HomeScreen />);
-    expect(screen.getByText('Preview could not render.')).toBeOnTheScreen();
+    expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
 
     shouldThrow = false;
-    fireEvent.press(screen.getByRole('button', { name: 'Retry preview' }));
+    fireEvent.press(
+      screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
+    );
 
     expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
     expect(useAppStore.getState().currentQuoteId).toBe(before.currentQuoteId);

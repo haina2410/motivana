@@ -151,7 +151,7 @@ function validatePreset(preset, index) {
   if (!isRecord(preset)) {
     fail(path, 'must be an object');
   }
-  for (const field of ['id', 'name', 'fontFamily', 'fontWeight', 'textAlign']) {
+  for (const field of ['id', 'fontFamily', 'fontWeight', 'textAlign']) {
     if (typeof preset[field] !== 'string' || preset[field].trim() === '') {
       fail(`${path}.${field}`, 'must be a non-empty string');
     }

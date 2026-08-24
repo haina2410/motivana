@@ -22,7 +22,6 @@ export type WallpaperBackground = SolidBackground | LinearGradientBackground;
 
 export interface WallpaperPreset {
   id: string;
-  name: string;
   fontFamily: FontFamily;
   fontWeight: FontWeight;
   textAlign: TextAlign;
@@ -247,7 +246,6 @@ export function parseWallpaperPresetCatalog(
 
     return Object.freeze({
       id,
-      name: requireString(entry.name, `${path}.name`),
       fontFamily: fontFamily as FontFamily,
       fontWeight: fontWeight as FontWeight,
       textAlign: textAlign as TextAlign,
