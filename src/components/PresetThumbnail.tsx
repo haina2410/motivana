@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { createComposition } from '../features/wallpaper/composition';
@@ -23,12 +24,17 @@ export function PresetThumbnail({
   disabled = false,
   onPress,
 }: PresetThumbnailProps) {
-  const composition = createComposition({
-    preset,
-    quote,
-    width: 180,
-    height: 260,
-  });
+  // Keeps one composition object, so the preview renders and encodes one time.
+  const composition = useMemo(
+    () =>
+      createComposition({
+        preset,
+        quote,
+        width: 180,
+        height: 260,
+      }),
+    [preset, quote],
+  );
   return (
     <Pressable
       accessibilityRole="button"
