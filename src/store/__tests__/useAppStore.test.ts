@@ -10,11 +10,24 @@ jest.mock('expo-localization', () => ({
 jest.mock('../../services/wallpaperNative', () => ({
   configureRotation: jest.fn(async () => undefined),
 }));
+// Wraps the real catalog with a jest.fn so individual tests can empty a
+// locale's pool for the duration of one test, while every other test keeps
+// reading the real, unfiltered catalog through the same mock's default
+// implementation.
+jest.mock('../../features/quotes/quoteRepository', () => {
+  const actual = jest.requireActual('../../features/quotes/quoteRepository');
+  return { ...actual, getAllQuotes: jest.fn(actual.getAllQuotes) };
+});
 
 const mockedGetLocales = getLocales as jest.Mock;
+const mockedGetAllQuotes = getAllQuotes as jest.Mock;
+const actualGetAllQuotes = jest.requireActual(
+  '../../features/quotes/quoteRepository',
+).getAllQuotes as typeof getAllQuotes;
 
 afterEach(() => {
   mockedGetLocales.mockReturnValue([{ languageTag: 'en-US' }]);
+  mockedGetAllQuotes.mockImplementation(actualGetAllQuotes);
 });
 
 function createMemoryStorage(): KeyValueStorage & {
@@ -413,18 +426,46 @@ test('accepts a quote language whose catalog has content', async () => {
   expect(store.getState().currentQuoteId).toBe(before);
 });
 
-// Mutation caught: removing this validation guard would let an unsupported quote language through and strand the reader on an unreachable pool.
-test('rejects an unsupported quote language', async () => {
+// Mutation caught: removing the empty-pool guard would switch the reader into a language with no quotes, leaving the wallpaper and preview screens with nothing to show.
+test('refuses to move into a content language whose pool is empty', async () => {
+  mockedGetAllQuotes.mockImplementation((locale?: string) =>
+    locale === 'vi' ? Object.freeze([]) : actualGetAllQuotes(locale as never),
+  );
   const store = createAppStore({ storage: createMemoryStorage() });
-  const before = store.getState().currentQuoteId;
+  const before = store.getState();
 
-  await expect(
-    (
-      store.getState().setContentLocale as unknown as (
-        locale: unknown,
-      ) => Promise<boolean>
-    )('fr'),
-  ).resolves.toBe(false);
-  expect(store.getState().contentLocale).toBe('en');
-  expect(store.getState().currentQuoteId).toBe(before);
+  await expect(store.getState().setContentLocale('vi')).resolves.toBe(false);
+  expect(store.getState().contentLocale).toBe(before.contentLocale);
+  expect(store.getState().currentQuoteId).toBe(before.currentQuoteId);
+});
+
+// Mutation caught: keeping an English-only quote selected after switching to Vietnamese would leave the wallpaper trying to render text that does not exist in the new language.
+test('repairs the current quote when it has no text in the new content language', async () => {
+  const storage = createMemoryStorage();
+  storage.set(
+    'motivana.app-state',
+    JSON.stringify({ version: 2, currentQuoteId: 'motivation-006' }),
+  );
+  const store = createAppStore({ storage });
+
+  await expect(store.getState().setContentLocale('vi')).resolves.toBe(true);
+  expect(store.getState().currentQuoteId).not.toBe('motivation-006');
+  expect(
+    getAllQuotes('vi').some(
+      (quote) => quote.id === store.getState().currentQuoteId,
+    ),
+  ).toBe(true);
+});
+
+// Mutation caught: always repairing the current quote on a language switch would jump the reader away from a quote they were already reading in the new language.
+test('keeps the current quote when it already has text in the new content language', async () => {
+  const storage = createMemoryStorage();
+  storage.set(
+    'motivana.app-state',
+    JSON.stringify({ version: 2, currentQuoteId: 'motivation-002' }),
+  );
+  const store = createAppStore({ storage });
+
+  await expect(store.getState().setContentLocale('vi')).resolves.toBe(true);
+  expect(store.getState().currentQuoteId).toBe('motivation-002');
 });
