@@ -7,6 +7,7 @@ import {
 
 import AutomationScreen from '../automation';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
+import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { useAppStore } from '../../src/store/useAppStore';
 
 jest.mock('../../src/services/wallpaperNative', () => ({
@@ -27,6 +28,8 @@ const nativeService = jest.requireMock(
 ) as {
   getWallpaperCapabilities: jest.Mock;
   configureRotation: jest.Mock;
+  getRotationStatus: jest.Mock;
+  runRotationNow: jest.Mock;
 };
 
 beforeEach(() => {
@@ -36,6 +39,22 @@ beforeEach(() => {
     supportsLock: false,
   });
   nativeService.configureRotation.mockResolvedValue(undefined);
+  nativeService.getRotationStatus.mockResolvedValue({
+    enabled: false,
+    state: 'disabled',
+  });
+  nativeService.runRotationNow.mockResolvedValue(undefined);
+  setRotationSynchronizer(async (state) =>
+    nativeService.configureRotation({
+      enabled: state.rotationEnabled,
+      intervalHours: state.rotationIntervalHours,
+      target: state.wallpaperTarget,
+      selectedPresetId: state.selectedPresetId,
+      randomizePreset: state.randomizePreset,
+      favoriteQuoteIds: state.favoriteQuoteIds,
+      favoriteQuotesOnly: state.favoriteQuotesOnly,
+    }),
+  );
 });
 
 test.each(['lock', 'both'] as const)(
@@ -129,4 +148,26 @@ test('does not mutate Zustand when native scheduling rejects', async () => {
     ),
   );
   expect(useAppStore.getState().rotationIntervalHours).toBe(24);
+});
+
+// Mutation caught: rendering a native worker code directly could expose implementation details instead of a recovery path.
+test('maps scheduled worker failures to safe recovery text and an action', async () => {
+  nativeService.getRotationStatus.mockResolvedValue({
+    enabled: true,
+    state: 'failed',
+    errorCode: 'SYSTEM_FAILED',
+  });
+  render(<AutomationScreen />);
+
+  await waitFor(() =>
+    expect(
+      screen.getByText(
+        'Android could not finish the scheduled rotation. Try again.',
+      ),
+    ).toBeOnTheScreen(),
+  );
+  expect(screen.queryByText('Last error: SYSTEM_FAILED')).toBeNull();
+  expect(
+    screen.getByRole('button', { name: 'Retry rotation' }),
+  ).toBeOnTheScreen();
 });

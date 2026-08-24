@@ -22,11 +22,13 @@ import {
   APP_STATE_STORAGE_KEY,
   type KeyValueStorage,
 } from './storage';
+import { synchronizeRotationState } from './automationSynchronization';
 
 export interface RotationConfiguration {
   enabled: boolean;
   intervalHours: RotationIntervalHours;
   target: WallpaperTarget;
+  favoriteQuotesOnly?: boolean;
 }
 
 export interface AppState extends PersistedAppStateV1 {
@@ -34,11 +36,13 @@ export interface AppState extends PersistedAppStateV1 {
   previousQuote(): boolean;
   randomQuote(): boolean;
   selectQuote(quoteId: string): boolean;
-  toggleFavorite(quoteId: string): boolean;
-  selectPreset(presetId: string): boolean;
-  setRandomizePreset(randomizePreset: boolean): boolean;
-  setFavoriteQuotesOnly(favoriteQuotesOnly: boolean): boolean;
-  setRotationConfiguration(configuration: RotationConfiguration): boolean;
+  toggleFavorite(quoteId: string): Promise<boolean>;
+  selectPreset(presetId: string): Promise<boolean>;
+  setRandomizePreset(randomizePreset: boolean): Promise<boolean>;
+  setFavoriteQuotesOnly(favoriteQuotesOnly: boolean): Promise<boolean>;
+  setRotationConfiguration(
+    configuration: RotationConfiguration,
+  ): Promise<boolean>;
   recordAppliedQuote(quoteId: string): boolean;
   hydrate(): boolean;
 }
@@ -47,6 +51,7 @@ export interface CreateAppStoreOptions {
   storage?: KeyValueStorage;
   random?: () => number;
   warn?: SafeWarningReporter;
+  synchronizeRotation?: (state: PersistedAppStateV1) => Promise<void>;
 }
 
 function persist(storage: KeyValueStorage, state: PersistedAppStateV1): void {
@@ -63,6 +68,8 @@ function createAppState(
   const storage = options.storage ?? appStorage;
   const random = options.random ?? Math.random;
   const warn = options.warn ?? console.warn;
+  const synchronizeRotation =
+    options.synchronizeRotation ?? synchronizeRotationState;
 
   return (set, get) => {
     const commit = (next: PersistedAppStateV1): boolean => {
@@ -74,6 +81,49 @@ function createAppState(
       }
       set(next);
       return true;
+    };
+    let automationQueue = Promise.resolve();
+    const commitAutomation = (
+      update: (state: PersistedAppStateV1) => PersistedAppStateV1 | undefined,
+      forceSynchronization = false,
+    ): Promise<boolean> => {
+      const operation = async () => {
+        const previous = toPersistedState(get());
+        const next = update(previous);
+        if (next === undefined) return false;
+        const shouldSynchronize =
+          forceSynchronization ||
+          previous.rotationEnabled ||
+          next.rotationEnabled;
+        if (shouldSynchronize) {
+          try {
+            await synchronizeRotation(next);
+          } catch {
+            return false;
+          }
+        }
+        try {
+          persist(storage, next);
+        } catch {
+          if (shouldSynchronize) {
+            try {
+              await synchronizeRotation(previous);
+            } catch {
+              warn('Motivana automation preferences could not be restored.');
+            }
+          }
+          warn('Motivana preferences could not be saved.');
+          return false;
+        }
+        set(next);
+        return true;
+      };
+      const result = automationQueue.then(operation, operation);
+      automationQueue = result.then(
+        () => undefined,
+        () => undefined,
+      );
+      return result;
     };
 
     return {
@@ -103,56 +153,70 @@ function createAppState(
           ? commit({ ...toPersistedState(get()), currentQuoteId: quoteId })
           : false,
       toggleFavorite: (quoteId) => {
-        const state = get();
         if (!isValidQuoteId(quoteId)) {
-          return false;
+          return Promise.resolve(false);
         }
-        const isFavorite = state.favoriteQuoteIds.includes(quoteId);
-        if (
-          isFavorite &&
-          state.favoriteQuotesOnly &&
-          state.favoriteQuoteIds.length === 1
-        ) {
-          return false;
-        }
-        const favoriteQuoteIds = isFavorite
-          ? state.favoriteQuoteIds.filter((id) => id !== quoteId)
-          : [...state.favoriteQuoteIds, quoteId];
-        return commit({ ...toPersistedState(state), favoriteQuoteIds });
+        return commitAutomation((state) => {
+          const isFavorite = state.favoriteQuoteIds.includes(quoteId);
+          if (
+            isFavorite &&
+            state.favoriteQuotesOnly &&
+            state.favoriteQuoteIds.length === 1
+          ) {
+            return undefined;
+          }
+          const favoriteQuoteIds = isFavorite
+            ? state.favoriteQuoteIds.filter((id) => id !== quoteId)
+            : [...state.favoriteQuoteIds, quoteId];
+          return { ...state, favoriteQuoteIds };
+        });
       },
       selectPreset: (presetId) =>
         isValidPresetId(presetId)
-          ? commit({ ...toPersistedState(get()), selectedPresetId: presetId })
-          : false,
+          ? commitAutomation((state) => ({
+              ...state,
+              selectedPresetId: presetId,
+            }))
+          : Promise.resolve(false),
       setRandomizePreset: (randomizePreset) =>
         typeof randomizePreset === 'boolean'
-          ? commit({ ...toPersistedState(get()), randomizePreset })
-          : false,
+          ? commitAutomation((state) => ({ ...state, randomizePreset }))
+          : Promise.resolve(false),
       setFavoriteQuotesOnly: (favoriteQuotesOnly) => {
-        const state = get();
-        if (
-          typeof favoriteQuotesOnly !== 'boolean' ||
-          (favoriteQuotesOnly && state.favoriteQuoteIds.length === 0)
-        ) {
-          return false;
-        }
-        return commit({ ...toPersistedState(state), favoriteQuotesOnly });
+        if (typeof favoriteQuotesOnly !== 'boolean')
+          return Promise.resolve(false);
+        return commitAutomation((state) => {
+          if (favoriteQuotesOnly && state.favoriteQuoteIds.length === 0) {
+            return undefined;
+          }
+          return { ...state, favoriteQuotesOnly };
+        });
       },
       setRotationConfiguration: (configuration) => {
         if (
           !isRecord(configuration) ||
           typeof configuration.enabled !== 'boolean' ||
           !isValidRotationIntervalHours(configuration.intervalHours) ||
-          !isValidWallpaperTarget(configuration.target)
+          !isValidWallpaperTarget(configuration.target) ||
+          (configuration.favoriteQuotesOnly !== undefined &&
+            typeof configuration.favoriteQuotesOnly !== 'boolean')
         ) {
-          return false;
+          return Promise.resolve(false);
         }
-        return commit({
-          ...toPersistedState(get()),
-          rotationEnabled: configuration.enabled,
-          rotationIntervalHours: configuration.intervalHours,
-          wallpaperTarget: configuration.target,
-        });
+        return commitAutomation((state) => {
+          const favoriteQuotesOnly =
+            configuration.favoriteQuotesOnly ?? state.favoriteQuotesOnly;
+          if (favoriteQuotesOnly && state.favoriteQuoteIds.length === 0) {
+            return undefined;
+          }
+          return {
+            ...state,
+            rotationEnabled: configuration.enabled,
+            rotationIntervalHours: configuration.intervalHours,
+            wallpaperTarget: configuration.target,
+            favoriteQuotesOnly,
+          };
+        }, true);
       },
       recordAppliedQuote: (quoteId) =>
         isValidQuoteId(quoteId)

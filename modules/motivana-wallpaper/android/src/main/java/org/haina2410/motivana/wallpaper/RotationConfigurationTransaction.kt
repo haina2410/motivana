@@ -19,9 +19,13 @@ class RotationConfigurationTransaction(private val store: RotationConfigurationS
     val oldSnapshotRaw = store.readRawSnapshot()
     val oldStatusRaw = store.readRawStatus()
     val oldStatus = store.readStatus()
-    if (!store.saveSnapshot(next)) return false
-    if (!scheduler.configure(next.enabled, next.intervalHours)) return restore(oldSnapshot, oldSnapshotRaw, oldStatusRaw)
-    val nextStatus = RotationStatus(next.enabled, if (next.enabled) RotationState.SCHEDULED else RotationState.DISABLED, clock(), oldStatus.lastAppliedAt, oldStatus.quoteId, oldStatus.presetId)
+    val mergedNext = next.copy(
+      lastQuoteId = next.lastQuoteId ?: oldSnapshot?.lastQuoteId,
+      lastPresetId = next.lastPresetId ?: oldSnapshot?.lastPresetId,
+    )
+    if (!store.saveSnapshot(mergedNext)) return false
+    if (!scheduler.configure(mergedNext.enabled, mergedNext.intervalHours)) return restore(oldSnapshot, oldSnapshotRaw, oldStatusRaw)
+    val nextStatus = RotationStatus(mergedNext.enabled, if (mergedNext.enabled) RotationState.SCHEDULED else RotationState.DISABLED, clock(), oldStatus.lastAppliedAt, oldStatus.quoteId, oldStatus.presetId)
     if (store.saveStatus(nextStatus)) return true
     return restore(oldSnapshot, oldSnapshotRaw, oldStatusRaw)
   }

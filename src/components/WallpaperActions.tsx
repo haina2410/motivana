@@ -16,6 +16,7 @@ import {
   getWallpaperCapabilities,
   setWallpaper,
 } from '../services/wallpaperNative';
+import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { ActionMessage } from './ActionMessage';
@@ -69,6 +70,7 @@ export function WallpaperActions({
   composition,
   fontProvider,
 }: WallpaperActionsProps) {
+  const appState = useAppStore();
   const [capabilities, setCapabilities] = useState<WallpaperCapabilities>();
   const [showTargets, setShowTargets] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -107,7 +109,10 @@ export function WallpaperActions({
           ? retryExport.current.rendered
           : await exportWallpaper(composition, fontProvider);
       if (action.kind === 'save') await saveWallpaper(rendered.uri);
-      else await setWallpaper(rendered.uri, action.target);
+      else {
+        await setWallpaper(rendered.uri, action.target);
+        appState.recordAppliedQuote(composition.quote.id);
+      }
       retryExport.current = undefined;
       setShowTargets(false);
       setMessage(successMessage(action));

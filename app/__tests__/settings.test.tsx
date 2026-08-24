@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import SettingsScreen from '../settings';
@@ -11,7 +16,7 @@ beforeEach(() => {
   useAppStore.setState(createDefaultPersistedAppState());
 });
 
-test('Settings persists random preset and favorites-only choices through store actions', () => {
+test('Settings persists random preset and favorites-only choices through store actions', async () => {
   const quote = getAllQuotes()[0]!;
   useAppStore.setState({ favoriteQuoteIds: [quote.id] });
   render(<SettingsScreen />);
@@ -19,8 +24,12 @@ test('Settings persists random preset and favorites-only choices through store a
   fireEvent.press(screen.getByLabelText('Randomize preset'));
   fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
 
-  expect(useAppStore.getState().randomizePreset).toBe(true);
-  expect(useAppStore.getState().favoriteQuotesOnly).toBe(true);
+  await waitFor(() =>
+    expect(useAppStore.getState()).toMatchObject({
+      randomizePreset: true,
+      favoriteQuotesOnly: true,
+    }),
+  );
   expect(screen.getByText('Motivana 1.0.0')).toBeOnTheScreen();
 });
 

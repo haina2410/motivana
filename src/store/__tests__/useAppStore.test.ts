@@ -1,6 +1,11 @@
 import { getAllQuotes } from '../../features/quotes/quoteRepository';
 import { createAppStore, useAppStore } from '../useAppStore';
+import type { PersistedAppStateV1 } from '../schema';
 import type { KeyValueStorage } from '../storage';
+
+jest.mock('../../services/wallpaperNative', () => ({
+  configureRotation: jest.fn(async () => undefined),
+}));
 
 function createMemoryStorage(): KeyValueStorage & {
   read(key: string): string | undefined;
@@ -65,7 +70,10 @@ test('selects a random quote without immediately repeating the current quote', (
 // Mutation caught: failing to check a quote ID against the catalog would persist a selection screens cannot render.
 test('rejects an unknown quote selection without changing persisted state', () => {
   const storage = createMemoryStorage();
-  const store = createAppStore({ storage });
+  const store = createAppStore({
+    storage,
+    synchronizeRotation: async () => undefined,
+  });
   const before = store.getState().currentQuoteId;
 
   expect(store.getState().selectQuote('gone')).toBe(false);
@@ -74,7 +82,7 @@ test('rejects an unknown quote selection without changing persisted state', () =
 });
 
 // Mutation caught: publishing state before a storage write fails would leave UI state divergent from the persisted preferences.
-test('keeps state and persisted preferences unchanged when a storage write fails', () => {
+test('keeps state and persisted preferences unchanged when a storage write fails', async () => {
   const persisted = JSON.stringify({
     version: 1,
     favoriteQuoteIds: [],
@@ -96,7 +104,9 @@ test('keeps state and persisted preferences unchanged when a storage write fails
   });
   const before = store.getState();
 
-  expect(store.getState().selectPreset('sunrise-drive')).toBe(false);
+  await expect(store.getState().selectPreset('sunrise-drive')).resolves.toBe(
+    false,
+  );
   expect(store.getState()).toEqual(before);
   expect(storage.read('motivana.app-state')).toBe(persisted);
   expect(warnings).toEqual(['Motivana preferences could not be saved.']);
@@ -105,15 +115,17 @@ test('keeps state and persisted preferences unchanged when a storage write fails
 });
 
 // Mutation caught: accepting an unknown preset or failing to persist valid customization choices would leave previews unrecoverable after relaunch.
-test('selects valid presets and persists the random-preset preference', () => {
+test('selects valid presets and persists the random-preset preference', async () => {
   const storage = createMemoryStorage();
   const store = createAppStore({ storage });
 
-  expect(store.getState().selectPreset('sunrise-drive')).toBe(true);
+  await expect(store.getState().selectPreset('sunrise-drive')).resolves.toBe(
+    true,
+  );
   expect(store.getState().selectedPresetId).toBe('sunrise-drive');
-  expect(store.getState().selectPreset('gone')).toBe(false);
+  await expect(store.getState().selectPreset('gone')).resolves.toBe(false);
   expect(store.getState().selectedPresetId).toBe('sunrise-drive');
-  expect(store.getState().setRandomizePreset(true)).toBe(true);
+  await expect(store.getState().setRandomizePreset(true)).resolves.toBe(true);
   expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
     selectedPresetId: 'sunrise-drive',
     randomizePreset: true,
@@ -121,18 +133,18 @@ test('selects valid presets and persists the random-preset preference', () => {
 });
 
 // Mutation caught: failing to persist the next valid favorite state would lose favorite additions and removals on relaunch.
-test('toggles a valid quote favorite and persists the deduped result', () => {
+test('toggles a valid quote favorite and persists the deduped result', async () => {
   const storage = createMemoryStorage();
   const store = createAppStore({ storage });
   const quoteId = getAllQuotes()[1]!.id;
 
-  expect(store.getState().toggleFavorite(quoteId)).toBe(true);
+  await expect(store.getState().toggleFavorite(quoteId)).resolves.toBe(true);
   expect(store.getState().favoriteQuoteIds).toEqual([quoteId]);
   expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
     favoriteQuoteIds: [quoteId],
   });
 
-  expect(store.getState().toggleFavorite(quoteId)).toBe(true);
+  await expect(store.getState().toggleFavorite(quoteId)).resolves.toBe(true);
   expect(store.getState().favoriteQuoteIds).toEqual([]);
   expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
     favoriteQuoteIds: [],
@@ -140,25 +152,30 @@ test('toggles a valid quote favorite and persists the deduped result', () => {
 });
 
 // Mutation caught: enabling favorites-only with no eligible quote would configure automation to fail at runtime.
-test('rejects favorites-only rotation when there are no favorites', () => {
+test('rejects favorites-only rotation when there are no favorites', async () => {
   const store = createAppStore({ storage: createMemoryStorage() });
 
-  expect(store.getState().setFavoriteQuotesOnly(true)).toBe(false);
+  await expect(store.getState().setFavoriteQuotesOnly(true)).resolves.toBe(
+    false,
+  );
   expect(store.getState().favoriteQuotesOnly).toBe(false);
 });
 
 // Mutation caught: storing arbitrary interval or target values would bypass the native automation contract.
-test('persists only a valid complete rotation configuration', () => {
+test('persists only a valid complete rotation configuration', async () => {
   const storage = createMemoryStorage();
-  const store = createAppStore({ storage });
+  const store = createAppStore({
+    storage,
+    synchronizeRotation: async () => undefined,
+  });
 
-  expect(
+  await expect(
     store.getState().setRotationConfiguration({
       enabled: true,
       intervalHours: 12,
       target: 'both',
     }),
-  ).toBe(true);
+  ).resolves.toBe(true);
   expect(store.getState()).toMatchObject({
     rotationEnabled: true,
     rotationIntervalHours: 12,
@@ -170,27 +187,29 @@ test('persists only a valid complete rotation configuration', () => {
     wallpaperTarget: 'both',
   });
 
-  expect(
+  await expect(
     store.getState().setRotationConfiguration({
       enabled: true,
       intervalHours: 8 as 6,
       target: 'desktop' as 'home',
     }),
-  ).toBe(false);
+  ).resolves.toBe(false);
   expect(store.getState().rotationIntervalHours).toBe(12);
   expect(store.getState().wallpaperTarget).toBe('both');
 });
 
 // Mutation caught: dereferencing a malformed rotation configuration would crash instead of rejecting invalid runtime input.
-test('rejects null and undefined rotation configurations without changing state', () => {
+test('rejects null and undefined rotation configurations without changing state', async () => {
   const storage = createMemoryStorage();
   const store = createAppStore({ storage });
   const before = store.getState();
   const setRotationConfiguration = store.getState()
-    .setRotationConfiguration as unknown as (configuration: unknown) => boolean;
+    .setRotationConfiguration as unknown as (
+    configuration: unknown,
+  ) => Promise<boolean>;
 
-  expect(setRotationConfiguration(null)).toBe(false);
-  expect(setRotationConfiguration(undefined)).toBe(false);
+  await expect(setRotationConfiguration(null)).resolves.toBe(false);
+  await expect(setRotationConfiguration(undefined)).resolves.toBe(false);
   expect(store.getState()).toEqual(before);
   expect(storage.read('motivana.app-state')).toBeUndefined();
 });
@@ -231,4 +250,99 @@ test('records only a valid applied quote', () => {
   expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
     lastAppliedQuoteId: quoteId,
   });
+});
+
+// Mutation caught: changing a worker-visible preference without configuring native state would make the next process-death rotation use stale choices.
+test('synchronizes every worker-visible preference change while rotation is enabled', async () => {
+  const storage = createMemoryStorage();
+  const synchronizeRotation = jest.fn(async () => undefined);
+  const store = createAppStore({ storage, synchronizeRotation });
+  const favoriteId = getAllQuotes()[1]!.id;
+  store.setState({ rotationEnabled: true });
+
+  await store.getState().selectPreset('sunrise-drive');
+  await store.getState().setRandomizePreset(true);
+  await store.getState().toggleFavorite(favoriteId);
+  await store.getState().setFavoriteQuotesOnly(true);
+  await store.getState().setRotationConfiguration({
+    enabled: true,
+    intervalHours: 6,
+    target: 'both',
+  });
+
+  expect(synchronizeRotation).toHaveBeenCalledTimes(5);
+  expect(synchronizeRotation).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      rotationEnabled: true,
+      rotationIntervalHours: 6,
+      wallpaperTarget: 'both',
+      selectedPresetId: 'sunrise-drive',
+      randomizePreset: true,
+      favoriteQuoteIds: [favoriteId],
+      favoriteQuotesOnly: true,
+    }),
+  );
+});
+
+// Mutation caught: publishing a preference after native scheduling rejects would falsely tell the user the worker accepted it.
+test('rolls back a worker-visible preference when native synchronization rejects it', async () => {
+  const storage = createMemoryStorage();
+  const synchronizeRotation = jest.fn(async () => {
+    throw new Error('native failure');
+  });
+  const store = createAppStore({ storage, synchronizeRotation });
+  store.setState({ rotationEnabled: true });
+
+  await expect(store.getState().selectPreset('sunrise-drive')).resolves.toBe(
+    false,
+  );
+  expect(store.getState().selectedPresetId).toBe('midnight-focus');
+  expect(storage.read('motivana.app-state')).toBeUndefined();
+});
+
+// Mutation caught: leaving native work on a new snapshot after local persistence fails would split UI state from process-death worker state.
+test('restores the native snapshot when local persistence rejects a synchronized change', async () => {
+  const persisted = JSON.stringify({
+    version: 1,
+    favoriteQuoteIds: [],
+    currentQuoteId: getAllQuotes()[0]!.id,
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: true,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+  const snapshots: PersistedAppStateV1[] = [];
+  const store = createAppStore({
+    storage: createWriteFailingStorage({ 'motivana.app-state': persisted }),
+    synchronizeRotation: async (snapshot) => {
+      snapshots.push(snapshot);
+    },
+    warn: () => undefined,
+  });
+
+  await expect(store.getState().selectPreset('sunrise-drive')).resolves.toBe(
+    false,
+  );
+  expect(snapshots.map((snapshot) => snapshot.selectedPresetId)).toEqual([
+    'sunrise-drive',
+    'midnight-focus',
+  ]);
+  expect(store.getState().selectedPresetId).toBe('midnight-focus');
+});
+
+// Mutation caught: reconfiguring native work for ordinary disabled preferences would create work despite automation being off.
+test('does not synchronize ordinary preference changes while rotation is disabled', async () => {
+  const synchronizeRotation = jest.fn(async () => undefined);
+  const store = createAppStore({
+    storage: createMemoryStorage(),
+    synchronizeRotation,
+  });
+
+  await store.getState().selectPreset('sunrise-drive');
+  await store.getState().setRandomizePreset(true);
+  await store.getState().toggleFavorite(getAllQuotes()[1]!.id);
+
+  expect(synchronizeRotation).not.toHaveBeenCalled();
 });

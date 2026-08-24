@@ -11,10 +11,8 @@ import {
   isWallpaperTargetAvailable,
   wallpaperAutomationFallback,
 } from '../src/services/wallpaperAvailability';
-import {
-  configureRotation,
-  runRotationNow,
-} from '../src/services/wallpaperNative';
+import { runRotationNow } from '../src/services/wallpaperNative';
+import { getRotationStatusRecovery } from '../src/services/rotationStatus';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import type { WallpaperAutomationAvailability } from '../src/services/wallpaperAvailability';
 import { colors } from '../src/theme/colors';
@@ -92,35 +90,25 @@ export default function AutomationScreen() {
     getWallpaperAutomationAvailability()
       .then(setAvailability)
       .catch(() => setAvailability(wallpaperAutomationFallback));
-  const save = async () => {
-    if (favoritesOnly && state.favoriteQuoteIds.length === 0) {
+  const save = async (nextFavoritesOnly = favoritesOnly) => {
+    if (nextFavoritesOnly && state.favoriteQuoteIds.length === 0) {
       setMessage('Add a favorite before using favorites-only rotation.');
       return;
     }
-    try {
-      await configureRotation({
-        enabled,
-        intervalHours: interval,
-        target,
-        selectedPresetId: state.selectedPresetId,
-        randomizePreset: state.randomizePreset,
-        favoriteQuoteIds: state.favoriteQuoteIds,
-        favoriteQuotesOnly: favoritesOnly,
-      });
-      state.setRotationConfiguration({
-        enabled,
-        intervalHours: interval,
-        target,
-      });
-      if (favoritesOnly !== state.favoriteQuotesOnly)
-        state.setFavoriteQuotesOnly(favoritesOnly);
-      setMessage(enabled ? 'Rotation scheduled.' : 'Rotation disabled.');
-      refresh();
-    } catch (error) {
+    const saved = await state.setRotationConfiguration({
+      enabled,
+      intervalHours: interval,
+      target,
+      favoriteQuotesOnly: nextFavoritesOnly,
+    });
+    if (!saved) {
       setMessage(
-        error instanceof Error ? error.message : 'Could not update rotation.',
+        'Could not update rotation. Review the preferences and retry.',
       );
+      return;
     }
+    setMessage(enabled ? 'Rotation scheduled.' : 'Rotation disabled.');
+    refresh();
   };
   const runNow = async () => {
     try {
@@ -136,6 +124,24 @@ export default function AutomationScreen() {
   const lastQuote = availability?.status.lastQuoteId
     ? getQuoteById(availability.status.lastQuoteId)
     : undefined;
+  const statusRecovery = getRotationStatusRecovery(
+    availability?.status.errorCode,
+  );
+  const recoverFromStatusFailure = () => {
+    if (
+      availability?.status.errorCode === 'EMPTY_FAVORITES' ||
+      availability?.status.errorCode === 'NO_ELIGIBLE_QUOTES'
+    ) {
+      setFavoritesOnly(false);
+      void save(false);
+      return;
+    }
+    if (statusRecovery?.action === 'retry' && __DEV__) {
+      void runNow();
+      return;
+    }
+    void save();
+  };
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView
@@ -189,10 +195,12 @@ export default function AutomationScreen() {
               Last quote: {lastQuote?.text ?? 'saved quote'}
             </Text>
           ) : null}
-          {availability?.status.errorCode ? (
-            <Text allowFontScaling style={styles.statusText}>
-              Last error: {availability.status.errorCode}
-            </Text>
+          {statusRecovery ? (
+            <ActionMessage
+              tone="error"
+              title="Rotation needs attention"
+              message={statusRecovery.message}
+            />
           ) : null}
         </View>
         <View style={styles.section}>
@@ -251,7 +259,7 @@ export default function AutomationScreen() {
           accessibilityRole="button"
           accessibilityLabel="Save automation preferences"
           disabled={!availability}
-          onPress={save}
+          onPress={() => void save()}
           style={styles.save}
         >
           <Text allowFontScaling style={typography.button}>
@@ -270,6 +278,22 @@ export default function AutomationScreen() {
               Run rotation now
             </Text>
           </Pressable>
+        ) : null}
+        {statusRecovery ? (
+          <AppIconButton
+            hint={
+              statusRecovery.action === 'retry'
+                ? 'Attempts the scheduled wallpaper rotation again.'
+                : 'Saves corrected rotation preferences.'
+            }
+            label={
+              statusRecovery.action === 'retry'
+                ? 'Retry rotation'
+                : 'Correct rotation preferences'
+            }
+            onPress={recoverFromStatusFailure}
+            symbol="↻"
+          />
         ) : null}
         {message ? (
           <ActionMessage

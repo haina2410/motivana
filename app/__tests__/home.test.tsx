@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import HomeScreen from '../index';
@@ -62,7 +67,7 @@ beforeEach(() => {
   useAppStore.setState(createDefaultPersistedAppState());
 });
 
-test('Home changes the quote and favorite state through accessible controls', () => {
+test('Home changes the quote and favorite state through accessible controls', async () => {
   render(<HomeScreen />);
   const initialQuoteId = useAppStore.getState().currentQuoteId;
 
@@ -70,8 +75,10 @@ test('Home changes the quote and favorite state through accessible controls', ()
   expect(useAppStore.getState().currentQuoteId).not.toBe(initialQuoteId);
 
   fireEvent.press(screen.getByLabelText('Favorite quote'));
-  expect(useAppStore.getState().favoriteQuoteIds).toContain(
-    useAppStore.getState().currentQuoteId,
+  await waitFor(() =>
+    expect(useAppStore.getState().favoriteQuoteIds).toContain(
+      useAppStore.getState().currentQuoteId,
+    ),
   );
 
   fireEvent.press(screen.getByLabelText('Random quote'));

@@ -55,8 +55,9 @@ export default function CustomizeScreen() {
                   quote={quote}
                   selected={state.selectedPresetId === preset.id}
                   onPress={() => {
-                    state.selectPreset(preset.id);
-                    router.back();
+                    void state.selectPreset(preset.id).then((selected) => {
+                      if (selected) router.back();
+                    });
                   }}
                 />
               </View>

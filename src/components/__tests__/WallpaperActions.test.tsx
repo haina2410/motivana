@@ -7,6 +7,10 @@ import {
 } from '@testing-library/react-native';
 
 import { WallpaperActions } from '../WallpaperActions';
+import { getAllQuotes } from '../../features/quotes/quoteRepository';
+import type { WallpaperComposition } from '../../features/wallpaper/composition';
+import { createDefaultPersistedAppState } from '../../store/schema';
+import { useAppStore } from '../../store/useAppStore';
 
 jest.mock('../../features/wallpaper/exportWallpaper', () => ({
   exportWallpaper: jest.fn(),
@@ -40,13 +44,17 @@ const composition = {
   cacheKey: 'forest-discipline-audre-lorde-1080x2400',
   width: 1080,
   height: 2400,
-} as never;
+} as WallpaperComposition;
 const fontProvider = {} as never;
 const exportUri =
   'file:///data/user/0/org.haina2410.motivana/cache/motivana-exports/forest.png';
 
 beforeEach(() => {
   jest.clearAllMocks();
+  useAppStore.setState({
+    ...createDefaultPersistedAppState(),
+    lastAppliedQuoteId: undefined,
+  });
   nativeService.getWallpaperCapabilities.mockResolvedValue({
     supportsHome: true,
     supportsLock: false,
@@ -58,6 +66,79 @@ beforeEach(() => {
   });
   mockSaveWallpaper.mockResolvedValue({ assetId: '42' });
   nativeService.setWallpaper.mockResolvedValue(undefined);
+});
+
+// Mutation caught: recording before setWallpaper resolves would mark a wallpaper as applied after a failed native request.
+test('records the quote only after Set wallpaper succeeds', async () => {
+  const quoteId = getAllQuotes()[2]!.id;
+  const appliedComposition = {
+    ...composition,
+    quote: {
+      id: quoteId,
+      text: 'Keep going.',
+      author: null,
+      category: 'focus',
+    },
+  } as never;
+  render(
+    <WallpaperActions
+      composition={appliedComposition}
+      fontProvider={fontProvider}
+    />,
+  );
+  await waitFor(() =>
+    expect(nativeService.getWallpaperCapabilities).toHaveBeenCalled(),
+  );
+
+  fireEvent.press(screen.getByRole('button', { name: 'Set wallpaper' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Set Home screen' }));
+
+  await waitFor(() =>
+    expect(
+      screen.getByText('Wallpaper applied to your Home screen.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(useAppStore.getState().lastAppliedQuoteId).toBe(quoteId);
+});
+
+// Mutation caught: clearing the active quote after native failure would make Retry use a different composition.
+test('keeps the active composition and does not record it when Set wallpaper fails', async () => {
+  const quoteId = getAllQuotes()[3]!.id;
+  const appliedComposition = {
+    ...composition,
+    quote: {
+      id: quoteId,
+      text: 'Stay steady.',
+      author: null,
+      category: 'focus',
+    },
+  } as never;
+  nativeService.setWallpaper.mockRejectedValueOnce({ code: 'APPLY_FAILED' });
+  render(
+    <WallpaperActions
+      composition={appliedComposition}
+      fontProvider={fontProvider}
+    />,
+  );
+  await waitFor(() =>
+    expect(nativeService.getWallpaperCapabilities).toHaveBeenCalled(),
+  );
+
+  fireEvent.press(screen.getByRole('button', { name: 'Set wallpaper' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Set Home screen' }));
+  await waitFor(() =>
+    expect(
+      screen.getByText('Could not apply the wallpaper.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(useAppStore.getState().lastAppliedQuoteId).toBeUndefined();
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Retry wallpaper action' }),
+  );
+  await waitFor(() =>
+    expect(nativeService.setWallpaper).toHaveBeenCalledTimes(2),
+  );
+  expect(useAppStore.getState().lastAppliedQuoteId).toBe(quoteId);
 });
 
 test('saves one rendered export when Save is tapped repeatedly while it is working', async () => {
