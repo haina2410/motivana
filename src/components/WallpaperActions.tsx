@@ -19,8 +19,8 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
-import { ActionMessage } from './ActionMessage';
 import { AppIconButton } from './AppIconButton';
+import { Toast } from './Toast';
 
 type WallpaperAction =
   { kind: 'save' } | { kind: 'set'; target: WallpaperTarget };
@@ -189,8 +189,10 @@ export function WallpaperActions({
             ))}
         </View>
       ) : null}
-      {message ? <ActionMessage message={message} /> : null}
-      {error ? <ActionMessage message={error} tone="error" /> : null}
+      {message ? (
+        <Toast message={message} onDismiss={() => setMessage(undefined)} />
+      ) : null}
+      {error ? <Toast duration={0} message={error} tone="error" /> : null}
       {retryAction ? (
         <AppIconButton
           disabled={busy}

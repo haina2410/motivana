@@ -1,10 +1,11 @@
 import { Canvas, Image as SkiaImage, Skia } from '@shopify/react-native-skia';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Image as NativeImage,
   Platform,
   View,
   type ImageStyle,
+  type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -20,6 +21,18 @@ export interface WallpaperCanvasProps {
 
 export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   const fonts = useWallpaperFonts();
+  const [canvasSize, setCanvasSize] = useState<{
+    width: number;
+    height: number;
+  }>();
+  const onCanvasLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setCanvasSize((current) =>
+      current?.width === width && current?.height === height
+        ? current
+        : { width, height },
+    );
+  };
   const measuredComposition = useMemo(
     () => (fonts ? measureSkiaComposition(composition, fonts) : composition),
     [composition, fonts],
@@ -52,7 +65,7 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
         accessible
         accessibilityLabel="Wallpaper preview"
         source={{ uri: fallbackUri }}
-        resizeMode="stretch"
+        resizeMode="contain"
         style={style as StyleProp<ImageStyle>}
       />
     ) : (
@@ -61,15 +74,20 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   }
 
   return (
-    <Canvas style={style} accessible accessibilityLabel="Wallpaper preview">
-      {preview ? (
+    <Canvas
+      style={style}
+      accessible
+      accessibilityLabel="Wallpaper preview"
+      onLayout={onCanvasLayout}
+    >
+      {preview && canvasSize ? (
         <SkiaImage
           image={preview.image}
           x={0}
           y={0}
-          width={measuredComposition.width}
-          height={measuredComposition.height}
-          fit="fill"
+          width={canvasSize.width}
+          height={canvasSize.height}
+          fit="contain"
         />
       ) : null}
     </Canvas>

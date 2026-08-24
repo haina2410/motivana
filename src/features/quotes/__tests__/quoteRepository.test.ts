@@ -16,7 +16,7 @@ test('ships 120 unique non-empty original quotes across every category', () => {
     new Set(quoteCategories),
   );
   expect(quotes.every((quote) => quote.text.trim().length >= 12)).toBe(true);
-  expect(quotes.every((quote) => quote.author === 'Motivana')).toBe(true);
+  expect(quotes.every((quote) => quote.author === undefined)).toBe(true);
   expect(
     quotes.filter((quote) => quote.text.length >= 200).length,
   ).toBeGreaterThanOrEqual(4);

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Component, type ReactNode, useState } from 'react';
 import {
   ActivityIndicator,
+  type LayoutChangeEvent,
   PixelRatio,
   StyleSheet,
   Text,
@@ -12,11 +13,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
 import { AppIconButton } from '../src/components/AppIconButton';
+import { Toast } from '../src/components/Toast';
 import { WallpaperActions } from '../src/components/WallpaperActions';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../src/features/wallpaper/composition';
-import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
+import {
+  fitPreviewBox,
+  wallpaperPixelDimensions,
+} from '../src/features/wallpaper/dimensions';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
@@ -151,8 +156,10 @@ export default function HomeScreen() {
           />
         </View>
         {favoriteFeedback ? (
-          <ActionMessage
+          <Toast
+            duration={favoriteFeedback.retryQuoteId ? 0 : 4000}
             message={favoriteFeedback.message}
+            onDismiss={() => setFavoriteFeedback(undefined)}
             tone={favoriteFeedback.retryQuoteId ? 'error' : 'default'}
           />
         ) : null}
@@ -180,12 +187,34 @@ function WallpaperPreview({
   if (!composition) {
     throw new Error('The selected wallpaper data is unavailable.');
   }
+  return <FittedPreview composition={composition} />;
+}
+
+function FittedPreview({
+  composition,
+}: {
+  composition: WallpaperComposition;
+}) {
+  const [area, setArea] = useState<{ width: number; height: number }>();
+  const onAreaLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setArea((current) =>
+      current?.width === width && current?.height === height
+        ? current
+        : { width, height },
+    );
+  };
+  const box = area
+    ? fitPreviewBox(area, composition.width / composition.height)
+    : undefined;
   return (
-    <View style={styles.preview}>
-      <WallpaperCanvas
-        composition={composition}
-        style={StyleSheet.absoluteFill}
-      />
+    <View onLayout={onAreaLayout} style={styles.previewArea}>
+      <View style={[styles.preview, box]}>
+        <WallpaperCanvas
+          composition={composition}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
     </View>
   );
 }
@@ -279,9 +308,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  preview: {
+  previewArea: {
+    alignItems: 'center',
     flex: 1,
+    justifyContent: 'center',
     minHeight: 280,
+  },
+  preview: {
     overflow: 'hidden',
     borderRadius: spacing.radiusLarge,
   },
