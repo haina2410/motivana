@@ -21,7 +21,7 @@ class RotationPipeline(
     val snapshot = parsed.snapshot
     if (!snapshot.enabled) return record(false, RotationState.DISABLED, null, RotationWorkResult.FAILURE)
     if (!store.saveStatus(RotationStatus(true, RotationState.RUNNING, clock()))) return RotationWorkResult.RETRY
-    val selection = try { selector.select(catalog, if (snapshot.favoriteQuotesOnly) snapshot.favoriteQuoteIds else null, snapshot.lastQuoteId, snapshot.lastPresetId, snapshot.randomizePreset, snapshot.selectedPresetId) } catch (e: SelectionException) { return record(true, RotationState.FAILED, e.code, RotationWorkResult.FAILURE) }
+    val selection = try { selector.select(catalog, if (snapshot.favoriteQuotesOnly) snapshot.favoriteQuoteIds else null, snapshot.lastQuoteId, snapshot.lastPresetId, snapshot.randomizePreset, snapshot.selectedPresetId, snapshot.contentLocale) } catch (e: SelectionException) { return record(true, RotationState.FAILED, e.code, RotationWorkResult.FAILURE) }
     var bitmap: RotationBitmap? = null
     return try {
       bitmap = renderer.render(selection.quote, selection.preset)

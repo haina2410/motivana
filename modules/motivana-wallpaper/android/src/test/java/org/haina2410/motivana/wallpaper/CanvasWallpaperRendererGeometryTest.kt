@@ -15,13 +15,13 @@ import org.robolectric.RobolectricTestRunner
 class CanvasWallpaperRendererGeometryTest {
   private val quote = RotationQuote("q", "A quote deliberately repeated until it exercises the shared Task Four safe geometry and fitting rules without falling outside of the visible block. ".repeat(8), "Author")
   private val preset = RotationPreset("p", "Inter", "Regular", "center", .43, .064, .036, 1.18, "#FFFFFF", "#DDEEFF", RotationBackground.Gradient("#102A56", "#020617", 135.0))
-  @Test fun fixtureRatiosKeepLongQuotesInsideEightAndTenPercentBounds() { listOf(1080 to 1920, 1080 to 2400).forEach { (width, height) -> val result = CanvasWallpaperRenderer(RotationCatalog(listOf(quote), listOf(preset)), emptyMap()).layout(quote, preset, width, height); assertTrue(result.quoteLeft >= width * .08f); assertTrue(result.quoteTop >= height * .1f); assertTrue(result.quoteBottom <= height * .9f); assertTrue(result.fontSize >= width * preset.minimumRatio) } }
+  @Test fun fixtureRatiosKeepLongQuotesInsideEightAndTenPercentBounds() { listOf(1080 to 1920, 1080 to 2400).forEach { (width, height) -> val result = CanvasWallpaperRenderer(RotationCatalog(listOf(testEntry(quote)), listOf(preset)), emptyMap()).layout(quote, preset, width, height); assertTrue(result.quoteLeft >= width * .08f); assertTrue(result.quoteTop >= height * .1f); assertTrue(result.quoteBottom <= height * .9f); assertTrue(result.fontSize >= width * preset.minimumRatio) } }
   @Test fun allocationGuardRejectsMoreThanSixtyFourMebibytes() { assertTrue(!WallpaperImageSafety.hasSafeRgbaAllocation(5000, 5000)) }
 
   @Test fun recyclesAllocatedBitmapWhenPostAllocationRenderFails() {
     var allocated: Bitmap? = null
     val renderer = CanvasWallpaperRenderer(
-      RotationCatalog(listOf(quote), listOf(preset)),
+      RotationCatalog(listOf(testEntry(quote)), listOf(preset)),
       emptyMap(),
       null,
       { width, height -> Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { allocated = it } },
@@ -37,7 +37,7 @@ class CanvasWallpaperRendererGeometryTest {
   }
 
   @Test fun successfulRenderLeavesBitmapForPipelineOwnership() {
-    val bitmap = CanvasWallpaperRenderer(RotationCatalog(listOf(quote), listOf(preset)), emptyMap()).render(quote, preset, 720, 1280)
+    val bitmap = CanvasWallpaperRenderer(RotationCatalog(listOf(testEntry(quote)), listOf(preset)), emptyMap()).render(quote, preset, 720, 1280)
     assertTrue(!bitmap.isRecycled)
     bitmap.recycle()
   }
@@ -66,7 +66,7 @@ class CanvasWallpaperRendererGeometryTest {
       listOf(720 to 1280, 720 to 1600, 1080 to 2400).forEach { (width, height) ->
         catalog.presets.forEach { actual ->
           listOf(null, "Author").forEach { author ->
-            val current = catalog.quotes.first().copy(text = text, author = author)
+            val current = catalog.quotes.first().resolve(RotationLocales.DEFAULT).copy(text = text, author = author)
             val geometry = renderer.layout(current, actual, width, height)
             assertTrue(geometry.quoteLeft >= width * .08f)
             assertTrue(geometry.quoteTop >= height * .10f)
@@ -81,7 +81,7 @@ class CanvasWallpaperRendererGeometryTest {
       }
     }
     catalog.presets.forEach { actual ->
-      val stress = catalog.quotes.first().copy(text = "A deliberate step\n".repeat(2_000), author = "Author")
+      val stress = catalog.quotes.first().resolve(RotationLocales.DEFAULT).copy(text = "A deliberate step\n".repeat(2_000), author = "Author")
       val geometry = renderer.layout(stress, actual, 1080, 2400)
       assertEquals(round(1080 * actual.minimumRatio).toFloat(), geometry.fontSize, .01f)
       assertTrue(geometry.truncated)
@@ -102,7 +102,7 @@ class CanvasWallpaperRendererGeometryTest {
       val quoteJson = item.getJSONObject("quote")
       val quote = RotationQuote(
         quoteJson.getString("id"),
-        quoteJson.getString("text"),
+        soleFixtureText(quoteJson),
         if (quoteJson.isNull("author")) null else quoteJson.getString("author"),
         quoteJson.getString("category"),
       )
@@ -135,8 +135,8 @@ class CanvasWallpaperRendererGeometryTest {
     assertEquals(-180f, vertical[1], .01f)
     assertEquals(540f, vertical[2], .01f)
     assertEquals(1620f, vertical[3], .01f)
-    val one = renderer.render(catalog.quotes.first(), gradients[0], 720, 1280)
-    val two = renderer.render(catalog.quotes.first(), gradients[1], 720, 1280)
+    val one = renderer.render(catalog.quotes.first().resolve(RotationLocales.DEFAULT), gradients[0], 720, 1280)
+    val two = renderer.render(catalog.quotes.first().resolve(RotationLocales.DEFAULT), gradients[1], 720, 1280)
     assertTrue(!one.isRecycled && !two.isRecycled)
     one.recycle(); two.recycle()
   }
@@ -151,7 +151,7 @@ class CanvasWallpaperRendererGeometryTest {
       "ＭＷ".repeat(40),
       "pneumonoultramicroscopicsilicovolcanoconiosis".repeat(3),
     ).forEachIndexed { index, text ->
-      val quote = catalog.quotes.first().copy(id = "complete-$index", text = text, author = "Author")
+      val quote = catalog.quotes.first().resolve(RotationLocales.DEFAULT).copy(id = "complete-$index", text = text, author = "Author")
       val geometry = renderer.layout(quote, preset, 1080, 2400)
       assertTrue(!geometry.truncated)
       assertEquals(null, geometry.maxLines)
@@ -159,7 +159,7 @@ class CanvasWallpaperRendererGeometryTest {
   }
 
   @Test fun taskFourAccentUsesRetainedQuoteBoundsForEveryAlignment() {
-    val renderer = CanvasWallpaperRenderer(RotationCatalog(listOf(quote), listOf(preset)), emptyMap())
+    val renderer = CanvasWallpaperRenderer(RotationCatalog(listOf(testEntry(quote)), listOf(preset)), emptyMap())
     val layout = RotationLayout(80f, 420f, 1000f, 600f, 48f, 630f, false)
     listOf("left", "center", "right").forEach { align ->
       val accent = renderer.accentGeometry(layout, preset.copy(align = align))
@@ -175,13 +175,13 @@ class CanvasWallpaperRendererGeometryTest {
     val root = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText())
     assertTrue(root.getDouble("layoutTolerance") > 0)
     val cases = root.getJSONArray("cases")
-    assertEquals(6, cases.length())
+    assertEquals(8, cases.length())
     var hasExtremeEllipsis = false
     for (index in 0 until cases.length()) {
       val item = cases.getJSONObject(index)
       val quote = item.getJSONObject("quote")
       val dimensions = item.getJSONObject("dimensions")
-      assertTrue(quote.getString("text").isNotBlank())
+      assertTrue(soleFixtureText(quote).isNotBlank())
       assertTrue(dimensions.getInt("width") > 0 && dimensions.getInt("height") > 0)
       val expected = item.getJSONObject("expected")
       val box = expected.getJSONObject("quoteBox")
@@ -197,13 +197,20 @@ class CanvasWallpaperRendererGeometryTest {
       assertEquals(expected.getBoolean("truncated"), expected.getBoolean("ellipsis"))
       if (item.getString("name") == "extreme-ellipsis-center-9x16") {
         hasExtremeEllipsis = true
-        assertTrue(quote.getString("text").length in 1500..2500)
-        assertTrue(quote.getString("text").contains(' '))
+        assertTrue(soleFixtureText(quote).length in 1500..2500)
+        assertTrue(soleFixtureText(quote).contains(' '))
         assertTrue(expected.getBoolean("truncated"))
         assertTrue(expected.getBoolean("ellipsis"))
       }
     }
     assertTrue(hasExtremeEllipsis)
+  }
+
+  /** Each golden case holds one language only. Read that single value. */
+  private fun soleFixtureText(quoteJson: JSONObject): String {
+    val texts = quoteJson.getJSONObject("text")
+    assertEquals(quoteJson.getString("id"), 1, texts.length())
+    return texts.getString(texts.keys().next())
   }
 
 }

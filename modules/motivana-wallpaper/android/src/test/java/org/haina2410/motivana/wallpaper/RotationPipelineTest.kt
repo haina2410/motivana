@@ -6,7 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RotationPipelineTest {
-  private val catalog = RotationCatalog(listOf(RotationQuote("q1", "A complete quote suitable for a rotation test.", null)), listOf(RotationPreset("p1", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))))
+  private val catalog = RotationCatalog(listOf(testEntry("q1", "A complete quote suitable for a rotation test.")), listOf(RotationPreset("p1", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))))
   private val snapshot = RotationSnapshot(true, 6, WallpaperTarget.HOME, "p1", false, emptyList(), false)
   @Test fun recordsRunningThenSuccessOnlyAfterApplyAndRecycles() {
     val statuses = mutableListOf<RotationStatus>(); var applied = false; var recycled = false

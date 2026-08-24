@@ -25,7 +25,7 @@ class CanvasWallpaperRendererInstrumentedTest {
     for (index in 0 until cases.length()) {
       val item = cases.getJSONObject(index)
       val quoteJson = item.getJSONObject("quote")
-      val quote = RotationQuote(quoteJson.getString("id"), quoteJson.getString("text"), if (quoteJson.isNull("author")) null else quoteJson.getString("author"), quoteJson.getString("category"))
+      val quote = RotationQuote(quoteJson.getString("id"), soleFixtureText(quoteJson), if (quoteJson.isNull("author")) null else quoteJson.getString("author"), quoteJson.getString("category"))
       val preset = requireNotNull(catalog.preset(item.getString("preset")))
       val dimensions = item.getJSONObject("dimensions")
       val width = dimensions.getInt("width")
@@ -74,15 +74,22 @@ class CanvasWallpaperRendererInstrumentedTest {
     val renderer = CanvasWallpaperRenderer(catalog, emptyMap(), assets)
     val preset = requireNotNull(catalog.preset("midnight-focus"))
     listOf("ＭＷ".repeat(40), "pneumonoultramicroscopicsilicovolcanoconiosis".repeat(3)).forEach { text ->
-      val quote = catalog.quotes.first().copy(text = text, author = "Author")
+      val quote = catalog.quotes.first().resolve(RotationLocales.DEFAULT).copy(text = text, author = "Author")
       val geometry = renderer.layout(quote, preset, 1080, 2400)
       val staticLayout = renderer.staticQuoteLayout(quote, preset, 1080, 2400)
       assertFalse(text, geometry.truncated)
       assertEquals(text, text.length, staticLayout.getLineEnd(staticLayout.lineCount - 1))
       assertTrue(text, (0 until staticLayout.lineCount).all { staticLayout.getEllipsisCount(it) == 0 })
     }
-    val unicodeStress = catalog.quotes.first().copy(text = "🚀".repeat(2_000), author = "Author")
+    val unicodeStress = catalog.quotes.first().resolve(RotationLocales.DEFAULT).copy(text = "🚀".repeat(2_000), author = "Author")
     val staticLayout = renderer.staticQuoteLayout(unicodeStress, preset, 1080, 2400)
     assertTrue((0 until staticLayout.lineCount).any { staticLayout.getEllipsisCount(it) > 0 })
+  }
+
+  /** Each golden case holds one language only. Read that single value. */
+  private fun soleFixtureText(quoteJson: JSONObject): String {
+    val texts = quoteJson.getJSONObject("text")
+    assertEquals(quoteJson.getString("id"), 1, texts.length())
+    return texts.getString(texts.keys().next())
   }
 }

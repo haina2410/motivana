@@ -12,8 +12,8 @@ import org.robolectric.RobolectricTestRunner
 class RotationContractTest {
   private val catalog = RotationCatalog(
     quotes = listOf(
-      RotationQuote("one", "A sufficiently long quote for the catalog.", "Motivana"),
-      RotationQuote("two", "Another sufficiently long quote for selection.", null),
+      testEntry("one", "A sufficiently long quote for the catalog.", "Motivana"),
+      testEntry("two", "Another sufficiently long quote for selection."),
     ),
     presets = listOf(
       RotationPreset("first", "Inter", "Regular", "center", 0.43, 0.06, 0.03, 1.2, "#FFFFFF", "#D9E6FF", RotationBackground.Solid("#000000")),
@@ -28,13 +28,13 @@ class RotationContractTest {
   }
 
   @Test fun selectionAvoidsImmediateQuoteAndPresetRepeatWhenAlternativesExist() {
-    val selected = RotationSelector(java.util.Random(0)).select(catalog, listOf("one", "two"), "one", "first", true, "first")
+    val selected = RotationSelector(java.util.Random(0)).select(catalog, listOf("one", "two"), "one", "first", true, "first", RotationLocales.DEFAULT)
     assertNotEquals("one", selected.quote.id)
     assertNotEquals("first", selected.preset.id)
   }
 
   @Test fun rendererKeepsTaskFourSafeBoundsAndUsesOnePixelFitting() {
-    val rendered = CanvasWallpaperRenderer(catalog, emptyMap()).layout(catalog.quotes.first(), catalog.presets.first(), 1080, 2400)
+    val rendered = CanvasWallpaperRenderer(catalog, emptyMap()).layout(catalog.quotes.first().resolve(RotationLocales.DEFAULT), catalog.presets.first(), 1080, 2400)
     assertEquals(86.4f, rendered.quoteLeft, 0.01f)
     assertTrue(rendered.quoteTop >= 240f)
     assertTrue(rendered.quoteBottom <= 2160f)

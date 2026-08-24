@@ -23,7 +23,7 @@ class WallpaperRotationWorkerTest {
   @Test fun testListenableWorkerExecutesInjectedRealPipelineAndRecyclesItsBitmap() {
     var recycled = false
     WallpaperRotationWorkerFactory.testPipelineFactory = {
-      val catalog = RotationCatalog(listOf(RotationQuote("q", "A complete worker quote for an injected pipeline.", null)), listOf(RotationPreset("p", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))))
+      val catalog = RotationCatalog(listOf(testEntry("q", "A complete worker quote for an injected pipeline.")), listOf(RotationPreset("p", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))))
       val snapshot = RotationSnapshot(true, 6, WallpaperTarget.HOME, "p", false, emptyList(), false)
       RotationPipeline(catalog, object : RotationSnapshotStore {
         override fun read(catalog: RotationCatalog) = RotationSnapshotResult.Valid(snapshot)

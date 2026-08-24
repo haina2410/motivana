@@ -10,7 +10,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class AutomationPreferencesContractTest {
   private val catalog = RotationCatalog(
-    listOf(RotationQuote("q1", "A valid quote with enough characters.", null), RotationQuote("q2", "Another valid quote with enough characters.", "M")),
+    listOf(testEntry("q1", "A valid quote with enough characters."), testEntry("q2", "Another valid quote with enough characters.", "M")),
     listOf(RotationPreset("p1", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))),
   )
   private val valid = """{"enabled":true,"intervalHours":6,"target":"home","selectedPresetId":"p1","randomizePreset":false,"favoriteQuoteIds":["q1"],"favoriteQuotesOnly":false}"""

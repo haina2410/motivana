@@ -16,7 +16,10 @@ object RotationConfigureDecoder {
     if (!originalHours.isFinite() || originalHours !in Int.MIN_VALUE.toDouble()..Int.MAX_VALUE.toDouble()) invalid()
     val exactHours = hours.toLong()
     if (originalHours != exactHours.toDouble() || exactHours !in setOf(6L, 12L, 24L)) invalid()
-    return RotationSnapshot(enabled, exactHours.toInt(), try { WallpaperTarget.parse(target) } catch (_: Exception) { invalid() }, preset, randomize, favorites.filterIsInstance<String>(), favoritesOnly)
+    // An unknown or absent language falls back instead of failing. An over-the-air JS
+    // update can be older than this native module, and a failed decode stops rotation.
+    val locale = (options["contentLocale"] as? String)?.takeIf { it in RotationLocales.supported } ?: RotationLocales.DEFAULT
+    return RotationSnapshot(enabled, exactHours.toInt(), try { WallpaperTarget.parse(target) } catch (_: Exception) { invalid() }, preset, randomize, favorites.filterIsInstance<String>(), favoritesOnly, contentLocale = locale)
   }
   private fun invalid(): Nothing = throw IllegalArgumentException("INVALID_CONFIGURATION")
 }
