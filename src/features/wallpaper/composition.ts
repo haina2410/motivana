@@ -1,4 +1,4 @@
-import type { Quote } from '../quotes/types';
+import { quoteText, type Quote } from '../quotes/types';
 import type { WallpaperPreset } from './types';
 import { fitText, type TextMeasurer } from './textFit';
 
@@ -84,7 +84,7 @@ export function createComposition(
   const authorGap = input.quote.author ? input.height * AUTHOR_GAP_RATIO : 0;
   const maxQuoteHeight = bottomSafe - topSafe - authorLineHeight - authorGap;
   const fit = fitText({
-    text: input.quote.text,
+    text: quoteText(input.quote, 'en') ?? '',
     width: quoteWidth,
     preferredSize: Math.round(
       input.width * input.preset.preferredFontSizeRatio,
@@ -103,7 +103,7 @@ export function createComposition(
 
   return Object.freeze({
     ...input,
-    cacheKey: `${input.preset.id}-${input.quote.id}-${input.width}x${input.height}-${textFingerprint(input.quote.text)}`,
+    cacheKey: `${input.preset.id}-${input.quote.id}-${input.width}x${input.height}-${textFingerprint(quoteText(input.quote, 'en') ?? '')}`,
     quoteBounds: Object.freeze({
       x: horizontalMargin,
       y: quoteY,

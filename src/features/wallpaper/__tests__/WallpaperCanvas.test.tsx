@@ -29,9 +29,10 @@ jest.mock('../scene', () => ({ drawWallpaperScene: () => undefined }));
 
 const quote: Quote = {
   id: 'preview-quote',
-  text: 'Progress is built by making one clear decision at a time.',
-  author: 'Motivana',
   category: 'growth',
+  sourceLocale: 'en',
+  text: { en: 'Progress is built by making one clear decision at a time.' },
+  author: 'Motivana',
 };
 
 beforeEach(() => {

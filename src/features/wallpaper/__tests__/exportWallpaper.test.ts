@@ -75,9 +75,10 @@ const loadedFontProvider = {} as SkTypefaceFontProvider;
 const composition = createComposition({
   quote: {
     id: 'export-quote',
-    text: 'Success is the sum of small efforts repeated every day.',
-    author: 'Robert Collier',
     category: 'success',
+    sourceLocale: 'en',
+    text: { en: 'Success is the sum of small efforts repeated every day.' },
+    author: 'Robert Collier',
   } satisfies Quote,
   preset: getPresetById('midnight-focus')!,
   width: 1080,

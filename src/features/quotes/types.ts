@@ -1,3 +1,5 @@
+import { isLocale, locales, type Locale } from '../i18n/locale';
+
 export const quoteCategories = [
   'motivation',
   'discipline',
@@ -9,11 +11,20 @@ export const quoteCategories = [
 
 export type QuoteCategory = (typeof quoteCategories)[number];
 
+export const QUOTE_TEXT_MINIMUM = 12;
+export const QUOTE_TEXT_MAXIMUM = 160;
+
 export interface Quote {
   id: string;
-  text: string;
-  author?: string;
   category: QuoteCategory;
+  sourceLocale: Locale;
+  text: Partial<Record<Locale, string>>;
+  author?: string;
+}
+
+/** Returns the text for one locale, with no fallback to another language. */
+export function quoteText(quote: Quote, locale: Locale): string | undefined {
+  return quote.text[locale];
 }
 
 export class QuoteCatalogValidationError extends Error {
@@ -25,6 +36,30 @@ export class QuoteCatalogValidationError extends Error {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parseText(
+  value: unknown,
+  path: string,
+): Partial<Record<Locale, string>> {
+  if (!isRecord(value)) {
+    throw new QuoteCatalogValidationError(`${path} must be an object`);
+  }
+  const text: Partial<Record<Locale, string>> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!isLocale(key)) {
+      throw new QuoteCatalogValidationError(
+        `${path}.${key} is not a supported locale`,
+      );
+    }
+    if (typeof entry !== 'string' || entry.trim().length < QUOTE_TEXT_MINIMUM) {
+      throw new QuoteCatalogValidationError(
+        `${path}.${key} must contain at least ${QUOTE_TEXT_MINIMUM} non-whitespace characters`,
+      );
+    }
+    text[key] = entry;
+  }
+  return text;
 }
 
 export function parseQuoteCatalog(value: unknown): readonly Quote[] {
@@ -47,11 +82,6 @@ export function parseQuoteCatalog(value: unknown): readonly Quote[] {
       throw new QuoteCatalogValidationError(`${path}.id must be unique`);
     }
     ids.add(entry.id);
-    if (typeof entry.text !== 'string' || entry.text.trim().length < 12) {
-      throw new QuoteCatalogValidationError(
-        `${path}.text must contain at least 12 non-whitespace characters`,
-      );
-    }
     if (
       entry.author !== undefined &&
       (typeof entry.author !== 'string' || entry.author.trim() === '')
@@ -68,12 +98,24 @@ export function parseQuoteCatalog(value: unknown): readonly Quote[] {
         `${path}.category is not supported`,
       );
     }
+    if (!isLocale(entry.sourceLocale)) {
+      throw new QuoteCatalogValidationError(
+        `${path}.sourceLocale is not supported`,
+      );
+    }
+    const text = parseText(entry.text, `${path}.text`);
+    if (text[entry.sourceLocale] === undefined) {
+      throw new QuoteCatalogValidationError(
+        `${path}.text.${entry.sourceLocale} is required for the source locale`,
+      );
+    }
 
     return Object.freeze({
       id: entry.id,
-      text: entry.text,
-      author: entry.author,
       category: entry.category as QuoteCategory,
+      sourceLocale: entry.sourceLocale,
+      text: Object.freeze(text),
+      author: entry.author,
     });
   });
 

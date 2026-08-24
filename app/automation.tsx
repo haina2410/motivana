@@ -17,6 +17,7 @@ import {
   getRotationStatusRecoveryControl,
 } from '../src/services/rotationStatus';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
+import { quoteText } from '../src/features/quotes/types';
 import type { WallpaperAutomationAvailability } from '../src/services/wallpaperAvailability';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -196,7 +197,10 @@ export default function AutomationScreen() {
           ) : null}
           {availability?.status.lastQuoteId ? (
             <Text allowFontScaling style={styles.statusText}>
-              Last quote: {lastQuote?.text ?? 'saved quote'}
+              Last quote:{' '}
+              {lastQuote
+                ? (quoteText(lastQuote, 'en') ?? 'saved quote')
+                : 'saved quote'}
             </Text>
           ) : null}
           {statusRecovery ? (

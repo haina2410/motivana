@@ -5,9 +5,51 @@ import {
   QuoteSelectionError,
   selectRandomQuote,
 } from '../quoteRepository';
-import { quoteCategories, type Quote } from '../types';
+import {
+  parseQuoteCatalog,
+  quoteCategories,
+  quoteText,
+  type Quote,
+} from '../types';
 
-test('ships 120 unique non-empty original quotes across every category', () => {
+const validEntry = {
+  id: 'motivation-001',
+  category: 'motivation',
+  sourceLocale: 'en',
+  text: { en: 'Begin before your mood negotiates the day away.' },
+};
+
+// Mutation caught: accepting a missing source text would let a quote render as undefined on the wallpaper.
+test('requires text for the source locale', () => {
+  expect(() =>
+    parseQuoteCatalog([
+      { ...validEntry, text: { vi: 'Bắt đầu ngay hôm nay.' } },
+    ]),
+  ).toThrow(/text.en/);
+});
+
+// Mutation caught: accepting an unknown locale key would silently drop translations that never render.
+test('rejects an unsupported locale key and an unsupported source locale', () => {
+  expect(() =>
+    parseQuoteCatalog([
+      { ...validEntry, text: { ...validEntry.text, fr: 'Commencez.' } },
+    ]),
+  ).toThrow(/text.fr/);
+  expect(() =>
+    parseQuoteCatalog([{ ...validEntry, sourceLocale: 'fr' }]),
+  ).toThrow(/sourceLocale/);
+});
+
+// Mutation caught: returning the source text for every locale would show English inside the Vietnamese pool.
+test('returns text only for the locale that has it', () => {
+  const [quote] = parseQuoteCatalog([validEntry]);
+
+  expect(quoteText(quote!, 'en')).toBe(validEntry.text.en);
+  expect(quoteText(quote!, 'vi')).toBeUndefined();
+});
+
+// Mutation caught: losing a category or an id would shrink the pool without any failing assertion.
+test('ships 120 unique English quotes across every category', () => {
   const quotes = getAllQuotes();
 
   expect(quotes).toHaveLength(120);
@@ -15,11 +57,11 @@ test('ships 120 unique non-empty original quotes across every category', () => {
   expect(new Set(quotes.map((quote) => quote.category))).toEqual(
     new Set(quoteCategories),
   );
-  expect(quotes.every((quote) => quote.text.trim().length >= 12)).toBe(true);
-  expect(quotes.every((quote) => quote.author === undefined)).toBe(true);
+  expect(quotes.every((quote) => quote.sourceLocale === 'en')).toBe(true);
   expect(
-    quotes.filter((quote) => quote.text.length >= 200).length,
-  ).toBeGreaterThanOrEqual(4);
+    quotes.every((quote) => (quote.text.en ?? '').trim().length >= 12),
+  ).toBe(true);
+  expect(quotes.every((quote) => quote.author === undefined)).toBe(true);
 });
 
 test('returns a readonly catalog that cannot alter later reads', () => {

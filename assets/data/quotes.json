@@ -1,602 +1,962 @@
 [
   {
     "id": "motivation-001",
-    "text": "Begin before your mood negotiates the day away.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Begin before your mood negotiates the day away."
+    }
   },
   {
     "id": "motivation-002",
-    "text": "A small honest start can pull a whole day into motion.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A small honest start can pull a whole day into motion."
+    }
   },
   {
     "id": "motivation-003",
-    "text": "Give the next useful action more attention than the perfect plan.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Give the next useful action more attention than the perfect plan."
+    }
   },
   {
     "id": "motivation-004",
-    "text": "Your energy often arrives after you invite it with movement.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Your energy often arrives after you invite it with movement."
+    }
   },
   {
     "id": "motivation-005",
-    "text": "Make progress visible enough that tomorrow wants to continue it.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Make progress visible enough that tomorrow wants to continue it."
+    }
   },
   {
     "id": "motivation-006",
-    "text": "The day changes direction when you do one thing on purpose.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The day changes direction when you do one thing on purpose."
+    }
   },
   {
     "id": "motivation-007",
-    "text": "Momentum is built from ordinary choices repeated without drama.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Momentum is built from ordinary choices repeated without drama."
+    }
   },
   {
     "id": "motivation-008",
-    "text": "Use the hour you have; waiting for a better hour spends two.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Use the hour you have; waiting for a better hour spends two."
+    }
   },
   {
     "id": "motivation-009",
-    "text": "Let the first step be imperfect, but let it be real.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let the first step be imperfect, but let it be real."
+    }
   },
   {
     "id": "motivation-010",
-    "text": "A willing effort is already a vote for the person you are becoming.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A willing effort is already a vote for the person you are becoming."
+    }
   },
   {
     "id": "motivation-011",
-    "text": "Turn anticipation into action before doubt learns your schedule.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Turn anticipation into action before doubt learns your schedule."
+    }
   },
   {
     "id": "motivation-012",
-    "text": "You do not need a louder dream; you need a nearer next move.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "You do not need a louder dream; you need a nearer next move."
+    }
   },
   {
     "id": "motivation-013",
-    "text": "Show up early enough for possibility to recognize you.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Show up early enough for possibility to recognize you."
+    }
   },
   {
     "id": "motivation-014",
-    "text": "The work begins where the excuse stops being interesting.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The work begins where the excuse stops being interesting."
+    }
   },
   {
     "id": "motivation-015",
-    "text": "Collect beginnings, because finished things are made from them.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Collect beginnings, because finished things are made from them."
+    }
   },
   {
     "id": "motivation-016",
-    "text": "Let curiosity carry you through the doorway that confidence has not reached.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let curiosity carry you through the doorway that confidence has not reached."
+    }
   },
   {
     "id": "motivation-017",
-    "text": "When your purpose feels distant, make the next task smaller rather than the dream smaller.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "When your purpose feels distant, make the next task smaller rather than the dream smaller."
+    }
   },
   {
     "id": "motivation-018",
-    "text": "An unfinished task is not a verdict; it is an invitation waiting for a return visit.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "An unfinished task is not a verdict; it is an invitation waiting for a return visit."
+    }
   },
   {
     "id": "motivation-019",
-    "text": "You can restart a difficult afternoon with one clean decision and a little patience.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "You can restart a difficult afternoon with one clean decision and a little patience."
+    }
   },
   {
     "id": "motivation-020",
-    "text": "Each time you choose effort over avoidance, you teach your future self that progress is available even when the conditions are ordinary, the room is quiet, and nobody is watching for proof that you can keep going.",
-    "category": "motivation"
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Each time you choose effort over avoidance, you teach your future self that progress is available even when the conditions are ordinary, the room is quiet, and nobody is watching for proof that you can keep going."
+    }
   },
   {
     "id": "discipline-001",
-    "text": "Keep promises to yourself in sizes you can actually keep.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Keep promises to yourself in sizes you can actually keep."
+    }
   },
   {
     "id": "discipline-002",
-    "text": "A routine becomes powerful when it survives an unremarkable day.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A routine becomes powerful when it survives an unremarkable day."
+    }
   },
   {
     "id": "discipline-003",
-    "text": "Choose the useful repeat over the exciting exception.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Choose the useful repeat over the exciting exception."
+    }
   },
   {
     "id": "discipline-004",
-    "text": "Make the right action easier to begin than the distraction.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Make the right action easier to begin than the distraction."
+    }
   },
   {
     "id": "discipline-005",
-    "text": "Consistency is a quiet skill that gets stronger every time you use it.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Consistency is a quiet skill that gets stronger every time you use it."
+    }
   },
   {
     "id": "discipline-006",
-    "text": "Protect the habits that protect your attention.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Protect the habits that protect your attention."
+    }
   },
   {
     "id": "discipline-007",
-    "text": "Do the planned work before evaluating whether you feel like it.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Do the planned work before evaluating whether you feel like it."
+    }
   },
   {
     "id": "discipline-008",
-    "text": "Your calendar reveals which intentions received a real address.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Your calendar reveals which intentions received a real address."
+    }
   },
   {
     "id": "discipline-009",
-    "text": "Finish the simple obligation before inventing a more interesting one.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Finish the simple obligation before inventing a more interesting one."
+    }
   },
   {
     "id": "discipline-010",
-    "text": "Boundaries are commitments with a door and a lock.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Boundaries are commitments with a door and a lock."
+    }
   },
   {
     "id": "discipline-011",
-    "text": "Prepare tonight for the decision you want to make tomorrow.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Prepare tonight for the decision you want to make tomorrow."
+    }
   },
   {
     "id": "discipline-012",
-    "text": "The system matters most on the days when inspiration is absent.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The system matters most on the days when inspiration is absent."
+    }
   },
   {
     "id": "discipline-013",
-    "text": "A delayed reward still counts when the work is done with care.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A delayed reward still counts when the work is done with care."
+    }
   },
   {
     "id": "discipline-014",
-    "text": "Reduce the number of decisions between you and the important work.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Reduce the number of decisions between you and the important work."
+    }
   },
   {
     "id": "discipline-015",
-    "text": "Honor the process long enough for its results to become visible.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Honor the process long enough for its results to become visible."
+    }
   },
   {
     "id": "discipline-016",
-    "text": "Discipline is not harshness; it is giving your priorities dependable protection.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Discipline is not harshness; it is giving your priorities dependable protection."
+    }
   },
   {
     "id": "discipline-017",
-    "text": "A missed day asks for a calm return, not a dramatic apology.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A missed day asks for a calm return, not a dramatic apology."
+    }
   },
   {
     "id": "discipline-018",
-    "text": "Build a life where the helpful choice is ready before the tempting choice appears.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Build a life where the helpful choice is ready before the tempting choice appears."
+    }
   },
   {
     "id": "discipline-019",
-    "text": "When the task feels heavy, keep the agreement and lighten the pace.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "When the task feels heavy, keep the agreement and lighten the pace."
+    }
   },
   {
     "id": "discipline-020",
-    "text": "The strongest routine is not the one that looks impressive from outside; it is the one you can return to after travel, stress, mistakes, and the inevitable days when your ambition wakes up later than your alarm.",
-    "category": "discipline"
+    "category": "discipline",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The strongest routine is not the one that looks impressive from outside; it is the one you can return to after travel, stress, mistakes, and the inevitable days when your ambition wakes up later than your alarm."
+    }
   },
   {
     "id": "focus-001",
-    "text": "Give one task the silence it needs to become clear.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Give one task the silence it needs to become clear."
+    }
   },
   {
     "id": "focus-002",
-    "text": "Attention grows where you stop scattering it.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Attention grows where you stop scattering it."
+    }
   },
   {
     "id": "focus-003",
-    "text": "Close the extra doors so the chosen door can open fully.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Close the extra doors so the chosen door can open fully."
+    }
   },
   {
     "id": "focus-004",
-    "text": "Protect the next thirty minutes from unnecessary opinions.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Protect the next thirty minutes from unnecessary opinions."
+    }
   },
   {
     "id": "focus-005",
-    "text": "The priority is the work you return to after every interruption.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The priority is the work you return to after every interruption."
+    }
   },
   {
     "id": "focus-006",
-    "text": "Make your environment vote for concentration.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Make your environment vote for concentration."
+    }
   },
   {
     "id": "focus-007",
-    "text": "One finished priority outweighs a crowded list of intentions.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "One finished priority outweighs a crowded list of intentions."
+    }
   },
   {
     "id": "focus-008",
-    "text": "Name the task precisely enough that your mind cannot wander around it.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Name the task precisely enough that your mind cannot wander around it."
+    }
   },
   {
     "id": "focus-009",
-    "text": "Clarity appears when you stop asking every task to happen at once.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Clarity appears when you stop asking every task to happen at once."
+    }
   },
   {
     "id": "focus-010",
-    "text": "Let the important work have the freshest part of your attention.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let the important work have the freshest part of your attention."
+    }
   },
   {
     "id": "focus-011",
-    "text": "A notification is a request, not an instruction.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A notification is a request, not an instruction."
+    }
   },
   {
     "id": "focus-012",
-    "text": "Concentration begins with deciding what will wait.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Concentration begins with deciding what will wait."
+    }
   },
   {
     "id": "focus-013",
-    "text": "Return gently to the page, the problem, or the practice in front of you.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Return gently to the page, the problem, or the practice in front of you."
+    }
   },
   {
     "id": "focus-014",
-    "text": "Your best work needs fewer tabs and more patience.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Your best work needs fewer tabs and more patience."
+    }
   },
   {
     "id": "focus-015",
-    "text": "Protect a small block of deep effort like a meeting with your future.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Protect a small block of deep effort like a meeting with your future."
+    }
   },
   {
     "id": "focus-016",
-    "text": "Do not confuse being reachable with being useful.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Do not confuse being reachable with being useful."
+    }
   },
   {
     "id": "focus-017",
-    "text": "The mind settles when the next action is visible and the rest is allowed to wait.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The mind settles when the next action is visible and the rest is allowed to wait."
+    }
   },
   {
     "id": "focus-018",
-    "text": "Choose a single meaningful target, then let repetition make it familiar.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Choose a single meaningful target, then let repetition make it familiar."
+    }
   },
   {
     "id": "focus-019",
-    "text": "A clear desk cannot do the work for you, but it can stop arguing with your attention.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A clear desk cannot do the work for you, but it can stop arguing with your attention."
+    }
   },
   {
     "id": "focus-020",
-    "text": "Focus is a series of returns: back from the message, back from the worry, back from the shiny alternative, until the work receives enough uninterrupted care to reveal the solution that distraction kept hidden.",
-    "category": "focus"
+    "category": "focus",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Focus is a series of returns: back from the message, back from the worry, back from the shiny alternative, until the work receives enough uninterrupted care to reveal the solution that distraction kept hidden."
+    }
   },
   {
     "id": "confidence-001",
-    "text": "Trust grows when you keep evidence of your own follow-through.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Trust grows when you keep evidence of your own follow-through."
+    }
   },
   {
     "id": "confidence-002",
-    "text": "You are allowed to learn in public and improve in private.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "You are allowed to learn in public and improve in private."
+    }
   },
   {
     "id": "confidence-003",
-    "text": "Speak to yourself with the patience you offer a determined beginner.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Speak to yourself with the patience you offer a determined beginner."
+    }
   },
   {
     "id": "confidence-004",
-    "text": "Capability is often quieter than the fear that questions it.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Capability is often quieter than the fear that questions it."
+    }
   },
   {
     "id": "confidence-005",
-    "text": "Let preparation carry more weight than self-doubt.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let preparation carry more weight than self-doubt."
+    }
   },
   {
     "id": "confidence-006",
-    "text": "You can be uncertain and still be ready for the next step.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "You can be uncertain and still be ready for the next step."
+    }
   },
   {
     "id": "confidence-007",
-    "text": "A mistake can revise your method without reducing your worth.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A mistake can revise your method without reducing your worth."
+    }
   },
   {
     "id": "confidence-008",
-    "text": "Your voice becomes steadier each time you use it honestly.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Your voice becomes steadier each time you use it honestly."
+    }
   },
   {
     "id": "confidence-009",
-    "text": "Do not wait to feel complete before contributing something useful.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Do not wait to feel complete before contributing something useful."
+    }
   },
   {
     "id": "confidence-010",
-    "text": "Practice makes room for courage to enter the conversation.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Practice makes room for courage to enter the conversation."
+    }
   },
   {
     "id": "confidence-011",
-    "text": "You know more than yesterday because you stayed present for today.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "You know more than yesterday because you stayed present for today."
+    }
   },
   {
     "id": "confidence-012",
-    "text": "A calm question can be stronger than a rushed answer.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A calm question can be stronger than a rushed answer."
+    }
   },
   {
     "id": "confidence-013",
-    "text": "Claim your progress without needing to make it louder than anyone else’s.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Claim your progress without needing to make it louder than anyone else’s."
+    }
   },
   {
     "id": "confidence-014",
-    "text": "Your next attempt deserves the benefit of what the last attempt taught.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Your next attempt deserves the benefit of what the last attempt taught."
+    }
   },
   {
     "id": "confidence-015",
-    "text": "Show your work the respect of believing it can get better.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Show your work the respect of believing it can get better."
+    }
   },
   {
     "id": "confidence-016",
-    "text": "Confidence is built by meeting a hard moment and noticing that you remained yourself.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Confidence is built by meeting a hard moment and noticing that you remained yourself."
+    }
   },
   {
     "id": "confidence-017",
-    "text": "You do not need universal approval to make a thoughtful decision.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "You do not need universal approval to make a thoughtful decision."
+    }
   },
   {
     "id": "confidence-018",
-    "text": "Let competence be assembled one honest repetition at a time.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let competence be assembled one honest repetition at a time."
+    }
   },
   {
     "id": "confidence-019",
-    "text": "The room may be unfamiliar, but your ability to listen, learn, and respond still belongs there.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The room may be unfamiliar, but your ability to listen, learn, and respond still belongs there."
+    }
   },
   {
     "id": "confidence-020",
-    "text": "When you enter a challenge without a guarantee, remember that confidence is not a promise that nothing will go wrong; it is a practiced trust that you can observe, adapt, ask for help, and continue with dignity.",
-    "category": "confidence"
+    "category": "confidence",
+    "sourceLocale": "en",
+    "text": {
+      "en": "When you enter a challenge without a guarantee, remember that confidence is not a promise that nothing will go wrong; it is a practiced trust that you can observe, adapt, ask for help, and continue with dignity."
+    }
   },
   {
     "id": "growth-001",
-    "text": "Learn slowly enough to keep what the lesson gives you.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Learn slowly enough to keep what the lesson gives you."
+    }
   },
   {
     "id": "growth-002",
-    "text": "A better question can change the direction of an entire effort.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A better question can change the direction of an entire effort."
+    }
   },
   {
     "id": "growth-003",
-    "text": "Let feedback become information before it becomes identity.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let feedback become information before it becomes identity."
+    }
   },
   {
     "id": "growth-004",
-    "text": "The beginner’s version of you deserves a fair chance to practice.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The beginner’s version of you deserves a fair chance to practice."
+    }
   },
   {
     "id": "growth-005",
-    "text": "Growth often feels ordinary while it is happening.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Growth often feels ordinary while it is happening."
+    }
   },
   {
     "id": "growth-006",
-    "text": "Keep a record of lessons so difficulty can become reusable wisdom.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Keep a record of lessons so difficulty can become reusable wisdom."
+    }
   },
   {
     "id": "growth-007",
-    "text": "Try a new method long enough to understand its language.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Try a new method long enough to understand its language."
+    }
   },
   {
     "id": "growth-008",
-    "text": "The gap between skill and ambition is a place to train, not hide.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The gap between skill and ambition is a place to train, not hide."
+    }
   },
   {
     "id": "growth-009",
-    "text": "Improvement begins when comparison becomes curiosity.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Improvement begins when comparison becomes curiosity."
+    }
   },
   {
     "id": "growth-010",
-    "text": "Keep revising the approach instead of repeating the disappointment.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Keep revising the approach instead of repeating the disappointment."
+    }
   },
   {
     "id": "growth-011",
-    "text": "A new skill rewards the person who can stay teachable through awkwardness.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A new skill rewards the person who can stay teachable through awkwardness."
+    }
   },
   {
     "id": "growth-012",
-    "text": "Be patient with the part of progress that cannot be rushed into being visible.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Be patient with the part of progress that cannot be rushed into being visible."
+    }
   },
   {
     "id": "growth-013",
-    "text": "Your future range expands every time you practice beyond familiar results.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Your future range expands every time you practice beyond familiar results."
+    }
   },
   {
     "id": "growth-014",
-    "text": "Failure can become useful when you ask it a specific question.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Failure can become useful when you ask it a specific question."
+    }
   },
   {
     "id": "growth-015",
-    "text": "Keep the humility to change and the courage to continue.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Keep the humility to change and the courage to continue."
+    }
   },
   {
     "id": "growth-016",
-    "text": "The person you want to become is shaped by what you are willing to study.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The person you want to become is shaped by what you are willing to study."
+    }
   },
   {
     "id": "growth-017",
-    "text": "A rough first draft is a map of where your understanding can improve.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A rough first draft is a map of where your understanding can improve."
+    }
   },
   {
     "id": "growth-018",
-    "text": "Every useful correction shortens the distance between intention and skill.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Every useful correction shortens the distance between intention and skill."
+    }
   },
   {
     "id": "growth-019",
-    "text": "Keep choosing the version of practice that teaches you something new.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Keep choosing the version of practice that teaches you something new."
+    }
   },
   {
     "id": "growth-020",
-    "text": "Growth asks you to trade the comfort of already knowing for the richer discomfort of discovering: you test, notice, adjust, and try again until yesterday’s confusing terrain becomes a path you can walk with steadier steps.",
-    "category": "growth"
+    "category": "growth",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Growth asks you to trade the comfort of already knowing for the richer discomfort of discovering: you test, notice, adjust, and try again until yesterday’s confusing terrain becomes a path you can walk with steadier steps."
+    }
   },
   {
     "id": "success-001",
-    "text": "Define success clearly enough to recognize it when it arrives.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Define success clearly enough to recognize it when it arrives."
+    }
   },
   {
     "id": "success-002",
-    "text": "A meaningful result usually begins as a modest commitment.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A meaningful result usually begins as a modest commitment."
+    }
   },
   {
     "id": "success-003",
-    "text": "Build outcomes from actions you can repeat with integrity.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Build outcomes from actions you can repeat with integrity."
+    }
   },
   {
     "id": "success-004",
-    "text": "Let your standards guide the work after applause has left the room.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let your standards guide the work after applause has left the room."
+    }
   },
   {
     "id": "success-005",
-    "text": "Celebrate the milestone, then make space for the next careful step.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Celebrate the milestone, then make space for the next careful step."
+    }
   },
   {
     "id": "success-006",
-    "text": "Results improve when your effort has a direction and a measure.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Results improve when your effort has a direction and a measure."
+    }
   },
   {
     "id": "success-007",
-    "text": "A useful finish is better than an admired intention.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A useful finish is better than an admired intention."
+    }
   },
   {
     "id": "success-008",
-    "text": "Choose goals that make your days more deliberate, not merely busier.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Choose goals that make your days more deliberate, not merely busier."
+    }
   },
   {
     "id": "success-009",
-    "text": "Measure the work by the value it creates, not only by the hours it consumes.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Measure the work by the value it creates, not only by the hours it consumes."
+    }
   },
   {
     "id": "success-010",
-    "text": "Good results often look like a thousand small decisions made with care.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Good results often look like a thousand small decisions made with care."
+    }
   },
   {
     "id": "success-011",
-    "text": "Keep your ambition connected to the people and problems it can serve.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Keep your ambition connected to the people and problems it can serve."
+    }
   },
   {
     "id": "success-012",
-    "text": "Finish what matters before chasing the next proof that you are capable.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Finish what matters before chasing the next proof that you are capable."
+    }
   },
   {
     "id": "success-013",
-    "text": "A strong outcome is built twice: once in preparation and once in follow-through.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "A strong outcome is built twice: once in preparation and once in follow-through."
+    }
   },
   {
     "id": "success-014",
-    "text": "Make room to notice how far steady work has already carried you.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Make room to notice how far steady work has already carried you."
+    }
   },
   {
     "id": "success-015",
-    "text": "Let each achievement improve your responsibility, not just your résumé.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Let each achievement improve your responsibility, not just your résumé."
+    }
   },
   {
     "id": "success-016",
-    "text": "Success becomes sustainable when it leaves enough strength for the next season.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Success becomes sustainable when it leaves enough strength for the next season."
+    }
   },
   {
     "id": "success-017",
-    "text": "Do not borrow urgency from someone else’s scoreboard.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Do not borrow urgency from someone else’s scoreboard."
+    }
   },
   {
     "id": "success-018",
-    "text": "The most useful victory is one that enlarges what you can contribute tomorrow.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "The most useful victory is one that enlarges what you can contribute tomorrow."
+    }
   },
   {
     "id": "success-019",
-    "text": "Aim for work you can respect when the result is no longer new.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Aim for work you can respect when the result is no longer new."
+    }
   },
   {
     "id": "success-020",
-    "text": "Success is more durable when it includes the way you arrived: the habits you kept, the people you treated well, the knowledge you shared, and the capacity you preserved to build again after the celebration has become a memory.",
-    "category": "success"
+    "category": "success",
+    "sourceLocale": "en",
+    "text": {
+      "en": "Success is more durable when it includes the way you arrived: the habits you kept, the people you treated well, the knowledge you shared, and the capacity you preserved to build again after the celebration has become a memory."
+    }
   }
 ]

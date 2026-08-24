@@ -55,12 +55,15 @@ function validQuotes() {
   return categories.flatMap((category) =>
     Array.from({ length: 20 }, (_, index) => ({
       id: `${category}-${String(index + 1).padStart(3, '0')}`,
-      text:
-        index === 0 && categories.indexOf(category) < 4
-          ? 'A deliberate practice makes tomorrow more capable when you return to it with enough patience to notice what changed, what resisted, and what small adjustment can make the next effort clearer, calmer, and more useful than the last.'
-          : `A deliberate ${category} practice makes tomorrow more capable.`,
-      author: 'Motivana',
       category,
+      sourceLocale: 'en',
+      text: {
+        en:
+          index === 0 && categories.indexOf(category) < 4
+            ? 'A deliberate practice makes tomorrow more capable when you return to it with enough patience to notice what changed, what resisted, and what small adjustment can make the next effort clearer, calmer, and more useful than the last.'
+            : `A deliberate ${category} practice makes tomorrow more capable.`,
+      },
+      author: 'Motivana',
     })),
   );
 }

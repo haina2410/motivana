@@ -12,12 +12,18 @@
       "name": "short-author-center-9x20",
       "quote": {
         "id": "golden-short",
-        "text": "Start before your mood negotiates the day away.",
-        "author": "Motivana",
-        "category": "motivation"
+        "category": "motivation",
+        "sourceLocale": "en",
+        "text": {
+          "en": "Start before your mood negotiates the day away."
+        },
+        "author": "Motivana"
       },
       "preset": "midnight-focus",
-      "dimensions": { "width": 1080, "height": 2400 },
+      "dimensions": {
+        "width": 1080,
+        "height": 2400
+      },
       "expected": {
         "quoteBox": {
           "x": 86.4,
@@ -32,21 +38,36 @@
         "authorY": 1167.8,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 138.15, "y": 914.5, "radius": 10.35 }
+        "accent": {
+          "x": 138.15,
+          "y": 914.5,
+          "radius": 10.35
+        }
       }
     },
     {
       "name": "long-no-author-left-9x16",
       "quote": {
         "id": "golden-long",
-        "text": "discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline",
-        "author": null,
-        "category": "discipline"
+        "category": "discipline",
+        "sourceLocale": "en",
+        "text": {
+          "en": "discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline discipline"
+        },
+        "author": null
       },
       "preset": "sunrise-drive",
-      "dimensions": { "width": 1080, "height": 1920 },
+      "dimensions": {
+        "width": 1080,
+        "height": 1920
+      },
       "expected": {
-        "quoteBox": { "x": 86.4, "y": 198, "width": 907.2, "height": 1140 },
+        "quoteBox": {
+          "x": 86.4,
+          "y": 198,
+          "width": 907.2,
+          "height": 1140
+        },
         "fontSize": 47,
         "lineCount": 20,
         "maxLines": 20,
@@ -54,19 +75,29 @@
         "authorY": null,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 121.65, "y": 174.5, "radius": 7.05 }
+        "accent": {
+          "x": 121.65,
+          "y": 174.5,
+          "radius": 7.05
+        }
       }
     },
     {
       "name": "long-right-nontruncated-9x16",
       "quote": {
         "id": "golden-274",
-        "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience",
-        "author": "Motivana",
-        "category": "growth"
+        "category": "growth",
+        "sourceLocale": "en",
+        "text": {
+          "en": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience"
+        },
+        "author": "Motivana"
       },
       "preset": "ember-action",
-      "dimensions": { "width": 1080, "height": 1920 },
+      "dimensions": {
+        "width": 1080,
+        "height": 1920
+      },
       "expected": {
         "quoteBox": {
           "x": 86.4,
@@ -81,19 +112,29 @@
         "authorY": 1301.94,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 940.35, "y": 279.2, "radius": 10.65 }
+        "accent": {
+          "x": 940.35,
+          "y": 279.2,
+          "radius": 10.65
+        }
       }
     },
     {
       "name": "long-right-nontruncated-720x1280",
       "quote": {
         "id": "golden-274",
-        "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience",
-        "author": "Motivana",
-        "category": "growth"
+        "category": "growth",
+        "sourceLocale": "en",
+        "text": {
+          "en": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience"
+        },
+        "author": "Motivana"
       },
       "preset": "ember-action",
-      "dimensions": { "width": 720, "height": 1280 },
+      "dimensions": {
+        "width": 720,
+        "height": 1280
+      },
       "expected": {
         "quoteBox": {
           "x": 57.6,
@@ -108,19 +149,29 @@
         "authorY": 872.46,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 626.4, "y": 181.3, "radius": 7.2 }
+        "accent": {
+          "x": 626.4,
+          "y": 181.3,
+          "radius": 7.2
+        }
       }
     },
     {
       "name": "long-right-nontruncated-1440x2560",
       "quote": {
         "id": "golden-274",
-        "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience",
-        "author": "Motivana",
-        "category": "growth"
+        "category": "growth",
+        "sourceLocale": "en",
+        "text": {
+          "en": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience"
+        },
+        "author": "Motivana"
       },
       "preset": "ember-action",
-      "dimensions": { "width": 1440, "height": 2560 },
+      "dimensions": {
+        "width": 1440,
+        "height": 2560
+      },
       "expected": {
         "quoteBox": {
           "x": 115.2,
@@ -135,21 +186,36 @@
         "authorY": 1740.42,
         "truncated": false,
         "ellipsis": false,
-        "accent": { "x": 1253.55, "y": 367.6, "radius": 14.25 }
+        "accent": {
+          "x": 1253.55,
+          "y": 367.6,
+          "radius": 14.25
+        }
       }
     },
     {
       "name": "extreme-ellipsis-center-9x16",
       "quote": {
         "id": "golden-extreme",
-        "text": "A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin.",
-        "author": "Motivana",
-        "category": "focus"
+        "category": "focus",
+        "sourceLocale": "en",
+        "text": {
+          "en": "A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin. A deliberate step gives the next useful choice somewhere honest to begin."
+        },
+        "author": "Motivana"
       },
       "preset": "forest-discipline",
-      "dimensions": { "width": 720, "height": 1280 },
+      "dimensions": {
+        "width": 720,
+        "height": 1280
+      },
       "expected": {
-        "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 961 },
+        "quoteBox": {
+          "x": 57.6,
+          "y": 128,
+          "width": 604.8,
+          "height": 961
+        },
         "fontSize": 24,
         "lineCount": 31,
         "maxLines": 31,
@@ -157,7 +223,11 @@
         "authorY": 1117.16,
         "truncated": true,
         "ellipsis": true,
-        "accent": { "x": 75.6, "y": 116, "radius": 3.6 }
+        "accent": {
+          "x": 75.6,
+          "y": 116,
+          "radius": 3.6
+        }
       }
     }
   ]

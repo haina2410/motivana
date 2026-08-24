@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import type { Quote } from '../features/quotes/types';
+import { quoteText, type Quote } from '../features/quotes/types';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 
@@ -14,13 +14,13 @@ export function QuoteListItem({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Use ${quote.text}`}
+      accessibilityLabel={`Use ${quoteText(quote, 'en') ?? ''}`}
       accessibilityHint="Uses this favorite quote on the Home wallpaper."
       onPress={onPress}
       style={({ pressed }) => [styles.item, pressed && styles.pressed]}
     >
       <Text allowFontScaling style={styles.quote}>
-        “{quote.text}”
+        “{quoteText(quote, 'en') ?? ''}”
       </Text>
       {quote.author ? (
         <Text allowFontScaling style={styles.author}>

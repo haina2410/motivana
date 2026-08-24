@@ -1,7 +1,7 @@
 import { createComposition } from '../composition';
 import { getPresetById } from '../presetRepository';
 import { drawWallpaperScene, measureSkiaComposition } from '../scene';
-import type { Quote } from '../../quotes/types';
+import { quoteText, type Quote } from '../../quotes/types';
 
 const goldenFixture =
   require('../../../../assets/data/renderer-golden-fixture.json') as {
@@ -106,9 +106,10 @@ beforeEach(() => {
 
 const quote: Quote = {
   id: 'scene-quote',
-  text: 'Small steps completed with care build lasting confidence.',
-  author: 'Motivana',
   category: 'confidence',
+  sourceLocale: 'en',
+  text: { en: 'Small steps completed with care build lasting confidence.' },
+  author: 'Motivana',
 };
 
 // Mutation caught: assuming every native Skia handle exposes dispose() makes a successful render fail during cleanup.
@@ -138,7 +139,10 @@ test.each([
   'does not cap a non-truncated %s quote paragraph at %ix%i',
   (presetId, width, height) => {
     const composition = createComposition({
-      quote: { ...quote, text: `${quote.text} `.repeat(12) },
+      quote: {
+        ...quote,
+        text: { en: `${quoteText(quote, 'en')} `.repeat(12) },
+      },
       preset: getPresetById(presetId)!,
       width,
       height,
@@ -158,7 +162,7 @@ test.each([
 test('matches the recorded bundled-font Skia foreground fixture', () => {
   for (const golden of goldenFixture.cases) {
     const expected = golden.expected;
-    const key = `${golden.quote.text}|${expected.fontSize}`;
+    const key = `${quoteText(golden.quote, 'en')}|${expected.fontSize}`;
     for (
       let fontSize = Math.round(
         golden.dimensions.width *
@@ -167,10 +171,13 @@ test('matches the recorded bundled-font Skia foreground fixture', () => {
       fontSize > expected.fontSize;
       fontSize -= 1
     ) {
-      mockGoldenMeasurements.set(`${golden.quote.text}|${fontSize}|uncapped`, {
-        height: 5_000,
-        lineCount: 99,
-      });
+      mockGoldenMeasurements.set(
+        `${quoteText(golden.quote, 'en')}|${fontSize}|uncapped`,
+        {
+          height: 5_000,
+          lineCount: 99,
+        },
+      );
     }
     if (expected.truncated) {
       mockGoldenMeasurements.set(`${key}|uncapped`, {
@@ -234,7 +241,7 @@ test.each([
   'measures %s with the Skia paragraph before deciding it is complete',
   (text) => {
     const input = createComposition({
-      quote: { ...quote, text },
+      quote: { ...quote, text: { en: text } },
       preset: getPresetById('midnight-focus')!,
       width: 1080,
       height: 2400,

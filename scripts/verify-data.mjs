@@ -97,10 +97,27 @@ function validateQuotes(quotes) {
       fail(`${path}.id`, 'must be unique');
     }
     ids.add(quote.id);
-    if (typeof quote.text !== 'string' || quote.text.trim().length < 12) {
+    if (!['en', 'vi'].includes(quote.sourceLocale)) {
+      fail(`${path}.sourceLocale`, 'must be en or vi');
+    }
+    if (!isRecord(quote.text)) {
+      fail(`${path}.text`, 'must be an object keyed by locale');
+    }
+    for (const [locale, text] of Object.entries(quote.text)) {
+      if (!['en', 'vi'].includes(locale)) {
+        fail(`${path}.text.${locale}`, 'is not a supported locale');
+      }
+      if (typeof text !== 'string' || text.trim().length < 12) {
+        fail(
+          `${path}.text.${locale}`,
+          'must contain at least 12 non-whitespace characters',
+        );
+      }
+    }
+    if (quote.text[quote.sourceLocale] === undefined) {
       fail(
-        `${path}.text`,
-        'must contain at least 12 non-whitespace characters',
+        `${path}.text.${quote.sourceLocale}`,
+        'is required for the source locale',
       );
     }
     if (

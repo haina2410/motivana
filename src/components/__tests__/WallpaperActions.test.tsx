@@ -75,9 +75,10 @@ test('records the quote only after Set wallpaper succeeds', async () => {
     ...composition,
     quote: {
       id: quoteId,
-      text: 'Keep going.',
-      author: null,
       category: 'focus',
+      sourceLocale: 'en',
+      text: { en: 'Keep going.' },
+      author: null,
     },
   } as never;
   render(
@@ -108,9 +109,10 @@ test('keeps the active composition and does not record it when Set wallpaper fai
     ...composition,
     quote: {
       id: quoteId,
-      text: 'Stay steady.',
-      author: null,
       category: 'focus',
+      sourceLocale: 'en',
+      text: { en: 'Stay steady.' },
+      author: null,
     },
   } as never;
   nativeService.setWallpaper.mockRejectedValueOnce({ code: 'APPLY_FAILED' });

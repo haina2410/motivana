@@ -14,6 +14,7 @@ import {
   type WallpaperComposition,
 } from './composition';
 import { gradientEndpoints } from './gradient';
+import { quoteText } from '../quotes/types';
 
 function skiaFontWeight(
   weight: WallpaperComposition['preset']['fontWeight'],
@@ -193,7 +194,7 @@ export function drawWallpaperScene(
     );
 
     quote = createParagraph(
-      composition.quote.text,
+      quoteText(composition.quote, 'en') ?? '',
       composition,
       composition.quoteFontSize,
       composition.preset.textColor,

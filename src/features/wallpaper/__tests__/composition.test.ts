@@ -15,9 +15,10 @@ const measuredByCharacters: TextMeasurer = {
 function quoteOfLength(length: number): Quote {
   return {
     id: `quote-${length}`,
-    text: 'A'.repeat(length),
-    author: 'Author',
     category: 'motivation',
+    sourceLocale: 'en',
+    text: { en: 'A'.repeat(length) },
+    author: 'Author',
   };
 }
 
@@ -128,8 +129,8 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
 
 // Mutation caught: keying only on the quote id would serve a stale export after the quote text changes, whether from a locale switch or a reworded quote.
 test('changes the cache key when the rendered text changes under the same identity', () => {
-  const base: Quote = { ...quoteOfLength(80), text: 'A'.repeat(80) };
-  const reworded: Quote = { ...base, text: 'B'.repeat(80) };
+  const base: Quote = { ...quoteOfLength(80), text: { en: 'A'.repeat(80) } };
+  const reworded: Quote = { ...base, text: { en: 'B'.repeat(80) } };
 
   const first = createComposition(
     { quote: base, preset, width: 1080, height: 2400 },
@@ -149,7 +150,7 @@ test('keeps the cache key safe for use as a filename', () => {
     {
       quote: {
         ...quoteOfLength(40),
-        text: 'Quotes: "with" punctuation / slashes',
+        text: { en: 'Quotes: "with" punctuation / slashes' },
       },
       preset,
       width: 1080,

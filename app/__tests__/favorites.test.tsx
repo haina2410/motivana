@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 
 import FavoritesScreen from '../favorites';
 import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
+import { quoteText } from '../../src/features/quotes/types';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
 
@@ -23,7 +24,7 @@ test('selecting a favorite persists it and returns Home', () => {
   useAppStore.setState({ favoriteQuoteIds: [quote.id] });
   render(<FavoritesScreen />);
 
-  fireEvent.press(screen.getByLabelText(`Use ${quote.text}`));
+  fireEvent.press(screen.getByLabelText(`Use ${quoteText(quote, 'en')}`));
   expect(useAppStore.getState().currentQuoteId).toBe(quote.id);
   expect(router.back).toHaveBeenCalledTimes(1);
 });
