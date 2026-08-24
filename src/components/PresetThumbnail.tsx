@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { createComposition } from '../features/wallpaper/composition';
@@ -29,13 +30,19 @@ export function PresetThumbnail({
   onPress,
 }: PresetThumbnailProps) {
   const translate = useTranslate();
-  const composition = createComposition({
-    preset,
-    quote,
-    width: 180,
-    height: 260,
-    locale,
-  });
+  // Keeps one composition object, so the preview renders and encodes one time.
+  // The language belongs in the dependencies: it changes the rendered text.
+  const composition = useMemo(
+    () =>
+      createComposition({
+        preset,
+        quote,
+        width: 180,
+        height: 260,
+        locale,
+      }),
+    [preset, quote, locale],
+  );
   const name = translate(`preset.${preset.id}.name` as StringKey);
   return (
     <Pressable

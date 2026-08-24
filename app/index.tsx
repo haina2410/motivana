@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Component, type ReactNode, useState } from 'react';
+import { Component, type ReactNode, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   type LayoutChangeEvent,
@@ -62,10 +62,12 @@ export default function HomeScreen() {
     );
   };
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
-  let composition: WallpaperComposition | undefined;
-  if (fonts) {
+  // Keeps one composition object, so the preview renders and encodes only when
+  // the quote, the preset or the screen size changes.
+  const composition: WallpaperComposition | undefined = useMemo(() => {
+    if (!fonts) return undefined;
     try {
-      composition = createWallpaperComposition(
+      return createWallpaperComposition(
         state.currentQuoteId,
         state.selectedPresetId,
         dimensions.width,
@@ -73,9 +75,15 @@ export default function HomeScreen() {
         state.contentLocale,
       );
     } catch {
-      composition = undefined;
+      return undefined;
     }
-  }
+  }, [
+    dimensions.height,
+    dimensions.width,
+    fonts,
+    state.currentQuoteId,
+    state.selectedPresetId,
+  ]);
 
   return (
     <SafeAreaView style={styles.screen}>
