@@ -231,7 +231,7 @@
       }
     },
     {
-      "name": "vietnamese-tall-diacritics-paper-9x20",
+      "name": "vietnamese-locale-layout-paper-9x20",
       "quote": {
         "id": "golden-vi-tall",
         "category": "confidence",
@@ -268,7 +268,7 @@
       }
     },
     {
-      "name": "vietnamese-tall-diacritics-ember-9x20",
+      "name": "vietnamese-locale-layout-ember-9x20",
       "quote": {
         "id": "golden-vi-tall",
         "category": "confidence",

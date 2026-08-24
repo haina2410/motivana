@@ -163,6 +163,14 @@ test.each([
 
 // Mutation caught: reverting this fixture path to createComposition's character
 // fallback would no longer reproduce the bundled-font Skia baseline.
+//
+// Note on the `vietnamese-locale-layout-*` cases: this test's Skia mock is
+// driven entirely by the fixture's own `expected` numbers (see the
+// character-count measurer used to generate them), so it cannot detect
+// tone-mark clipping in condensed Oswald — that measurer has no per-glyph
+// height model. Those two cases only prove the locale-aware layout pipeline
+// (createComposition/fitText picking up `locale: 'vi'` text) stays wired.
+// Visual tone-mark clipping still needs an on-device check.
 test('matches the recorded bundled-font Skia foreground fixture', () => {
   for (const golden of goldenFixture.cases) {
     const expected = golden.expected;

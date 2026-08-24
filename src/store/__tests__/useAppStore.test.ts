@@ -412,3 +412,19 @@ test('accepts a quote language whose catalog has content', async () => {
   expect(store.getState().contentLocale).toBe('vi');
   expect(store.getState().currentQuoteId).toBe(before);
 });
+
+// Mutation caught: removing this validation guard would let an unsupported quote language through and strand the reader on an unreachable pool.
+test('rejects an unsupported quote language', async () => {
+  const store = createAppStore({ storage: createMemoryStorage() });
+  const before = store.getState().currentQuoteId;
+
+  await expect(
+    (
+      store.getState().setContentLocale as unknown as (
+        locale: unknown,
+      ) => Promise<boolean>
+    )('fr'),
+  ).resolves.toBe(false);
+  expect(store.getState().contentLocale).toBe('en');
+  expect(store.getState().currentQuoteId).toBe(before);
+});
