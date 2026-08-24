@@ -129,20 +129,28 @@ function createAppState(
     return {
       ...hydrateAppState(storage, warn),
       nextQuote: () => {
-        const next = getAdjacentQuote(get().currentQuoteId, 'next');
+        // TODO(task 9): pass the reader's chosen quote language instead of this placeholder.
+        const next = getAdjacentQuote(get().currentQuoteId, 'next', 'en');
         return next === undefined
           ? false
           : commit({ ...toPersistedState(get()), currentQuoteId: next.id });
       },
       previousQuote: () => {
-        const previous = getAdjacentQuote(get().currentQuoteId, 'previous');
+        // TODO(task 9): pass the reader's chosen quote language instead of this placeholder.
+        const previous = getAdjacentQuote(
+          get().currentQuoteId,
+          'previous',
+          'en',
+        );
         return previous === undefined
           ? false
           : commit({ ...toPersistedState(get()), currentQuoteId: previous.id });
       },
       randomQuote: () => {
         const state = get();
+        // TODO(task 9): pass the reader's chosen quote language instead of this placeholder.
         const quote = selectRandomQuote({
+          locale: 'en',
           previousId: state.currentQuoteId,
           random,
         });

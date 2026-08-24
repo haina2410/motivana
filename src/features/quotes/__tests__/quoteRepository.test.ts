@@ -1,4 +1,5 @@
 import {
+  favoriteQuoteText,
   getAdjacentQuote,
   getAllQuotes,
   getQuoteById,
@@ -100,15 +101,20 @@ test('looks up a known quote and returns undefined for a missing ID', () => {
 });
 
 test('navigates forward and backward with catalog wraparound', () => {
-  expect(getAdjacentQuote('motivation-001', 'previous')?.id).toBe(
+  expect(getAdjacentQuote('motivation-001', 'previous', 'en')?.id).toBe(
     'success-020',
   );
-  expect(getAdjacentQuote('success-020', 'next')?.id).toBe('motivation-001');
-  expect(getAdjacentQuote('not-a-quote', 'next')).toBeUndefined();
+  expect(getAdjacentQuote('success-020', 'next', 'en')?.id).toBe(
+    'motivation-001',
+  );
+  expect(getAdjacentQuote('not-a-quote', 'next', 'en')?.id).toBe(
+    'motivation-001',
+  );
 });
 
 test('selects only from eligible IDs using an injected random value', () => {
   const quote = selectRandomQuote({
+    locale: 'en',
     eligibleIds: new Set(['focus-001', 'focus-002']),
     random: () => 0.75,
   });
@@ -118,6 +124,7 @@ test('selects only from eligible IDs using an injected random value', () => {
 
 test('never immediately repeats a previous eligible quote when another exists', () => {
   const quote = selectRandomQuote({
+    locale: 'en',
     eligibleIds: new Set(['success-001', 'success-002']),
     previousId: 'success-001',
     random: () => 0,
@@ -127,15 +134,64 @@ test('never immediately repeats a previous eligible quote when another exists', 
 });
 
 test('clamps injected random values to the available range', () => {
-  expect(selectRandomQuote({ random: () => -3 }).id).toBe('motivation-001');
-  expect(selectRandomQuote({ random: () => 3 }).id).toBe('success-020');
+  expect(selectRandomQuote({ locale: 'en', random: () => -3 }).id).toBe(
+    'motivation-001',
+  );
+  expect(selectRandomQuote({ locale: 'en', random: () => 3 }).id).toBe(
+    'success-020',
+  );
 });
 
 test('rejects an empty eligible set with a selection error code', () => {
-  expect(() => selectRandomQuote({ eligibleIds: new Set() })).toThrow(
-    QuoteSelectionError,
-  );
-  expect(() => selectRandomQuote({ eligibleIds: new Set() })).toThrow(
-    'NO_ELIGIBLE_QUOTES',
-  );
+  expect(() =>
+    selectRandomQuote({ locale: 'en', eligibleIds: new Set() }),
+  ).toThrow(QuoteSelectionError);
+  expect(() =>
+    selectRandomQuote({ locale: 'en', eligibleIds: new Set() }),
+  ).toThrow('NO_ELIGIBLE_QUOTES');
+});
+
+// Mutation caught: leaving untranslated quotes in the pool would show English text to a Vietnamese reader.
+test('offers only quotes that have text for the requested locale', () => {
+  const english = getAllQuotes('en');
+  const vietnamese = getAllQuotes('vi');
+
+  expect(english.length).toBe(120);
+  expect(vietnamese.every((quote) => quote.text.vi !== undefined)).toBe(true);
+  expect(vietnamese.length).toBeLessThan(english.length);
+});
+
+// Enabled by Task 9.
+// Mutation caught: stepping through the unfiltered catalog would land on a quote with no text in the active language.
+test.skip('steps only through quotes available in the locale', () => {
+  const vietnamese = getAllQuotes('vi');
+  const first = vietnamese[0]!;
+  const next = getAdjacentQuote(first.id, 'next', 'vi');
+
+  expect(next?.text.vi).toBeDefined();
+});
+
+// Enabled by Task 9.
+// Mutation caught: ignoring the locale in random selection would apply an untranslated wallpaper during rotation.
+test.skip('selects a random quote only from the locale pool', () => {
+  const quote = selectRandomQuote({ locale: 'vi', random: () => 0 });
+
+  expect(quote.text.vi).toBeDefined();
+});
+
+// Mutation caught: raising an error for an empty locale pool at the wrong point would crash rotation instead of reporting it.
+test('reports no eligible quotes when the locale pool is empty', () => {
+  expect(() =>
+    selectRandomQuote({ locale: 'vi', eligibleIds: new Set(['missing-id']) }),
+  ).toThrow(QuoteSelectionError);
+});
+
+// Mutation caught: applying the pool rule to favorites would hide a favorite the user deliberately saved.
+test('falls back to the source language for a favorite', () => {
+  const englishOnly = getAllQuotes().find(
+    (quote) => quote.text.vi === undefined,
+  )!;
+
+  expect(favoriteQuoteText(englishOnly, 'vi')).toBe(englishOnly.text.en);
+  expect(favoriteQuoteText(englishOnly, 'en')).toBe(englishOnly.text.en);
 });

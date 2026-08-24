@@ -1,10 +1,12 @@
 import quoteCatalog from '../../../assets/data/quotes.json';
-import { parseQuoteCatalog, type Quote } from './types';
+import { parseQuoteCatalog, quoteText, type Quote } from './types';
+import type { Locale } from '../i18n/locale';
 
 const quotes = parseQuoteCatalog(quoteCatalog);
 const quotesById = new Map(quotes.map((quote) => [quote.id, quote]));
 
 export interface RandomQuoteOptions {
+  locale: Locale;
   eligibleIds?: ReadonlySet<string>;
   previousId?: string;
   random?: () => number;
@@ -19,32 +21,50 @@ export class QuoteSelectionError extends Error {
   }
 }
 
-export function getAllQuotes(): readonly Quote[] {
-  return quotes;
+export function getAllQuotes(locale?: Locale): readonly Quote[] {
+  if (locale === undefined) {
+    return quotes;
+  }
+  return Object.freeze(
+    quotes.filter((quote) => quoteText(quote, locale) !== undefined),
+  );
 }
 
+/** Not filtered by locale, because a favorite can hold any language. */
 export function getQuoteById(id: string): Quote | undefined {
   return quotesById.get(id);
+}
+
+/**
+ * Shows the text the reader chose, and falls back to the original language.
+ * Only favorites use this, because the user selected the quote on purpose.
+ */
+export function favoriteQuoteText(quote: Quote, locale: Locale): string {
+  return quoteText(quote, locale) ?? quote.text[quote.sourceLocale]!;
 }
 
 export function getAdjacentQuote(
   id: string,
   direction: 'next' | 'previous',
+  locale: Locale,
 ): Quote | undefined {
-  const currentIndex = quotes.findIndex((quote) => quote.id === id);
-  if (currentIndex === -1) {
+  const pool = getAllQuotes(locale);
+  if (pool.length === 0) {
     return undefined;
   }
-
+  const currentIndex = pool.findIndex((quote) => quote.id === id);
+  if (currentIndex === -1) {
+    return pool[0];
+  }
   const nextIndex =
     direction === 'next'
-      ? (currentIndex + 1) % quotes.length
-      : (currentIndex - 1 + quotes.length) % quotes.length;
-  return quotes[nextIndex];
+      ? (currentIndex + 1) % pool.length
+      : (currentIndex - 1 + pool.length) % pool.length;
+  return pool[nextIndex];
 }
 
-export function selectRandomQuote(options: RandomQuoteOptions = {}): Quote {
-  const eligibleQuotes = quotes.filter(
+export function selectRandomQuote(options: RandomQuoteOptions): Quote {
+  const eligibleQuotes = getAllQuotes(options.locale).filter(
     (quote) => !options.eligibleIds || options.eligibleIds.has(quote.id),
   );
   if (eligibleQuotes.length === 0) {
