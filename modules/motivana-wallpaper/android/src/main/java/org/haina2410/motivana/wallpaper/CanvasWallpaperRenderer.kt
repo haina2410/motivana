@@ -71,10 +71,20 @@ class CanvasWallpaperRenderer private constructor(
     val alignment = when (preset.align) { "center" -> Layout.Alignment.ALIGN_CENTER; "right" -> Layout.Alignment.ALIGN_OPPOSITE; else -> Layout.Alignment.ALIGN_NORMAL }
     val targetLineHeight = size * preset.lineHeight.toFloat()
     val naturalLineHeight = paint.fontMetrics.descent - paint.fontMetrics.ascent
-    return StaticLayout.Builder.obtain(text, 0, text.length, paint, width.toInt()).setAlignment(alignment).setIncludePad(false).setLineSpacing(targetLineHeight - naturalLineHeight + skiaLeadingCorrection(preset), 1f).apply { if (maxLines != null) setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).setEllipsizedWidth(width.toInt()) }.build()
+    val staticLineHeight = (paint.fontMetricsInt.descent - paint.fontMetricsInt.ascent).toFloat()
+    return StaticLayout.Builder.obtain(text, 0, text.length, paint, width.toInt()).setAlignment(alignment).setIncludePad(false).setLineSpacing(skiaLeadingCorrection(preset, targetLineHeight, naturalLineHeight, staticLineHeight), 1f).apply { if (maxLines != null) setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).setEllipsizedWidth(width.toInt()) }.build()
   }
-  /** Skia's bundled Oswald paragraph reports a larger leading than StaticLayout. */
-  private fun skiaLeadingCorrection(preset: RotationPreset): Float = if (preset.family == "Oswald") 21.875f else 1f
+  /**
+   * The bundled Skia paragraph snaps each Oswald line to its nearest real font-metric
+   * pixel (71/105/141px at 48/71/95px). StaticLayout uses FontMetricsInt instead,
+   * so compensate only for that selected-size metric-grid difference. A divergent
+   * fallback keeps unsupported font engines on a proportional, non-clipping path.
+   */
+  private fun skiaLeadingCorrection(preset: RotationPreset, targetLineHeight: Float, naturalLineHeight: Float, staticLineHeight: Float): Float = when {
+    preset.family != "Oswald" -> targetLineHeight - naturalLineHeight + 1f
+    abs(naturalLineHeight - staticLineHeight) <= 2f -> round(naturalLineHeight) - staticLineHeight
+    else -> targetLineHeight - naturalLineHeight + targetLineHeight / preset.lineHeight.toFloat() * (21.875f / 71f)
+  }
   private fun typeface(p: RotationPreset): Typeface = fonts["${p.family}-${p.weight}"] ?: assets?.let { runCatching { Typeface.createFromAsset(it, "fonts/${p.family}-${p.weight}.ttf") }.getOrElse { throw IllegalStateException("FONT_MISSING") } } ?: Typeface.DEFAULT
   internal fun gradientCoordinates(angle: Double, width: Int, height: Int): FloatArray { val radians = Math.toRadians(angle); val radius = hypot(width.toDouble(), height.toDouble()) / 2.0; val dx = cos(radians) * radius; val dy = sin(radians) * radius; return floatArrayOf((width / 2.0 - dx).toFloat(), (height / 2.0 - dy).toFloat(), (width / 2.0 + dx).toFloat(), (height / 2.0 + dy).toFloat()) }
   private fun gradient(bg: RotationBackground.Gradient, width: Int, height: Int): LinearGradient { val points = gradientCoordinates(bg.angle, width, height); return LinearGradient(points[0], points[1], points[2], points[3], Color.parseColor(bg.start), Color.parseColor(bg.end), Shader.TileMode.CLAMP) }

@@ -175,7 +175,7 @@ class CanvasWallpaperRendererGeometryTest {
     val root = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText())
     assertTrue(root.getDouble("layoutTolerance") > 0)
     val cases = root.getJSONArray("cases")
-    assertEquals(4, cases.length())
+    assertEquals(6, cases.length())
     var hasExtremeEllipsis = false
     for (index in 0 until cases.length()) {
       val item = cases.getJSONObject(index)

@@ -85,6 +85,60 @@
       }
     },
     {
+      "name": "long-right-nontruncated-720x1280",
+      "quote": {
+        "id": "golden-274",
+        "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience",
+        "author": "Motivana",
+        "category": "growth"
+      },
+      "preset": "ember-action",
+      "dimensions": { "width": 720, "height": 1280 },
+      "expected": {
+        "quoteBox": {
+          "x": 57.6,
+          "y": 205.3,
+          "width": 604.8,
+          "height": 639
+        },
+        "fontSize": 48,
+        "lineCount": 9,
+        "maxLines": 9,
+        "alignment": "right",
+        "authorY": 872.46,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": { "x": 626.4, "y": 181.3, "radius": 7.2 }
+      }
+    },
+    {
+      "name": "long-right-nontruncated-1440x2560",
+      "quote": {
+        "id": "golden-274",
+        "text": "resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience resilience",
+        "author": "Motivana",
+        "category": "growth"
+      },
+      "preset": "ember-action",
+      "dimensions": { "width": 1440, "height": 2560 },
+      "expected": {
+        "quoteBox": {
+          "x": 115.2,
+          "y": 415.1,
+          "width": 1209.6,
+          "height": 1269
+        },
+        "fontSize": 95,
+        "lineCount": 9,
+        "maxLines": 9,
+        "alignment": "right",
+        "authorY": 1740.42,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": { "x": 1253.55, "y": 367.6, "radius": 14.25 }
+      }
+    },
+    {
       "name": "extreme-ellipsis-center-9x16",
       "quote": {
         "id": "golden-extreme",
