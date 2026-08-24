@@ -12,6 +12,7 @@ setRotationSynchronizer(async (state) =>
     randomizePreset: state.randomizePreset,
     favoriteQuoteIds: state.favoriteQuoteIds,
     favoriteQuotesOnly: state.favoriteQuotesOnly,
+    contentLocale: state.contentLocale,
   }),
 );
 

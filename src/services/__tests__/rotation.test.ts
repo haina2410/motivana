@@ -31,9 +31,13 @@ test('configures native rotation before a caller can persist UI state', async ()
     randomizePreset: false,
     favoriteQuoteIds: [],
     favoriteQuotesOnly: false,
+    contentLocale: 'vi',
   });
   order.push('zustand');
   expect(order).toEqual(['native', 'zustand']);
+  expect(native.configureRotation).toHaveBeenCalledWith(
+    expect.objectContaining({ contentLocale: 'vi' }),
+  );
 });
 
 test('keeps stable rotation status fields and debug-only failure codes', async () => {
