@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Component, type ReactNode } from 'react';
+import { Component, type ReactNode, useState } from 'react';
 import {
   ActivityIndicator,
   PixelRatio,
@@ -29,6 +29,30 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const fonts = useWallpaperFonts();
   const state = useAppStore();
+  const [favoriteBusy, setFavoriteBusy] = useState(false);
+  const [favoriteFeedback, setFavoriteFeedback] = useState<
+    { message: string; retryQuoteId?: string } | undefined
+  >();
+  const updateFavorite = async (quoteId: string) => {
+    if (favoriteBusy) return;
+    const wasFavorite = state.favoriteQuoteIds.includes(quoteId);
+    setFavoriteBusy(true);
+    setFavoriteFeedback(undefined);
+    const saved = await state.toggleFavorite(quoteId);
+    setFavoriteBusy(false);
+    setFavoriteFeedback(
+      saved
+        ? {
+            message: wasFavorite
+              ? 'Quote removed from favorites.'
+              : 'Quote added to favorites.',
+          }
+        : {
+            message: 'Could not update favorites for rotation. Try again.',
+            retryQuoteId: quoteId,
+          },
+    );
+  };
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
   let composition: WallpaperComposition | undefined;
   if (fonts) {
@@ -109,13 +133,14 @@ export default function HomeScreen() {
             symbol="›"
           />
           <AppIconButton
+            disabled={favoriteBusy}
             label={
               state.favoriteQuoteIds.includes(state.currentQuoteId)
                 ? 'Unfavorite quote'
                 : 'Favorite quote'
             }
             hint="Adds or removes the current quote from favorites."
-            onPress={() => state.toggleFavorite(state.currentQuoteId)}
+            onPress={() => void updateFavorite(state.currentQuoteId)}
             symbol="♥"
           />
           <AppIconButton
@@ -125,6 +150,20 @@ export default function HomeScreen() {
             symbol="↻"
           />
         </View>
+        {favoriteFeedback ? (
+          <ActionMessage
+            message={favoriteFeedback.message}
+            tone={favoriteFeedback.retryQuoteId ? 'error' : 'default'}
+          />
+        ) : null}
+        {favoriteFeedback?.retryQuoteId ? (
+          <AppIconButton
+            label="Retry favorite update"
+            hint="Retries updating the favorite used by wallpaper rotation."
+            onPress={() => void updateFavorite(favoriteFeedback.retryQuoteId!)}
+            symbol="↻"
+          />
+        ) : null}
         {fonts && composition ? (
           <WallpaperActions composition={composition} fontProvider={fonts} />
         ) : null}

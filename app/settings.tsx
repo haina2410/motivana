@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -13,6 +14,40 @@ import { typography } from '../src/theme/typography';
 
 export default function SettingsScreen() {
   const state = useAppStore();
+  const [pending, setPending] = useState<'randomize' | 'favorites'>();
+  const [feedback, setFeedback] = useState<
+    | {
+        message: string;
+        retry?: { kind: 'randomize' | 'favorites'; value: boolean };
+      }
+    | undefined
+  >();
+  const updatePreference = async (
+    kind: 'randomize' | 'favorites',
+    value: boolean,
+  ) => {
+    if (pending !== undefined) return;
+    setPending(kind);
+    setFeedback(undefined);
+    const saved =
+      kind === 'randomize'
+        ? await state.setRandomizePreset(value)
+        : await state.setFavoriteQuotesOnly(value);
+    setPending(undefined);
+    setFeedback(
+      saved
+        ? {
+            message:
+              kind === 'randomize'
+                ? 'Random preset preference updated.'
+                : 'Favorite quote preference updated.',
+          }
+        : {
+            message: 'Could not update rotation preferences. Try again.',
+            retry: { kind, value },
+          },
+    );
+  };
   const preset = getPresetById(state.selectedPresetId);
   return (
     <SafeAreaView style={styles.screen}>
@@ -55,15 +90,34 @@ export default function SettingsScreen() {
           label="Randomize preset"
           description="Use a different curated style when rotation becomes available."
           value={state.randomizePreset}
-          onValueChange={state.setRandomizePreset}
+          disabled={pending !== undefined}
+          onValueChange={(value) => void updatePreference('randomize', value)}
         />
         <SettingRow
           label="Use favorite quotes only"
           description="Keep future rotation focused on saved quotes."
           value={state.favoriteQuotesOnly}
-          disabled={state.favoriteQuoteIds.length === 0}
-          onValueChange={state.setFavoriteQuotesOnly}
+          disabled={
+            pending !== undefined || state.favoriteQuoteIds.length === 0
+          }
+          onValueChange={(value) => void updatePreference('favorites', value)}
         />
+        {feedback ? (
+          <ActionMessage
+            message={feedback.message}
+            tone={feedback.retry ? 'error' : 'default'}
+          />
+        ) : null}
+        {feedback?.retry ? (
+          <AppIconButton
+            label="Retry preference update"
+            hint="Retries updating the preference used by wallpaper rotation."
+            onPress={() =>
+              void updatePreference(feedback.retry!.kind, feedback.retry!.value)
+            }
+            symbol="↻"
+          />
+        ) : null}
         <ActionMessage
           title="About Motivana"
           message="Create a focused wallpaper from a thought worth returning to."

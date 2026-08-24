@@ -11,6 +11,7 @@ import { router } from 'expo-router';
 import HomeScreen from '../index';
 import { useAppStore } from '../../src/store/useAppStore';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
+import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
   const { View } = require('react-native');
@@ -65,6 +66,34 @@ beforeEach(() => {
     return <View accessible accessibilityLabel="Wallpaper preview" />;
   });
   useAppStore.setState(createDefaultPersistedAppState());
+  setRotationSynchronizer(async () => undefined);
+});
+
+// Mutation caught: swallowing a rejected enabled-automation favorite change leaves users unable to retry the worker snapshot update.
+test('Home shows a safe retry when favorite synchronization fails', async () => {
+  let attempts = 0;
+  setRotationSynchronizer(async () => {
+    attempts += 1;
+    if (attempts === 1) throw new Error('native secret');
+  });
+  useAppStore.setState({ rotationEnabled: true });
+  render(<HomeScreen />);
+
+  fireEvent.press(screen.getByLabelText('Favorite quote'));
+  await waitFor(() =>
+    expect(
+      screen.getByText('Could not update favorites for rotation. Try again.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(screen.queryByText('native secret')).toBeNull();
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Retry favorite update' }),
+  );
+
+  await waitFor(() =>
+    expect(screen.getByText('Quote added to favorites.')).toBeOnTheScreen(),
+  );
+  expect(attempts).toBe(2);
 });
 
 test('Home changes the quote and favorite state through accessible controls', async () => {

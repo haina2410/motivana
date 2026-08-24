@@ -12,6 +12,7 @@ interface PresetThumbnailProps {
   preset: WallpaperPreset;
   quote: Quote;
   selected: boolean;
+  disabled?: boolean;
   onPress: () => void;
 }
 
@@ -19,6 +20,7 @@ export function PresetThumbnail({
   preset,
   quote,
   selected,
+  disabled = false,
   onPress,
 }: PresetThumbnailProps) {
   const composition = createComposition({
@@ -32,9 +34,14 @@ export function PresetThumbnail({
       accessibilityRole="button"
       accessibilityLabel={`Use ${preset.name} preset`}
       accessibilityHint="Applies this wallpaper style and returns to Home."
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={[styles.card, selected && styles.selected]}
+      style={[
+        styles.card,
+        selected && styles.selected,
+        disabled && styles.disabled,
+      ]}
     >
       <View pointerEvents="none" style={styles.preview}>
         <WallpaperCanvas
@@ -64,6 +71,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   selected: { borderColor: colors.accent, borderWidth: 2 },
+  disabled: { opacity: 0.48 },
   preview: { aspectRatio: 0.69, borderRadius: 12, overflow: 'hidden' },
   caption: { color: colors.mutedText, fontSize: 13 },
 });

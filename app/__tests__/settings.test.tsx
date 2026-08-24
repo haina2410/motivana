@@ -10,10 +10,12 @@ import SettingsScreen from '../settings';
 import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
+import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
   useAppStore.setState(createDefaultPersistedAppState());
+  setRotationSynchronizer(async () => undefined);
 });
 
 test('Settings persists random preset and favorites-only choices through store actions', async () => {
@@ -22,6 +24,9 @@ test('Settings persists random preset and favorites-only choices through store a
   render(<SettingsScreen />);
 
   fireEvent.press(screen.getByLabelText('Randomize preset'));
+  await waitFor(() =>
+    expect(useAppStore.getState().randomizePreset).toBe(true),
+  );
   fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
 
   await waitFor(() =>
@@ -46,4 +51,33 @@ test('Settings names the current preset and exposes one accessible control per s
 
   fireEvent.press(screen.getByRole('button', { name: 'Customize preset' }));
   expect(router.push).toHaveBeenCalledWith('/customize');
+});
+
+// Mutation caught: reverting a switch after native rejection without notice makes the rotation snapshot failure indistinguishable from an ignored tap.
+test('Settings shows a safe retry when random-preset synchronization fails', async () => {
+  let attempts = 0;
+  setRotationSynchronizer(async () => {
+    attempts += 1;
+    if (attempts === 1) throw new Error('native secret');
+  });
+  useAppStore.setState({ rotationEnabled: true });
+  render(<SettingsScreen />);
+
+  fireEvent.press(screen.getByLabelText('Randomize preset'));
+  await waitFor(() =>
+    expect(
+      screen.getByText('Could not update rotation preferences. Try again.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(screen.queryByText('native secret')).toBeNull();
+  fireEvent.press(
+    screen.getByRole('button', { name: 'Retry preference update' }),
+  );
+
+  await waitFor(() =>
+    expect(
+      screen.getByText('Random preset preference updated.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(attempts).toBe(2);
 });

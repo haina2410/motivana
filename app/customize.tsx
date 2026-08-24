@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppIconButton } from '../src/components/AppIconButton';
+import { ActionMessage } from '../src/components/ActionMessage';
 import { PresetThumbnail } from '../src/components/PresetThumbnail';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { getAllPresets } from '../src/features/wallpaper/presetRepository';
@@ -13,6 +15,20 @@ import { typography } from '../src/theme/typography';
 
 export default function CustomizeScreen() {
   const state = useAppStore();
+  const [pendingPresetId, setPendingPresetId] = useState<string>();
+  const [failedPresetId, setFailedPresetId] = useState<string>();
+  const selectPreset = async (presetId: string) => {
+    if (pendingPresetId !== undefined) return;
+    setPendingPresetId(presetId);
+    setFailedPresetId(undefined);
+    const selected = await state.selectPreset(presetId);
+    setPendingPresetId(undefined);
+    if (selected) {
+      router.back();
+      return;
+    }
+    setFailedPresetId(presetId);
+  };
   const quote = getQuoteById(state.currentQuoteId);
   const presets = getAllPresets();
   const presetRows = presets.reduce<(typeof presets)[number][][]>(
@@ -42,6 +58,20 @@ export default function CustomizeScreen() {
           symbol="‹"
         />
       </View>
+      {failedPresetId ? (
+        <View style={styles.feedback}>
+          <ActionMessage
+            tone="error"
+            message="Could not update the preset used for rotation. Try again."
+          />
+          <AppIconButton
+            label="Retry preset update"
+            hint="Retries updating the preset used by wallpaper rotation."
+            onPress={() => void selectPreset(failedPresetId)}
+            symbol="↻"
+          />
+        </View>
+      ) : null}
       <ScrollView
         contentContainerStyle={styles.grid}
         showsVerticalScrollIndicator={false}
@@ -54,11 +84,8 @@ export default function CustomizeScreen() {
                   preset={preset}
                   quote={quote}
                   selected={state.selectedPresetId === preset.id}
-                  onPress={() => {
-                    void state.selectPreset(preset.id).then((selected) => {
-                      if (selected) router.back();
-                    });
-                  }}
+                  disabled={pendingPresetId !== undefined}
+                  onPress={() => void selectPreset(preset.id)}
                 />
               </View>
             ))}
@@ -86,6 +113,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.x4,
     width: '100%',
   },
+  feedback: { gap: spacing.x1 },
   row: {
     flexDirection: 'row',
     gap: spacing.x2,

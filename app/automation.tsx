@@ -12,7 +12,10 @@ import {
   wallpaperAutomationFallback,
 } from '../src/services/wallpaperAvailability';
 import { runRotationNow } from '../src/services/wallpaperNative';
-import { getRotationStatusRecovery } from '../src/services/rotationStatus';
+import {
+  getRotationStatusRecovery,
+  getRotationStatusRecoveryControl,
+} from '../src/services/rotationStatus';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import type { WallpaperAutomationAvailability } from '../src/services/wallpaperAvailability';
 import { colors } from '../src/theme/colors';
@@ -115,10 +118,8 @@ export default function AutomationScreen() {
       await runRotationNow();
       setMessage('Rotation started.');
       refresh();
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : 'Could not run rotation.',
-      );
+    } catch {
+      setMessage('Could not start rotation. Try again.');
     }
   };
   const lastQuote = availability?.status.lastQuoteId
@@ -127,6 +128,9 @@ export default function AutomationScreen() {
   const statusRecovery = getRotationStatusRecovery(
     availability?.status.errorCode,
   );
+  const statusRecoveryControl = statusRecovery
+    ? getRotationStatusRecoveryControl(statusRecovery, __DEV__)
+    : undefined;
   const recoverFromStatusFailure = () => {
     if (
       availability?.status.errorCode === 'EMPTY_FAVORITES' ||
@@ -136,7 +140,7 @@ export default function AutomationScreen() {
       void save(false);
       return;
     }
-    if (statusRecovery?.action === 'retry' && __DEV__) {
+    if (statusRecoveryControl?.operation === 'run-now') {
       void runNow();
       return;
     }
@@ -281,16 +285,8 @@ export default function AutomationScreen() {
         ) : null}
         {statusRecovery ? (
           <AppIconButton
-            hint={
-              statusRecovery.action === 'retry'
-                ? 'Attempts the scheduled wallpaper rotation again.'
-                : 'Saves corrected rotation preferences.'
-            }
-            label={
-              statusRecovery.action === 'retry'
-                ? 'Retry rotation'
-                : 'Correct rotation preferences'
-            }
+            hint={statusRecoveryControl!.hint}
+            label={statusRecoveryControl!.label}
             onPress={recoverFromStatusFailure}
             symbol="↻"
           />

@@ -5,6 +5,12 @@ export interface RotationStatusRecovery {
   action: RotationStatusRecoveryAction;
 }
 
+export interface RotationStatusRecoveryControl {
+  label: string;
+  hint: string;
+  operation: 'run-now' | 'reschedule' | 'correct';
+}
+
 const statusRecoveryByCode: Readonly<Record<string, RotationStatusRecovery>> = {
   EMPTY_FAVORITES: {
     message: 'Rotation needs at least one saved favorite.',
@@ -62,4 +68,29 @@ export function getRotationStatusRecovery(
 ): RotationStatusRecovery | undefined {
   if (code === undefined) return undefined;
   return statusRecoveryByCode[code] ?? unknownStatusRecovery;
+}
+
+export function getRotationStatusRecoveryControl(
+  recovery: RotationStatusRecovery,
+  isDebug: boolean,
+): RotationStatusRecoveryControl {
+  if (recovery.action === 'correct') {
+    return {
+      label: 'Correct rotation preferences',
+      hint: 'Saves corrected rotation preferences.',
+      operation: 'correct',
+    };
+  }
+  if (isDebug) {
+    return {
+      label: 'Retry rotation',
+      hint: 'Runs the rotation immediately in this debug build.',
+      operation: 'run-now',
+    };
+  }
+  return {
+    label: 'Reschedule rotation',
+    hint: 'Saves the current rotation preferences so Android schedules a future run.',
+    operation: 'reschedule',
+  };
 }

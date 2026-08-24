@@ -1,4 +1,7 @@
-import { getRotationStatusRecovery } from '../rotationStatus';
+import {
+  getRotationStatusRecovery,
+  getRotationStatusRecoveryControl,
+} from '../rotationStatus';
 
 test.each([
   ['EMPTY_FAVORITES', 'Rotation needs at least one saved favorite.', 'correct'],
@@ -29,5 +32,25 @@ test('does not expose an unknown scheduled-worker status code', () => {
     message:
       'Rotation did not complete. Review the rotation preferences and try again.',
     action: 'correct',
+  });
+});
+
+test('labels a release worker recovery as rescheduling rather than an immediate retry', () => {
+  const recovery = getRotationStatusRecovery('SYSTEM_FAILED')!;
+
+  expect(getRotationStatusRecoveryControl(recovery, false)).toEqual({
+    label: 'Reschedule rotation',
+    hint: 'Saves the current rotation preferences so Android schedules a future run.',
+    operation: 'reschedule',
+  });
+});
+
+test('labels a debug worker recovery as an immediate retry', () => {
+  const recovery = getRotationStatusRecovery('SYSTEM_FAILED')!;
+
+  expect(getRotationStatusRecoveryControl(recovery, true)).toEqual({
+    label: 'Retry rotation',
+    hint: 'Runs the rotation immediately in this debug build.',
+    operation: 'run-now',
   });
 });
