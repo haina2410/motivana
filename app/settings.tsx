@@ -5,9 +5,11 @@ import { router } from 'expo-router';
 
 import { ActionMessage } from '../src/components/ActionMessage';
 import { AppIconButton } from '../src/components/AppIconButton';
+import { Choice } from '../src/components/Choice';
 import { SettingRow } from '../src/components/SettingRow';
 import { useAppStore } from '../src/store/useAppStore';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
+import { locales } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type { StringKey } from '../src/features/i18n/t';
 import { colors } from '../src/theme/colors';
@@ -25,6 +27,7 @@ export default function SettingsScreen() {
       }
     | undefined
   >();
+  const [languageMessage, setLanguageMessage] = useState<string>();
   const updatePreference = async (
     kind: 'randomize' | 'favorites',
     value: boolean,
@@ -49,6 +52,21 @@ export default function SettingsScreen() {
             message: translate('settings.error'),
             retry: { kind, value },
           },
+    );
+  };
+  const updateLanguage = async (
+    kind: 'app' | 'content',
+    locale: (typeof locales)[number],
+  ) => {
+    if (pending !== undefined) return;
+    const saved =
+      kind === 'app'
+        ? await state.setAppLocale(locale)
+        : await state.setContentLocale(locale);
+    setLanguageMessage(
+      saved
+        ? translate('settings.language.updated')
+        : translate('settings.language.error'),
     );
   };
   const preset = getPresetById(state.selectedPresetId);
@@ -124,6 +142,43 @@ export default function SettingsScreen() {
             symbol="↻"
           />
         ) : null}
+        <View style={styles.section}>
+          <Text allowFontScaling style={styles.label}>
+            {translate('settings.appLanguage.label')}
+          </Text>
+          <Text allowFontScaling style={styles.description}>
+            {translate('settings.appLanguage.description')}
+          </Text>
+          <View style={styles.choices}>
+            {locales.map((locale) => (
+              <Choice
+                key={locale}
+                label={translate(`language.${locale}` as StringKey)}
+                selected={state.appLocale === locale}
+                onPress={() => void updateLanguage('app', locale)}
+              />
+            ))}
+          </View>
+        </View>
+        <View style={styles.section}>
+          <Text allowFontScaling style={styles.label}>
+            {translate('settings.contentLanguage.label')}
+          </Text>
+          <Text allowFontScaling style={styles.description}>
+            {translate('settings.contentLanguage.description')}
+          </Text>
+          <View style={styles.choices}>
+            {locales.map((locale) => (
+              <Choice
+                key={locale}
+                label={translate(`language.${locale}` as StringKey)}
+                selected={state.contentLocale === locale}
+                onPress={() => void updateLanguage('content', locale)}
+              />
+            ))}
+          </View>
+        </View>
+        {languageMessage ? <ActionMessage message={languageMessage} /> : null}
         <ActionMessage
           title={translate('settings.about.title')}
           message={translate('settings.about.message')}
@@ -160,5 +215,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  section: { gap: spacing.x1 },
+  label: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  description: { color: colors.mutedText, fontSize: 13 },
+  choices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.x1 },
   version: { color: colors.mutedText, fontSize: 14, textAlign: 'center' },
 });

@@ -48,6 +48,31 @@ test('renders the interface in the stored app language', async () => {
   expect(await screen.findByText(t('vi', 'settings.title'))).toBeTruthy();
 });
 
+// Mutation caught: wiring both pickers to one action would change the quote language when the reader only wanted a Vietnamese interface.
+test('changes the interface language without changing the quote language', async () => {
+  render(<SettingsScreen />);
+
+  fireEvent.press(screen.getAllByLabelText('Tiếng Việt')[0]!);
+
+  await waitFor(() => expect(useAppStore.getState().appLocale).toBe('vi'));
+  expect(useAppStore.getState().contentLocale).toBe('en');
+});
+
+// Mutation caught: wiring the quote-language picker through the interface-language setter would flip appLocale even though there is no Vietnamese quote content to switch into.
+test('attempting to change the quote language leaves the interface language untouched', async () => {
+  render(<SettingsScreen />);
+
+  fireEvent.press(screen.getAllByLabelText('Tiếng Việt')[1]!);
+
+  await waitFor(() =>
+    expect(
+      screen.getByText('Could not update the language. Try again.'),
+    ).toBeOnTheScreen(),
+  );
+  expect(useAppStore.getState().contentLocale).toBe('en');
+  expect(useAppStore.getState().appLocale).toBe('en');
+});
+
 test('Settings names the current preset and exposes one accessible control per setting', () => {
   render(<SettingsScreen />);
 
