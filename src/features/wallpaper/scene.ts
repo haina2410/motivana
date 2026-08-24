@@ -9,6 +9,7 @@ import {
 } from '@shopify/react-native-skia';
 
 import type { WallpaperComposition } from './composition';
+import { gradientEndpoints } from './gradient';
 
 function skiaFontWeight(
   weight: WallpaperComposition['preset']['fontWeight'],
@@ -76,9 +77,14 @@ export function drawWallpaperScene(
     if (composition.preset.background.kind === 'solid') {
       backgroundPaint.setColor(Skia.Color(composition.preset.background.color));
     } else {
+      const endpoints = gradientEndpoints(
+        composition.preset.background.angleDegrees,
+        composition.width,
+        composition.height,
+      );
       shader = Skia.Shader.MakeLinearGradient(
-        Skia.Point(0, 0),
-        Skia.Point(composition.width, composition.height),
+        Skia.Point(endpoints.start.x, endpoints.start.y),
+        Skia.Point(endpoints.end.x, endpoints.end.y),
         [
           Skia.Color(composition.preset.background.startColor),
           Skia.Color(composition.preset.background.endColor),
@@ -125,7 +131,7 @@ export function drawWallpaperScene(
       composition,
       composition.quoteFontSize,
       composition.preset.textColor,
-      composition.truncated ? composition.maxQuoteLines : undefined,
+      composition.maxQuoteLines,
       composition.truncated ? '…' : undefined,
       fontProvider,
     );

@@ -3,6 +3,7 @@ package org.haina2410.motivana.wallpaper
 import android.graphics.Typeface
 import android.graphics.Bitmap
 import java.io.File
+import kotlin.math.round
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -60,9 +61,9 @@ class CanvasWallpaperRendererGeometryTest {
   @Test fun authoritativePresetFixtureRendersEveryFamilyWeightLengthAndRatioInsideSharedBounds() {
     val catalog = authoritativeCatalog()
     val renderer = CanvasWallpaperRenderer(catalog, actualFonts(catalog))
-    listOf(30, 80, 150, 250).forEach { length ->
+    listOf(30, 80, 150, 274).forEach { length ->
       val text = ("word ".repeat(length / 5 + 1)).trim()
-      listOf(720 to 1280, 720 to 1600).forEach { (width, height) ->
+      listOf(720 to 1280, 720 to 1600, 1080 to 2400).forEach { (width, height) ->
         catalog.presets.forEach { actual ->
           listOf(null, "Author").forEach { author ->
             val current = catalog.quotes.first().copy(text = text, author = author)
@@ -79,6 +80,49 @@ class CanvasWallpaperRendererGeometryTest {
         }
       }
     }
+    catalog.presets.forEach { actual ->
+      val stress = catalog.quotes.first().copy(text = "A".repeat(2_000), author = "Author")
+      val geometry = renderer.layout(stress, actual, 1080, 2400)
+      assertEquals(round(1080 * actual.minimumRatio).toFloat(), geometry.fontSize, .01f)
+      assertTrue(geometry.truncated)
+      assertTrue(requireNotNull(geometry.maxLines) > 0)
+    }
+  }
+
+  // Mutation caught: measuring native geometry with StaticLayout rather than the
+  // cross-renderer fitting contract makes preview/export and scheduled wallpaper
+  // choose different sizes and safe boxes for the same composition.
+  @Test fun nativeGeometryMatchesTheSharedForegroundContract() {
+    val root = assetRoot()
+    val catalog = authoritativeCatalog()
+    val renderer = CanvasWallpaperRenderer(catalog, actualFonts(catalog))
+    val fixture = JSONObject(root.resolve("data/renderer-golden-fixture.json").readText())
+    val cases = fixture.getJSONArray("cases")
+    for (index in 0 until cases.length()) {
+      val item = cases.getJSONObject(index)
+      val quoteJson = item.getJSONObject("quote")
+      val quote = RotationQuote(
+        quoteJson.getString("id"),
+        quoteJson.getString("text"),
+        if (quoteJson.isNull("author")) null else quoteJson.getString("author"),
+        quoteJson.getString("category"),
+      )
+      val dimensions = item.getJSONObject("dimensions")
+      val expected = item.getJSONObject("expected")
+      val expectedBox = expected.getJSONObject("quoteBox")
+      val actual = renderer.layout(
+        quote,
+        requireNotNull(catalog.preset(item.getString("preset"))),
+        dimensions.getInt("width"),
+        dimensions.getInt("height"),
+      )
+
+      assertEquals(item.getString("name"), expected.getDouble("fontSize").toFloat(), actual.fontSize, .01f)
+      assertEquals(item.getString("name"), expectedBox.getDouble("y").toFloat(), actual.quoteTop, .01f)
+      assertEquals(item.getString("name"), expectedBox.getDouble("height").toFloat(), actual.quoteBottom - actual.quoteTop, .01f)
+      assertEquals(item.getString("name"), expected.getInt("lineCount"), actual.lineCount)
+      assertEquals(item.getString("name"), expected.getBoolean("truncated"), actual.truncated)
+    }
   }
 
   @Test fun gradientsUseTheirConfiguredAngleAndOverlayAndAccentLeaveVisiblePixels() {
@@ -88,6 +132,11 @@ class CanvasWallpaperRendererGeometryTest {
     val renderer = CanvasWallpaperRenderer(catalog, actualFonts(catalog))
     val first = gradients[0].background as RotationBackground.Gradient
     assertTrue(!renderer.gradientCoordinates(first.angle, 720, 1280).contentEquals(renderer.gradientCoordinates(first.angle + 90.0, 720, 1280)))
+    val vertical = renderer.gradientCoordinates(90.0, 1080, 1440)
+    assertEquals(540f, vertical[0], .01f)
+    assertEquals(-180f, vertical[1], .01f)
+    assertEquals(540f, vertical[2], .01f)
+    assertEquals(1620f, vertical[3], .01f)
     val one = renderer.render(catalog.quotes.first(), gradients[0], 720, 1280)
     val two = renderer.render(catalog.quotes.first(), gradients[1], 720, 1280)
     assertTrue(!one.isRecycled && !two.isRecycled)
@@ -107,10 +156,9 @@ class CanvasWallpaperRendererGeometryTest {
     }
   }
 
-  @Test fun sharedGoldenFixtureHasCompleteLiteralRendererContracts() {
+  @Test fun sharedGoldenFixtureHasOneCompleteLiteralLayoutContract() {
     val root = JSONObject(assetRoot().resolve("data/renderer-golden-fixture.json").readText())
-    assertTrue(root.getDouble("androidTolerance") > 0)
-    assertTrue(root.getDouble("foregroundTolerance") > 0)
+    assertTrue(root.getDouble("layoutTolerance") > 0)
     val cases = root.getJSONArray("cases")
     assertEquals(4, cases.length())
     var hasExtremeEllipsis = false
@@ -121,26 +169,23 @@ class CanvasWallpaperRendererGeometryTest {
       assertTrue(quote.getString("text").isNotBlank())
       assertTrue(dimensions.getInt("width") > 0 && dimensions.getInt("height") > 0)
       val expected = item.getJSONObject("expected")
-      listOf("foreground", "android").forEach { platform ->
-        val value = expected.getJSONObject(platform)
-        val box = value.getJSONObject("quoteBox")
-        listOf("x", "y", "width", "height").forEach { key -> assertTrue(box.getDouble(key).isFinite()) }
-        assertTrue(box.getDouble("width") > 0 && box.getDouble("height") > 0)
-        assertTrue(value.getDouble("fontSize") > 0)
-        assertTrue(value.getInt("lineCount") > 0)
-        if (!value.isNull("maxLines")) assertTrue(value.getInt("maxLines") > 0)
-        assertTrue(value.getString("alignment") in setOf("left", "center", "right"))
-        val accent = value.getJSONObject("accent")
-        listOf("x", "y", "radius").forEach { key -> assertTrue(accent.getDouble(key).isFinite()) }
-        assertTrue(accent.getDouble("radius") > 0)
-        assertEquals(value.getBoolean("truncated"), value.getBoolean("ellipsis"))
-      }
+      val box = expected.getJSONObject("quoteBox")
+      listOf("x", "y", "width", "height").forEach { key -> assertTrue(box.getDouble(key).isFinite()) }
+      assertTrue(box.getDouble("width") > 0 && box.getDouble("height") > 0)
+      assertTrue(expected.getDouble("fontSize") > 0)
+      assertTrue(expected.getInt("lineCount") > 0)
+      if (!expected.isNull("maxLines")) assertTrue(expected.getInt("maxLines") > 0)
+      assertTrue(expected.getString("alignment") in setOf("left", "center", "right"))
+      val accent = expected.getJSONObject("accent")
+      listOf("x", "y", "radius").forEach { key -> assertTrue(accent.getDouble(key).isFinite()) }
+      assertTrue(accent.getDouble("radius") > 0)
+      assertEquals(expected.getBoolean("truncated"), expected.getBoolean("ellipsis"))
       if (item.getString("name") == "extreme-ellipsis-center-9x16") {
         hasExtremeEllipsis = true
         assertTrue(quote.getString("text").length in 1500..2500)
         assertTrue(quote.getString("text").contains(' '))
-        assertTrue(expected.getJSONObject("foreground").getBoolean("truncated"))
-        assertTrue(expected.getJSONObject("android").getBoolean("ellipsis"))
+        assertTrue(expected.getBoolean("truncated"))
+        assertTrue(expected.getBoolean("ellipsis"))
       }
     }
     assertTrue(hasExtremeEllipsis)

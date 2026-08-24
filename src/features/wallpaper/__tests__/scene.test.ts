@@ -4,6 +4,10 @@ import { drawWallpaperScene } from '../scene';
 import type { Quote } from '../../quotes/types';
 
 const paragraphStyles: Record<string, unknown>[] = [];
+const gradientCalls: {
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+}[] = [];
 
 jest.mock('@shopify/react-native-skia', () => {
   const paragraph = {
@@ -34,7 +38,15 @@ jest.mock('@shopify/react-native-skia', () => {
           };
         },
       },
-      Shader: { MakeLinearGradient: () => undefined },
+      Shader: {
+        MakeLinearGradient: (
+          start: { x: number; y: number },
+          end: { x: number; y: number },
+        ) => {
+          gradientCalls.push({ start, end });
+          return undefined;
+        },
+      },
     },
     TextAlign: { Left: 0, Center: 1, Right: 2 },
     TileMode: { Clamp: 0 },
@@ -43,6 +55,7 @@ jest.mock('@shopify/react-native-skia', () => {
 
 beforeEach(() => {
   paragraphStyles.length = 0;
+  gradientCalls.length = 0;
 });
 
 const quote: Quote = {
@@ -68,13 +81,14 @@ test('renders when Skia paragraph handles are lifecycle-managed by the native bo
   expect(() => drawWallpaperScene(canvas, composition)).not.toThrow();
 });
 
-// Mutation caught: using the estimated composition line count as a native paragraph limit clips real wrapped text without ellipsis.
+// Mutation caught: omitting the canonical line budget lets a platform text shaper
+// extend outside the shared safe box even when the deterministic composition fits.
 test.each([
   ['midnight-focus', 1080, 1920],
   ['forest-discipline', 1080, 2400],
   ['paper-confidence', 1440, 2560],
 ])(
-  'does not cap a non-truncated %s quote paragraph at %ix%i',
+  'caps a non-truncated %s quote paragraph at its canonical line budget at %ix%i',
   (presetId, width, height) => {
     const composition = createComposition({
       quote: { ...quote, text: `${quote.text} `.repeat(12) },
@@ -87,7 +101,9 @@ test.each([
     expect(composition.truncated).toBe(false);
     drawWallpaperScene(canvas, composition);
 
-    expect(paragraphStyles[0]).not.toHaveProperty('maxLines');
+    expect(paragraphStyles[0]).toMatchObject({
+      maxLines: composition.maxQuoteLines,
+    });
     expect(paragraphStyles[0]).not.toHaveProperty('ellipsis');
   },
 );
@@ -112,4 +128,33 @@ test.each([
   expect(paragraphStyles[0]).toMatchObject({
     textStyle: { fontStyle: { weight } },
   });
+});
+
+// Mutation caught: treating every gradient as top-left to bottom-right ignores the
+// configured screen-space angle and reverses native Canvas gradient direction.
+test('uses the configured 90-degree gradient axis in screen coordinates', () => {
+  const preset = getPresetById('midnight-focus')!;
+  const composition = createComposition({
+    quote,
+    preset: {
+      ...preset,
+      background: {
+        kind: 'linear-gradient',
+        startColor: '#102A56',
+        endColor: '#020617',
+        angleDegrees: 90,
+      },
+    },
+    width: 1080,
+    height: 1440,
+  });
+
+  drawWallpaperScene(
+    { drawRect: () => undefined, drawCircle: () => undefined },
+    composition,
+  );
+
+  expect(gradientCalls).toHaveLength(1);
+  expect(gradientCalls[0]!.start).toEqual({ x: 540, y: -180 });
+  expect(gradientCalls[0]!.end).toEqual({ x: 540, y: 1620 });
 });

@@ -1,26 +1,24 @@
 import { createComposition, type TextMeasurer } from '../composition';
 import type { Quote } from '../../quotes/types';
-import { getPresetById } from '../presetRepository';
+import { getAllPresets, getPresetById } from '../presetRepository';
 
 const goldenFixture =
   require('../../../../assets/data/renderer-golden-fixture.json') as {
-    foregroundTolerance: number;
+    layoutTolerance: number;
     cases: {
       quote: Quote;
       preset: string;
       dimensions: { width: number; height: number };
       expected: {
-        foreground: {
-          quoteBox: { x: number; y: number; width: number; height: number };
-          fontSize: number;
-          lineCount: number;
-          maxLines: number;
-          alignment: string;
-          authorY: number | null;
-          truncated: boolean;
-          ellipsis: boolean;
-          accent: { x: number; y: number; radius: number };
-        };
+        quoteBox: { x: number; y: number; width: number; height: number };
+        fontSize: number;
+        lineCount: number;
+        maxLines: number;
+        alignment: string;
+        authorY: number | null;
+        truncated: boolean;
+        ellipsis: boolean;
+        accent: { x: number; y: number; radius: number };
       };
     }[];
   };
@@ -94,6 +92,44 @@ test.each([
   },
 );
 
+// Mutation caught: changing a shared fitting constant for only one renderer can
+// leave a particular alignment or the 274/minimum-size boundary unprotected.
+test('keeps every alignment and stress length in the 1080x2400 canonical safe box', () => {
+  const lengths = [30, 80, 150, 274];
+  const alignments = new Set(
+    getAllPresets().map((current) => current.textAlign),
+  );
+  expect(alignments).toEqual(new Set(['left', 'center', 'right']));
+
+  for (const current of getAllPresets()) {
+    for (const length of lengths) {
+      const composition = createComposition({
+        quote: quoteOfLength(length),
+        preset: current,
+        width: 1080,
+        height: 2400,
+      });
+      expect(composition.quoteBounds.y).toBeGreaterThanOrEqual(240);
+      expect(
+        composition.quoteBounds.y + composition.quoteBounds.height,
+      ).toBeLessThanOrEqual(2160);
+      expect(composition.maxQuoteLines).toBeGreaterThan(0);
+    }
+
+    const stress = createComposition({
+      quote: quoteOfLength(2_000),
+      preset: current,
+      width: 1080,
+      height: 2400,
+    });
+    expect(stress.quoteFontSize).toBe(
+      Math.round(1080 * current.minimumFontSizeRatio),
+    );
+    expect(stress.truncated).toBe(true);
+    expect(stress.maxQuoteLines).toBeGreaterThan(0);
+  }
+});
+
 // Mutation caught: omitting quote and preset identity from the cache key would overwrite a visually different export.
 test('creates a stable cache key for the same quote, preset, and dimensions', () => {
   const first = createComposition(
@@ -109,7 +145,7 @@ test('creates a stable cache key for the same quote, preset, and dimensions', ()
   expect(second.cacheKey).toBe(first.cacheKey);
 });
 
-test('loads every shared renderer golden fixture with frozen Task4 geometry', () => {
+test('loads every shared renderer golden fixture with one canonical layout', () => {
   for (const golden of goldenFixture.cases) {
     const goldenPreset = getPresetById(golden.preset)!;
     const composition = createComposition({
@@ -117,8 +153,8 @@ test('loads every shared renderer golden fixture with frozen Task4 geometry', ()
       preset: goldenPreset,
       ...golden.dimensions,
     });
-    const expected = golden.expected.foreground;
-    const tolerance = goldenFixture.foregroundTolerance;
+    const expected = golden.expected;
+    const tolerance = goldenFixture.layoutTolerance;
     const markSize = composition.quoteFontSize * 1.5;
     const markX =
       goldenPreset.textAlign === 'right'

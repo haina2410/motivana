@@ -13,12 +13,12 @@ import org.junit.runner.RunWith
 /** Executes the production renderer and Android's real StaticLayout for every shared golden case. */
 @RunWith(AndroidJUnit4::class)
 class CanvasWallpaperRendererInstrumentedTest {
-  @Test fun everySharedGoldenCaseMatchesFrozenAndroidMetrics() {
+  @Test fun everySharedGoldenCaseMatchesTheCanonicalLayoutContract() {
     val assets = InstrumentationRegistry.getInstrumentation().targetContext.assets
     val catalog = RotationCatalogLoader.load(assets)
     val renderer = CanvasWallpaperRenderer(catalog, emptyMap(), assets)
     val fixture = JSONObject(assets.open("data/renderer-golden-fixture.json").bufferedReader().use { it.readText() })
-    val tolerance = fixture.getDouble("androidTolerance").toFloat()
+    val tolerance = fixture.getDouble("layoutTolerance").toFloat()
     val cases = fixture.getJSONArray("cases")
     for (index in 0 until cases.length()) {
       val item = cases.getJSONObject(index)
@@ -28,7 +28,7 @@ class CanvasWallpaperRendererInstrumentedTest {
       val dimensions = item.getJSONObject("dimensions")
       val width = dimensions.getInt("width")
       val height = dimensions.getInt("height")
-      val expected = item.getJSONObject("expected").getJSONObject("android")
+      val expected = item.getJSONObject("expected")
       val box = expected.getJSONObject("quoteBox")
       val layout = renderer.layout(quote, preset, width, height)
       val accent = renderer.accentGeometry(layout, preset)

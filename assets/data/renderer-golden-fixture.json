@@ -1,6 +1,5 @@
 {
-  "androidTolerance": 1.0,
-  "foregroundTolerance": 0.01,
+  "layoutTolerance": 0.01,
   "cases": [
     {
       "name": "short-author-center-9x20",
@@ -13,33 +12,20 @@
       "preset": "midnight-focus",
       "dimensions": { "width": 1080, "height": 2400 },
       "expected": {
-        "foreground": {
-          "quoteBox": {
-            "x": 86.4,
-            "y": 950.58,
-            "width": 907.2,
-            "height": 162.84
-          },
-          "fontSize": 69,
-          "lineCount": 2,
-          "maxLines": 2,
-          "alignment": "center",
-          "authorY": 1166.22,
-          "truncated": false,
-          "ellipsis": false,
-          "accent": { "x": 138.15, "y": 916.08, "radius": 10.35 }
+        "quoteBox": {
+          "x": 86.4,
+          "y": 950.58,
+          "width": 907.2,
+          "height": 162.84
         },
-        "android": {
-          "quoteBox": { "x": 86.4, "y": 940.5, "width": 907.2, "height": 183 },
-          "fontSize": 69,
-          "lineCount": 2,
-          "maxLines": null,
-          "alignment": "center",
-          "authorY": 1176.3,
-          "truncated": false,
-          "ellipsis": false,
-          "accent": { "x": 138.15, "y": 906, "radius": 10.35 }
-        }
+        "fontSize": 69,
+        "lineCount": 2,
+        "maxLines": 2,
+        "alignment": "center",
+        "authorY": 1166.22,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": { "x": 138.15, "y": 916.08, "radius": 10.35 }
       }
     },
     {
@@ -53,28 +39,15 @@
       "preset": "sunrise-drive",
       "dimensions": { "width": 1080, "height": 1920 },
       "expected": {
-        "foreground": {
-          "quoteBox": { "x": 86.4, "y": 192, "width": 907.2, "height": 1534 },
-          "fontSize": 50,
-          "lineCount": 26,
-          "maxLines": 26,
-          "alignment": "left",
-          "authorY": null,
-          "truncated": false,
-          "ellipsis": false,
-          "accent": { "x": 123.9, "y": 167, "radius": 7.5 }
-        },
-        "android": {
-          "quoteBox": { "x": 86.4, "y": 192, "width": 907.2, "height": 1330 },
-          "fontSize": 47,
-          "lineCount": 20,
-          "maxLines": null,
-          "alignment": "left",
-          "authorY": null,
-          "truncated": false,
-          "ellipsis": false,
-          "accent": { "x": 121.65, "y": 168.5, "radius": 7.05 }
-        }
+        "quoteBox": { "x": 86.4, "y": 192, "width": 907.2, "height": 1534 },
+        "fontSize": 50,
+        "lineCount": 26,
+        "maxLines": 26,
+        "alignment": "left",
+        "authorY": null,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": { "x": 123.9, "y": 167, "radius": 7.5 }
       }
     },
     {
@@ -88,33 +61,20 @@
       "preset": "ember-action",
       "dimensions": { "width": 1080, "height": 1920 },
       "expected": {
-        "foreground": {
-          "quoteBox": {
-            "x": 86.4,
-            "y": 293.04,
-            "width": 907.2,
-            "height": 988.32
-          },
-          "fontSize": 71,
-          "lineCount": 12,
-          "maxLines": 12,
-          "alignment": "right",
-          "authorY": 1323.6,
-          "truncated": false,
-          "ellipsis": false,
-          "accent": { "x": 940.35, "y": 257.54, "radius": 10.65 }
+        "quoteBox": {
+          "x": 86.4,
+          "y": 293.04,
+          "width": 907.2,
+          "height": 988.32
         },
-        "android": {
-          "quoteBox": { "x": 86.4, "y": 242.2, "width": 907.2, "height": 1090 },
-          "fontSize": 71,
-          "lineCount": 9,
-          "maxLines": null,
-          "alignment": "right",
-          "authorY": 1374.44,
-          "truncated": false,
-          "ellipsis": false,
-          "accent": { "x": 940.35, "y": 206.7, "radius": 10.65 }
-        }
+        "fontSize": 71,
+        "lineCount": 12,
+        "maxLines": 12,
+        "alignment": "right",
+        "authorY": 1323.6,
+        "truncated": false,
+        "ellipsis": false,
+        "accent": { "x": 940.35, "y": 257.54, "radius": 10.65 }
       }
     },
     {
@@ -128,28 +88,15 @@
       "preset": "forest-discipline",
       "dimensions": { "width": 720, "height": 1280 },
       "expected": {
-        "foreground": {
-          "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 971.84 },
-          "fontSize": 24,
-          "lineCount": 32,
-          "maxLines": 32,
-          "alignment": "center",
-          "authorY": 1128,
-          "truncated": true,
-          "ellipsis": true,
-          "accent": { "x": 75.6, "y": 116, "radius": 3.6 }
-        },
-        "android": {
-          "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 943 },
-          "fontSize": 24,
-          "lineCount": 25,
-          "maxLines": 25,
-          "alignment": "center",
-          "authorY": 1099.16,
-          "truncated": true,
-          "ellipsis": true,
-          "accent": { "x": 75.6, "y": 116, "radius": 3.6 }
-        }
+        "quoteBox": { "x": 57.6, "y": 128, "width": 604.8, "height": 971.84 },
+        "fontSize": 24,
+        "lineCount": 32,
+        "maxLines": 32,
+        "alignment": "center",
+        "authorY": 1128,
+        "truncated": true,
+        "ellipsis": true,
+        "accent": { "x": 75.6, "y": 116, "radius": 3.6 }
       }
     }
   ]
