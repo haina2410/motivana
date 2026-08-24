@@ -133,8 +133,8 @@ export default function HomeScreen() {
           />
           <AppIconButton
             label="Next quote"
-            hint="Shows the next motivational quote."
-            onPress={state.nextQuote}
+            hint="Shows a random motivational quote."
+            onPress={state.randomQuote}
             symbol="›"
           />
           <AppIconButton
@@ -147,12 +147,6 @@ export default function HomeScreen() {
             hint="Adds or removes the current quote from favorites."
             onPress={() => void updateFavorite(state.currentQuoteId)}
             symbol="♥"
-          />
-          <AppIconButton
-            label="Random quote"
-            hint="Chooses a different quote at random."
-            onPress={state.randomQuote}
-            symbol="↻"
           />
         </View>
         {favoriteFeedback ? (

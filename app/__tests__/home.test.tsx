@@ -110,7 +110,6 @@ test('Home changes the quote and favorite state through accessible controls', as
     ),
   );
 
-  fireEvent.press(screen.getByLabelText('Random quote'));
   expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
 });
 
@@ -129,7 +128,7 @@ test('Home pushes each focused Stack route and enables Android wallpaper actions
   expect(screen.getByRole('button', { name: 'Save wallpaper' })).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Set wallpaper' })).toBeEnabled();
   expect(screen.getByLabelText('Next quote').props.accessibilityHint).toContain(
-    'next',
+    'random',
   );
 });
 

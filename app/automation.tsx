@@ -207,6 +207,12 @@ export default function AutomationScreen() {
             />
           ) : null}
         </View>
+        <SettingRow
+          label="Enable automatic rotation"
+          description="Apply a new wallpaper on the selected schedule."
+          value={enabled}
+          onValueChange={setEnabled}
+        />
         <View style={styles.section}>
           <Text allowFontScaling style={styles.label}>
             Every
@@ -247,12 +253,6 @@ export default function AutomationScreen() {
             ))}
           </View>
         </View>
-        <SettingRow
-          label="Enable automatic rotation"
-          description="Apply a new wallpaper on the selected schedule."
-          value={enabled}
-          onValueChange={setEnabled}
-        />
         <SettingRow
           label="Use favorite quotes only"
           description="Rotation will use only your saved quotes."

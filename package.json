@@ -49,6 +49,7 @@
   },
   "scripts": {
     "android": "expo run:android",
+    "expo": "expo",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "expo lint",
