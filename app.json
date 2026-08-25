@@ -5,22 +5,52 @@
     "scheme": "motivana",
     "version": "0.1.0",
     "orientation": "portrait",
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "newArchEnabled": true,
     "android": {
       "package": "org.haina2410.motivana",
-      "permissions": ["android.permission.SET_WALLPAPER"],
+      "permissions": [
+        "android.permission.SET_WALLPAPER"
+      ],
       "blockedPermissions": [
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_MEDIA_AUDIO",
         "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon-foreground.png",
+        "monochromeImage": "./assets/images/icon-monochrome.png",
+        "backgroundColor": "#FDFDFD"
+      }
     },
     "plugins": [
       "expo-router",
-      ["expo-media-library", { "granularPermissions": ["photo"] }]
-    ]
+      [
+        "expo-media-library",
+        {
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FDFDFD",
+          "dark": {
+            "image": "./assets/images/splash-icon-dark.png",
+            "backgroundColor": "#010318"
+          }
+        }
+      ]
+    ],
+    "icon": "./assets/images/icon.png"
   }
 }
