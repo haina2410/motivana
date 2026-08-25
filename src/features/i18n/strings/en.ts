@@ -7,8 +7,6 @@ export const en = {
   'home.loading': 'Preparing your wallpaper',
   'home.customize.label': 'Customize wallpaper',
   'home.customize.hint': 'Choose a wallpaper preset.',
-  'home.favorites.label': 'Open favorites',
-  'home.favorites.hint': 'Browse favorite quotes.',
   'home.automation.label': 'Open automation',
   'home.automation.hint': 'Review wallpaper rotation preferences.',
   'home.settings.label': 'Open settings',
@@ -45,6 +43,11 @@ export const en = {
   'favorites.empty.message': 'Favorite a quote from Home to use it here.',
   'favorites.item.hint': 'Uses this favorite quote on the Home wallpaper.',
   'favorites.item.label': 'Use {text}',
+  'favorites.remove.label': 'Remove {text} from favorites',
+  'favorites.remove.hint': 'Removes this quote from favorites.',
+  'favorites.removed': 'Quote removed from favorites.',
+  'favorites.remove.error':
+    'Rotation uses saved quotes only, so the last one has to stay.',
 
   'automation.eyebrow': 'AUTOMATION',
   'automation.title': 'Rotation',
@@ -202,8 +205,6 @@ export const en = {
   'tab.rotate.hint': 'Opens the automatic wallpaper schedule.',
 
   'home.today': 'Today',
-  'home.counter': '{index} / {total}',
-  'home.counter.label': 'Quote {index} of {total}',
   'home.restyle.label': 'Restyle',
   'home.restyle.hint': 'Opens the style controls for this wallpaper.',
   'home.set.label': 'Set wallpaper',
@@ -254,7 +255,7 @@ export const en = {
   'rotation.interval.option': '{hours}h',
   'rotation.source.label': 'Source',
   'rotation.source.saved': 'Saved quotes',
-  'rotation.source.all': 'All {count} quotes',
+  'rotation.source.all': 'All quotes',
   'rotation.runs.lastRun': 'Last run',
   'rotation.runs.nextRun': 'Next run',
   'rotation.runs.status': 'Status',

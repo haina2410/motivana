@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTranslate } from '../features/i18n/useTranslate';
 import type { StringKey } from '../features/i18n/t';
@@ -57,7 +58,9 @@ const tabs: readonly TabDefinition[] = [
 export function DeckTabBar({ active }: { active: DeckTab }) {
   const translate = useTranslate();
   return (
-    <View style={styles.bar}>
+    // The bar is the last thing on the screen, so it carries the bottom inset
+    // itself. Without it the tabs sit under the system navigation bar.
+    <SafeAreaView edges={['bottom']} style={styles.bar}>
       {tabs.map((tab) => {
         const selected = tab.key === active;
         return (
@@ -86,7 +89,7 @@ export function DeckTabBar({ active }: { active: DeckTab }) {
           </Pressable>
         );
       })}
-    </View>
+    </SafeAreaView>
   );
 }
 

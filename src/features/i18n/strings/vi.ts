@@ -9,8 +9,6 @@ export const vi: Record<keyof typeof en, string> = {
   'home.loading': 'Đang chuẩn bị hình nền',
   'home.customize.label': 'Tùy chỉnh hình nền',
   'home.customize.hint': 'Chọn một kiểu hình nền.',
-  'home.favorites.label': 'Mở danh sách yêu thích',
-  'home.favorites.hint': 'Xem các câu nói yêu thích.',
   'home.automation.label': 'Mở tự động đổi nền',
   'home.automation.hint': 'Xem lại tùy chọn đổi hình nền.',
   'home.settings.label': 'Mở cài đặt',
@@ -46,9 +44,14 @@ export const vi: Record<keyof typeof en, string> = {
   'favorites.empty.message': 'Hãy thêm một câu từ Trang chính để dùng ở đây.',
   'favorites.item.hint': 'Dùng câu yêu thích này cho hình nền Trang chính.',
   'favorites.item.label': 'Dùng {text}',
+  'favorites.remove.label': 'Bỏ {text} khỏi mục đã lưu',
+  'favorites.remove.hint': 'Bỏ câu này khỏi mục đã lưu.',
+  'favorites.removed': 'Đã bỏ câu khỏi mục đã lưu.',
+  'favorites.remove.error':
+    'Đổi hình nền chỉ dùng câu đã lưu, nên phải giữ lại câu cuối.',
 
   'automation.eyebrow': 'TỰ ĐỘNG',
-  'automation.title': 'Đổi hình nền',
+  'automation.title': 'Đổi hình nền tự động',
   'automation.available.title': 'Có thể đặt hình nền',
   'automation.available.message':
     'Việc đổi nền chạy theo khoảng thời gian gần đúng; Android có thể hoãn lại để tiết kiệm pin.',
@@ -186,7 +189,7 @@ export const vi: Record<keyof typeof en, string> = {
   'actions.target.lock': 'Đặt Màn hình khóa',
   'actions.target.both': 'Đặt cả hai màn hình',
 
-  'tab.deck': 'Bộ thẻ',
+  'tab.deck': 'Bộ quote',
   'tab.deck.hint': 'Hiện bộ hình nền của hôm nay.',
   'tab.presets': 'Mẫu',
   'tab.presets.hint':
@@ -197,8 +200,6 @@ export const vi: Record<keyof typeof en, string> = {
   'tab.rotate.hint': 'Mở lịch tự đổi hình nền.',
 
   'home.today': 'Hôm nay',
-  'home.counter': '{index} / {total}',
-  'home.counter.label': 'Câu {index} trong {total}',
   'home.restyle.label': 'Đổi kiểu',
   'home.restyle.hint': 'Mở các tuỳ chọn kiểu chữ cho hình nền này.',
   'home.set.label': 'Đặt hình nền',
@@ -208,9 +209,9 @@ export const vi: Record<keyof typeof en, string> = {
 
   'style.title': 'Kiểu',
   'style.close.label': 'Đóng kiểu',
-  'style.close.hint': 'Trở về bộ thẻ và không đổi gì thêm.',
+  'style.close.hint': 'Trở về bộ quote và không đổi gì thêm.',
   'style.done': 'Xong',
-  'style.done.hint': 'Trở về bộ thẻ.',
+  'style.done.hint': 'Trở về bộ quote.',
   'style.typeface.label': 'Kiểu chữ',
   'style.typeface.option': 'Đổi kiểu chữ sang {name}',
   'style.size.label': 'Cỡ chữ',
@@ -250,7 +251,7 @@ export const vi: Record<keyof typeof en, string> = {
   'rotation.interval.option': '{hours} giờ',
   'rotation.source.label': 'Nguồn',
   'rotation.source.saved': 'Câu đã lưu',
-  'rotation.source.all': 'Cả {count} câu',
+  'rotation.source.all': 'Tất cả',
   'rotation.runs.lastRun': 'Lần chạy trước',
   'rotation.runs.nextRun': 'Lần chạy tới',
   'rotation.runs.status': 'Trạng thái',

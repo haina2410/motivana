@@ -19,10 +19,7 @@ import { DeckTabBar } from '../src/components/DeckTabBar';
 import { SafeAreaGuides } from '../src/components/SafeAreaGuides';
 import { SetWallpaperSheet } from '../src/components/SetWallpaperSheet';
 import { Toast } from '../src/components/Toast';
-import {
-  getAllQuotes,
-  getQuoteById,
-} from '../src/features/quotes/quoteRepository';
+import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../src/features/wallpaper/composition';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
@@ -92,12 +89,6 @@ export default function HomeScreen() {
     state.selectedPresetId,
   ]);
   const preset = getPresetById(state.selectedPresetId);
-  const pool = getAllQuotes(state.contentLocale);
-  const position = pool.findIndex((quote) => quote.id === state.currentQuoteId);
-  const counter = {
-    index: position === -1 ? 1 : position + 1,
-    total: pool.length,
-  };
   const isFavorite = state.favoriteQuoteIds.includes(state.currentQuoteId);
 
   return (
@@ -112,12 +103,7 @@ export default function HomeScreen() {
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <AppIconButton
-            icon="heart"
-            label={translate('home.favorites.label')}
-            hint={translate('home.favorites.hint')}
-            onPress={() => router.push('/favorites')}
-          />
+          {/* No heart here: the Saved tab already carries that direction. */}
           <AppIconButton
             icon="gear"
             label={translate('home.settings.label')}
@@ -158,9 +144,6 @@ export default function HomeScreen() {
               />
             </>
           ) : null}
-          <Text allowFontScaling style={styles.counter}>
-            {translate('home.counter', counter)}
-          </Text>
         </View>
         <View style={styles.actionRow}>
           <AppButton
@@ -387,7 +370,6 @@ const styles = StyleSheet.create({
   },
   footer: { gap: 10, paddingHorizontal: spacing.x3, paddingBottom: spacing.x2 },
   chips: { alignItems: 'center', flexDirection: 'row', gap: spacing.x1 },
-  counter: { ...typography.caption, flexShrink: 0, marginLeft: 'auto' },
   actionRow: { flexDirection: 'row', gap: 10 },
   actionButton: { flex: 1 },
   loading: {

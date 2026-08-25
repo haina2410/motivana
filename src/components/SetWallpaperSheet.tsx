@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type {
   WallpaperCapabilities,
@@ -221,7 +222,9 @@ export function SetWallpaperSheet({
           onPress={onClose}
           style={styles.dismissArea}
         />
-        <View style={styles.sheet}>
+        {/* The sheet rises from the bottom edge, so it must clear the system
+            navigation bar on its own. */}
+        <SafeAreaView edges={['bottom']} style={styles.sheet}>
           <View style={styles.grabber} />
           <Text allowFontScaling style={styles.title}>
             {translate('sheet.title')}
@@ -316,7 +319,7 @@ export function SetWallpaperSheet({
             style={styles.close}
             variant="plain"
           />
-        </View>
+        </SafeAreaView>
       </View>
     </Modal>
   );

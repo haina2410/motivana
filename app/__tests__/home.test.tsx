@@ -110,16 +110,16 @@ test('Home changes the quote and favorite state through accessible controls', as
 test('Home reaches every other screen and opens the wallpaper target sheet', () => {
   render(<HomeScreen />);
 
-  fireEvent.press(screen.getByLabelText(t('en', 'home.favorites.label')));
   fireEvent.press(screen.getByLabelText(t('en', 'home.settings.label')));
   fireEvent.press(screen.getByLabelText(t('en', 'home.restyle.label')));
-  expect(router.push).toHaveBeenCalledWith('/favorites');
   expect(router.push).toHaveBeenCalledWith('/settings');
   expect(router.push).toHaveBeenCalledWith('/style');
 
   fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.presets') }));
+  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.saved') }));
   fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.rotate') }));
   expect(router.navigate).toHaveBeenCalledWith('/customize');
+  expect(router.navigate).toHaveBeenCalledWith('/favorites');
   expect(router.navigate).toHaveBeenCalledWith('/automation');
 
   expect(screen.queryByText('target sheet')).toBeNull();
