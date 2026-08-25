@@ -162,12 +162,7 @@ export const vi: Record<keyof typeof en, string> = {
   'actions.set.hint': 'Chọn màn hình nào nhận hình nền hiện tại.',
   'actions.retry.label': 'Thử đặt hình nền lại',
   'actions.retry.hint': 'Làm lại thao tác đã lỗi với cùng hình nền đã xuất.',
-  'actions.appSettings.label': 'Mở cài đặt ứng dụng',
-  'actions.appSettings.hint':
-    'Mở cài đặt Android của ứng dụng để bật quyền truy cập ảnh.',
   'actions.export.failed': 'Xuất ảnh lỗi: {code}.',
-  'actions.error.permissionDenied':
-    'Cần quyền truy cập ảnh để lưu hình nền này.',
   'actions.error.wallpaperNotAllowed':
     'Thiết bị này không cho phép đổi hình nền.',
   'actions.error.lockUnsupported':

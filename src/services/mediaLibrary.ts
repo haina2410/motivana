@@ -2,7 +2,6 @@ import { Paths } from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 
 export type WallpaperServiceErrorCode =
-  | 'PERMISSION_DENIED'
   | 'FILE_NOT_FOUND'
   | 'SAVE_FAILED'
   | 'INVALID_TARGET'
@@ -24,7 +23,6 @@ export type WallpaperServiceErrorCode =
   | 'SYSTEM_FAILED';
 
 const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
-  PERMISSION_DENIED: 'Photo permission is needed to save this wallpaper.',
   FILE_NOT_FOUND:
     'The exported wallpaper is unavailable. Render it again and retry.',
   SAVE_FAILED: 'Could not save the wallpaper.',
@@ -52,24 +50,14 @@ const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
 };
 
 export class WallpaperServiceError extends Error {
-  readonly canAskAgain?: boolean;
-
-  constructor(
-    readonly code: WallpaperServiceErrorCode,
-    options?: { canAskAgain?: boolean },
-  ) {
+  constructor(readonly code: WallpaperServiceErrorCode) {
     super(errorMessages[code]);
     this.name = 'WallpaperServiceError';
-    this.canAskAgain = options?.canAskAgain;
   }
 }
 
 export interface MediaLibrarySaveDependencies {
   appCacheUri: string;
-  requestPermissionsAsync(options: {
-    writeOnly: true;
-    granularPermissions: ['photo'];
-  }): Promise<{ granted: boolean; canAskAgain: boolean }>;
   createAsset(uri: string): Promise<{ id: string }>;
 }
 
@@ -88,20 +76,6 @@ export function createMediaLibrarySaver(
     if (!isAppOwnedWallpaperUri(uri, dependencies.appCacheUri)) {
       throw new WallpaperServiceError('FILE_NOT_FOUND');
     }
-    let permission: { granted: boolean; canAskAgain: boolean };
-    try {
-      permission = await dependencies.requestPermissionsAsync({
-        writeOnly: true,
-        granularPermissions: ['photo'],
-      });
-    } catch {
-      throw new WallpaperServiceError('SAVE_FAILED');
-    }
-    if (!permission.granted) {
-      throw new WallpaperServiceError('PERMISSION_DENIED', {
-        canAskAgain: permission.canAskAgain,
-      });
-    }
     try {
       const asset = await dependencies.createAsset(uri);
       return { assetId: asset.id };
@@ -111,10 +85,11 @@ export function createMediaLibrarySaver(
   };
 }
 
+// No permission request precedes the write. From Android 11 the library adds
+// the asset with a MediaStore insert, which needs no permission, and the app
+// declares none. The minimum SDK is pinned to 30 to keep that path the only one.
 const mediaLibraryDependencies: MediaLibrarySaveDependencies = {
   appCacheUri: Paths.cache.uri,
-  requestPermissionsAsync: async () =>
-    MediaLibrary.requestPermissionsAsync(true, ['photo']),
   createAsset: (uri) => MediaLibrary.Asset.create(uri),
 };
 
