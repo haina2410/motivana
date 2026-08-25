@@ -5,11 +5,15 @@
     "scheme": "motivana",
     "version": "0.1.0",
     "orientation": "portrait",
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "newArchEnabled": true,
     "android": {
       "package": "org.haina2410.motivana",
-      "permissions": ["android.permission.SET_WALLPAPER"],
+      "permissions": [
+        "android.permission.SET_WALLPAPER"
+      ],
       "blockedPermissions": [
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_MEDIA_AUDIO",
@@ -20,7 +24,20 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-media-library", { "granularPermissions": ["photo"] }]
-    ]
+      [
+        "expo-media-library",
+        {
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "083f84d8-7c5e-4825-a9cd-11d51edf20ab"
+      }
+    }
   }
 }
