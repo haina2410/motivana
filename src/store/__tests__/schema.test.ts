@@ -38,7 +38,7 @@ test('falls back to defaults when persisted JSON is corrupt', () => {
   );
 
   expect(state).toMatchObject({
-    version: 2,
+    version: 3,
     currentQuoteId: getAllQuotes()[0]!.id,
     selectedPresetId: 'midnight-focus',
     favoriteQuoteIds: [],
@@ -56,7 +56,7 @@ test('falls back from a future persisted version and emits a safe warning', () =
   const state = hydrateAppState(
     createMemoryStorage({
       'motivana.app-state': JSON.stringify({
-        version: 3,
+        version: 4,
         secret: 'do-not-log-me',
       }),
     }),
@@ -145,7 +145,7 @@ test('migrates version 1 state and keeps every favorite', () => {
     wallpaperTarget: 'both',
   });
 
-  expect(migrated.version).toBe(2);
+  expect(migrated.version).toBe(3);
   expect(migrated.favoriteQuoteIds).toEqual(['motivation-001', 'focus-002']);
   expect(migrated.randomizePreset).toBe(true);
   expect(migrated.rotationIntervalHours).toBe(12);

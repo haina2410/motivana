@@ -16,8 +16,8 @@ class RotationContractTest {
       testEntry("two", "Another sufficiently long quote for selection."),
     ),
     presets = listOf(
-      RotationPreset("first", "Inter", "Regular", "center", 0.43, 0.06, 0.03, 1.2, "#FFFFFF", "#D9E6FF", RotationBackground.Solid("#000000")),
-      RotationPreset("second", "Oswald", "Medium", "left", 0.43, 0.06, 0.03, 1.2, "#FFFFFF", "#D9E6FF", RotationBackground.Solid("#000000")),
+      RotationPreset("first", "BeVietnamPro", "Light", "center", 0.43, 0.06, 0.03, 1.2, "#FFFFFF", "#D9E6FF", RotationBackground.Solid("#000000")),
+      RotationPreset("second", "DancingScript", "Medium", "left", 0.43, 0.06, 0.03, 1.2, "#FFFFFF", "#D9E6FF", RotationBackground.Solid("#000000")),
     ),
   )
 

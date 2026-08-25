@@ -1,7 +1,10 @@
 import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 import { configureRotation } from '../src/services/wallpaperNative';
 import { setRotationSynchronizer } from '../src/store/automationSynchronization';
+import { colors } from '../src/theme/colors';
+import { useAppFonts } from '../src/theme/useAppFonts';
 
 setRotationSynchronizer(async (state) =>
   configureRotation({
@@ -17,5 +20,21 @@ setRotationSynchronizer(async (state) =>
 );
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  const fontsReady = useAppFonts();
+  // Rendering the tree before the chrome faces resolve would flash the system
+  // font at every label, so the ink background holds for one frame instead.
+  if (!fontsReady) return null;
+  return (
+    <>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background },
+          // The board's supporting screens rise over the deck.
+          animation: 'fade',
+        }}
+      />
+    </>
+  );
 }

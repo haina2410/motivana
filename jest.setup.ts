@@ -17,5 +17,8 @@ jest.mock('expo-media-library', () => ({
   Asset: { create: jest.fn() },
 }));
 jest.mock('expo-router', () => ({
-  router: { back: jest.fn(), push: jest.fn() },
+  router: { back: jest.fn(), push: jest.fn(), navigate: jest.fn() },
 }));
+// The icon set ships its own font, which Jest cannot resolve as a binary asset.
+jest.mock('@expo/vector-icons/FontAwesome6', () => 'FontAwesome6');
+jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));

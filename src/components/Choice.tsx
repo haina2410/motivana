@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 
 export function Choice({
   label,
@@ -29,7 +30,10 @@ export function Choice({
         disabled && styles.disabled,
       ]}
     >
-      <Text allowFontScaling style={styles.choiceText}>
+      <Text
+        allowFontScaling
+        style={[styles.choiceText, selected && styles.selectedText]}
+      >
         {label}
       </Text>
     </Pressable>
@@ -38,17 +42,14 @@ export function Choice({
 
 const styles = StyleSheet.create({
   choice: {
-    borderColor: colors.border,
-    borderRadius: spacing.radius,
-    borderWidth: 1,
-    minHeight: spacing.control,
-    paddingHorizontal: spacing.x2,
+    backgroundColor: colors.fill,
+    borderRadius: spacing.pill,
     justifyContent: 'center',
+    minHeight: 38,
+    paddingHorizontal: 16,
   },
-  selected: {
-    backgroundColor: colors.surfaceRaised,
-    borderColor: colors.accent,
-  },
-  disabled: { opacity: 0.48 },
-  choiceText: { color: colors.text, fontSize: 14, fontWeight: '700' },
+  selected: { backgroundColor: colors.accent },
+  disabled: { opacity: 0.4 },
+  choiceText: { ...typography.chip, color: colors.mutedText },
+  selectedText: { color: colors.onAccent },
 });

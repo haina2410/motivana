@@ -44,6 +44,8 @@ export interface AppState extends PersistedAppStateV2 {
   setAppLocale(locale: Locale): Promise<boolean>;
   setContentLocale(locale: Locale): Promise<boolean>;
   setFavoriteQuotesOnly(favoriteQuotesOnly: boolean): Promise<boolean>;
+  setSaveToPhotoLibrary(saveToPhotoLibrary: boolean): boolean;
+  setShowSafeGuides(showSafeGuides: boolean): boolean;
   setRotationConfiguration(
     configuration: RotationConfiguration,
   ): Promise<boolean>;
@@ -230,6 +232,16 @@ function createAppState(
           return { ...state, favoriteQuotesOnly };
         });
       },
+      // Neither option reaches the native rotation worker, so a plain commit is
+      // enough: there is no schedule to keep in step.
+      setSaveToPhotoLibrary: (saveToPhotoLibrary) =>
+        typeof saveToPhotoLibrary === 'boolean'
+          ? commit({ ...toPersistedState(get()), saveToPhotoLibrary })
+          : false,
+      setShowSafeGuides: (showSafeGuides) =>
+        typeof showSafeGuides === 'boolean'
+          ? commit({ ...toPersistedState(get()), showSafeGuides })
+          : false,
       setRotationConfiguration: (configuration) => {
         if (
           !isRecord(configuration) ||
@@ -279,6 +291,8 @@ function toPersistedState(state: AppState): PersistedAppStateV2 {
     rotationEnabled,
     rotationIntervalHours,
     wallpaperTarget,
+    saveToPhotoLibrary,
+    showSafeGuides,
   } = state;
 
   return {
@@ -294,6 +308,8 @@ function toPersistedState(state: AppState): PersistedAppStateV2 {
     rotationEnabled,
     rotationIntervalHours,
     wallpaperTarget,
+    saveToPhotoLibrary,
+    showSafeGuides,
   };
 }
 

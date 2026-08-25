@@ -10,8 +10,14 @@ import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
 import { t } from '../../src/features/i18n/t';
 
+jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native');
+  return { WallpaperCanvas: () => <View /> };
+});
+
 beforeEach(() => {
-  jest.mocked(router.back).mockClear();
+  jest.mocked(router.navigate).mockClear();
   useAppStore.setState(createDefaultPersistedAppState());
 });
 
@@ -22,7 +28,7 @@ test('Favorites explains how to add the first quote when empty', () => {
   ).toBeOnTheScreen();
 });
 
-test('selecting a favorite persists it and returns Home', () => {
+test('selecting a saved wallpaper persists its quote and returns to the deck', () => {
   const quote = getAllQuotes()[4]!;
   useAppStore.setState({ favoriteQuoteIds: [quote.id] });
   render(<FavoritesScreen />);
@@ -32,5 +38,5 @@ test('selecting a favorite persists it and returns Home', () => {
     screen.getByLabelText(t('en', 'favorites.item.label', { text })),
   );
   expect(useAppStore.getState().currentQuoteId).toBe(quote.id);
-  expect(router.back).toHaveBeenCalledTimes(1);
+  expect(router.navigate).toHaveBeenCalledWith('/');
 });

@@ -8,6 +8,12 @@ test('every Vietnamese entry differs from English except proper nouns', () => {
     'settings.about.title', // product name
     'language.en', // each language reads in its own name
     'language.vi', // each language reads in its own name
+    'home.counter', // pure format string: "3 / 120"
+    // A typeface name is the designer's proper noun in every language.
+    'preset.face.CormorantGaramond',
+    'preset.face.BeVietnamPro',
+    'preset.face.DancingScript',
+    'preset.face.Lora',
   ]);
   const untranslated = Object.keys(en).filter(
     (key) =>

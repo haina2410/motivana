@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { Component, type ReactNode, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  type LayoutChangeEvent,
   PixelRatio,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -12,19 +12,24 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
+import { AppButton } from '../src/components/AppButton';
 import { AppIconButton } from '../src/components/AppIconButton';
+import { Chip } from '../src/components/Chip';
+import { DeckTabBar } from '../src/components/DeckTabBar';
+import { SafeAreaGuides } from '../src/components/SafeAreaGuides';
+import { SetWallpaperSheet } from '../src/components/SetWallpaperSheet';
 import { Toast } from '../src/components/Toast';
-import { WallpaperActions } from '../src/components/WallpaperActions';
-import { getQuoteById } from '../src/features/quotes/quoteRepository';
+import {
+  getAllQuotes,
+  getQuoteById,
+} from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../src/features/wallpaper/composition';
-import {
-  fitPreviewBox,
-  wallpaperPixelDimensions,
-} from '../src/features/wallpaper/dimensions';
+import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import type { Locale } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
+import type { StringKey } from '../src/features/i18n/t';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
 import { useAppStore } from '../src/store/useAppStore';
@@ -38,6 +43,7 @@ export default function HomeScreen() {
   const state = useAppStore();
   const translate = useTranslate();
   const [favoriteBusy, setFavoriteBusy] = useState(false);
+  const [targetSheetOpen, setTargetSheetOpen] = useState(false);
   const [favoriteFeedback, setFavoriteFeedback] = useState<
     { message: string; retryQuoteId?: string } | undefined
   >();
@@ -81,45 +87,42 @@ export default function HomeScreen() {
     dimensions.height,
     dimensions.width,
     fonts,
+    state.contentLocale,
     state.currentQuoteId,
     state.selectedPresetId,
   ]);
+  const preset = getPresetById(state.selectedPresetId);
+  const pool = getAllQuotes(state.contentLocale);
+  const position = pool.findIndex((quote) => quote.id === state.currentQuoteId);
+  const counter = {
+    index: position === -1 ? 1 : position + 1,
+    total: pool.length,
+  };
+  const isFavorite = state.favoriteQuoteIds.includes(state.currentQuoteId);
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
       <View style={styles.header}>
         <View>
-          <Text allowFontScaling style={typography.eyebrow}>
-            {translate('home.eyebrow')}
+          <Text allowFontScaling style={styles.date}>
+            {formatToday(state.appLocale)}
           </Text>
           <Text allowFontScaling style={styles.title}>
-            {translate('home.title')}
+            {translate('home.today')}
           </Text>
         </View>
-        <View style={styles.nav}>
+        <View style={styles.headerActions}>
           <AppIconButton
-            label={translate('home.customize.label')}
-            hint={translate('home.customize.hint')}
-            onPress={() => router.push('/customize')}
-            symbol="✦"
-          />
-          <AppIconButton
+            icon="heart"
             label={translate('home.favorites.label')}
             hint={translate('home.favorites.hint')}
             onPress={() => router.push('/favorites')}
-            symbol="♥"
           />
           <AppIconButton
-            label={translate('home.automation.label')}
-            hint={translate('home.automation.hint')}
-            onPress={() => router.push('/automation')}
-            symbol="◷"
-          />
-          <AppIconButton
+            icon="gear"
             label={translate('home.settings.label')}
             hint={translate('home.settings.hint')}
             onPress={() => router.push('/settings')}
-            symbol="⚙"
           />
         </View>
       </View>
@@ -132,35 +135,63 @@ export default function HomeScreen() {
         </View>
       ) : (
         <PreviewErrorBoundary>
-          <WallpaperPreview composition={composition} />
+          <PeekDeck
+            composition={composition}
+            onNext={state.randomQuote}
+            showGuides={state.showSafeGuides}
+          />
         </PreviewErrorBoundary>
       )}
       <View style={styles.footer}>
-        <View style={styles.controls}>
-          <AppIconButton
-            label={translate('home.previous.label')}
-            hint={translate('home.previous.hint')}
-            onPress={state.previousQuote}
-            symbol="‹"
-          />
-          <AppIconButton
-            label={translate('home.next.label')}
-            hint={translate('home.next.hint')}
-            onPress={state.randomQuote}
-            symbol="›"
-          />
-          <AppIconButton
+        <View style={styles.chips}>
+          {preset ? (
+            <>
+              <Chip
+                label={translate(`preset.${preset.id}.name` as StringKey)}
+                swatch={presetSwatch(preset.id)}
+              />
+              <Chip
+                icon="font"
+                label={translate(
+                  `preset.face.${preset.fontFamily}` as StringKey,
+                )}
+              />
+            </>
+          ) : null}
+          <Text allowFontScaling style={styles.counter}>
+            {translate('home.counter', counter)}
+          </Text>
+        </View>
+        <View style={styles.actionRow}>
+          <AppButton
             disabled={favoriteBusy}
+            icon="heart"
+            iconColor={isFavorite ? colors.accent : colors.text}
             label={
-              state.favoriteQuoteIds.includes(state.currentQuoteId)
+              isFavorite
                 ? translate('home.favorite.remove.label')
                 : translate('home.favorite.add.label')
             }
             hint={translate('home.favorite.hint')}
             onPress={() => void updateFavorite(state.currentQuoteId)}
-            symbol="♥"
+            style={styles.actionButton}
+            variant="outline"
+          />
+          <AppButton
+            icon="wand-magic-sparkles"
+            label={translate('home.restyle.label')}
+            hint={translate('home.restyle.hint')}
+            onPress={() => router.push('/style')}
+            style={styles.actionButton}
+            variant="outline"
           />
         </View>
+        <AppButton
+          disabled={!fonts || !composition}
+          hint={translate('home.set.hint')}
+          label={translate('home.set.label')}
+          onPress={() => setTargetSheetOpen(true)}
+        />
         {favoriteFeedback ? (
           <Toast
             duration={favoriteFeedback.retryQuoteId ? 0 : 4000}
@@ -170,55 +201,88 @@ export default function HomeScreen() {
           />
         ) : null}
         {favoriteFeedback?.retryQuoteId ? (
-          <AppIconButton
-            label={translate('home.favorite.retry.label')}
+          <AppButton
             hint={translate('home.favorite.retry.hint')}
+            label={translate('home.favorite.retry.label')}
             onPress={() => void updateFavorite(favoriteFeedback.retryQuoteId!)}
-            symbol="↻"
+            variant="outline"
           />
         ) : null}
-        {fonts && composition ? (
-          <WallpaperActions composition={composition} fontProvider={fonts} />
-        ) : null}
       </View>
+      <DeckTabBar active="deck" />
+      {fonts && composition ? (
+        <SetWallpaperSheet
+          composition={composition}
+          fontProvider={fonts}
+          onClose={() => setTargetSheetOpen(false)}
+          visible={targetSheetOpen}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
 
-function WallpaperPreview({
+/**
+ * The board's home direction: two wallpapers peek out behind the live card, so
+ * the deck reads as a finite stack the reader handles rather than a feed.
+ */
+function PeekDeck({
   composition,
+  onNext,
+  showGuides,
 }: {
   composition: WallpaperComposition | undefined;
+  onNext: () => boolean;
+  showGuides: boolean;
 }) {
+  const translate = useTranslate();
   if (!composition) {
     throw new Error('The selected wallpaper data is unavailable.');
   }
-  return <FittedPreview composition={composition} />;
-}
-
-function FittedPreview({ composition }: { composition: WallpaperComposition }) {
-  const [area, setArea] = useState<{ width: number; height: number }>();
-  const onAreaLayout = (event: LayoutChangeEvent) => {
-    const { width, height } = event.nativeEvent.layout;
-    setArea((current) =>
-      current?.width === width && current?.height === height
-        ? current
-        : { width, height },
-    );
-  };
-  const box = area
-    ? fitPreviewBox(area, composition.width / composition.height)
-    : undefined;
   return (
-    <View onLayout={onAreaLayout} style={styles.previewArea}>
-      <View style={[styles.preview, box]}>
-        <WallpaperCanvas
-          composition={composition}
-          style={StyleSheet.absoluteFill}
-        />
-      </View>
+    <View style={styles.deck}>
+      <View pointerEvents="none" style={[styles.peek, styles.peekFar]} />
+      <View pointerEvents="none" style={[styles.peek, styles.peekNear]} />
+      <Pressable
+        accessibilityHint={translate('home.next.hint')}
+        accessibilityLabel={translate('home.next.label')}
+        accessibilityRole="button"
+        onPress={onNext}
+        style={styles.card}
+      >
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+          <WallpaperCanvas
+            composition={composition}
+            style={StyleSheet.absoluteFill}
+          />
+          {showGuides ? <SafeAreaGuides /> : null}
+        </View>
+      </Pressable>
     </View>
   );
+}
+
+/** The reader's own date, in their interface language. */
+function formatToday(locale: Locale): string {
+  const today = new Date();
+  try {
+    return today.toLocaleDateString(locale, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+  } catch {
+    return today.toDateString();
+  }
+}
+
+/** The dot on the preset chip, taken from the preset's own background. */
+function presetSwatch(presetId: string): string {
+  const preset = getPresetById(presetId);
+  if (!preset) return colors.accent;
+  return preset.background.kind === 'solid'
+    ? preset.background.color
+    : preset.background.startColor;
 }
 
 function createWallpaperComposition(
@@ -280,48 +344,58 @@ function RenderError({ onRetry }: { onRetry: () => void }) {
         title={translate('home.preview.title')}
         message={translate('home.preview.error')}
       />
-      <AppIconButton
-        label={translate('home.preview.retry.label')}
+      <AppButton
         hint={translate('home.preview.retry.hint')}
+        icon="rotate-right"
+        label={translate('home.preview.retry.label')}
         onPress={onRetry}
-        symbol="↻"
+        variant="outline"
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-    gap: spacing.x2,
-    paddingHorizontal: spacing.x2,
-    paddingVertical: spacing.x1,
-  },
-  header: { gap: spacing.x1 },
-  nav: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
-  footer: { gap: spacing.x1 },
-  controls: {
+  screen: { backgroundColor: colors.background, flex: 1 },
+  header: {
+    alignItems: 'flex-end',
     flexDirection: 'row',
-    gap: spacing.x1,
     justifyContent: 'space-between',
+    paddingHorizontal: spacing.x3,
+    paddingTop: spacing.x1,
   },
+  headerActions: { flexDirection: 'row', gap: spacing.x1 },
+  date: { ...typography.caption, fontSize: 11, letterSpacing: 0.5 },
+  title: { ...typography.title, fontSize: 21, marginTop: 6 },
+  deck: { flex: 1, justifyContent: 'center', paddingVertical: spacing.x2 },
+  // The two cards behind the live one are offset the way the board draws them.
+  peek: {
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: 24,
+    bottom: spacing.x3,
+    position: 'absolute',
+    top: spacing.x3,
+  },
+  peekFar: { left: spacing.x5, opacity: 0.45, right: 0 },
+  peekNear: { left: spacing.x4, opacity: 0.7, right: spacing.x1 },
+  card: {
+    borderRadius: spacing.radiusLarge,
+    flex: 1,
+    marginLeft: spacing.x3,
+    marginRight: spacing.x4,
+    overflow: 'hidden',
+  },
+  footer: { gap: 10, paddingHorizontal: spacing.x3, paddingBottom: spacing.x2 },
+  chips: { alignItems: 'center', flexDirection: 'row', gap: spacing.x1 },
+  counter: { ...typography.caption, flexShrink: 0, marginLeft: 'auto' },
+  actionRow: { flexDirection: 'row', gap: 10 },
+  actionButton: { flex: 1 },
   loading: {
     alignItems: 'center',
     flex: 1,
     gap: spacing.x2,
     justifyContent: 'center',
+    paddingHorizontal: spacing.x3,
   },
-  loadingText: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  previewArea: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    minHeight: 280,
-  },
-  preview: {
-    overflow: 'hidden',
-    borderRadius: spacing.radiusLarge,
-  },
-  title: typography.title,
+  loadingText: { ...typography.rowLabel, fontSize: 16 },
 });

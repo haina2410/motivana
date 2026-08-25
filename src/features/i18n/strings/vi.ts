@@ -127,9 +127,6 @@ export const vi: Record<keyof typeof en, string> = {
 
   'settings.eyebrow': 'GIỮ THEO CÁCH CỦA BẠN',
   'settings.title': 'Cài đặt',
-  'settings.preset.title': 'Kiểu nền hiện tại',
-  'settings.preset.action': 'Tùy chỉnh kiểu nền',
-  'settings.preset.hint': 'Mở Tùy chỉnh để chọn kiểu hình nền bạn thích.',
   'settings.randomize.label': 'Đổi kiểu nền ngẫu nhiên',
   'settings.randomize.description':
     'Dùng một kiểu nền khác khi tính năng đổi nền sẵn sàng.',
@@ -158,8 +155,6 @@ export const vi: Record<keyof typeof en, string> = {
 
   'preview.item.hint': 'Dùng kiểu nền này và trở lại Trang chính.',
   'preset.thumbnail.label': 'Dùng kiểu nền {name}',
-  'preset.thumbnail.selected': 'Đã chọn',
-  'preset.thumbnail.tapToUse': 'Chạm để dùng',
 
   'actions.save.label': 'Lưu hình nền',
   'actions.save.hint': 'Xuất hình nền hiện tại và lưu vào ảnh của bạn.',
@@ -191,12 +186,111 @@ export const vi: Record<keyof typeof en, string> = {
   'actions.target.lock': 'Đặt Màn hình khóa',
   'actions.target.both': 'Đặt cả hai màn hình',
 
-  'preset.midnight-focus.name': 'Tập Trung Nửa Đêm',
-  'preset.sunrise-drive.name': 'Động Lực Ban Mai',
-  'preset.forest-discipline.name': 'Kỷ Luật Rừng Xanh',
-  'preset.violet-growth.name': 'Trưởng Thành Tím',
-  'preset.paper-confidence.name': 'Tự Tin Trên Giấy',
-  'preset.ocean-success.name': 'Thành Công Đại Dương',
-  'preset.ember-action.name': 'Hành Động Rực Lửa',
-  'preset.mono-clarity.name': 'Rõ Ràng Đơn Sắc',
+  'tab.deck': 'Bộ thẻ',
+  'tab.deck.hint': 'Hiện bộ hình nền của hôm nay.',
+  'tab.presets': 'Mẫu',
+  'tab.presets.hint':
+    'Chọn nền, kiểu chữ và cách dàn trang trong một lần chạm.',
+  'tab.saved': 'Đã lưu',
+  'tab.saved.hint': 'Mở những câu bạn đã lưu.',
+  'tab.rotate': 'Tự đổi',
+  'tab.rotate.hint': 'Mở lịch tự đổi hình nền.',
+
+  'home.today': 'Hôm nay',
+  'home.counter': '{index} / {total}',
+  'home.counter.label': 'Câu {index} trong {total}',
+  'home.restyle.label': 'Đổi kiểu',
+  'home.restyle.hint': 'Mở các tuỳ chọn kiểu chữ cho hình nền này.',
+  'home.set.label': 'Đặt hình nền',
+  'home.set.hint': 'Chọn màn hình nào nhận hình nền này.',
+  'home.save.label': 'Lưu',
+  'home.font.label': 'Kiểu chữ: {name}',
+
+  'style.title': 'Kiểu',
+  'style.close.label': 'Đóng kiểu',
+  'style.close.hint': 'Trở về bộ thẻ và không đổi gì thêm.',
+  'style.done': 'Xong',
+  'style.done.hint': 'Trở về bộ thẻ.',
+  'style.typeface.label': 'Kiểu chữ',
+  'style.typeface.option': 'Đổi kiểu chữ sang {name}',
+  'style.size.label': 'Cỡ chữ',
+  'style.size.value': '{percent}% chiều ngang hình nền',
+  'style.lineHeight.label': 'Giãn dòng',
+  'style.lineHeight.note': '{value} — đủ chỗ cho các dấu thanh xếp tầng.',
+  'style.alignment.label': 'Căn lề',
+  'style.alignment.left': 'Căn trái',
+  'style.alignment.center': 'Căn giữa',
+  'style.alignment.right': 'Căn phải',
+  'style.readOnly':
+    'Cỡ chữ, giãn dòng và căn lề thuộc về mẫu, nên hình nền tự đổi hiện đúng như bản xem trước này.',
+  'style.error': 'Không đổi được kiểu chữ. Hãy thử lại.',
+
+  'presets.subtitle':
+    'Chọn nền, kiểu chữ và cách dàn trang trong một lần chạm.',
+
+  'saved.count': 'Đã lưu {count}',
+  'saved.rotate.label': 'Tự đổi trong mục đã lưu',
+  'saved.rotate.hint':
+    'Mở mục tự đổi, nơi có thể lấy các câu đã lưu làm nguồn.',
+
+  'sheet.title': 'Đặt hình nền ở đâu?',
+  'sheet.subtitle':
+    'Đặt trực tiếp qua WallpaperManager. Không có gì rời khỏi máy.',
+  'sheet.note':
+    'Đặt cho màn hình khoá cần Android 8.0 hoặc mới hơn. Với bản cũ hơn, Motivana chỉ đặt cho màn hình chính và nói rõ điều đó.',
+  'sheet.apply': 'Áp dụng',
+  'sheet.apply.hint': 'Đặt hình nền này cho màn hình bạn chọn.',
+  'sheet.close.label': 'Đóng',
+  'sheet.close.hint': 'Đóng thẻ này và không đặt hình nền.',
+  'sheet.target.home': 'Màn hình chính',
+  'sheet.target.lock': 'Màn hình khoá',
+  'sheet.target.both': 'Cả hai',
+  'sheet.saveAlso': 'Một bản sao cũng vào thư viện ảnh.',
+
+  'rotation.interval.option': '{hours} giờ',
+  'rotation.source.label': 'Nguồn',
+  'rotation.source.saved': 'Câu đã lưu',
+  'rotation.source.all': 'Cả 120 câu',
+  'rotation.runs.lastRun': 'Lần chạy trước',
+  'rotation.runs.nextRun': 'Lần chạy tới',
+  'rotation.runs.status': 'Trạng thái',
+  'rotation.runs.pending': 'Chưa có',
+  'rotation.battery':
+    'Tính năng tiết kiệm pin có thể làm chậm một lần chạy. Hãy loại Motivana ra để giữ đúng giờ.',
+  'rotation.enable.description': 'Chạy trên máy qua WorkManager.',
+
+  'settings.offline.title': 'Hoàn toàn ngoại tuyến',
+  'settings.offline.message':
+    'Không tài khoản, không máy chủ, không phân tích. Câu nói, mẫu, phông chữ và ảnh xuất ra đều ở lại trên máy này.',
+  'settings.export.label': 'Xuất ảnh',
+  'settings.resolution.label': 'Độ phân giải',
+  'settings.language.label': 'Ngôn ngữ',
+  'settings.saveToLibrary.label': 'Lưu vào thư viện ảnh',
+  'settings.saveToLibrary.description':
+    'Khi đặt hình nền, giữ thêm một bản sao trong thư viện ảnh.',
+  'settings.saveToLibrary.updated': 'Đã cập nhật tuỳ chọn thư viện ảnh.',
+  'settings.safeGuides.label': 'Hiện đường an toàn',
+  'settings.safeGuides.description':
+    'Vẽ vùng đồng hồ và lề biểu tượng của màn hình chính lên bản xem trước.',
+  'settings.safeGuides.updated': 'Đã cập nhật tuỳ chọn đường an toàn.',
+  'settings.about.label': 'Giới thiệu',
+  'settings.licences.label': 'Giấy phép phông chữ · OFL',
+  'settings.licences.hint':
+    'Mọi phông chữ kèm theo đều dùng giấy phép SIL Open Font License.',
+  'settings.version.label': 'Phiên bản',
+  'settings.version.value': '{version} · ngoại tuyến',
+
+  'preset.face.CormorantGaramond': 'Cormorant Garamond',
+  'preset.face.BeVietnamPro': 'Be Vietnam Pro',
+  'preset.face.DancingScript': 'Dancing Script',
+  'preset.face.Lora': 'Lora',
+
+  'preset.midnight-focus.name': 'Nửa đêm',
+  'preset.sunrise-drive.name': 'Cát',
+  'preset.forest-discipline.name': 'Ngọc bích',
+  'preset.violet-growth.name': 'Hồng phấn',
+  'preset.paper-confidence.name': 'Vải lanh',
+  'preset.ocean-success.name': 'Đá xám',
+  'preset.ember-action.name': 'Than hồng',
+  'preset.mono-clarity.name': 'Giấy',
 } as const;

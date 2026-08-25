@@ -29,18 +29,19 @@ const presetIds = [
   'mono-clarity',
 ];
 const presetFonts = [
-  { fontFamily: 'Inter', fontWeight: 'Regular' },
-  { fontFamily: 'Inter', fontWeight: 'SemiBold' },
+  { fontFamily: 'CormorantGaramond', fontWeight: 'Light' },
+  { fontFamily: 'CormorantGaramond', fontWeight: 'Regular' },
+  { fontFamily: 'BeVietnamPro', fontWeight: 'Light' },
+  { fontFamily: 'DancingScript', fontWeight: 'Medium' },
   { fontFamily: 'Lora', fontWeight: 'Regular' },
   { fontFamily: 'Lora', fontWeight: 'SemiBold' },
-  { fontFamily: 'Oswald', fontWeight: 'Medium' },
 ];
 
 const validPreset = {
   id: 'test-preset',
   name: 'Test preset',
-  fontFamily: 'Inter',
-  fontWeight: 'Regular',
+  fontFamily: 'CormorantGaramond',
+  fontWeight: 'Light',
   textAlign: 'center',
   quotePositionY: 0.45,
   textColor: '#FFFFFF',
@@ -101,20 +102,18 @@ function serializedCatalogFiles(): Record<string, string | Buffer> {
         },
       })),
     ),
-    'assets/fonts/Inter-Regular.ttf': readFileSync(
-      resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf'),
-    ),
-    'assets/fonts/Inter-SemiBold.ttf': readFileSync(
-      resolve(process.cwd(), 'assets/fonts/Inter-SemiBold.ttf'),
-    ),
-    'assets/fonts/Lora-Regular.ttf': readFileSync(
-      resolve(process.cwd(), 'assets/fonts/Lora-Regular.ttf'),
-    ),
-    'assets/fonts/Lora-SemiBold.ttf': readFileSync(
-      resolve(process.cwd(), 'assets/fonts/Lora-SemiBold.ttf'),
-    ),
-    'assets/fonts/Oswald-Medium.ttf': readFileSync(
-      resolve(process.cwd(), 'assets/fonts/Oswald-Medium.ttf'),
+    ...Object.fromEntries(
+      [
+        'CormorantGaramond-Light',
+        'CormorantGaramond-Regular',
+        'BeVietnamPro-Light',
+        'DancingScript-Medium',
+        'Lora-Regular',
+        'Lora-SemiBold',
+      ].map((font) => [
+        `assets/fonts/${font}.ttf`,
+        readFileSync(resolve(process.cwd(), `assets/fonts/${font}.ttf`)),
+      ]),
     ),
   };
 }
@@ -139,59 +138,63 @@ test('accepts valid catalog JSON and every referenced font asset', () => {
 
 test('rejects non-font bytes with the exact referenced font path', () => {
   const files = serializedCatalogFiles();
-  files['assets/fonts/Inter-Regular.ttf'] = 'test font';
+  files['assets/fonts/CormorantGaramond-Light.ttf'] = 'test font';
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(
-    'assets/fonts/Inter-Regular.ttf: invalid TrueType SFNT signature',
+    'assets/fonts/CormorantGaramond-Light.ttf: invalid TrueType SFNT signature',
   );
 });
 
 test('rejects a truncated SFNT table directory with the exact font path', () => {
   const files = serializedCatalogFiles();
-  files['assets/fonts/Inter-Regular.ttf'] = readFileSync(
-    resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf'),
+  files['assets/fonts/CormorantGaramond-Light.ttf'] = readFileSync(
+    resolve(process.cwd(), 'assets/fonts/CormorantGaramond-Light.ttf'),
   ).subarray(0, 20);
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(
-    'assets/fonts/Inter-Regular.ttf: malformed SFNT table directory',
+    'assets/fonts/CormorantGaramond-Light.ttf: malformed SFNT table directory',
   );
 });
 
 test('rejects an SFNT table whose data range lies outside the font file', () => {
   const files = serializedCatalogFiles();
   const corruptedFont = Buffer.from(
-    readFileSync(resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf')),
+    readFileSync(
+      resolve(process.cwd(), 'assets/fonts/CormorantGaramond-Light.ttf'),
+    ),
   );
   corruptedFont.writeUInt32BE(corruptedFont.length, 20);
-  files['assets/fonts/Inter-Regular.ttf'] = corruptedFont;
+  files['assets/fonts/CormorantGaramond-Light.ttf'] = corruptedFont;
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(
-    'assets/fonts/Inter-Regular.ttf: SFNT table data lies outside file bounds',
+    'assets/fonts/CormorantGaramond-Light.ttf: SFNT table data lies outside file bounds',
   );
 });
 
 test('rejects a corrupted head table inside an otherwise in-bounds SFNT', () => {
   const files = serializedCatalogFiles();
   const corruptedFont = Buffer.from(
-    readFileSync(resolve(process.cwd(), 'assets/fonts/Inter-Regular.ttf')),
+    readFileSync(
+      resolve(process.cwd(), 'assets/fonts/CormorantGaramond-Light.ttf'),
+    ),
   );
   corruptedFont.writeUInt32BE(0, getTableOffset(corruptedFont, 'head') + 12);
-  files['assets/fonts/Inter-Regular.ttf'] = corruptedFont;
+  files['assets/fonts/CormorantGaramond-Light.ttf'] = corruptedFont;
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(
-    'assets/fonts/Inter-Regular.ttf: invalid TrueType head table',
+    'assets/fonts/CormorantGaramond-Light.ttf: invalid TrueType head table',
   );
 });
 
@@ -225,10 +228,10 @@ test('rejects invalid preset ratios with a precise data path', () => {
 
 test('rejects a missing font asset with its exact path', () => {
   const files: Record<string, string | Buffer> = serializedCatalogFiles();
-  delete files['assets/fonts/Inter-Regular.ttf'];
+  delete files['assets/fonts/CormorantGaramond-Light.ttf'];
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
-  expect(result.stderr).toContain('assets/fonts/Inter-Regular.ttf');
+  expect(result.stderr).toContain('assets/fonts/CormorantGaramond-Light.ttf');
 });

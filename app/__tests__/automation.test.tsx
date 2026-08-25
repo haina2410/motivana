@@ -119,10 +119,11 @@ test('Automation validates favorites-only scheduling while clearly reporting una
       t('en', 'automation.status.capability', { kind: 'available' }),
     ),
   ).toBeOnTheScreen();
-  expect(screen.getByText('Status: disabled')).toBeOnTheScreen();
-  fireEvent.press(
-    screen.getByLabelText(t('en', 'automation.favoritesOnly.label')),
-  );
+  expect(screen.getByText(t('en', 'rotation.runs.status'))).toBeOnTheScreen();
+  expect(
+    screen.getByText(t('en', 'automation.state.disabled')),
+  ).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText(t('en', 'rotation.source.saved')));
   fireEvent.press(
     screen.getByRole('button', { name: t('en', 'automation.save') }),
   );

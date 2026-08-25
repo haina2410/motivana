@@ -20,7 +20,7 @@ class RotationContentLocaleTest {
   private fun realCatalog() = RotationCatalog(realQuotes(), RotationCatalogLoader.parsePresets(assetRoot().resolve("data/presets.json").readText()))
   private fun validCatalog() = RotationCatalog(
     (0 until 120).map { index -> testEntry("q$index", "A valid quote has more than twelve characters $index.", null, listOf("motivation", "discipline", "focus", "confidence", "growth", "success")[index % 6]) },
-    (0 until 8).map { index -> RotationPreset("p$index", "Inter", "Regular", "center", .43, .064, .036, 1.18, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")) },
+    (0 until 8).map { index -> RotationPreset("p$index", "BeVietnamPro", "Light", "center", .43, .064, .036, 1.18, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")) },
   )
 
   // Pins RotationCatalog.kt parseQuotes: `text` is read as an object, never as a string.
@@ -97,7 +97,7 @@ class RotationContentLocaleTest {
   @Test fun pipelineRendersTheLanguageFromTheSnapshot() {
     val catalog = RotationCatalog(
       listOf(RotationQuoteEntry("q1", mapOf("en" to "An English only quote for the pipeline.", "vi" to "Một câu tiếng Việt cho quy trình."), "en", null, "focus")),
-      listOf(RotationPreset("p1", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))),
+      listOf(RotationPreset("p1", "BeVietnamPro", "Light", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))),
     )
     val rendered = mutableListOf<String>()
     fun run(locale: String) {

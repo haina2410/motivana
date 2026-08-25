@@ -15,8 +15,8 @@ import { APP_STATE_STORAGE_KEY, type KeyValueStorage } from './storage';
 export type RotationIntervalHours = 6 | 12 | 24;
 export type WallpaperTarget = 'home' | 'lock' | 'both';
 
-export interface PersistedAppStateV2 {
-  version: 2;
+export interface PersistedAppStateV3 {
+  version: 3;
   appLocale: Locale;
   contentLocale: Locale;
   favoriteQuoteIds: string[];
@@ -28,9 +28,15 @@ export interface PersistedAppStateV2 {
   rotationEnabled: boolean;
   rotationIntervalHours: RotationIntervalHours;
   wallpaperTarget: WallpaperTarget;
+  /** Applying a wallpaper also writes a copy to the photo library. */
+  saveToPhotoLibrary: boolean;
+  /** Draws the launcher safe-area guides over the preview. */
+  showSafeGuides: boolean;
 }
 
-export type PersistedAppState = PersistedAppStateV2;
+/** Kept as an alias, so the many call sites naming V2 do not all have to move. */
+export type PersistedAppStateV2 = PersistedAppStateV3;
+export type PersistedAppState = PersistedAppStateV3;
 export type SafeWarningReporter = (message: string) => void;
 
 const firstQuoteId = getAllQuotes()[0]!.id;
@@ -48,11 +54,11 @@ function deviceLocale(): Locale {
   }
 }
 
-export function createDefaultPersistedAppState(): PersistedAppStateV2 {
+export function createDefaultPersistedAppState(): PersistedAppStateV3 {
   // Resolved one time, so both languages start from the same device answer.
   const locale = deviceLocale();
   return {
-    version: 2,
+    version: 3,
     appLocale: locale,
     contentLocale: locale,
     favoriteQuoteIds: [],
@@ -63,6 +69,8 @@ export function createDefaultPersistedAppState(): PersistedAppStateV2 {
     rotationEnabled: false,
     rotationIntervalHours: 24,
     wallpaperTarget: 'home',
+    saveToPhotoLibrary: false,
+    showSafeGuides: false,
   };
 }
 
@@ -112,9 +120,14 @@ export function isValidPresetId(value: unknown): value is string {
   return validPresetId(value);
 }
 
-export function migratePersistedState(input: unknown): PersistedAppStateV2 {
+const supportedVersions = [1, 2, 3];
+
+export function migratePersistedState(input: unknown): PersistedAppStateV3 {
   const defaults = createDefaultPersistedAppState();
-  if (!isRecord(input) || (input.version !== 1 && input.version !== 2)) {
+  if (
+    !isRecord(input) ||
+    !supportedVersions.includes(input.version as number)
+  ) {
     return defaults;
   }
 
@@ -136,7 +149,7 @@ export function migratePersistedState(input: unknown): PersistedAppStateV2 {
     : undefined;
 
   return {
-    version: 2,
+    version: 3,
     appLocale: isLocale(input.appLocale) ? input.appLocale : deviceLocale(),
     contentLocale,
     favoriteQuoteIds,
@@ -161,13 +174,20 @@ export function migratePersistedState(input: unknown): PersistedAppStateV2 {
     wallpaperTarget: isWallpaperTarget(input.wallpaperTarget)
       ? input.wallpaperTarget
       : defaults.wallpaperTarget,
+    // Absent for a version 1 or 2 reader, who never chose either option.
+    saveToPhotoLibrary: isBoolean(input.saveToPhotoLibrary)
+      ? input.saveToPhotoLibrary
+      : defaults.saveToPhotoLibrary,
+    showSafeGuides: isBoolean(input.showSafeGuides)
+      ? input.showSafeGuides
+      : defaults.showSafeGuides,
   };
 }
 
 export function hydrateAppState(
   storage: KeyValueStorage,
   warn: SafeWarningReporter = console.warn,
-): PersistedAppStateV2 {
+): PersistedAppStateV3 {
   const serialized = storage.getString(APP_STATE_STORAGE_KEY);
   if (serialized === undefined) {
     return createDefaultPersistedAppState();
@@ -189,13 +209,13 @@ export function hydrateAppState(
     );
     return createDefaultPersistedAppState();
   }
-  if (parsed.version > 2) {
+  if (parsed.version > 3) {
     warn(
       'Motivana preferences were reset because the stored version is unsupported.',
     );
     return createDefaultPersistedAppState();
   }
-  if (parsed.version !== 1 && parsed.version !== 2) {
+  if (!supportedVersions.includes(parsed.version)) {
     warn(
       'Motivana preferences were reset because stored preferences are invalid.',
     );
@@ -205,6 +225,6 @@ export function hydrateAppState(
   return migratePersistedState(parsed);
 }
 
-export function serializePersistedAppState(state: PersistedAppStateV2): string {
+export function serializePersistedAppState(state: PersistedAppStateV3): string {
   return JSON.stringify(state);
 }

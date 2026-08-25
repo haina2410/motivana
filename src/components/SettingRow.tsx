@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 
 interface SettingRowProps {
   label: string;
@@ -42,7 +43,10 @@ export function SettingRow({
         pointerEvents="none"
         style={[styles.indicator, value && styles.indicatorOn]}
       >
-        <Text allowFontScaling={false} style={styles.indicatorText}>
+        <Text
+          allowFontScaling={false}
+          style={[styles.indicatorText, value && styles.indicatorTextOn]}
+        >
           {value ? 'On' : 'Off'}
         </Text>
       </View>
@@ -53,29 +57,28 @@ export function SettingRow({
 const styles = StyleSheet.create({
   row: {
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: spacing.radius,
-    borderWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    borderBottomWidth: 1,
     flexDirection: 'row',
     gap: spacing.x2,
     justifyContent: 'space-between',
-    minHeight: spacing.control * 1.5,
-    padding: spacing.x2,
+    minHeight: spacing.control,
+    paddingVertical: 10,
   },
-  copy: { flex: 1, gap: 4 },
-  disabled: { opacity: 0.48 },
-  label: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  description: { color: colors.mutedText, fontSize: 13, lineHeight: 18 },
+  copy: { flex: 1, gap: 5 },
+  disabled: { opacity: 0.4 },
+  label: typography.rowLabel,
+  description: { ...typography.caption, fontSize: 11, lineHeight: 16 },
   indicator: {
     alignItems: 'center',
-    backgroundColor: colors.border,
-    borderRadius: spacing.radius,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+    borderRadius: spacing.pill,
     justifyContent: 'center',
     minWidth: 46,
-    paddingHorizontal: spacing.x1,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   indicatorOn: { backgroundColor: colors.accent },
-  indicatorText: { color: colors.text, fontSize: 12, fontWeight: '800' },
+  indicatorText: { ...typography.tab, color: colors.text, fontSize: 11 },
+  indicatorTextOn: { color: colors.onAccent },
 });

@@ -6,7 +6,7 @@ import org.junit.Test
 class RotationCatalogValidatorTest {
   private fun catalog() = RotationCatalog(
     (0 until 120).map { index -> testEntry("q$index", "A valid quote has more than twelve characters $index.", null, listOf("motivation", "discipline", "focus", "confidence", "growth", "success")[index % 6]) },
-    listOf("Inter-Regular", "Inter-SemiBold", "Lora-Regular", "Lora-SemiBold", "Oswald-Medium", "Inter-Regular", "Inter-SemiBold", "Lora-Regular").mapIndexed { index, font ->
+    listOf("CormorantGaramond-Light", "CormorantGaramond-Regular", "BeVietnamPro-Light", "DancingScript-Medium", "Lora-Regular", "Lora-SemiBold", "CormorantGaramond-Light", "BeVietnamPro-Light").mapIndexed { index, font ->
       val (family, weight) = font.split("-"); RotationPreset("p$index", family, weight, "center", .43, .064, .036, 1.18, "#FFFFFF", "#DDEEFF", RotationBackground.Gradient("#102A56", "#020617", 135.0))
     },
   )

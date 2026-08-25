@@ -5,7 +5,6 @@ import { createComposition } from '../features/wallpaper/composition';
 import { WallpaperCanvas } from '../features/wallpaper/WallpaperCanvas';
 import type { WallpaperPreset } from '../features/wallpaper/types';
 import { colors } from '../theme/colors';
-import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import type { Quote } from '../features/quotes/types';
 import type { Locale } from '../features/i18n/locale';
@@ -52,43 +51,39 @@ export function PresetThumbnail({
       accessibilityState={{ selected, disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={[
-        styles.card,
-        selected && styles.selected,
-        disabled && styles.disabled,
-      ]}
+      style={[styles.card, disabled && styles.disabled]}
     >
-      <View pointerEvents="none" style={styles.preview}>
+      <View
+        pointerEvents="none"
+        style={[styles.preview, selected && styles.previewSelected]}
+      >
         <WallpaperCanvas
           composition={composition}
           style={StyleSheet.absoluteFill}
         />
       </View>
-      <Text allowFontScaling style={typography.button}>
+      <Text allowFontScaling style={styles.name}>
         {name}
       </Text>
-      <Text allowFontScaling style={styles.caption}>
-        {selected
-          ? translate('preset.thumbnail.selected')
-          : translate('preset.thumbnail.tapToUse')}
+      <Text allowFontScaling style={styles.face}>
+        {translate(`preset.face.${preset.fontFamily}` as StringKey)}
       </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: spacing.radius,
+  card: { gap: 6, width: '100%' },
+  disabled: { opacity: 0.48 },
+  preview: {
+    aspectRatio: 0.69,
+    borderColor: 'rgba(255, 255, 255, 0.07)',
+    borderRadius: 10,
     borderWidth: 1,
-    gap: spacing.x1,
     overflow: 'hidden',
-    padding: spacing.x1,
     width: '100%',
   },
-  selected: { borderColor: colors.accent, borderWidth: 2 },
-  disabled: { opacity: 0.48 },
-  preview: { aspectRatio: 0.69, borderRadius: 12, overflow: 'hidden' },
-  caption: { color: colors.mutedText, fontSize: 13 },
+  previewSelected: { borderColor: colors.accent, borderWidth: 2 },
+  name: { ...typography.chip, marginTop: 2 },
+  face: { ...typography.caption, color: colors.faintText, fontSize: 11 },
 });

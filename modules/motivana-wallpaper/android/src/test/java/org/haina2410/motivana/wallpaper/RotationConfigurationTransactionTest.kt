@@ -6,7 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RotationConfigurationTransactionTest {
-  private val catalog = RotationCatalog(listOf(testEntry("q", "A test quote of sufficient length.")), listOf(RotationPreset("p", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))))
+  private val catalog = RotationCatalog(listOf(testEntry("q", "A test quote of sufficient length.")), listOf(RotationPreset("p", "BeVietnamPro", "Light", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000"))))
   private val old = RotationSnapshot(false, 6, WallpaperTarget.HOME, "p", false, emptyList(), false)
   private val next = old.copy(enabled = true, intervalHours = 12)
   @Test fun updateCommitsSnapshotWorkThenStatus() { val fixture = Fixture(); assertTrue(fixture.transaction().apply(next, catalog)); assertTrue(fixture.snapshot.enabled) }

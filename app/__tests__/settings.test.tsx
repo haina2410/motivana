@@ -36,7 +36,7 @@ test('Settings persists random preset and favorites-only choices through store a
       favoriteQuotesOnly: true,
     }),
   );
-  expect(screen.getByText('Motivana 0.1.0')).toBeOnTheScreen();
+  expect(screen.getByText('0.1.0 · offline')).toBeOnTheScreen();
 });
 
 // Mutation caught: reading a hard-coded English string would leave the interface English after the reader picks Vietnamese.
@@ -68,19 +68,35 @@ test('changes the quote language without changing the interface language', async
   expect(useAppStore.getState().appLocale).toBe('en');
 });
 
-test('Settings names the current preset and exposes one accessible control per setting', () => {
+test('Settings states the offline promise and exposes one control per setting', () => {
   render(<SettingsScreen />);
 
-  expect(screen.getByText('Midnight Focus')).toBeOnTheScreen();
+  expect(
+    screen.getByText(t('en', 'settings.offline.message')),
+  ).toBeOnTheScreen();
   expect(
     screen.getAllByRole('switch', { name: 'Randomize preset' }),
   ).toHaveLength(1);
   expect(
     screen.getByLabelText('Randomize preset').props.accessibilityHint,
   ).toContain('different curated style');
+});
 
-  fireEvent.press(screen.getByRole('button', { name: 'Customize preset' }));
-  expect(router.push).toHaveBeenCalledWith('/customize');
+// Mutation caught: a settings switch that only moves locally would leave the
+// preview and the applied wallpaper disagreeing after a restart.
+test('Settings persists the two preview and export options', () => {
+  render(<SettingsScreen />);
+
+  fireEvent.press(
+    screen.getByLabelText(t('en', 'settings.saveToLibrary.label')),
+  );
+  expect(useAppStore.getState().saveToPhotoLibrary).toBe(true);
+  expect(
+    screen.getByText(t('en', 'settings.saveToLibrary.updated')),
+  ).toBeOnTheScreen();
+
+  fireEvent.press(screen.getByLabelText(t('en', 'settings.safeGuides.label')));
+  expect(useAppStore.getState().showSafeGuides).toBe(true);
 });
 
 // Mutation caught: reverting a switch after native rejection without notice makes the rotation snapshot failure indistinguishable from an ignored tap.

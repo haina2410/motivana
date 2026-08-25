@@ -35,21 +35,15 @@ jest.mock('../../src/services/wallpaperNative', () => ({
   })),
   setWallpaper: jest.fn(),
 }));
-jest.mock('../../src/components/WallpaperActions', () => {
-  const { Pressable, View } = require('react-native');
+jest.mock('../../src/components/SetWallpaperSheet', () => {
+  const { Text, View } = require('react-native');
   return {
-    WallpaperActions: () => (
-      <View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Save wallpaper"
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Set wallpaper"
-        />
-      </View>
-    ),
+    SetWallpaperSheet: ({ visible }: { visible: boolean }) =>
+      visible ? (
+        <View>
+          <Text>target sheet</Text>
+        </View>
+      ) : null,
   };
 });
 const mockUseWallpaperFonts = jest.requireMock(
@@ -61,6 +55,7 @@ const mockWallpaperCanvas = jest.requireMock(
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
+  jest.mocked(router.navigate).mockClear();
   mockUseWallpaperFonts.mockReturnValue({});
   mockWallpaperCanvas.mockImplementation(() => {
     const { View } = require('react-native');
@@ -112,20 +107,25 @@ test('Home changes the quote and favorite state through accessible controls', as
   expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
 });
 
-test('Home pushes each focused Stack route and enables Android wallpaper actions', () => {
+test('Home reaches every other screen and opens the wallpaper target sheet', () => {
   render(<HomeScreen />);
 
-  fireEvent.press(screen.getByLabelText(t('en', 'home.customize.label')));
   fireEvent.press(screen.getByLabelText(t('en', 'home.favorites.label')));
-  fireEvent.press(screen.getByLabelText(t('en', 'home.automation.label')));
   fireEvent.press(screen.getByLabelText(t('en', 'home.settings.label')));
-
-  expect(router.push).toHaveBeenCalledWith('/customize');
+  fireEvent.press(screen.getByLabelText(t('en', 'home.restyle.label')));
   expect(router.push).toHaveBeenCalledWith('/favorites');
-  expect(router.push).toHaveBeenCalledWith('/automation');
   expect(router.push).toHaveBeenCalledWith('/settings');
-  expect(screen.getByRole('button', { name: 'Save wallpaper' })).toBeEnabled();
-  expect(screen.getByRole('button', { name: 'Set wallpaper' })).toBeEnabled();
+  expect(router.push).toHaveBeenCalledWith('/style');
+
+  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.presets') }));
+  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.rotate') }));
+  expect(router.navigate).toHaveBeenCalledWith('/customize');
+  expect(router.navigate).toHaveBeenCalledWith('/automation');
+
+  expect(screen.queryByText('target sheet')).toBeNull();
+  fireEvent.press(screen.getByLabelText(t('en', 'home.set.label')));
+  expect(screen.getByText('target sheet')).toBeOnTheScreen();
+
   expect(screen.getByLabelText('Next quote').props.accessibilityHint).toContain(
     'random',
   );

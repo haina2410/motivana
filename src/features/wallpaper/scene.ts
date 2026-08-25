@@ -20,6 +20,7 @@ function skiaFontWeight(
   weight: WallpaperComposition['preset']['fontWeight'],
 ): number {
   'worklet';
+  if (weight === 'Light') return 300;
   if (weight === 'Medium') return 500;
   if (weight === 'SemiBold') return 600;
   return 400;

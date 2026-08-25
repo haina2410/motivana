@@ -11,7 +11,16 @@ import kotlin.math.abs
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Executes the production renderer and Android's real StaticLayout for every shared golden case. */
+/**
+ * Executes the production renderer and Android's real StaticLayout for every shared golden case.
+ *
+ * Caveat after the 2026-08-25 redesign: the `fontSize`, `lineCount` and
+ * `quoteBox` numbers in `renderer-golden-fixture.json` were recorded from Skia
+ * with the previous faces (Inter and Oswald). The redesign changed the preset
+ * families and line heights, so the recorded values were recalculated, not
+ * re-measured on a device. Run this test on hardware and re-record the fixture
+ * from its output before you trust the cross-renderer tolerances again.
+ */
 @RunWith(AndroidJUnit4::class)
 class CanvasWallpaperRendererInstrumentedTest {
   @Test fun everySharedGoldenCaseStaysWithinTheExplicitCrossRendererTolerance() {

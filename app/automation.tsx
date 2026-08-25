@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
-import { AppIconButton } from '../src/components/AppIconButton';
-import { SettingRow } from '../src/components/SettingRow';
+import { AppButton } from '../src/components/AppButton';
+import { DeckTabBar } from '../src/components/DeckTabBar';
+import { Icon } from '../src/components/Icon';
+import { RadioRow } from '../src/components/RadioRow';
+import { ScreenHeader } from '../src/components/ScreenHeader';
+import { Segmented } from '../src/components/Segmented';
+import { Toggle } from '../src/components/Toggle';
 import { useAppStore } from '../src/store/useAppStore';
 import {
   getWallpaperAutomationAvailability,
@@ -16,11 +21,6 @@ import {
   getRotationStatusRecovery,
   getRotationStatusRecoveryControl,
 } from '../src/services/rotationStatus';
-import {
-  getQuoteById,
-  favoriteQuoteText,
-} from '../src/features/quotes/quoteRepository';
-import { Choice } from '../src/components/Choice';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type {
   WallpaperAutomationAvailability,
@@ -30,7 +30,6 @@ import type { StringKey } from '../src/features/i18n/t';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
-import { router } from 'expo-router';
 import type {
   RotationIntervalHours,
   WallpaperTarget,
@@ -43,16 +42,17 @@ const stateKeys: Record<WallpaperAutomationStatus['state'], StringKey> = {
   succeeded: 'automation.state.succeeded',
   failed: 'automation.state.failed',
 };
+const capabilityKeys: Record<'available' | 'unavailable', StringKey> = {
+  available: 'automation.capability.available',
+  unavailable: 'automation.capability.unavailable',
+};
 const targetKeys: Record<WallpaperTarget, StringKey> = {
   home: 'automation.targetName.home',
   lock: 'automation.targetName.lock',
   both: 'automation.targetName.both',
 };
-const capabilityKeys: Record<'available' | 'unavailable', StringKey> = {
-  available: 'automation.capability.available',
-  unavailable: 'automation.capability.unavailable',
-};
 
+/** Screen 1i of the board. */
 export default function AutomationScreen() {
   const state = useAppStore();
   const translate = useTranslate();
@@ -129,23 +129,6 @@ export default function AutomationScreen() {
       setMessage({ text: translate('automation.run.error'), tone: 'error' });
     }
   };
-  const lastQuote = availability?.status.lastQuoteId
-    ? getQuoteById(availability.status.lastQuoteId)
-    : undefined;
-  const stateText = (
-    state: WallpaperAutomationStatus['state'] | undefined,
-  ): string =>
-    state === undefined
-      ? translate('automation.status.loading')
-      : translate(stateKeys[state]);
-  const targetText = (target: WallpaperTarget): string =>
-    translate(targetKeys[target]);
-  const capabilityText = (
-    kind: 'available' | 'unavailable' | undefined,
-  ): string =>
-    kind === undefined
-      ? translate('automation.status.loading')
-      : translate(capabilityKeys[kind]);
   const statusRecovery = getRotationStatusRecovery(
     availability?.status.errorCode,
   );
@@ -167,219 +150,239 @@ export default function AutomationScreen() {
     }
     void save();
   };
+  const statusText =
+    availability === undefined
+      ? translate('automation.status.loading')
+      : translate(stateKeys[availability.status.state]);
+
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <View>
-            <Text allowFontScaling style={typography.eyebrow}>
-              {translate('automation.eyebrow')}
-            </Text>
-            <Text allowFontScaling style={typography.screenTitle}>
-              {translate('automation.title')}
-            </Text>
-          </View>
-          <AppIconButton
-            label={translate('common.back.label')}
-            hint={translate('common.back.hint')}
-            onPress={() => router.back()}
-            symbol="‹"
+        <ScreenHeader title={translate('automation.title')} />
+
+        <View style={styles.card}>
+          <Toggle
+            label={translate('automation.enable.label')}
+            description={translate('rotation.enable.description')}
+            value={enabled}
+            onValueChange={setEnabled}
           />
         </View>
-        <ActionMessage
-          title={translate('automation.available.title')}
-          message={translate('automation.available.message')}
+
+        <Text allowFontScaling style={typography.sectionLabel}>
+          {translate('automation.interval.label')}
+        </Text>
+        <Segmented
+          onSelect={setInterval}
+          options={([6, 12, 24] as const).map((hours) => ({
+            value: hours,
+            label: translate('rotation.interval.option', { hours }),
+            accessibilityLabel: translate('automation.interval.option', {
+              hours,
+            }),
+          }))}
+          selected={interval}
         />
-        <View
-          accessible
-          accessibilityLabel={translate('automation.status.label', {
-            state: stateText(availability?.status.state),
-            intervalHours: availability?.status.intervalHours ?? '',
-            target: availability?.status.target
-              ? targetText(availability.status.target)
-              : '',
-          })}
-          style={styles.status}
-        >
-          <Text allowFontScaling style={styles.statusText}>
-            {translate('automation.status.capability', {
-              kind: capabilityText(availability?.capabilities.kind),
+
+        <Text allowFontScaling style={typography.sectionLabel}>
+          {translate('automation.target.label')}
+        </Text>
+        <Segmented
+          onSelect={setTarget}
+          options={(['home', 'lock', 'both'] as const).map((value) => ({
+            value,
+            label: translate(targetKeys[value]),
+            accessibilityLabel: translate(
+              `automation.target.${value}` as StringKey,
+            ),
+            disabled:
+              !availability ||
+              !isWallpaperTargetAvailable(value, availability.capabilities),
+          }))}
+          selected={target}
+        />
+
+        <Text allowFontScaling style={typography.sectionLabel}>
+          {translate('rotation.source.label')}
+        </Text>
+        <View style={styles.sources}>
+          <RadioRow
+            accessibilityHint={translate(
+              'automation.favoritesOnly.description',
+            )}
+            label={translate('rotation.source.saved')}
+            onPress={() => setFavoritesOnly(true)}
+            selected={favoritesOnly}
+          />
+          <RadioRow
+            label={translate('rotation.source.all')}
+            onPress={() => setFavoritesOnly(false)}
+            selected={!favoritesOnly}
+          />
+        </View>
+
+        <View style={styles.runs}>
+          <RunRow
+            label={translate('automation.available.title')}
+            value={translate('automation.status.capability', {
+              kind:
+                availability === undefined
+                  ? translate('automation.status.loading')
+                  : translate(capabilityKeys[availability.capabilities.kind]),
             })}
-          </Text>
-          <Text allowFontScaling style={styles.statusText}>
-            {availability === undefined
-              ? translate('automation.status.checking')
-              : translate('automation.status.value', {
-                  state: stateText(availability.status.state),
-                })}
-          </Text>
-          <Text allowFontScaling style={styles.statusText}>
-            {translate('automation.status.schedule', {
+          />
+          <RunRow
+            label={translate('rotation.runs.lastRun')}
+            value={
+              availability?.status.lastAppliedAt
+                ? new Date(availability.status.lastAppliedAt).toLocaleString(
+                    state.appLocale,
+                  )
+                : translate('rotation.runs.pending')
+            }
+          />
+          <RunRow
+            label={translate('rotation.runs.nextRun')}
+            value={translate('automation.status.schedule', {
               hours: availability?.status.intervalHours ?? interval,
-              target: targetText(availability?.status.target ?? target),
+              target: translate(
+                targetKeys[availability?.status.target ?? target],
+              ),
             })}
-          </Text>
-          {availability?.status.lastAppliedAt ? (
-            <Text allowFontScaling style={styles.statusText}>
-              {translate('automation.status.lastApplied', {
-                date: new Date(
-                  availability.status.lastAppliedAt,
-                ).toLocaleString(state.appLocale),
-              })}
-            </Text>
-          ) : null}
-          {availability?.status.lastQuoteId ? (
-            <Text allowFontScaling style={styles.statusText}>
-              {translate('automation.lastQuote', {
-                text: lastQuote
-                  ? favoriteQuoteText(lastQuote, state.contentLocale)
-                  : translate('automation.lastQuote.fallback'),
-              })}
-            </Text>
-          ) : null}
-          {statusRecovery ? (
-            <ActionMessage
-              tone="error"
-              title={translate('automation.attention.title')}
-              message={translate(statusRecovery.messageKey)}
-            />
-          ) : null}
+          />
+          <RunRow
+            label={translate('rotation.runs.status')}
+            tone={availability?.status.state === 'failed' ? 'error' : 'success'}
+            value={statusText}
+          />
         </View>
-        <SettingRow
-          label={translate('automation.enable.label')}
-          description={translate('automation.enable.description')}
-          value={enabled}
-          onValueChange={setEnabled}
-        />
-        <View style={styles.section}>
-          <Text allowFontScaling style={styles.label}>
-            {translate('automation.interval.label')}
+
+        <View style={styles.warning}>
+          <Icon name="triangle-exclamation" size={12} color={colors.accent} />
+          <Text allowFontScaling style={styles.warningText}>
+            {translate('rotation.battery')}
           </Text>
-          <View style={styles.choices}>
-            {([6, 12, 24] as const).map((hours) => (
-              <Choice
-                key={hours}
-                label={translate('automation.interval.option', { hours })}
-                selected={interval === hours}
-                onPress={() => setInterval(hours)}
-              />
-            ))}
-          </View>
         </View>
-        <View style={styles.section}>
-          <Text allowFontScaling style={styles.label}>
-            {translate('automation.target.label')}
-          </Text>
-          <View style={styles.choices}>
-            {(
-              [
-                ['home', translate('automation.target.home')],
-                ['lock', translate('automation.target.lock')],
-                ['both', translate('automation.target.both')],
-              ] as const
-            ).map(([value, label]) => (
-              <Choice
-                key={value}
-                label={label}
-                selected={target === value}
-                disabled={
-                  !availability ||
-                  !isWallpaperTargetAvailable(value, availability.capabilities)
-                }
-                onPress={() => setTarget(value)}
-              />
-            ))}
-          </View>
-        </View>
-        <SettingRow
-          label={translate('automation.favoritesOnly.label')}
-          description={translate('automation.favoritesOnly.description')}
-          value={favoritesOnly}
-          onValueChange={setFavoritesOnly}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={translate('automation.save')}
+
+        {statusRecovery ? (
+          <ActionMessage
+            tone="error"
+            title={translate('automation.attention.title')}
+            message={translate(statusRecovery.messageKey)}
+          />
+        ) : null}
+        <AppButton
           disabled={!availability}
+          label={translate('automation.save')}
           onPress={() => void save()}
-          style={styles.save}
-        >
-          <Text allowFontScaling style={typography.button}>
-            {translate('automation.save')}
-          </Text>
-        </Pressable>
+        />
         {__DEV__ ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={translate('automation.run')}
+          <AppButton
             disabled={!availability || !enabled}
+            label={translate('automation.run')}
             onPress={runNow}
-            style={styles.save}
-          >
-            <Text allowFontScaling style={typography.button}>
-              {translate('automation.run')}
-            </Text>
-          </Pressable>
+            variant="outline"
+          />
         ) : null}
         {statusRecovery ? (
-          <AppIconButton
+          <AppButton
             hint={translate(statusRecoveryControl!.hintKey)}
+            icon="rotate-right"
             label={translate(statusRecoveryControl!.labelKey)}
             onPress={recoverFromStatusFailure}
-            symbol="↻"
+            variant="outline"
           />
         ) : null}
         {message ? (
           <ActionMessage tone={message.tone} message={message.text} />
         ) : null}
       </ScrollView>
+      <DeckTabBar active="rotate" />
     </SafeAreaView>
   );
 }
 
+function RunRow({
+  label,
+  value,
+  tone = 'default',
+}: {
+  label: string;
+  value: string;
+  tone?: 'default' | 'success' | 'error';
+}) {
+  return (
+    <View style={styles.runRow}>
+      <Text allowFontScaling style={styles.runLabel}>
+        {label}
+      </Text>
+      <Text
+        allowFontScaling
+        style={[
+          styles.runValue,
+          tone === 'success' && styles.runSuccess,
+          tone === 'error' && styles.runError,
+        ]}
+      >
+        {value}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
+  screen: { backgroundColor: colors.background, flex: 1 },
   content: {
-    gap: spacing.x2,
-    paddingHorizontal: spacing.x2,
-    paddingBottom: spacing.x4,
+    gap: 10,
+    paddingBottom: spacing.x3,
+    paddingHorizontal: spacing.x2 + 2,
+    paddingTop: spacing.x1,
   },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  status: { gap: spacing.x1, minWidth: 0 },
-  statusText: { color: colors.mutedText, fontSize: 13, flexShrink: 1 },
-  section: { gap: spacing.x1 },
-  label: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  choices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.x1 },
-  choice: {
-    borderColor: colors.border,
+  card: {
+    backgroundColor: colors.fillSubtle,
+    borderColor: colors.borderSubtle,
     borderRadius: spacing.radius,
     borderWidth: 1,
-    minHeight: spacing.control,
-    paddingHorizontal: spacing.x2,
-    justifyContent: 'center',
+    marginBottom: 6,
+    paddingHorizontal: 14,
   },
-  selected: {
-    backgroundColor: colors.surfaceRaised,
-    borderColor: colors.accent,
+  sources: { gap: spacing.x1 },
+  runs: {
+    backgroundColor: colors.fillFaint,
+    borderColor: 'rgba(255, 255, 255, 0.07)',
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 12,
+    padding: 13,
   },
-  disabled: { opacity: 0.48 },
-  choiceText: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  save: {
+  runRow: {
     alignItems: 'center',
-    backgroundColor: colors.accent,
-    borderRadius: spacing.radius,
-    justifyContent: 'center',
-    minHeight: spacing.control,
-    paddingHorizontal: spacing.x2,
+    flexDirection: 'row',
+    gap: spacing.x2,
+    justifyContent: 'space-between',
   },
+  runLabel: { ...typography.caption, fontSize: 12 },
+  runValue: {
+    ...typography.rowValue,
+    color: colors.text,
+    flexShrink: 1,
+    fontSize: 12,
+    textAlign: 'right',
+  },
+  runSuccess: { color: colors.success },
+  runError: { color: colors.danger },
+  warning: {
+    backgroundColor: colors.accentWash,
+    borderColor: colors.accentBorder,
+    borderRadius: spacing.x1,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 9,
+    padding: 12,
+  },
+  warningText: { ...typography.caption, flex: 1, fontSize: 11, lineHeight: 17 },
 });

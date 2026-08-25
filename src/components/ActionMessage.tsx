@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 
 interface ActionMessageProps {
   title?: string;
@@ -36,13 +37,13 @@ export function ActionMessage({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
     borderRadius: spacing.radius,
     borderWidth: 1,
-    gap: 4,
-    padding: spacing.x2,
+    gap: 5,
+    padding: 14,
   },
   error: { borderColor: colors.danger },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  message: { color: colors.mutedText, fontSize: 14, lineHeight: 20 },
+  title: { ...typography.chip, fontSize: 13 },
+  message: { ...typography.caption, fontSize: 12 },
 });

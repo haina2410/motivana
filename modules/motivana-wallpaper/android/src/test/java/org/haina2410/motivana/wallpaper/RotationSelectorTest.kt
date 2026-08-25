@@ -10,8 +10,8 @@ class RotationSelectorTest {
   private val catalog = RotationCatalog(
     listOf(testEntry("one", "One valid quote has enough characters."), testEntry("two", "Two valid quote has enough characters.")),
     listOf(
-      RotationPreset("first", "Inter", "Regular", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")),
-      RotationPreset("second", "Oswald", "Medium", "right", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")),
+      RotationPreset("first", "BeVietnamPro", "Light", "left", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")),
+      RotationPreset("second", "DancingScript", "Medium", "right", .4, .06, .03, 1.2, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")),
     ),
   )
   @Test fun selectionUsesOnlyEligibleQuotesAndAvoidsImmediateRepeat() {

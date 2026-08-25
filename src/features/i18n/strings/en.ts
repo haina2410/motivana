@@ -127,10 +127,6 @@ export const en = {
 
   'settings.eyebrow': 'KEEP IT YOURS',
   'settings.title': 'Settings',
-  'settings.preset.title': 'Current preset',
-  'settings.preset.action': 'Customize preset',
-  'settings.preset.hint':
-    'Opens Customize to choose your preferred wallpaper preset.',
   'settings.randomize.label': 'Randomize preset',
   'settings.randomize.description':
     'Use a different curated style when rotation becomes available.',
@@ -161,8 +157,6 @@ export const en = {
 
   'preview.item.hint': 'Applies this wallpaper style and returns to Home.',
   'preset.thumbnail.label': 'Use {name} preset',
-  'preset.thumbnail.selected': 'Selected',
-  'preset.thumbnail.tapToUse': 'Tap to use',
 
   'actions.save.label': 'Save wallpaper',
   'actions.save.hint':
@@ -198,12 +192,109 @@ export const en = {
   'actions.target.lock': 'Set Lock screen',
   'actions.target.both': 'Set both screens',
 
-  'preset.midnight-focus.name': 'Midnight Focus',
-  'preset.sunrise-drive.name': 'Sunrise Drive',
-  'preset.forest-discipline.name': 'Forest Discipline',
-  'preset.violet-growth.name': 'Violet Growth',
-  'preset.paper-confidence.name': 'Paper Confidence',
-  'preset.ocean-success.name': 'Ocean Success',
-  'preset.ember-action.name': 'Ember Action',
-  'preset.mono-clarity.name': 'Mono Clarity',
+  'tab.deck': 'Deck',
+  'tab.deck.hint': 'Shows the wallpaper deck for today.',
+  'tab.presets': 'Presets',
+  'tab.presets.hint': 'Chooses a background, typeface and layout in one tap.',
+  'tab.saved': 'Saved',
+  'tab.saved.hint': 'Opens the quotes you saved.',
+  'tab.rotate': 'Rotate',
+  'tab.rotate.hint': 'Opens the automatic wallpaper schedule.',
+
+  'home.today': 'Today',
+  'home.counter': '{index} / {total}',
+  'home.counter.label': 'Quote {index} of {total}',
+  'home.restyle.label': 'Restyle',
+  'home.restyle.hint': 'Opens the style controls for this wallpaper.',
+  'home.set.label': 'Set wallpaper',
+  'home.set.hint': 'Chooses which screen receives this wallpaper.',
+  'home.save.label': 'Save',
+  'home.font.label': 'Typeface: {name}',
+
+  'style.title': 'Style',
+  'style.close.label': 'Close style',
+  'style.close.hint': 'Returns to the deck without a further change.',
+  'style.done': 'Done',
+  'style.done.hint': 'Returns to the deck.',
+  'style.typeface.label': 'Typeface',
+  'style.typeface.option': 'Set the typeface to {name}',
+  'style.size.label': 'Size',
+  'style.size.value': '{percent}% of the wallpaper width',
+  'style.lineHeight.label': 'Line height',
+  'style.lineHeight.note':
+    '{value} — leaves room for stacked Vietnamese tone marks.',
+  'style.alignment.label': 'Alignment',
+  'style.alignment.left': 'Left aligned',
+  'style.alignment.center': 'Centre aligned',
+  'style.alignment.right': 'Right aligned',
+  'style.readOnly':
+    'Size, line height and alignment belong to the preset, so a scheduled wallpaper renders exactly like this preview.',
+  'style.error': 'Could not change the typeface. Try again.',
+
+  'presets.subtitle': 'Background, typeface and layout in one tap.',
+
+  'saved.count': '{count} saved',
+  'saved.rotate.label': 'Rotate through saved',
+  'saved.rotate.hint': 'Opens rotation, where saved quotes can be the source.',
+
+  'sheet.title': 'Where should it go?',
+  'sheet.subtitle':
+    'Applied directly through WallpaperManager. Nothing leaves the device.',
+  'sheet.note':
+    'Lock-screen targeting needs Android 8.0 or later. On an older build Motivana sets Home only and says so.',
+  'sheet.apply': 'Apply',
+  'sheet.apply.hint': 'Applies this wallpaper to the chosen screen.',
+  'sheet.close.label': 'Close',
+  'sheet.close.hint': 'Closes this sheet without applying a wallpaper.',
+  'sheet.target.home': 'Home screen',
+  'sheet.target.lock': 'Lock screen',
+  'sheet.target.both': 'Both',
+  'sheet.saveAlso': 'A copy also goes to your photos.',
+
+  'rotation.interval.option': '{hours}h',
+  'rotation.source.label': 'Source',
+  'rotation.source.saved': 'Saved quotes',
+  'rotation.source.all': 'All 120 quotes',
+  'rotation.runs.lastRun': 'Last run',
+  'rotation.runs.nextRun': 'Next run',
+  'rotation.runs.status': 'Status',
+  'rotation.runs.pending': 'Not yet',
+  'rotation.battery':
+    'Battery optimisation can delay a run. Exclude Motivana to keep the timing exact.',
+  'rotation.enable.description': 'Runs on the device through WorkManager.',
+
+  'settings.offline.title': 'Fully offline',
+  'settings.offline.message':
+    'No account, no server, no analytics. Quotes, presets, fonts and exports stay on this device.',
+  'settings.export.label': 'Export',
+  'settings.resolution.label': 'Resolution',
+  'settings.language.label': 'Language',
+  'settings.saveToLibrary.label': 'Save to photo library',
+  'settings.saveToLibrary.description':
+    'Applying a wallpaper also keeps a copy in your photos.',
+  'settings.saveToLibrary.updated': 'Photo library preference updated.',
+  'settings.safeGuides.label': 'Show safe-area guides',
+  'settings.safeGuides.description':
+    'Draws the launcher clock and icon margins over the preview.',
+  'settings.safeGuides.updated': 'Safe-area guide preference updated.',
+  'settings.about.label': 'About',
+  'settings.licences.label': 'Font licences · OFL',
+  'settings.licences.hint':
+    'Every bundled typeface ships under the SIL Open Font License.',
+  'settings.version.label': 'Version',
+  'settings.version.value': '{version} · offline',
+
+  'preset.face.CormorantGaramond': 'Cormorant Garamond',
+  'preset.face.BeVietnamPro': 'Be Vietnam Pro',
+  'preset.face.DancingScript': 'Dancing Script',
+  'preset.face.Lora': 'Lora',
+
+  'preset.midnight-focus.name': 'Midnight',
+  'preset.sunrise-drive.name': 'Sand',
+  'preset.forest-discipline.name': 'Jade',
+  'preset.violet-growth.name': 'Blush',
+  'preset.paper-confidence.name': 'Linen',
+  'preset.ocean-success.name': 'Slate',
+  'preset.ember-action.name': 'Ember',
+  'preset.mono-clarity.name': 'Paper',
 } as const;

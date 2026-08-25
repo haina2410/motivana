@@ -469,3 +469,44 @@ test('keeps the current quote when it already has text in the new content langua
   await expect(store.getState().setContentLocale('vi')).resolves.toBe(true);
   expect(store.getState().currentQuoteId).toBe('motivation-002');
 });
+
+// Mutation caught: routing either preview option through the rotation queue would
+// make a local display choice wait on, and fail with, the native scheduler.
+test('persists the preview options without touching the native scheduler', () => {
+  const configureRotation = jest.requireMock('../../services/wallpaperNative')
+    .configureRotation as jest.Mock;
+  configureRotation.mockClear();
+  const storage = createMemoryStorage();
+  const store = createAppStore({ storage });
+
+  expect(store.getState().setSaveToPhotoLibrary(true)).toBe(true);
+  expect(store.getState().setShowSafeGuides(true)).toBe(true);
+
+  expect(store.getState()).toMatchObject({
+    saveToPhotoLibrary: true,
+    showSafeGuides: true,
+  });
+  expect(configureRotation).not.toHaveBeenCalled();
+  expect(JSON.parse(storage.getString('motivana.app-state')!)).toMatchObject({
+    saveToPhotoLibrary: true,
+    showSafeGuides: true,
+  });
+});
+
+// Mutation caught: reporting a failed write as saved would show a toggle the next
+// launch silently reverts.
+test('reports a rejected preview-option write instead of claiming success', () => {
+  const store = createAppStore({
+    storage: {
+      getString: () => undefined,
+      set: () => {
+        throw new Error('disk full');
+      },
+      remove: () => undefined,
+    },
+    warn: () => undefined,
+  });
+
+  expect(store.getState().setShowSafeGuides(true)).toBe(false);
+  expect(store.getState().showSafeGuides).toBe(false);
+});

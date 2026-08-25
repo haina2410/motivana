@@ -3,15 +3,16 @@ import { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 
 const wallpaperFontSources: Readonly<Record<string, number[]>> = {
-  Inter: [
-    require('../../../assets/fonts/Inter-Regular.ttf'),
-    require('../../../assets/fonts/Inter-SemiBold.ttf'),
+  CormorantGaramond: [
+    require('../../../assets/fonts/CormorantGaramond-Light.ttf'),
+    require('../../../assets/fonts/CormorantGaramond-Regular.ttf'),
   ],
+  BeVietnamPro: [require('../../../assets/fonts/BeVietnamPro-Light.ttf')],
+  DancingScript: [require('../../../assets/fonts/DancingScript-Medium.ttf')],
   Lora: [
     require('../../../assets/fonts/Lora-Regular.ttf'),
     require('../../../assets/fonts/Lora-SemiBold.ttf'),
   ],
-  Oswald: [require('../../../assets/fonts/Oswald-Medium.ttf')],
 };
 
 let loadedProvider: SkTypefaceFontProvider | undefined;

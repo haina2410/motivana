@@ -10,11 +10,12 @@ const quoteCategories = [
   'success',
 ];
 const fontPaths = {
-  'Inter-Regular': 'assets/fonts/Inter-Regular.ttf',
-  'Inter-SemiBold': 'assets/fonts/Inter-SemiBold.ttf',
+  'CormorantGaramond-Light': 'assets/fonts/CormorantGaramond-Light.ttf',
+  'CormorantGaramond-Regular': 'assets/fonts/CormorantGaramond-Regular.ttf',
+  'BeVietnamPro-Light': 'assets/fonts/BeVietnamPro-Light.ttf',
+  'DancingScript-Medium': 'assets/fonts/DancingScript-Medium.ttf',
   'Lora-Regular': 'assets/fonts/Lora-Regular.ttf',
   'Lora-SemiBold': 'assets/fonts/Lora-SemiBold.ttf',
-  'Oswald-Medium': 'assets/fonts/Oswald-Medium.ttf',
 };
 const expectedPresetIds = [
   'midnight-focus',

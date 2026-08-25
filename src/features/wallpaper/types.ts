@@ -1,5 +1,10 @@
-export const fontFamilies = ['Inter', 'Lora', 'Oswald'] as const;
-export const fontWeights = ['Regular', 'SemiBold', 'Medium'] as const;
+export const fontFamilies = [
+  'CormorantGaramond',
+  'BeVietnamPro',
+  'DancingScript',
+  'Lora',
+] as const;
+export const fontWeights = ['Light', 'Regular', 'Medium', 'SemiBold'] as const;
 export const textAlignments = ['left', 'center', 'right'] as const;
 
 export type FontFamily = (typeof fontFamilies)[number];
@@ -36,11 +41,12 @@ export interface WallpaperPreset {
 }
 
 export const fontAssetPaths = {
-  'Inter-Regular': 'assets/fonts/Inter-Regular.ttf',
-  'Inter-SemiBold': 'assets/fonts/Inter-SemiBold.ttf',
+  'CormorantGaramond-Light': 'assets/fonts/CormorantGaramond-Light.ttf',
+  'CormorantGaramond-Regular': 'assets/fonts/CormorantGaramond-Regular.ttf',
+  'BeVietnamPro-Light': 'assets/fonts/BeVietnamPro-Light.ttf',
+  'DancingScript-Medium': 'assets/fonts/DancingScript-Medium.ttf',
   'Lora-Regular': 'assets/fonts/Lora-Regular.ttf',
   'Lora-SemiBold': 'assets/fonts/Lora-SemiBold.ttf',
-  'Oswald-Medium': 'assets/fonts/Oswald-Medium.ttf',
 } as const;
 
 type FontAssetKey = keyof typeof fontAssetPaths;

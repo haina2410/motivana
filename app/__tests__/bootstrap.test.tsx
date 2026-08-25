@@ -2,6 +2,7 @@
 
 import { render, screen } from '@testing-library/react-native';
 import HomeScreen from '../index';
+import { t } from '../../src/features/i18n/t';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
   const { View } = require('react-native');
@@ -16,13 +17,17 @@ jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
 jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
   useWallpaperFonts: () => ({}),
 }));
-jest.mock('../../src/components/WallpaperActions', () => ({
-  WallpaperActions: () => null,
+// The sheet reaches the Skia exporter, which needs the native module.
+jest.mock('../../src/components/SetWallpaperSheet', () => ({
+  SetWallpaperSheet: () => null,
 }));
 
-test('renders the product name and loading preview state', () => {
+test('renders the deck header and the live wallpaper card', () => {
   render(<HomeScreen />);
 
-  expect(screen.getByText('Motivana')).toBeOnTheScreen();
+  expect(screen.getByText(t('en', 'home.today'))).toBeOnTheScreen();
   expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
+  expect(
+    screen.getByRole('tab', { name: t('en', 'tab.deck') }),
+  ).toBeOnTheScreen();
 });

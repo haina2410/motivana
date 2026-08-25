@@ -36,10 +36,10 @@ test('derives the 9:20 safe margins and quote box from the requested pixels', ()
   );
 
   expect(composition.quoteBounds.x).toBeCloseTo(86.4);
-  expect(composition.quoteBounds.y).toBeCloseTo(950.58);
+  expect(composition.quoteBounds.y).toBeCloseTo(938.16);
   expect(composition.quoteBounds.width).toBeCloseTo(907.2);
-  expect(composition.quoteBounds.height).toBeCloseTo(162.84);
-  expect(composition.authorY).toBeCloseTo(1166.22);
+  expect(composition.quoteBounds.height).toBeCloseTo(187.68);
+  expect(composition.authorY).toBeCloseTo(1178.64);
   expect(composition.quoteFontSize).toBe(69);
   expect(composition.authorFontSize).toBe(30);
   expect(composition.maxQuoteLines).toBe(2);

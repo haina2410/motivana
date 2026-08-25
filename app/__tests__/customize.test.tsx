@@ -23,20 +23,20 @@ jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
 });
 
 beforeEach(() => {
-  jest.mocked(router.back).mockClear();
+  jest.mocked(router.navigate).mockClear();
   useAppStore.setState(createDefaultPersistedAppState());
   setRotationSynchronizer(async () => undefined);
 });
 
 test.each([
-  ['midnight-focus', 'Midnight Focus'],
-  ['sunrise-drive', 'Sunrise Drive'],
-  ['forest-discipline', 'Forest Discipline'],
-  ['violet-growth', 'Violet Growth'],
-  ['paper-confidence', 'Paper Confidence'],
-  ['ocean-success', 'Ocean Success'],
-  ['ember-action', 'Ember Action'],
-  ['mono-clarity', 'Mono Clarity'],
+  ['midnight-focus', 'Midnight'],
+  ['sunrise-drive', 'Sand'],
+  ['forest-discipline', 'Jade'],
+  ['violet-growth', 'Blush'],
+  ['paper-confidence', 'Linen'],
+  ['ocean-success', 'Slate'],
+  ['ember-action', 'Ember'],
+  ['mono-clarity', 'Paper'],
 ])(
   'selecting %s persists it and returns Home',
   async (presetId, presetName) => {
@@ -47,7 +47,7 @@ test.each([
 
     await waitFor(() => {
       expect(useAppStore.getState().selectedPresetId).toBe(presetId);
-      expect(router.back).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith('/');
     });
   },
 );
@@ -62,7 +62,7 @@ test('Customize keeps the selection available and offers a safe retry after sync
   useAppStore.setState({ rotationEnabled: true });
   render(<CustomizeScreen />);
 
-  fireEvent.press(screen.getByLabelText('Use Sunrise Drive preset'));
+  fireEvent.press(screen.getByLabelText('Use Sand preset'));
   await waitFor(() =>
     expect(
       screen.getByText(
@@ -70,9 +70,9 @@ test('Customize keeps the selection available and offers a safe retry after sync
       ),
     ).toBeOnTheScreen(),
   );
-  expect(router.back).not.toHaveBeenCalled();
+  expect(router.navigate).not.toHaveBeenCalled();
   fireEvent.press(screen.getByRole('button', { name: 'Retry preset update' }));
 
-  await waitFor(() => expect(router.back).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(router.navigate).toHaveBeenCalledWith('/'));
   expect(attempts).toBe(2);
 });

@@ -167,7 +167,7 @@ test.each([
 // Note on the `vietnamese-locale-layout-*` cases: this test's Skia mock is
 // driven entirely by the fixture's own `expected` numbers (see the
 // character-count measurer used to generate them), so it cannot detect
-// tone-mark clipping in condensed Oswald — that measurer has no per-glyph
+// tone-mark clipping in a light Cormorant Garamond — that measurer has no per-glyph
 // height model. Those two cases only prove the locale-aware layout pipeline
 // (createComposition/fitText picking up `locale: 'vi'` text) stays wired.
 // Visual tone-mark clipping still needs an on-device check.
@@ -274,11 +274,11 @@ test.each([
   },
 );
 
-// Mutation caught: omitting the preset weight silently renders Inter/Lora/Oswald with fallback typography.
+// Mutation caught: omitting the preset weight silently renders every bundled family with fallback typography.
 test.each([
-  ['violet-growth', 400],
-  ['forest-discipline', 600],
-  ['paper-confidence', 500],
+  ['midnight-focus', 300],
+  ['ember-action', 400],
+  ['sunrise-drive', 500],
 ])('passes the %s font weight to Skia', (presetId, weight) => {
   const composition = createComposition({
     quote,

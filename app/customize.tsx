@@ -1,19 +1,21 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppIconButton } from '../src/components/AppIconButton';
 import { ActionMessage } from '../src/components/ActionMessage';
+import { AppButton } from '../src/components/AppButton';
+import { DeckTabBar } from '../src/components/DeckTabBar';
 import { PresetThumbnail } from '../src/components/PresetThumbnail';
+import { ScreenHeader } from '../src/components/ScreenHeader';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { getAllPresets } from '../src/features/wallpaper/presetRepository';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
-import { typography } from '../src/theme/typography';
 
+/** Screen 1f of the board: eight curated presets, two to a row. */
 export default function CustomizeScreen() {
   const state = useAppStore();
   const translate = useTranslate();
@@ -26,98 +28,73 @@ export default function CustomizeScreen() {
     const selected = await state.selectPreset(presetId);
     setPendingPresetId(undefined);
     if (selected) {
-      router.back();
+      router.navigate('/');
       return;
     }
     setFailedPresetId(presetId);
   };
   const quote = getQuoteById(state.currentQuoteId);
   const presets = getAllPresets();
-  const presetRows = presets.reduce<(typeof presets)[number][][]>(
-    (rows, preset, index) => {
-      if (index % 2 === 0) rows.push([preset]);
-      else rows[rows.length - 1]!.push(preset);
-      return rows;
-    },
-    [],
-  );
   if (!quote) return null;
   return (
-    <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <View>
-          <Text allowFontScaling style={typography.eyebrow}>
-            {translate('customize.eyebrow')}
-          </Text>
-          <Text allowFontScaling style={typography.screenTitle}>
-            {translate('customize.title')}
-          </Text>
-        </View>
-        <AppIconButton
-          label={translate('common.back.label')}
-          hint={translate('common.back.hint')}
-          onPress={() => router.back()}
-          symbol="‹"
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
+      <View style={styles.body}>
+        <ScreenHeader
+          title={translate('customize.title')}
+          subtitle={translate('presets.subtitle')}
         />
-      </View>
-      {failedPresetId ? (
-        <View style={styles.feedback}>
-          <ActionMessage tone="error" message={translate('customize.error')} />
-          <AppIconButton
-            label={translate('customize.retry.label')}
-            hint={translate('customize.retry.hint')}
-            onPress={() => void selectPreset(failedPresetId)}
-            symbol="↻"
-          />
-        </View>
-      ) : null}
-      <ScrollView
-        contentContainerStyle={styles.grid}
-        showsVerticalScrollIndicator={false}
-      >
-        {presetRows.map((row) => (
-          <View key={row[0]!.id} style={styles.row}>
-            {row.map((preset) => (
-              <View key={preset.id} style={styles.slot}>
-                <PresetThumbnail
-                  preset={preset}
-                  quote={quote}
-                  locale={state.contentLocale}
-                  selected={state.selectedPresetId === preset.id}
-                  disabled={pendingPresetId !== undefined}
-                  onPress={() => void selectPreset(preset.id)}
-                />
-              </View>
-            ))}
+        {failedPresetId ? (
+          <View style={styles.feedback}>
+            <ActionMessage
+              tone="error"
+              message={translate('customize.error')}
+            />
+            <AppButton
+              hint={translate('customize.retry.hint')}
+              icon="rotate-right"
+              label={translate('customize.retry.label')}
+              onPress={() => void selectPreset(failedPresetId)}
+              variant="outline"
+            />
           </View>
-        ))}
-      </ScrollView>
+        ) : null}
+        <ScrollView
+          contentContainerStyle={styles.grid}
+          showsVerticalScrollIndicator={false}
+        >
+          {presets.map((preset) => (
+            <View key={preset.id} style={styles.slot}>
+              <PresetThumbnail
+                preset={preset}
+                quote={quote}
+                locale={state.contentLocale}
+                selected={state.selectedPresetId === preset.id}
+                disabled={pendingPresetId !== undefined}
+                onPress={() => void selectPreset(preset.id)}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+      <DeckTabBar active="presets" />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.background,
+  screen: { backgroundColor: colors.background, flex: 1 },
+  body: {
     flex: 1,
     gap: spacing.x2,
-    paddingHorizontal: spacing.x2,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  grid: {
-    gap: spacing.x2,
-    paddingBottom: spacing.x4,
-    width: '100%',
+    paddingHorizontal: spacing.x2 + 2,
+    paddingTop: spacing.x1,
   },
   feedback: { gap: spacing.x1 },
-  row: {
+  grid: {
     flexDirection: 'row',
-    gap: spacing.x2,
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+    paddingBottom: spacing.x3,
   },
-  slot: { flexBasis: '48%' },
+  slot: { flexBasis: '47%', flexGrow: 1 },
 });

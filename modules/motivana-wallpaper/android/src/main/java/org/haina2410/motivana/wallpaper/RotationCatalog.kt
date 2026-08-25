@@ -53,7 +53,7 @@ object RotationCatalogLoader {
 class CatalogException(val code: String) : IllegalStateException(code)
 object RotationCatalogValidator {
   private val categories = setOf("motivation", "discipline", "focus", "confidence", "growth", "success")
-  private val fonts = setOf("Inter-Regular", "Inter-SemiBold", "Lora-Regular", "Lora-SemiBold", "Oswald-Medium")
+  private val fonts = setOf("CormorantGaramond-Light", "CormorantGaramond-Regular", "BeVietnamPro-Light", "DancingScript-Medium", "Lora-Regular", "Lora-SemiBold")
   private val color = Regex("#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?")
   fun validate(catalog: RotationCatalog) {
     fun invalid(): Nothing = throw CatalogException("INVALID_CATALOG")

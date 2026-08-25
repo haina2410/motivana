@@ -4,8 +4,8 @@ import { en } from '../../i18n/strings/en';
 
 const validPreset = {
   id: 'test-preset',
-  fontFamily: 'Inter',
-  fontWeight: 'Regular',
+  fontFamily: 'BeVietnamPro',
+  fontWeight: 'Light',
   textAlign: 'center',
   quotePositionY: 0.45,
   textColor: '#FFFFFF',
@@ -48,8 +48,8 @@ test('returns a readonly preset catalog that cannot alter later reads', () => {
 
 test('looks up a preset by stable ID and handles missing IDs', () => {
   expect(getPresetById('paper-confidence')).toMatchObject({
-    fontFamily: 'Oswald',
-    fontWeight: 'Medium',
+    fontFamily: 'Lora',
+    fontWeight: 'Regular',
     textAlign: 'left',
   });
   expect(getPresetById('not-a-preset')).toBeUndefined();
@@ -58,7 +58,7 @@ test('looks up a preset by stable ID and handles missing IDs', () => {
 test('rejects an unsupported font family and weight pair at catalog load', () => {
   expect(() =>
     parseWallpaperPresetCatalog([
-      { ...validPreset, fontFamily: 'Oswald', fontWeight: 'Regular' },
+      { ...validPreset, fontFamily: 'DancingScript', fontWeight: 'Light' },
     ]),
   ).toThrow('presets[0].fontFamily/fontWeight');
 });

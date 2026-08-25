@@ -35,7 +35,7 @@ test('reads each wallpaper font file one time for previews that mount together',
   );
 
   await waitFor(() => expect(screen.getAllByText('ready')).toHaveLength(3));
-  expect(mockFromURI).toHaveBeenCalledTimes(5);
+  expect(mockFromURI).toHaveBeenCalledTimes(6);
 });
 
 // Mutation caught: keeping no loaded provider would read every font file again when a later screen mounts.
@@ -43,5 +43,5 @@ test('reuses the loaded provider for a preview that mounts later', async () => {
   const screen = render(<FontProbe />);
 
   expect(screen.getByText('ready')).toBeTruthy();
-  expect(mockFromURI).toHaveBeenCalledTimes(5);
+  expect(mockFromURI).toHaveBeenCalledTimes(6);
 });
