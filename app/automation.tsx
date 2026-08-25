@@ -17,6 +17,7 @@ import {
   wallpaperAutomationFallback,
 } from '../src/services/wallpaperAvailability';
 import { runRotationNow } from '../src/services/wallpaperNative';
+import { getAllQuotes } from '../src/features/quotes/quoteRepository';
 import {
   getRotationStatusRecovery,
   getRotationStatusRecoveryControl,
@@ -218,7 +219,9 @@ export default function AutomationScreen() {
             selected={favoritesOnly}
           />
           <RadioRow
-            label={translate('rotation.source.all')}
+            label={translate('rotation.source.all', {
+              count: getAllQuotes().length,
+            })}
             onPress={() => setFavoritesOnly(false)}
             selected={!favoritesOnly}
           />

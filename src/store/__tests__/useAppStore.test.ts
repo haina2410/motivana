@@ -460,14 +460,16 @@ test('repairs the current quote when it has no text in the new content language'
 // Mutation caught: always repairing the current quote on a language switch would jump the reader away from a quote they were already reading in the new language.
 test('keeps the current quote when it already has text in the new content language', async () => {
   const storage = createMemoryStorage();
+  // Read a bilingual quote from the catalogue: a harvest renumbers every ID.
+  const bilingual = getAllQuotes('vi').at(0)!.id;
   storage.set(
     'motivana.app-state',
-    JSON.stringify({ version: 2, currentQuoteId: 'motivation-002' }),
+    JSON.stringify({ version: 2, currentQuoteId: bilingual }),
   );
   const store = createAppStore({ storage });
 
   await expect(store.getState().setContentLocale('vi')).resolves.toBe(true);
-  expect(store.getState().currentQuoteId).toBe('motivation-002');
+  expect(store.getState().currentQuoteId).toBe(bilingual);
 });
 
 // Mutation caught: routing either preview option through the rotation queue would

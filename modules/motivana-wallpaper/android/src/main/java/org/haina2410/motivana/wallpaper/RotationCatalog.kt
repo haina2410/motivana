@@ -55,10 +55,14 @@ object RotationCatalogValidator {
   private val categories = setOf("motivation", "discipline", "focus", "confidence", "growth", "success")
   private val fonts = setOf("CormorantGaramond-Light", "CormorantGaramond-Regular", "BeVietnamPro-Light", "DancingScript-Medium", "Lora-Regular", "Lora-SemiBold")
   private val color = Regex("#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?")
+  // The catalogue has no fixed size: it grows as sourced quotes replace the
+  // original app copy. The worker holds the same floor as scripts/verify-data.mjs.
+  private const val MINIMUM_QUOTES_PER_CATEGORY = 6
   fun validate(catalog: RotationCatalog) {
     fun invalid(): Nothing = throw CatalogException("INVALID_CATALOG")
-    if (catalog.quotes.size != 120 || catalog.presets.size != 8) invalid()
-    if (catalog.quotes.map { it.id }.toSet().size != 120 || catalog.presets.map { it.id }.toSet().size != 8) invalid()
+    if (catalog.presets.size != 8 || catalog.presets.map { it.id }.toSet().size != 8) invalid()
+    if (catalog.quotes.map { it.id }.toSet().size != catalog.quotes.size) invalid()
+    if (categories.any { category -> catalog.quotes.count { it.category == category } < MINIMUM_QUOTES_PER_CATEGORY }) invalid()
     if (catalog.quotes.any { quote -> quote.id.isBlank() || quote.category !in categories || quote.sourceLocale !in RotationLocales.supported || quote.text.keys.any { it !in RotationLocales.supported } || quote.sourceLocale !in quote.text || quote.text.values.any { it.trim().length < 12 || it.length > 160 } } || catalog.quotes.map { it.category }.toSet() != categories) invalid()
     catalog.presets.forEach { p ->
       if ("${p.family}-${p.weight}" !in fonts || p.align !in setOf("left", "center", "right") || p.quotePositionY !in .1..0.9 || p.minimumRatio <= 0 || p.preferredRatio < p.minimumRatio || p.lineHeight !in 1.0..2.0 || !color.matches(p.textColor) || !color.matches(p.authorColor) || (p.overlay != null && !color.matches(p.overlay))) invalid()

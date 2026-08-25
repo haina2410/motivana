@@ -9,6 +9,11 @@ const quoteCategories = [
   'growth',
   'success',
 ];
+// The catalogue grows as sourced, attributed quotes replace the original app
+// copy, so these are floors, not a fixed size. A floor still stops a truncated
+// or half-written file from shipping.
+const minimumQuotesPerCategory = 6;
+const minimumVietnameseQuotesPerCategory = 5;
 const fontPaths = {
   'CormorantGaramond-Light': 'assets/fonts/CormorantGaramond-Light.ttf',
   'CormorantGaramond-Regular': 'assets/fonts/CormorantGaramond-Regular.ttf',
@@ -78,10 +83,6 @@ function validateQuotes(quotes) {
   if (!Array.isArray(quotes)) {
     fail('assets/data/quotes.json', 'quotes must be an array');
   }
-  if (quotes.length !== 120) {
-    fail('assets/data/quotes.json', 'quotes must contain exactly 120 entries');
-  }
-
   const ids = new Set();
   const categoryCounts = new Map(
     quoteCategories.map((category) => [category, 0]),
@@ -138,10 +139,10 @@ function validateQuotes(quotes) {
     categoryCounts.set(quote.category, categoryCounts.get(quote.category) + 1);
   }
   for (const category of quoteCategories) {
-    if (categoryCounts.get(category) !== 20) {
+    if (categoryCounts.get(category) < minimumQuotesPerCategory) {
       fail(
         'assets/data/quotes.json',
-        `${category} must contain exactly 20 entries`,
+        `${category} must contain at least ${minimumQuotesPerCategory} entries, found ${categoryCounts.get(category)}`,
       );
     }
   }
@@ -158,10 +159,10 @@ function validateQuotes(quotes) {
     }
   }
   for (const [category, count] of vietnameseByCategory) {
-    if (count !== 5) {
+    if (count < minimumVietnameseQuotesPerCategory) {
       fail(
         'assets/data/quotes.json',
-        `must carry 5 Vietnamese quotes in ${category}, found ${count}`,
+        `must carry at least ${minimumVietnameseQuotesPerCategory} Vietnamese quotes in ${category}, found ${count}`,
       );
     }
   }

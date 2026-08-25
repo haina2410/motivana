@@ -50,18 +50,29 @@ test('returns text only for the locale that has it', () => {
 });
 
 // Mutation caught: losing a category or an id would shrink the pool without any failing assertion.
-test('ships 120 unique English quotes across every category', () => {
+// The catalogue has no fixed size, so this holds the same floor as the data gate.
+test('ships unique English quotes across every category', () => {
   const quotes = getAllQuotes();
 
-  expect(quotes).toHaveLength(120);
-  expect(new Set(quotes.map((quote) => quote.id)).size).toBe(120);
+  expect(quotes.length).toBeGreaterThanOrEqual(36);
+  expect(new Set(quotes.map((quote) => quote.id)).size).toBe(quotes.length);
   expect(new Set(quotes.map((quote) => quote.category))).toEqual(
     new Set(quoteCategories),
   );
+  for (const category of quoteCategories) {
+    expect(
+      quotes.filter((quote) => quote.category === category).length,
+    ).toBeGreaterThanOrEqual(6);
+  }
   expect(
     quotes.every((quote) => (quote.text.en ?? '').trim().length >= 12),
   ).toBe(true);
-  expect(quotes.every((quote) => quote.author === undefined)).toBe(true);
+  // Sourced quotes carry the person who said them; original app copy carries none.
+  expect(
+    quotes.every(
+      (quote) => quote.author === undefined || quote.author.trim().length > 0,
+    ),
+  ).toBe(true);
 });
 
 // Mutation caught: allowing text past the cap would render a 9-line paragraph instead of a quote.
@@ -88,7 +99,7 @@ test('returns a readonly catalog that cannot alter later reads', () => {
   const quotes = getAllQuotes() as Quote[];
 
   expect(() => quotes.pop()).toThrow();
-  expect(getAllQuotes()).toHaveLength(120);
+  expect(getAllQuotes()).toHaveLength(quotes.length);
 });
 
 test('looks up a known quote and returns undefined for a missing ID', () => {
@@ -99,16 +110,15 @@ test('looks up a known quote and returns undefined for a missing ID', () => {
   expect(getQuoteById('not-a-quote')).toBeUndefined();
 });
 
+// The ends are read from the catalogue: every harvest renumbers the last ID.
 test('navigates forward and backward with catalog wraparound', () => {
-  expect(getAdjacentQuote('motivation-001', 'previous', 'en')?.id).toBe(
-    'success-020',
-  );
-  expect(getAdjacentQuote('success-020', 'next', 'en')?.id).toBe(
-    'motivation-001',
-  );
-  expect(getAdjacentQuote('not-a-quote', 'next', 'en')?.id).toBe(
-    'motivation-001',
-  );
+  const english = getAllQuotes('en');
+  const first = english.at(0)!.id;
+  const last = english.at(-1)!.id;
+
+  expect(getAdjacentQuote(first, 'previous', 'en')?.id).toBe(last);
+  expect(getAdjacentQuote(last, 'next', 'en')?.id).toBe(first);
+  expect(getAdjacentQuote('not-a-quote', 'next', 'en')?.id).toBe(first);
 });
 
 test('selects only from eligible IDs using an injected random value', () => {
@@ -133,11 +143,13 @@ test('never immediately repeats a previous eligible quote when another exists', 
 });
 
 test('clamps injected random values to the available range', () => {
+  const english = getAllQuotes('en');
+
   expect(selectRandomQuote({ locale: 'en', random: () => -3 }).id).toBe(
-    'motivation-001',
+    english.at(0)!.id,
   );
   expect(selectRandomQuote({ locale: 'en', random: () => 3 }).id).toBe(
-    'success-020',
+    english.at(-1)!.id,
   );
 });
 
@@ -155,7 +167,7 @@ test('offers only quotes that have text for the requested locale', () => {
   const english = getAllQuotes('en');
   const vietnamese = getAllQuotes('vi');
 
-  expect(english.length).toBe(120);
+  expect(english.length).toBe(getAllQuotes().length);
   expect(vietnamese.every((quote) => quote.text.vi !== undefined)).toBe(true);
   expect(vietnamese.length).toBeLessThan(english.length);
 });
@@ -176,15 +188,16 @@ test('selects a random quote only from the locale pool', () => {
   expect(quote.text.vi).toBeDefined();
 });
 
-// Mutation caught: an unbalanced first batch would leave a category with too few quotes and repeat during rotation.
-test('ships the Vietnamese first batch with 5 quotes in every category', () => {
+// Mutation caught: an unbalanced batch would leave a category with too few quotes and repeat during rotation.
+// The Vietnamese pool grows with every harvest, so this holds the floor the data gate holds.
+test('ships at least 5 Vietnamese quotes in every category', () => {
   const vietnamese = getAllQuotes('vi');
 
-  expect(vietnamese).toHaveLength(30);
+  expect(vietnamese.length).toBeGreaterThanOrEqual(30);
   for (const category of quoteCategories) {
     expect(
-      vietnamese.filter((quote) => quote.category === category),
-    ).toHaveLength(5);
+      vietnamese.filter((quote) => quote.category === category).length,
+    ).toBeGreaterThanOrEqual(5);
   }
 });
 

@@ -11,6 +11,21 @@ class RotationCatalogValidatorTest {
     },
   )
   @Test fun validatesTheRequiredQuoteCategoriesPresetFontsColorsAndIds() { RotationCatalogValidator.validate(catalog()); assertEquals(120, catalog().quotes.size) }
-  @Test(expected = CatalogException::class) fun rejectsMalformedCatalogsInsteadOfPermissiveFallback() { RotationCatalogValidator.validate(catalog().copy(quotes = catalog().quotes.dropLast(1))) }
+  // A catalogue of any size is legal, so the malformed case is a missing category,
+  // not a missing entry.
+  @Test(expected = CatalogException::class) fun rejectsMalformedCatalogsInsteadOfPermissiveFallback() { RotationCatalogValidator.validate(catalog().copy(quotes = catalog().quotes.filter { it.category != "success" })) }
+  @Test fun acceptsASmallerCatalogueThatKeepsTheFloorInEveryCategory() {
+    val trimmed = catalog().quotes.groupBy { it.category }.flatMap { (_, quotes) -> quotes.take(6) }
+    RotationCatalogValidator.validate(catalog().copy(quotes = trimmed))
+    assertEquals(36, trimmed.size)
+  }
+  @Test(expected = CatalogException::class) fun rejectsACategoryBelowTheFloor() {
+    val thin = catalog().quotes.groupBy { it.category }.flatMap { (category, quotes) -> quotes.take(if (category == "focus") 5 else 6) }
+    RotationCatalogValidator.validate(catalog().copy(quotes = thin))
+  }
+  @Test(expected = CatalogException::class) fun rejectsDuplicateQuoteIds() {
+    val duplicated = catalog().quotes.toMutableList().also { it[1] = it[1].copy(id = it[0].id) }
+    RotationCatalogValidator.validate(catalog().copy(quotes = duplicated))
+  }
   @Test(expected = CatalogException::class) fun rejectsUnsupportedFontAndBadColor() { RotationCatalogValidator.validate(catalog().copy(presets = catalog().presets.toMutableList().also { it[0] = it[0].copy(family = "Missing", textColor = "white") })) }
 }

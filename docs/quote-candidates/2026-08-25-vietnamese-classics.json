@@ -1,0 +1,1250 @@
+{
+  "harvest": {
+    "date": "2026-08-25",
+    "topic": "vietnamese-classics",
+    "harvester": "sourcing-quotes step 1",
+    "targetLocale": "vi",
+    "sourceLadder": "rung 1 (tục ngữ / ca dao) and rung 2 (public-domain named authors)",
+    "method": "Primary texts were fetched from vi.wikisource.org through the MediaWiki parse API, stripped to plain text, and every candidate wording was located inside the fetched file before it was recorded. No aggregator page was used as a source.",
+    "primarySources": [
+      "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897) - letter pages A..Y",
+      "Nguyễn Du, Truyện Kiều",
+      "Dương Quảng Hàm, Quốc văn trích diễm (1925) - the Nguyễn Bá Học extracts 115, 116, 117",
+      "Nguyễn Bá Học, Chí thành (1919)",
+      "Nguyễn Công Trứ, Đi thi tự vịnh",
+      "Phan Bội Châu, Bài ca chúc tết thanh niên (1926)",
+      "Hồ Chí Minh, Khuyên thanh niên (1950)"
+    ],
+    "candidateCount": 50
+  },
+  "candidates": [
+    {
+      "text": {
+        "vi": "Không có việc gì khó, chỉ sợ lòng không bền. Đào núi và lấp biển, quyết chí ắt làm nên.",
+        "en": "Nothing is beyond doing; only the will may fail. Move the mountain, fill the sea: decide, and it is done."
+      },
+      "sourceLocale": "vi",
+      "author": "Hồ Chí Minh",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Khuyên_thanh_niên",
+        "sourceKind": "primary-text",
+        "citation": "Khuyên thanh niên, trung tuần tháng 5-1950",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "none; the four verse lines are joined into one line and the poem's own commas and full stops are kept"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Verified in the Khuyên thanh niên page; author Hồ Chí Minh is on the page and public domain; plain modern Vietnamese and the joined verse is recorded.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Có khó mới có nên.",
+        "en": "Only what costs you something is ever built."
+      },
+      "sourceLocale": "vi",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Verified, but motivation is at the 5-quote cap and this line states the effort-pays idea more plainly than the ones kept.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Chuông chẳng đánh chẳng kêu, đèn chẳng khêu chẳng sáng.",
+        "en": "A bell nobody strikes stays silent; a lamp nobody trims gives no light."
+      },
+      "sourceLocale": "vi",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục C; folk-anonymous; the bell-and-lamp image still reads clearly today.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Kiến tha lâu đầy lỗ.",
+        "en": "The ant carries long enough, and the hole is full."
+      },
+      "sourceLocale": "vi",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/K",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục K",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục K; a proverb still in daily use, and the English matches it.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Góp gió làm bão.",
+        "en": "Gather the small winds and you have a storm."
+      },
+      "sourceLocale": "vi",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/G",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục G",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục G; short, current, and the rendering is exact.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Còn người còn của.",
+        "en": "While the person is still here, the means are still here."
+      },
+      "sourceLocale": "vi",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Verified, but the line reads as a remark about property surviving; it does not carry a motivation theme on a wallpaper.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Khó mới có mà ăn, ngồi không ai dễ đem phần tới cho.",
+        "en": "Hard work puts food on the table; nobody carries a share to the one sitting idle."
+      },
+      "sourceLocale": "vi",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/K",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục K",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Verified, but it repeats the effort-pays sense of the kept #3 and #4 and motivation is at the cap.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Đường đi khó không khó vì ngăn sông cách núi mà khó vì lòng người ngại núi e sông.",
+        "en": "The road is hard, not because rivers and mountains block it, but because the heart shrinks from them."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Bá Học",
+      "category": "motivation",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Quốc_văn_trích_diễm/117",
+        "sourceKind": "primary-text",
+        "citation": "Mạo hiểm, trong Dương Quảng Hàm, Quốc văn trích diễm (1925), bài 117",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found in Quốc văn trích diễm 117 (Mạo hiểm) with Nguyễn Bá Học named on the page; canonical and clear.",
+        "category": "motivation"
+      }
+    },
+    {
+      "text": {
+        "vi": "Đời đã mới, người càng nên đổi mới.",
+        "en": "The times have turned new; all the more should a person turn new."
+      },
+      "sourceLocale": "vi",
+      "author": "Phan Bội Châu",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Bài_ca_chúc_tết_thanh_niên",
+        "sourceKind": "primary-text",
+        "citation": "Bài ca chúc tết thanh niên (1926), câu 10",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Line 10 of Bài ca chúc tết thanh niên, Phan Bội Châu named on the page; recategorised from motivation to growth, which the renewal sense fits.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Gắng công mài sắt, chầy ngày nên kim.",
+        "en": "Keep grinding the iron and one day it is a needle."
+      },
+      "sourceLocale": "vi",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/G",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục G",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục G; 'chầy ngày' is archaic but the iron-to-needle image is universally known.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Hãy cho bền chí câu cua, dầu ai câu trạnh câu rùa mặc ai.",
+        "en": "Keep to your own patient fishing, whatever the others choose to catch."
+      },
+      "sourceLocale": "vi",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H; the collection notes it is a câu hát (folk song line)",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'câu trạnh' is opaque to a modern reader, and the English replaces the fishing images with a gloss rather than rendering them.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "An bộ khả dĩ đương xa.",
+        "en": "A steady walking pace can stand in for a carriage."
+      },
+      "sourceLocale": "vi",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/A",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục A",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt maxim; a modern Vietnamese reader cannot parse it, so it is a bad wallpaper despite clean provenance.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Cần bất như chuyên.",
+        "en": "Being busy is worth less than being steady."
+      },
+      "sourceLocale": "vi",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt maxim; unreadable to a modern reader.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Chí đã định phải làm hết sức mình, còn nên hay thua không kể đến.",
+        "en": "Once the mind is set, give it everything; whether it wins or loses is not the reckoning."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Bá Học",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Quốc_văn_trích_diễm/116",
+        "sourceKind": "primary-text",
+        "citation": "Hi vọng, trong Dương Quảng Hàm, Quốc văn trích diễm (1925), bài 116",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "cut from the end of the sentence: \", chẳng oán trời cũng chẳng trách trời, gọi là thuận mệnh\""
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found in Quốc văn trích diễm 116 (Hi vọng), Nguyễn Bá Học named on the page; the trim is recorded and the remaining sentence stands on its own.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Hay chữ chẳng bằng hay giữ.",
+        "en": "Knowing the words is worth less than keeping them."
+      },
+      "sourceLocale": "vi",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'hay giữ' is ambiguous in modern Vietnamese and the English rendering does not resolve it.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Hái củi ba năm thiêu một giờ.",
+        "en": "Three years of gathering firewood burns away in an hour."
+      },
+      "sourceLocale": "vi",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục H; plain modern wording and the English matches.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Việc phải dù tính mạng cũng không từ, việc phi nghĩa dù phú quý cũng không tưởng.",
+        "en": "The right thing, though it cost your life, you do not refuse; the wrong thing, though it bring riches, you do not consider."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Bá Học",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Chí_thành",
+        "sourceKind": "primary-text",
+        "citation": "Chí thành (1919), bài số 22 trong loạt Lời khuyên học trò, Nam Phong tạp chí",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "lifted from the middle of a longer sentence after a semicolon; the first letter is capitalised, nothing else changed"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found in Chí thành (1919) with Nguyễn Bá Học named on the page; the mid-sentence lift is recorded and the English is accurate.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Đi cho êm, đứng cho vững, trụ cho gan.",
+        "en": "Walk smoothly, stand firmly, hold your ground bravely."
+      },
+      "sourceLocale": "vi",
+      "author": "Phan Bội Châu",
+      "category": "discipline",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Bài_ca_chúc_tết_thanh_niên",
+        "sourceKind": "primary-text",
+        "citation": "Bài ca chúc tết thanh niên (1926), câu 13",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "a full stop is added; the source line ends without punctuation because the verse runs on"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'trụ cho gan' is opaque today, and discipline is at its cap with clearer lines.",
+        "category": "discipline"
+      }
+    },
+    {
+      "text": {
+        "vi": "Việc người thì sáng, việc mình thì quáng.",
+        "en": "We see another person's business clearly and our own dimly."
+      },
+      "sourceLocale": "vi",
+      "category": "focus",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/V",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục V",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục V; plain wording and an accurate English rendering.",
+        "category": "focus"
+      }
+    },
+    {
+      "text": {
+        "vi": "Cử nhứt khả dĩ suy kỳ dư.",
+        "en": "Understand one thing well and you can infer the rest."
+      },
+      "sourceLocale": "vi",
+      "category": "focus",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt with the archaic 'nhứt' spelling; opaque to a modern reader.",
+        "category": "focus"
+      }
+    },
+    {
+      "text": {
+        "vi": "Thối nhứt bộ tự nhiên khoang.",
+        "en": "Step back one pace and the room opens by itself."
+      },
+      "sourceLocale": "vi",
+      "category": "focus",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/T",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục T",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt; opaque to a modern reader.",
+        "category": "focus"
+      }
+    },
+    {
+      "text": {
+        "vi": "Mạnh dùng sức, yếu dùng chước.",
+        "en": "The strong use strength; the weak use a plan."
+      },
+      "sourceLocale": "vi",
+      "category": "focus",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/M",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục M",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục M; 'chước' is still current and the English matches.",
+        "category": "focus"
+      }
+    },
+    {
+      "text": {
+        "vi": "Có tài mà cậy chi tài, chữ tài liền với chữ tai một vần.",
+        "en": "Have a gift, but do not lean on it: gift and grief rhyme in the same breath."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Du",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Truyện_Kiều",
+        "sourceKind": "primary-text",
+        "citation": "Truyện Kiều, câu 3247-3248",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "none; the verse line break is replaced by the comma the source already carries"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Truyện Kiều lines 3247-3248 confirmed in the wikisource text, Nguyễn Du; recategorised from focus to growth, where the caution against leaning on talent belongs.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Hữu xạ tự nhiên hương.",
+        "en": "Where there is musk, the scent carries by itself."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục H; still a live idiom in modern Vietnamese and the English matches.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Các hữu sở trường.",
+        "en": "Every person has something of their own that they do well."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt; opaque to a modern reader.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Cố ư trung tất hình ư ngoại.",
+        "en": "What is solid inside must show itself outside."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt; opaque to a modern reader.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Hoạn bất tài, hà hoạn vô dụng.",
+        "en": "Fear having no ability; never fear having no use."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt; opaque to a modern reader.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Lòng ta ta đã chắc rồi, dễ ai giục đứng giục ngồi mà nao.",
+        "en": "My own mind is settled; no one hurries me up or down from it."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Quốc_văn_trích_diễm/115",
+        "sourceKind": "primary-text",
+        "citation": "câu ca dao dẫn trong Tự trọng của Nguyễn Bá Học, Quốc văn trích diễm (1925), bài 115",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "the source prints it inside French quotation marks; the marks are dropped and the first letter capitalised"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found as the closing câu ca of Quốc văn trích diễm 115 (Tự trọng); folk-anonymous is correct, the dropped quotation marks are recorded, and the wording is clear.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Người có chí thành mới là người có giá trị.",
+        "en": "Only the person of true sincerity is a person of worth."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Bá Học",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Chí_thành",
+        "sourceKind": "primary-text",
+        "citation": "Chí thành (1919), bài số 22 trong loạt Lời khuyên học trò, Nam Phong tạp chí",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "cut from the end of the sentence: \", như ông tượng gỗ, vàng son rực rỡ là đồ trang sức bên ngoài...\""
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found in Chí thành (1919), Nguyễn Bá Học named on the page; the trim is recorded and 'chí thành' is carried by the sentence itself.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Đã mang tiếng ở trong trời đất, phải có danh gì với núi sông.",
+        "en": "Having taken a name under heaven and earth, leave some name with the mountains and rivers."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Công Trứ",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Đi_thi_tự_vịnh",
+        "sourceKind": "primary-text",
+        "citation": "Đi thi tự vịnh, câu 5-6",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "none; the verse line break is replaced by the comma the source already carries"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Đi thi tự vịnh lines 5-6 confirmed, Nguyễn Công Trứ named on the page; the wikisource variant template is the only reason a plain grep misses it.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Nhu nhược thắng can cường.",
+        "en": "What yields outlasts what will not bend."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/N",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục N",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'nhu nhược' now means spineless, so a modern reader takes the opposite of what the English rendering claims.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Bảy mươi học bảy mươi mốt.",
+        "en": "At seventy you still learn from seventy-one."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/B",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục B",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục B; plain wording and an accurate English rendering.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Ngọc bất trác bất thành khí, nhơn bất học bất tri lý.",
+        "en": "Uncut jade is not yet a vessel; an unschooled person does not yet know reason."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/N",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục N",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Half Hán-Việt with the archaic 'nhơn' spelling; too opaque for a wallpaper.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Học sư bất như học hữu.",
+        "en": "Learning from a teacher is not the same as learning from a friend."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Pure Hán-Việt; opaque to a modern reader.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Rừng nhu biển thánh khôn dò, bé mà chẳng học, lớn mò sao ra.",
+        "en": "Learning is a forest and a sea; what you do not study small, you grope for grown."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/R",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục R",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'rừng nhu biển thánh' is opaque, and the English substitutes a gloss for the image instead of rendering it.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Ăn thì vóc, học thì hay.",
+        "en": "Eating builds the body; studying builds the mind."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/A",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục A",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Archaic 'vóc' usage, and growth is at its cap with clearer lines.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Cương quế chi tánh, dủ lão dủ tân.",
+        "en": "Ginger and cinnamon: the older they get, the sharper they get."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Hán-Việt with the archaic 'dủ'; opaque to a modern reader.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Gần mực thì đen, gần đèn thì sáng.",
+        "en": "Sit near ink and you darken; sit near the lamp and you brighten."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/G",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục G",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục G; one of the best known living proverbs and the English matches.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Thiện căn ở tại lòng ta, chữ tâm kia mới bằng ba chữ tài.",
+        "en": "The root of good lies in our own heart, and heart is worth three times talent."
+      },
+      "sourceLocale": "vi",
+      "author": "Nguyễn Du",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Truyện_Kiều",
+        "sourceKind": "primary-text",
+        "citation": "Truyện Kiều, câu 3251-3252",
+        "verification": "grep-primary",
+        "rights": "public-domain",
+        "englishRendering": "ours",
+        "edit": "none; the verse line break is replaced by the comma the source already carries"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Truyện Kiều lines 3251-3252 confirmed in the wikisource text, Nguyễn Du; clear wording and an accurate rendering.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Hùm chết để da, người ta chết để tiếng.",
+        "en": "A tiger leaves its hide behind; a person leaves a name behind."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/H",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục H",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục H; 'hùm' is still understood and the English matches.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Của thế gian, ai khôn ngoan thì đặng.",
+        "en": "The goods of this world go to whoever is wise with them."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Archaic 'đặng', and the sense (goods go to the shrewd) does not belong to any catalogue category.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Chưởng qua đắc qua, chưởng đậu đắc đậu.",
+        "en": "Plant melon and you get melon; plant beans and you get beans."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Hán-Việt form of a proverb modern readers know only in Vietnamese; opaque as printed.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Tích thiện phùng thiện, tích ác phùng ác.",
+        "en": "Store up good and you meet good; store up harm and you meet harm."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/T",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục T",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Hán-Việt; opaque to a modern reader, and success has clearer lines.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Nhiều tay vỗ nên bột.",
+        "en": "Many hands together beat the dough into shape."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/N",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục N",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'vỗ nên bột' is a disputed reading (bột versus bộp); the English commits to the dough reading and may misstate the line.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Đói cho sạch, rách cho thơm.",
+        "en": "Hungry, stay clean; ragged, stay sweet."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/Đ",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục Đ",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục Đ; a proverb in daily use and the English matches.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Trăm hay chẳng bằng tay quen.",
+        "en": "A hundred clever notions are worth less than one practised hand."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/T",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục T",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục T; still current and the English matches.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Cây có cội nước có nguồn.",
+        "en": "Every tree has its root and every stream its spring."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/C",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục C",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "Verified and clear, but the line is about origins and gratitude; no category fits it and growth is at its cap.",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Ăn ngay ở thật, mọi tật mọi lành.",
+        "en": "Live straight and speak true, and every trouble comes out well."
+      },
+      "sourceLocale": "vi",
+      "category": "success",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/A",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục A",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "Found word for word in mục A; plain wording and an accurate rendering.",
+        "category": "success"
+      }
+    },
+    {
+      "text": {
+        "vi": "Bất dĩ thành bại, luận anh hùng.",
+        "en": "Do not weigh a person's courage by whether they won or lost."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/B",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục B",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "The English turns 'anh hùng' (hero) into 'courage', misstating the line; the Hán-Việt form is also opaque.",
+        "category": "confidence"
+      }
+    },
+    {
+      "text": {
+        "vi": "Đàng dài biết sức ngựa, nước loạn biết tôi ngay.",
+        "en": "A long road shows the horse's strength; hard times show who is loyal."
+      },
+      "sourceLocale": "vi",
+      "category": "growth",
+      "provenance": {
+        "sourceUrl": "https://vi.wikisource.org/wiki/Tục_ngữ,_cổ_ngữ,_gia_ngôn/Đ",
+        "sourceKind": "primary-text",
+        "citation": "Huỳnh Tịnh Của, Tục ngữ, cổ ngữ, gia ngôn (1897), mục Đ",
+        "verification": "grep-primary",
+        "rights": "folk-anonymous",
+        "englishRendering": "ours",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "reject",
+        "reason": "'nước loạn biết tôi ngay' is archaic and political, and it is not a growth line.",
+        "category": "growth"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "text": "Có công mài sắt, có ngày nên kim.",
+      "reason": "This modern wording is everywhere on aggregator pages but is not the wording in the 1897 primary collection, which prints \"Gắng công mài sắt, chầy ngày nên kim\". The attested wording is kept as a candidate instead."
+    },
+    {
+      "text": "Đi một ngày đàng, học một sàng khôn.",
+      "reason": "Not present anywhere in the fetched primary corpus. Every trail found leads to danh-ngôn aggregator pages, so verification would be weak."
+    },
+    {
+      "text": "Thất bại là mẹ thành công.",
+      "reason": "A calque of an English saying with no Vietnamese primary source; only aggregator pages carry it."
+    },
+    {
+      "text": "Xưa nay nhân định thắng nhiên cũng nhiều.",
+      "reason": "The Truyện Kiều text on vi.wikisource prints \"thắng nhiên\" at line 420, which is an edition or OCR slip for \"thắng thiên\". A quote that cannot be reproduced correctly from the source we cite is not usable."
+    },
+    {
+      "text": "Ăn trái nhớ kẻ trổng cây",
+      "reason": "The primary page prints \"trổng\" for \"trồng\" and drops the final full stop. Broken diacritics in the source, so the wording cannot be transcribed faithfully."
+    },
+    {
+      "text": "Dục tốt bất đạt.",
+      "reason": "Print or OCR error in the primary page for \"Dục tốc bất đạt\". Rejected for the same reason as above."
+    },
+    {
+      "text": "không thầy đố mầy làm nên.",
+      "reason": "Appears only inside a gloss line, not as a collection headword, and with a lower-case opening. No clean primary entry to cite."
+    },
+    {
+      "text": "Chí làm trai nam, bắc, đông, tây, cho phỉ sức vẫy vùng trong bốn bể.",
+      "reason": "Nguyễn Công Trứ, verified primary, but the line addresses men only. It does not fit a catalogue meant for every reader."
+    },
+    {
+      "text": "Nhân sinh tự cổ thùy vô tử, lưu thủ đan tâm chiếu hãn thanh.",
+      "reason": "Verified inside Chí làm trai, but the wikisource note says the couplet is quoted from Văn Thiên Tường's Chính khí ca. The author would be wrong either way."
+    },
+    {
+      "text": "Xối máu nóng rửa vết nhơ nô lệ.",
+      "reason": "Phan Bội Châu, verified primary, but the line is about colonial subjection. The timeless test rejects a line tied to that moment."
+    },
+    {
+      "text": "Các nước Âu-châu ngày nay đã nên giầu-mạnh, cũng là nhờ có những tay mạo-hiểm.",
+      "reason": "Nguyễn Bá Học, verified primary, but the sentence names a place and frames itself as \"ngày nay\". Fails the timeless test."
+    },
+    {
+      "text": "Vậy học-trò ngày nay phải tập xông-pha, phải biết nhẫn-nhục.",
+      "reason": "Verified primary, but it is addressed to schoolboys of its day and carries the 1925 hyphenation throughout. Modernising the hyphens would be an edit on every word."
+    },
+    {
+      "text": "Con dại cái mang.",
+      "reason": "Verified in Quốc văn trích diễm 101, but that whole extract is advice to a bride about obeying her husband. Nothing in it belongs on this wallpaper."
+    },
+    {
+      "text": "Có chẳng hơn không.",
+      "reason": "Verified primary, but only 19 characters of near-empty meaning and the English rendering has nothing to say."
+    },
+    {
+      "text": "Khôn thuở nên ba, dại cho đến già còn dại",
+      "reason": "The collection's own gloss treats cleverness and dullness as innate, which reads as fatalism rather than growth. Also missing its final full stop in the source."
+    },
+    {
+      "text": "Nhàn cư vi bất thiện.",
+      "reason": "Verified primary, but it shames rest rather than encouraging action. Wrong tone for a daily wallpaper."
+    },
+    {
+      "text": "Ếch ngồi đáy giếng.",
+      "reason": "Verified primary, but it is a put-down of another person, not an encouragement."
+    },
+    {
+      "text": "Mưu sự tại nhơn, thành sự tại thiên.",
+      "reason": "Verified primary, but it hands the outcome to heaven, which undercuts every other entry in the discipline and motivation blocks."
+    },
+    {
+      "text": "Bất học vô thuật.",
+      "reason": "Only 17 characters and purely pejorative; the gloss describes a person with no learning and no skill."
+    },
+    {
+      "text": "Sửa đổi lối làm việc, chương II (Hồ Chí Minh, 1947)",
+      "reason": "Searched as a second Hồ Chí Minh source. The text is party working-method guidance full of institutional references, so nothing in it passes the timeless test."
+    },
+    {
+      "text": "Một chân bước đi, mười chân bước lại.",
+      "reason": "Verified primary, but the gloss is \"bịn rịn khó nổi đi\" - it names hesitation without offering a way out of it."
+    },
+    {
+      "text": "Cầm cân thăng bằng.",
+      "reason": "Verified primary, but four words with no image and no advice; it reads as a legal phrase, not a line to wake up to."
+    },
+    {
+      "text": "Ăn một đọi nói một lời.",
+      "reason": "Verified primary, but \"đọi\" is a regional word for a bowl that most readers today will not know."
+    },
+    {
+      "text": "Tích cốc phòng cơ.",
+      "reason": "Verified primary, but it duplicates the saving-up idea already carried better by \"Kiến tha lâu đầy lỗ\" and \"Góp gió làm bão\"."
+    },
+    {
+      "text": "Có cây dây mới leo.",
+      "reason": "Verified primary, but the collection's own gloss reads it as opportunism (\"bởi có thế cho nên dây mới leo\"), not as encouragement."
+    },
+    {
+      "text": "Bất oán thiên, bất vưu nhơn.",
+      "reason": "Verified primary, but the gloss ends \"phải an phận mạng\" - accept your lot. That is fatalism, not confidence."
+    },
+    {
+      "text": "Cùng nghề đương thúng, túng nghề đương nia.",
+      "reason": "Verified primary, but both crafts named are obscure to a reader today, so the image lands on nothing."
+    },
+    {
+      "text": "Ăn cây nào rào cây nấy.",
+      "reason": "Verified primary, but the gloss makes it purely transactional loyalty to whoever feeds you."
+    },
+    {
+      "text": "Chơi dao, có ngày đứt tay.",
+      "reason": "Verified primary, but it is a warning about recklessness. Too close to a scolding for a daily wallpaper."
+    }
+  ]
+}

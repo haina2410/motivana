@@ -55,113 +55,57 @@
   {
     "id": "motivation-007",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Hồ Chí Minh",
     "text": {
-      "en": "Momentum is built from ordinary choices repeated without drama."
+      "vi": "Không có việc gì khó, chỉ sợ lòng không bền. Đào núi và lấp biển, quyết chí ắt làm nên.",
+      "en": "Nothing is beyond doing; only the will may fail. Move the mountain, fill the sea: decide, and it is done."
     }
   },
   {
     "id": "motivation-008",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Use the hour you have; waiting for a better hour spends two."
+      "vi": "Chuông chẳng đánh chẳng kêu, đèn chẳng khêu chẳng sáng.",
+      "en": "A bell nobody strikes stays silent; a lamp nobody trims gives no light."
     }
   },
   {
     "id": "motivation-009",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Let the first step be imperfect, but let it be real."
+      "vi": "Kiến tha lâu đầy lỗ.",
+      "en": "The ant carries long enough, and the hole is full."
     }
   },
   {
     "id": "motivation-010",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "A willing effort is already a vote for the person you are becoming."
+      "vi": "Góp gió làm bão.",
+      "en": "Gather the small winds and you have a storm."
     }
   },
   {
     "id": "motivation-011",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Bá Học",
     "text": {
-      "en": "Turn anticipation into action before doubt learns your schedule."
+      "vi": "Đường đi khó không khó vì ngăn sông cách núi mà khó vì lòng người ngại núi e sông.",
+      "en": "The road is hard, not because rivers and mountains block it, but because the heart shrinks from them."
     }
   },
   {
     "id": "motivation-012",
     "category": "motivation",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "You do not need a louder dream; you need a nearer next move."
-    }
-  },
-  {
-    "id": "motivation-013",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Show up early enough for possibility to recognize you."
-    }
-  },
-  {
-    "id": "motivation-014",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The work begins where the excuse stops being interesting."
-    }
-  },
-  {
-    "id": "motivation-015",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Collect beginnings, because finished things are made from them."
-    }
-  },
-  {
-    "id": "motivation-016",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Let curiosity carry you through the doorway that confidence has not reached."
-    }
-  },
-  {
-    "id": "motivation-017",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "When your purpose feels distant, make the next task smaller rather than the dream smaller."
-    }
-  },
-  {
-    "id": "motivation-018",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "An unfinished task is not a verdict; it is an invitation waiting for a return visit."
-    }
-  },
-  {
-    "id": "motivation-019",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "You can restart a difficult afternoon with one clean decision and a little patience."
-    }
-  },
-  {
-    "id": "motivation-020",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Each time you choose effort over avoidance, you teach your future self that progress is available."
+      "vi": "Cuộc đời là những gam màu đẹp đẽ, mong em luôn vui, đừng buồn vì những chuyện không đáng.",
+      "en": "Life is made of beautiful colours. Stay glad, and do not grieve over what does not deserve it."
     }
   },
   {
@@ -220,113 +164,39 @@
   {
     "id": "discipline-007",
     "category": "discipline",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Do the planned work before evaluating whether you feel like it."
+      "vi": "Gắng công mài sắt, chầy ngày nên kim.",
+      "en": "Keep grinding the iron and one day it is a needle."
     }
   },
   {
     "id": "discipline-008",
     "category": "discipline",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Bá Học",
     "text": {
-      "en": "Your calendar reveals which intentions received a real address."
+      "vi": "Chí đã định phải làm hết sức mình, còn nên hay thua không kể đến.",
+      "en": "Once the mind is set, give it everything; whether it wins or loses is not the reckoning."
     }
   },
   {
     "id": "discipline-009",
     "category": "discipline",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Finish the simple obligation before inventing a more interesting one."
+      "vi": "Hái củi ba năm thiêu một giờ.",
+      "en": "Three years of gathering firewood burns away in an hour."
     }
   },
   {
     "id": "discipline-010",
     "category": "discipline",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Bá Học",
     "text": {
-      "en": "Boundaries are commitments with a door and a lock."
-    }
-  },
-  {
-    "id": "discipline-011",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Prepare tonight for the decision you want to make tomorrow."
-    }
-  },
-  {
-    "id": "discipline-012",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The system matters most on the days when inspiration is absent."
-    }
-  },
-  {
-    "id": "discipline-013",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A delayed reward still counts when the work is done with care."
-    }
-  },
-  {
-    "id": "discipline-014",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Reduce the number of decisions between you and the important work."
-    }
-  },
-  {
-    "id": "discipline-015",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Honor the process long enough for its results to become visible."
-    }
-  },
-  {
-    "id": "discipline-016",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Discipline is not harshness; it is giving your priorities dependable protection."
-    }
-  },
-  {
-    "id": "discipline-017",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A missed day asks for a calm return, not a dramatic apology."
-    }
-  },
-  {
-    "id": "discipline-018",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Build a life where the helpful choice is ready before the tempting choice appears."
-    }
-  },
-  {
-    "id": "discipline-019",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "When the task feels heavy, keep the agreement and lighten the pace."
-    }
-  },
-  {
-    "id": "discipline-020",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The strongest routine is not the one that looks impressive from outside; it is the one you still keep on a tired day."
+      "vi": "Việc phải dù tính mạng cũng không từ, việc phi nghĩa dù phú quý cũng không tưởng.",
+      "en": "The right thing, though it cost your life, you do not refuse; the wrong thing, though it bring riches, you do not consider."
     }
   },
   {
@@ -385,113 +255,28 @@
   {
     "id": "focus-007",
     "category": "focus",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "One finished priority outweighs a crowded list of intentions."
+      "vi": "Việc người thì sáng, việc mình thì quáng.",
+      "en": "We see another person's business clearly and our own dimly."
     }
   },
   {
     "id": "focus-008",
     "category": "focus",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Name the task precisely enough that your mind cannot wander around it."
+      "vi": "Mạnh dùng sức, yếu dùng chước.",
+      "en": "The strong use strength; the weak use a plan."
     }
   },
   {
     "id": "focus-009",
     "category": "focus",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Clarity appears when you stop asking every task to happen at once."
-    }
-  },
-  {
-    "id": "focus-010",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Let the important work have the freshest part of your attention."
-    }
-  },
-  {
-    "id": "focus-011",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A notification is a request, not an instruction."
-    }
-  },
-  {
-    "id": "focus-012",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Concentration begins with deciding what will wait."
-    }
-  },
-  {
-    "id": "focus-013",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Return gently to the page, the problem, or the practice in front of you."
-    }
-  },
-  {
-    "id": "focus-014",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Your best work needs fewer tabs and more patience."
-    }
-  },
-  {
-    "id": "focus-015",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Protect a small block of deep effort like a meeting with your future."
-    }
-  },
-  {
-    "id": "focus-016",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Do not confuse being reachable with being useful."
-    }
-  },
-  {
-    "id": "focus-017",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The mind settles when the next action is visible and the rest is allowed to wait."
-    }
-  },
-  {
-    "id": "focus-018",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Choose a single meaningful target, then let repetition make it familiar."
-    }
-  },
-  {
-    "id": "focus-019",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A clear desk cannot do the work for you, but it can stop arguing with your attention."
-    }
-  },
-  {
-    "id": "focus-020",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Attention is the only currency that buys depth. Spend it on one thing long enough to see past the surface."
+      "vi": "Đừng vì thấy người khác đã nộp bài mà bạn vội vã điền đại đáp án.",
+      "en": "Do not scribble any answer down just because somebody else has handed their paper in."
     }
   },
   {
@@ -550,113 +335,48 @@
   {
     "id": "confidence-007",
     "category": "confidence",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "A mistake can revise your method without reducing your worth."
+      "vi": "Hữu xạ tự nhiên hương.",
+      "en": "Where there is musk, the scent carries by itself."
     }
   },
   {
     "id": "confidence-008",
     "category": "confidence",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Your voice becomes steadier each time you use it honestly."
+      "vi": "Lòng ta ta đã chắc rồi, dễ ai giục đứng giục ngồi mà nao.",
+      "en": "My own mind is settled; no one hurries me up or down from it."
     }
   },
   {
     "id": "confidence-009",
     "category": "confidence",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Bá Học",
     "text": {
-      "en": "Do not wait to feel complete before contributing something useful."
+      "vi": "Người có chí thành mới là người có giá trị.",
+      "en": "Only the person of true sincerity is a person of worth."
     }
   },
   {
     "id": "confidence-010",
     "category": "confidence",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Công Trứ",
     "text": {
-      "en": "Practice makes room for courage to enter the conversation."
+      "vi": "Đã mang tiếng ở trong trời đất, phải có danh gì với núi sông.",
+      "en": "Having taken a name under heaven and earth, leave some name with the mountains and rivers."
     }
   },
   {
     "id": "confidence-011",
     "category": "confidence",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "You know more than yesterday because you stayed present for today."
-    }
-  },
-  {
-    "id": "confidence-012",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A calm question can be stronger than a rushed answer."
-    }
-  },
-  {
-    "id": "confidence-013",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Claim your progress without needing to make it louder than anyone else’s."
-    }
-  },
-  {
-    "id": "confidence-014",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Your next attempt deserves the benefit of what the last attempt taught."
-    }
-  },
-  {
-    "id": "confidence-015",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Show your work the respect of believing it can get better."
-    }
-  },
-  {
-    "id": "confidence-016",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Confidence is built by meeting a hard moment and noticing that you remained yourself."
-    }
-  },
-  {
-    "id": "confidence-017",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "You do not need universal approval to make a thoughtful decision."
-    }
-  },
-  {
-    "id": "confidence-018",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Let competence be assembled one honest repetition at a time."
-    }
-  },
-  {
-    "id": "confidence-019",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The room may be unfamiliar, but your ability to listen, learn, and respond still belongs there."
-    }
-  },
-  {
-    "id": "confidence-020",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Confidence is the memory of having survived the last hard thing. Collect those memories on purpose."
+      "vi": "Không sao cả, tất cả chúng ta đều xấu trong câu chuyện của người khác.",
+      "en": "It's okay: we are all the bad one in someone else's story."
     }
   },
   {
@@ -715,113 +435,67 @@
   {
     "id": "growth-007",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Phan Bội Châu",
     "text": {
-      "en": "Try a new method long enough to understand its language."
+      "vi": "Đời đã mới, người càng nên đổi mới.",
+      "en": "The times have turned new; all the more should a person turn new."
     }
   },
   {
     "id": "growth-008",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Du",
     "text": {
-      "en": "The gap between skill and ambition is a place to train, not hide."
+      "vi": "Có tài mà cậy chi tài, chữ tài liền với chữ tai một vần.",
+      "en": "Have a gift, but do not lean on it: gift and grief rhyme in the same breath."
     }
   },
   {
     "id": "growth-009",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Improvement begins when comparison becomes curiosity."
+      "vi": "Bảy mươi học bảy mươi mốt.",
+      "en": "At seventy you still learn from seventy-one."
     }
   },
   {
     "id": "growth-010",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Keep revising the approach instead of repeating the disappointment."
+      "vi": "Gần mực thì đen, gần đèn thì sáng.",
+      "en": "Sit near ink and you darken; sit near the lamp and you brighten."
     }
   },
   {
     "id": "growth-011",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
+    "author": "Nguyễn Du",
     "text": {
-      "en": "A new skill rewards the person who can stay teachable through awkwardness."
+      "vi": "Thiện căn ở tại lòng ta, chữ tâm kia mới bằng ba chữ tài.",
+      "en": "The root of good lies in our own heart, and heart is worth three times talent."
     }
   },
   {
     "id": "growth-012",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Be patient with the part of progress that cannot be rushed into being visible."
+      "vi": "Thứ gì cần kết thúc thì hãy để nó kết thúc đi.",
+      "en": "Whatever needs to end, let it end."
     }
   },
   {
     "id": "growth-013",
     "category": "growth",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Your future range expands every time you practice beyond familiar results."
-    }
-  },
-  {
-    "id": "growth-014",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Failure can become useful when you ask it a specific question."
-    }
-  },
-  {
-    "id": "growth-015",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Keep the humility to change and the courage to continue."
-    }
-  },
-  {
-    "id": "growth-016",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The person you want to become is shaped by what you are willing to study."
-    }
-  },
-  {
-    "id": "growth-017",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A rough first draft is a map of where your understanding can improve."
-    }
-  },
-  {
-    "id": "growth-018",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Every useful correction shortens the distance between intention and skill."
-    }
-  },
-  {
-    "id": "growth-019",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Keep choosing the version of practice that teaches you something new."
-    }
-  },
-  {
-    "id": "growth-020",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Growth asks you to trade the comfort of already knowing for the richer discomfort of discovering."
+      "vi": "Đôi khi sự đổ vỡ lại là cơ hội để chúng ta sắp xếp lại cuộc đời mình.",
+      "en": "Sometimes a breaking is the chance to put a life back in order."
     }
   },
   {
@@ -880,113 +554,37 @@
   {
     "id": "success-007",
     "category": "success",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "A useful finish is better than an admired intention."
+      "vi": "Hùm chết để da, người ta chết để tiếng.",
+      "en": "A tiger leaves its hide behind; a person leaves a name behind."
     }
   },
   {
     "id": "success-008",
     "category": "success",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Choose goals that make your days more deliberate, not merely busier."
+      "vi": "Đói cho sạch, rách cho thơm.",
+      "en": "Hungry, stay clean; ragged, stay sweet."
     }
   },
   {
     "id": "success-009",
     "category": "success",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Measure the work by the value it creates, not only by the hours it consumes."
+      "vi": "Trăm hay chẳng bằng tay quen.",
+      "en": "A hundred clever notions are worth less than one practised hand."
     }
   },
   {
     "id": "success-010",
     "category": "success",
-    "sourceLocale": "en",
+    "sourceLocale": "vi",
     "text": {
-      "en": "Good results often look like a thousand small decisions made with care."
-    }
-  },
-  {
-    "id": "success-011",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Keep your ambition connected to the people and problems it can serve."
-    }
-  },
-  {
-    "id": "success-012",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Finish what matters before chasing the next proof that you are capable."
-    }
-  },
-  {
-    "id": "success-013",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "A strong outcome is built twice: once in preparation and once in follow-through."
-    }
-  },
-  {
-    "id": "success-014",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Make room to notice how far steady work has already carried you."
-    }
-  },
-  {
-    "id": "success-015",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Let each achievement improve your responsibility, not just your résumé."
-    }
-  },
-  {
-    "id": "success-016",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Success becomes sustainable when it leaves enough strength for the next season."
-    }
-  },
-  {
-    "id": "success-017",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Do not borrow urgency from someone else’s scoreboard."
-    }
-  },
-  {
-    "id": "success-018",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "The most useful victory is one that enlarges what you can contribute tomorrow."
-    }
-  },
-  {
-    "id": "success-019",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Aim for work you can respect when the result is no longer new."
-    }
-  },
-  {
-    "id": "success-020",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Success is more durable when it includes the way you arrived: the habits you kept and the people you did not spend."
+      "vi": "Ăn ngay ở thật, mọi tật mọi lành.",
+      "en": "Live straight and speak true, and every trouble comes out well."
     }
   }
 ]

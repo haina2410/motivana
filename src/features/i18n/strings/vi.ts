@@ -250,7 +250,7 @@ export const vi: Record<keyof typeof en, string> = {
   'rotation.interval.option': '{hours} giờ',
   'rotation.source.label': 'Nguồn',
   'rotation.source.saved': 'Câu đã lưu',
-  'rotation.source.all': 'Cả 120 câu',
+  'rotation.source.all': 'Cả {count} câu',
   'rotation.runs.lastRun': 'Lần chạy trước',
   'rotation.runs.nextRun': 'Lần chạy tới',
   'rotation.runs.status': 'Trạng thái',

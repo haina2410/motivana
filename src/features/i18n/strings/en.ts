@@ -254,7 +254,7 @@ export const en = {
   'rotation.interval.option': '{hours}h',
   'rotation.source.label': 'Source',
   'rotation.source.saved': 'Saved quotes',
-  'rotation.source.all': 'All 120 quotes',
+  'rotation.source.all': 'All {count} quotes',
   'rotation.runs.lastRun': 'Last run',
   'rotation.runs.nextRun': 'Next run',
   'rotation.runs.status': 'Status',
