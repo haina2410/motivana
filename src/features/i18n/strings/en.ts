@@ -228,10 +228,6 @@ export const en = {
   'saved.rotate.hint': 'Opens rotation, where saved quotes can be the source.',
 
   'sheet.title': 'Where should it go?',
-  'sheet.subtitle':
-    'Applied directly through WallpaperManager. Nothing leaves the device.',
-  'sheet.note':
-    'Lock-screen targeting needs Android 8.0 or later. On an older build Motivana sets Home only and says so.',
   'sheet.apply': 'Apply',
   'sheet.apply.hint': 'Applies this wallpaper to the chosen screen.',
   'sheet.close.label': 'Close',
@@ -255,7 +251,6 @@ export const en = {
   'rotation.runs.pending': 'Not yet',
   'rotation.battery':
     'Battery optimisation can delay a run. Exclude Motivana to keep the timing exact.',
-  'rotation.enable.description': 'Runs on the device through WorkManager.',
 
   'settings.offline.title': 'Fully offline',
   'settings.offline.message':

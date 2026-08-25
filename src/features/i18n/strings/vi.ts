@@ -225,10 +225,6 @@ export const vi: Record<keyof typeof en, string> = {
     'Mở mục tự đổi, nơi có thể lấy các câu đã lưu làm nguồn.',
 
   'sheet.title': 'Đặt hình nền ở đâu?',
-  'sheet.subtitle':
-    'Đặt trực tiếp qua WallpaperManager. Không có gì rời khỏi máy.',
-  'sheet.note':
-    'Đặt cho màn hình khoá cần Android 8.0 hoặc mới hơn. Với bản cũ hơn, Motivana chỉ đặt cho màn hình chính và nói rõ điều đó.',
   'sheet.apply': 'Áp dụng',
   'sheet.apply.hint': 'Đặt hình nền này cho màn hình bạn chọn.',
   'sheet.close.label': 'Đóng',
@@ -252,7 +248,6 @@ export const vi: Record<keyof typeof en, string> = {
   'rotation.runs.pending': 'Chưa có',
   'rotation.battery':
     'Tính năng tiết kiệm pin có thể làm chậm một lần chạy. Hãy loại Motivana ra để giữ đúng giờ.',
-  'rotation.enable.description': 'Chạy trên máy qua WorkManager.',
 
   'settings.offline.title': 'Hoàn toàn ngoại tuyến',
   'settings.offline.message':

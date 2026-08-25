@@ -168,7 +168,6 @@ export default function AutomationScreen() {
         <View style={styles.card}>
           <Toggle
             label={translate('automation.enable.label')}
-            description={translate('rotation.enable.description')}
             value={enabled}
             onValueChange={setEnabled}
           />

@@ -229,9 +229,6 @@ export function SetWallpaperSheet({
           <Text allowFontScaling style={styles.title}>
             {translate('sheet.title')}
           </Text>
-          <Text allowFontScaling style={styles.subtitle}>
-            {translate('sheet.subtitle')}
-          </Text>
           <View style={styles.options}>
             {targets.map((option) => {
               const available = supports(option.value, capabilities);
@@ -273,12 +270,6 @@ export function SetWallpaperSheet({
                 </Pressable>
               );
             })}
-          </View>
-          <View style={styles.note}>
-            <Icon name="circle-info" size={12} color={colors.dimText} />
-            <Text allowFontScaling style={styles.noteText}>
-              {translate('sheet.note')}
-            </Text>
           </View>
           {appState.saveToPhotoLibrary ? (
             <Text allowFontScaling style={styles.noteText}>
@@ -356,7 +347,6 @@ const styles = StyleSheet.create({
     width: 36,
   },
   title: { ...typography.screenTitle, fontSize: 17 },
-  subtitle: { ...typography.caption, fontSize: 12 },
   options: { gap: 9, marginTop: 6 },
   option: {
     alignItems: 'center',
@@ -375,15 +365,6 @@ const styles = StyleSheet.create({
   optionUnavailable: { opacity: 0.4 },
   optionLabel: { ...typography.rowLabel, color: colors.mutedText, flex: 1 },
   optionLabelSelected: { color: colors.text },
-  note: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: spacing.x1,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 9,
-    padding: 12,
-  },
   noteText: { ...typography.caption, flex: 1, fontSize: 11, lineHeight: 17 },
   close: { alignSelf: 'center' },
 });
