@@ -46,6 +46,9 @@ function firstQuoteInLocale(locale: Locale): string {
   return getAllQuotes(locale)[0]?.id ?? firstQuoteId;
 }
 
+/** The quotes are written for Vietnamese readers first, so they start there. */
+const DEFAULT_CONTENT_LOCALE: Locale = 'vi';
+
 function deviceLocale(): Locale {
   try {
     return resolveDeviceLocale(getLocales().map((entry) => entry.languageTag));
@@ -55,14 +58,13 @@ function deviceLocale(): Locale {
 }
 
 export function createDefaultPersistedAppState(): PersistedAppStateV3 {
-  // Resolved one time, so both languages start from the same device answer.
-  const locale = deviceLocale();
   return {
     version: 3,
-    appLocale: locale,
-    contentLocale: locale,
+    // The interface follows the device; the quotes do not.
+    appLocale: deviceLocale(),
+    contentLocale: DEFAULT_CONTENT_LOCALE,
     favoriteQuoteIds: [],
-    currentQuoteId: firstQuoteInLocale(locale),
+    currentQuoteId: firstQuoteInLocale(DEFAULT_CONTENT_LOCALE),
     selectedPresetId: 'midnight-focus',
     randomizePreset: false,
     favoriteQuotesOnly: false,
@@ -136,7 +138,7 @@ export function migratePersistedState(input: unknown): PersistedAppStateV3 {
     : defaults.favoriteQuoteIds;
   const contentLocale = isLocale(input.contentLocale)
     ? input.contentLocale
-    : deviceLocale();
+    : DEFAULT_CONTENT_LOCALE;
   // The shown quote must exist in the reader's quote language. A version 1 user
   // has no contentLocale, so their stored quote can fall outside the new pool.
   const currentQuoteId =

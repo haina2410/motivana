@@ -83,6 +83,7 @@ export default function AutomationScreen() {
     state.rotationIntervalHours,
   );
   const [favoritesOnly, setFavoritesOnly] = useState(state.favoriteQuotesOnly);
+  const [randomizePreset, setRandomizePreset] = useState(state.randomizePreset);
   const [enabled, setEnabled] = useState(state.rotationEnabled);
   const [message, setMessage] = useState<
     { text: string; tone: 'default' | 'error' } | undefined
@@ -104,6 +105,7 @@ export default function AutomationScreen() {
       intervalHours: interval,
       target,
       favoriteQuotesOnly: nextFavoritesOnly,
+      randomizePreset,
     });
     if (!saved) {
       setMessage({ text: translate('automation.save.error'), tone: 'error' });
@@ -221,6 +223,18 @@ export default function AutomationScreen() {
             label={translate('rotation.source.all')}
             onPress={() => setFavoritesOnly(false)}
             selected={!favoritesOnly}
+          />
+        </View>
+
+        <Text allowFontScaling style={typography.sectionLabel}>
+          {translate('rotation.style.label')}
+        </Text>
+        <View style={styles.card}>
+          <Toggle
+            label={translate('rotation.randomize.label')}
+            description={translate('rotation.randomize.description')}
+            value={randomizePreset}
+            onValueChange={setRandomizePreset}
           />
         </View>
 

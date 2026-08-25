@@ -1,8 +1,11 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 
+import { resolveAppliedQuoteId } from '../src/features/quotes/appliedQuote';
 import { configureRotation } from '../src/services/wallpaperNative';
 import { setRotationSynchronizer } from '../src/store/automationSynchronization';
+import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
 import { useAppFonts } from '../src/theme/useAppFonts';
 
@@ -21,6 +24,24 @@ setRotationSynchronizer(async (state) =>
 
 export default function RootLayout() {
   const fontsReady = useAppFonts();
+  // One time per launch, so the deck opens on the wallpaper the reader is
+  // looking at. Running this on the home screen instead would undo their next
+  // choice every time they came back to the deck.
+  useEffect(() => {
+    let active = true;
+    const state = useAppStore.getState();
+    resolveAppliedQuoteId({
+      contentLocale: state.contentLocale,
+      lastAppliedQuoteId: state.lastAppliedQuoteId,
+    })
+      .then((quoteId) => {
+        if (active && quoteId) useAppStore.getState().selectQuote(quoteId);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
   // Rendering the tree before the chrome faces resolve would flash the system
   // font at every label, so the ink background holds for one frame instead.
   if (!fontsReady) return null;

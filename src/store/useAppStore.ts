@@ -31,6 +31,7 @@ export interface RotationConfiguration {
   intervalHours: RotationIntervalHours;
   target: WallpaperTarget;
   favoriteQuotesOnly?: boolean;
+  randomizePreset?: boolean;
 }
 
 export interface AppState extends PersistedAppStateV2 {
@@ -249,7 +250,9 @@ function createAppState(
           !isValidRotationIntervalHours(configuration.intervalHours) ||
           !isValidWallpaperTarget(configuration.target) ||
           (configuration.favoriteQuotesOnly !== undefined &&
-            typeof configuration.favoriteQuotesOnly !== 'boolean')
+            typeof configuration.favoriteQuotesOnly !== 'boolean') ||
+          (configuration.randomizePreset !== undefined &&
+            typeof configuration.randomizePreset !== 'boolean')
         ) {
           return Promise.resolve(false);
         }
@@ -265,6 +268,8 @@ function createAppState(
             rotationIntervalHours: configuration.intervalHours,
             wallpaperTarget: configuration.target,
             favoriteQuotesOnly,
+            randomizePreset:
+              configuration.randomizePreset ?? state.randomizePreset,
           };
         }, true);
       },

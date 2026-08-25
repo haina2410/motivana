@@ -7,7 +7,6 @@ import {
 import { router } from 'expo-router';
 
 import SettingsScreen from '../settings';
-import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
@@ -19,23 +18,13 @@ beforeEach(() => {
   setRotationSynchronizer(async () => undefined);
 });
 
-test('Settings persists random preset and favorites-only choices through store actions', async () => {
-  const quote = getAllQuotes()[0]!;
-  useAppStore.setState({ favoriteQuoteIds: [quote.id] });
+// Mutation caught: leaving a rotation control here would offer the same
+// preference twice, once per screen, with two different save behaviours.
+test('Settings leaves every rotation preference to the rotation screen', () => {
   render(<SettingsScreen />);
 
-  fireEvent.press(screen.getByLabelText('Randomize preset'));
-  await waitFor(() =>
-    expect(useAppStore.getState().randomizePreset).toBe(true),
-  );
-  fireEvent.press(screen.getByLabelText('Use favorite quotes only'));
-
-  await waitFor(() =>
-    expect(useAppStore.getState()).toMatchObject({
-      randomizePreset: true,
-      favoriteQuotesOnly: true,
-    }),
-  );
+  expect(screen.queryByLabelText('Randomize preset')).toBeNull();
+  expect(screen.queryByLabelText('Use favorite quotes only')).toBeNull();
   expect(screen.getByText('0.1.0 · offline')).toBeOnTheScreen();
 });
 
@@ -50,6 +39,7 @@ test('renders the interface in the stored app language', async () => {
 
 // Mutation caught: wiring both pickers to one action would change the quote language when the reader only wanted a Vietnamese interface.
 test('changes the interface language without changing the quote language', async () => {
+  useAppStore.setState({ contentLocale: 'en' });
   render(<SettingsScreen />);
 
   fireEvent.press(screen.getByLabelText('Interface language: Tiếng Việt'));
@@ -75,11 +65,14 @@ test('Settings states the offline promise and exposes one control per setting', 
     screen.getByText(t('en', 'settings.offline.message')),
   ).toBeOnTheScreen();
   expect(
-    screen.getAllByRole('switch', { name: 'Randomize preset' }),
+    screen.getAllByRole('switch', {
+      name: t('en', 'settings.saveToLibrary.label'),
+    }),
   ).toHaveLength(1);
   expect(
-    screen.getByLabelText('Randomize preset').props.accessibilityHint,
-  ).toContain('different curated style');
+    screen.getByLabelText(t('en', 'settings.saveToLibrary.label')).props
+      .accessibilityHint,
+  ).toContain('keeps a copy in your photos');
 });
 
 // Mutation caught: a settings switch that only moves locally would leave the
@@ -97,33 +90,4 @@ test('Settings persists the two preview and export options', () => {
 
   fireEvent.press(screen.getByLabelText(t('en', 'settings.safeGuides.label')));
   expect(useAppStore.getState().showSafeGuides).toBe(true);
-});
-
-// Mutation caught: reverting a switch after native rejection without notice makes the rotation snapshot failure indistinguishable from an ignored tap.
-test('Settings shows a safe retry when random-preset synchronization fails', async () => {
-  let attempts = 0;
-  setRotationSynchronizer(async () => {
-    attempts += 1;
-    if (attempts === 1) throw new Error('native secret');
-  });
-  useAppStore.setState({ rotationEnabled: true });
-  render(<SettingsScreen />);
-
-  fireEvent.press(screen.getByLabelText('Randomize preset'));
-  await waitFor(() =>
-    expect(
-      screen.getByText('Could not update rotation preferences. Try again.'),
-    ).toBeOnTheScreen(),
-  );
-  expect(screen.queryByText('native secret')).toBeNull();
-  fireEvent.press(
-    screen.getByRole('button', { name: 'Retry preference update' }),
-  );
-
-  await waitFor(() =>
-    expect(
-      screen.getByText('Random preset preference updated.'),
-    ).toBeOnTheScreen(),
-  );
-  expect(attempts).toBe(2);
 });

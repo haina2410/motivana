@@ -385,13 +385,14 @@ test('falls back to English when the device reports an unsupported language', ()
   const store = createAppStore({ storage: createMemoryStorage() });
 
   expect(store.getState().appLocale).toBe('en');
-  expect(store.getState().contentLocale).toBe('en');
+  expect(store.getState().contentLocale).toBe('vi');
 });
 
 // Mutation caught: sharing one locale field would make changing the interface language also change the quote language.
 test('changes the interface language without touching the quote language', async () => {
   const storage = createMemoryStorage();
   const store = createAppStore({ storage });
+  await store.getState().setContentLocale('en');
 
   await expect(store.getState().setAppLocale('vi')).resolves.toBe(true);
   expect(store.getState().appLocale).toBe('vi');

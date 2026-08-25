@@ -130,17 +130,7 @@ export const vi: Record<keyof typeof en, string> = {
 
   'settings.eyebrow': 'GIỮ THEO CÁCH CỦA BẠN',
   'settings.title': 'Cài đặt',
-  'settings.randomize.label': 'Đổi kiểu nền ngẫu nhiên',
-  'settings.randomize.description':
-    'Dùng một kiểu nền khác khi tính năng đổi nền sẵn sàng.',
-  'settings.favoritesOnly.label': 'Chỉ dùng câu yêu thích',
-  'settings.favoritesOnly.description':
-    'Chỉ dùng các câu bạn đã lưu cho lần đổi nền sau.',
-  'settings.randomize.updated': 'Đã cập nhật tùy chọn kiểu nền ngẫu nhiên.',
-  'settings.favoritesOnly.updated': 'Đã cập nhật tùy chọn câu yêu thích.',
-  'settings.error': 'Không cập nhật được tùy chọn đổi nền. Hãy thử lại.',
-  'settings.retry.label': 'Thử cập nhật tùy chọn',
-  'settings.retry.hint': 'Thử cập nhật lại tùy chọn dùng cho đổi hình nền.',
+  'settings.error': 'Không cập nhật được tùy chọn. Hãy thử lại.',
   'settings.about.title': 'About Motivana',
   'settings.about.message':
     'Tạo một hình nền tập trung từ một suy nghĩ đáng quay lại.',
@@ -249,6 +239,10 @@ export const vi: Record<keyof typeof en, string> = {
   'sheet.saveAlso': 'Một bản sao cũng vào thư viện ảnh.',
 
   'rotation.interval.option': '{hours} giờ',
+  'rotation.randomize.label': 'Đổi kiểu nền ngẫu nhiên',
+  'rotation.randomize.description':
+    'Mỗi lần đổi nền sẽ dùng một kiểu nền khác.',
+  'rotation.style.label': 'Kiểu nền',
   'rotation.source.label': 'Nguồn',
   'rotation.source.saved': 'Câu đã lưu',
   'rotation.source.all': 'Tất cả',

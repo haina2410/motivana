@@ -130,18 +130,7 @@ export const en = {
 
   'settings.eyebrow': 'KEEP IT YOURS',
   'settings.title': 'Settings',
-  'settings.randomize.label': 'Randomize preset',
-  'settings.randomize.description':
-    'Use a different curated style when rotation becomes available.',
-  'settings.favoritesOnly.label': 'Use favorite quotes only',
-  'settings.favoritesOnly.description':
-    'Keep future rotation focused on saved quotes.',
-  'settings.randomize.updated': 'Random preset preference updated.',
-  'settings.favoritesOnly.updated': 'Favorite quote preference updated.',
-  'settings.error': 'Could not update rotation preferences. Try again.',
-  'settings.retry.label': 'Retry preference update',
-  'settings.retry.hint':
-    'Retries updating the preference used by wallpaper rotation.',
+  'settings.error': 'Could not update the preference. Try again.',
   'settings.about.title': 'About Motivana',
   'settings.about.message':
     'Create a focused wallpaper from a thought worth returning to.',
@@ -253,6 +242,10 @@ export const en = {
   'sheet.saveAlso': 'A copy also goes to your photos.',
 
   'rotation.interval.option': '{hours}h',
+  'rotation.randomize.label': 'Randomize preset',
+  'rotation.randomize.description':
+    'Each rotation picks a different curated style.',
+  'rotation.style.label': 'Style',
   'rotation.source.label': 'Source',
   'rotation.source.saved': 'Saved quotes',
   'rotation.source.all': 'All quotes',

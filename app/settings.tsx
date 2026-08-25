@@ -10,11 +10,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
-import { AppButton } from '../src/components/AppButton';
 import { Choice } from '../src/components/Choice';
 import { Icon } from '../src/components/Icon';
 import { ScreenHeader } from '../src/components/ScreenHeader';
-import { SettingRow } from '../src/components/SettingRow';
 import { Toggle } from '../src/components/Toggle';
 import { useAppStore } from '../src/store/useAppStore';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
@@ -33,52 +31,15 @@ export default function SettingsScreen() {
   const translate = useTranslate();
   const { width, height } = useWindowDimensions();
   const exportSize = wallpaperPixelDimensions(width, height, PixelRatio.get());
-  const [pending, setPending] = useState<
-    'randomize' | 'favorites' | 'app' | 'content'
-  >();
-  const [feedback, setFeedback] = useState<
-    | {
-        message: string;
-        retry?: { kind: 'randomize' | 'favorites'; value: boolean };
-      }
-    | undefined
-  >();
+  const [pending, setPending] = useState<'app' | 'content'>();
+  const [feedback, setFeedback] = useState<{
+    message: string;
+    tone: 'default' | 'error';
+  }>();
   const [languageMessage, setLanguageMessage] = useState<{
     text: string;
     tone: 'default' | 'error';
   }>();
-  const updatePreference = async (
-    kind: 'randomize' | 'favorites',
-    value: boolean,
-  ) => {
-    if (pending !== undefined) return;
-    setPending(kind);
-    setFeedback(undefined);
-    setLanguageMessage(undefined);
-    // finally, so a rejected write cannot leave every control disabled.
-    let saved: boolean;
-    try {
-      saved =
-        kind === 'randomize'
-          ? await state.setRandomizePreset(value)
-          : await state.setFavoriteQuotesOnly(value);
-    } finally {
-      setPending(undefined);
-    }
-    setFeedback(
-      saved
-        ? {
-            message:
-              kind === 'randomize'
-                ? translate('settings.randomize.updated')
-                : translate('settings.favoritesOnly.updated'),
-          }
-        : {
-            message: translate('settings.error'),
-            retry: { kind, value },
-          },
-    );
-  };
   const updateLanguage = async (
     kind: 'app' | 'content',
     locale: (typeof locales)[number],
@@ -148,6 +109,7 @@ export default function SettingsScreen() {
                 message: saved
                   ? translate('settings.saveToLibrary.updated')
                   : translate('settings.error'),
+                tone: saved ? 'default' : 'error',
               });
             }}
           />
@@ -162,46 +124,14 @@ export default function SettingsScreen() {
                 message: saved
                   ? translate('settings.safeGuides.updated')
                   : translate('settings.error'),
+                tone: saved ? 'default' : 'error',
               });
             }}
           />
         </View>
 
-        <Text allowFontScaling style={typography.sectionLabel}>
-          {translate('automation.title')}
-        </Text>
-        <SettingRow
-          label={translate('settings.randomize.label')}
-          description={translate('settings.randomize.description')}
-          value={state.randomizePreset}
-          disabled={pending !== undefined}
-          onValueChange={(value) => void updatePreference('randomize', value)}
-        />
-        <SettingRow
-          label={translate('settings.favoritesOnly.label')}
-          description={translate('settings.favoritesOnly.description')}
-          value={state.favoriteQuotesOnly}
-          disabled={
-            pending !== undefined || state.favoriteQuoteIds.length === 0
-          }
-          onValueChange={(value) => void updatePreference('favorites', value)}
-        />
         {feedback ? (
-          <ActionMessage
-            message={feedback.message}
-            tone={feedback.retry ? 'error' : 'default'}
-          />
-        ) : null}
-        {feedback?.retry ? (
-          <AppButton
-            hint={translate('settings.retry.hint')}
-            icon="rotate-right"
-            label={translate('settings.retry.label')}
-            onPress={() =>
-              void updatePreference(feedback.retry!.kind, feedback.retry!.value)
-            }
-            variant="outline"
-          />
+          <ActionMessage message={feedback.message} tone={feedback.tone} />
         ) : null}
 
         <Text allowFontScaling style={typography.sectionLabel}>

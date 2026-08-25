@@ -165,6 +165,29 @@ test('Automation stores supported preferences and keeps unavailable targets disa
   expect(useAppStore.getState().rotationEnabled).toBe(false);
 });
 
+// Mutation caught: a randomize switch that only moved locally would report a
+// saved preference the next launch could not honour.
+test('Automation saves the randomize-preset preference with the schedule', async () => {
+  render(<AutomationScreen />);
+  await waitFor(() =>
+    expect(
+      screen.getByText(
+        t('en', 'automation.status.capability', { kind: 'available' }),
+      ),
+    ).toBeOnTheScreen(),
+  );
+
+  fireEvent.press(screen.getByLabelText(t('en', 'rotation.randomize.label')));
+  expect(useAppStore.getState().randomizePreset).toBe(false);
+
+  fireEvent.press(
+    screen.getByRole('button', { name: t('en', 'automation.save') }),
+  );
+  await waitFor(() =>
+    expect(useAppStore.getState().randomizePreset).toBe(true),
+  );
+});
+
 test('does not mutate Zustand when native scheduling rejects', async () => {
   nativeService.configureRotation.mockRejectedValueOnce({
     code: 'CONFIGURE_FAILED',

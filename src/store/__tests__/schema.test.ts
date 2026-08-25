@@ -151,7 +151,7 @@ test('migrates version 1 state and keeps every favorite', () => {
   expect(migrated.rotationIntervalHours).toBe(12);
   expect(migrated.wallpaperTarget).toBe('both');
   expect(migrated.appLocale).toBe('en');
-  expect(migrated.contentLocale).toBe('en');
+  expect(migrated.contentLocale).toBe('vi');
 });
 
 // Mutation caught: sharing one locale field would tie the interface language to the quote language.
@@ -175,7 +175,7 @@ test('keeps the interface and quote languages independent', () => {
 });
 
 // Mutation caught: accepting an unsupported stored locale would render undefined interface strings.
-test('replaces an unsupported stored locale with English', () => {
+test('replaces an unsupported stored locale with a supported one', () => {
   const migrated = migratePersistedState({
     version: 2,
     appLocale: 'fr',
@@ -191,11 +191,11 @@ test('replaces an unsupported stored locale with English', () => {
   });
 
   expect(migrated.appLocale).toBe('en');
-  expect(migrated.contentLocale).toBe('en');
+  expect(migrated.contentLocale).toBe('vi');
 });
 
-// Mutation caught: ignoring the device language would show a Vietnamese reader an English default on first launch.
-test('defaults both locales to the device language when it is supported', () => {
+// Mutation caught: ignoring the device language would show a Vietnamese reader an English interface on first launch.
+test('takes the interface language from the device', () => {
   mockedGetLocales.mockReturnValue([{ languageTag: 'vi-VN' }]);
 
   const state = createDefaultPersistedAppState();
@@ -204,14 +204,25 @@ test('defaults both locales to the device language when it is supported', () => 
   expect(state.contentLocale).toBe('vi');
 });
 
+// Mutation caught: tying the quote language to the device would hand an English
+// reader the smaller English pool, when the catalog is written for Vietnamese.
+test('starts the quotes in Vietnamese whatever the device says', () => {
+  mockedGetLocales.mockReturnValue([{ languageTag: 'en-US' }]);
+
+  const state = createDefaultPersistedAppState();
+
+  expect(state.appLocale).toBe('en');
+  expect(state.contentLocale).toBe('vi');
+});
+
 // Mutation caught: trusting an unsupported device language directly would produce a locale the catalog and strings do not have.
-test('falls back to English when the device language is unsupported', () => {
+test('falls back to English for the interface when the device language is unsupported', () => {
   mockedGetLocales.mockReturnValue([{ languageTag: 'fr-FR' }]);
 
   const state = createDefaultPersistedAppState();
 
   expect(state.appLocale).toBe('en');
-  expect(state.contentLocale).toBe('en');
+  expect(state.contentLocale).toBe('vi');
 });
 
 // Mutation caught: keeping a stored quote that has no text in the reader's quote
