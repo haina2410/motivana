@@ -28,6 +28,9 @@ jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
 jest.mock('../../src/features/wallpaper/exportWallpaper', () => ({
   exportWallpaper: jest.fn(),
 }));
+jest.mock('../../src/features/wallpaper/exportCache', () => ({
+  exportedWallpaperUri: jest.fn(() => undefined),
+}));
 jest.mock('../../src/services/wallpaperNative', () => ({
   getWallpaperCapabilities: jest.fn(async () => ({
     supportsHome: true,
@@ -52,11 +55,15 @@ const mockUseWallpaperFonts = jest.requireMock(
 const mockWallpaperCanvas = jest.requireMock(
   '../../src/features/wallpaper/WallpaperCanvas',
 ).WallpaperCanvas as jest.Mock;
+const mockExportedWallpaperUri = jest.requireMock(
+  '../../src/features/wallpaper/exportCache',
+).exportedWallpaperUri as jest.Mock;
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
   jest.mocked(router.navigate).mockClear();
   mockUseWallpaperFonts.mockReturnValue({});
+  mockExportedWallpaperUri.mockReturnValue(undefined);
   mockWallpaperCanvas.mockImplementation(() => {
     const { View } = require('react-native');
     return <View accessible accessibilityLabel="Wallpaper preview" />;
@@ -182,4 +189,18 @@ test('Home catches a thrown preview render and retries without changing the quot
   } finally {
     errorSpy.mockRestore();
   }
+});
+
+// Mutation caught: waiting for the typefaces even with an exported wallpaper on
+// disk would hold the spinner through the whole Skia font load at every launch.
+test('Home shows the exported wallpaper before the typefaces load', () => {
+  mockUseWallpaperFonts.mockReturnValue(null);
+  mockExportedWallpaperUri.mockReturnValue(
+    'file:///cache/motivana-exports/applied.png',
+  );
+
+  render(<HomeScreen />);
+
+  expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
+  expect(screen.queryByText(t('en', 'home.loading'))).toBeNull();
 });

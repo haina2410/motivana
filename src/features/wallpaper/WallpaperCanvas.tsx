@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import type { WallpaperComposition } from './composition';
+import { exportedWallpaperUri } from './exportCache';
 import { drawWallpaperScene, measureSkiaComposition } from './scene';
 import { useWallpaperFonts } from './useWallpaperFonts';
 
@@ -21,6 +22,13 @@ export interface WallpaperCanvasProps {
 
 export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   const fonts = useWallpaperFonts();
+  // The wallpaper the reader already applied is on disk as a finished PNG. Using
+  // it skips both the typeface load and the draw, so the card fills the first
+  // frame instead of holding a spinner for the whole font load.
+  const exported = useMemo(
+    () => exportedWallpaperUri(composition.cacheKey),
+    [composition.cacheKey],
+  );
   const [canvasSize, setCanvasSize] = useState<{
     width: number;
     height: number;
@@ -39,10 +47,10 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   );
   const fallbackUri = useMemo(
     () =>
-      fonts && Platform.OS === 'android'
+      fonts && Platform.OS === 'android' && exported === undefined
         ? createPreviewDataUri(measuredComposition, fonts)
         : null,
-    [fonts, measuredComposition],
+    [exported, fonts, measuredComposition],
   );
   const preview = useMemo(
     () =>
@@ -60,11 +68,12 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   );
 
   if (Platform.OS === 'android') {
-    return fallbackUri ? (
+    const source = exported ?? fallbackUri;
+    return source ? (
       <NativeImage
         accessible
         accessibilityLabel="Wallpaper preview"
-        source={{ uri: fallbackUri }}
+        source={{ uri: source }}
         resizeMode="contain"
         style={style as StyleProp<ImageStyle>}
       />

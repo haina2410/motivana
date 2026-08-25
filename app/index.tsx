@@ -23,6 +23,7 @@ import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../src/features/wallpaper/composition';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
+import { exportedWallpaperUri } from '../src/features/wallpaper/exportCache';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import type { Locale } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
@@ -67,8 +68,9 @@ export default function HomeScreen() {
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
   // Keeps one composition object, so the preview renders and encodes only when
   // the quote, the preset or the screen size changes.
+  // Built without the typefaces: the deterministic measurer is enough for the
+  // cache key, so an already exported wallpaper can be found in the first frame.
   const composition: WallpaperComposition | undefined = useMemo(() => {
-    if (!fonts) return undefined;
     try {
       return createWallpaperComposition(
         state.currentQuoteId,
@@ -83,11 +85,22 @@ export default function HomeScreen() {
   }, [
     dimensions.height,
     dimensions.width,
-    fonts,
     state.contentLocale,
     state.currentQuoteId,
     state.selectedPresetId,
   ]);
+  // The card can be drawn from the exported file alone, so the deck waits for
+  // the typefaces only when this wallpaper was never exported.
+  const exported = useMemo(
+    () =>
+      composition === undefined
+        ? undefined
+        : exportedWallpaperUri(composition.cacheKey),
+    [composition],
+  );
+  // An unresolvable quote is not a wait: the deck raises it, so the reader gets
+  // the render error and its retry rather than a spinner that never ends.
+  const previewReady = composition === undefined || !!fonts || !!exported;
   const preset = getPresetById(state.selectedPresetId);
   const isFavorite = state.favoriteQuoteIds.includes(state.currentQuoteId);
 
@@ -112,7 +125,7 @@ export default function HomeScreen() {
           />
         </View>
       </View>
-      {!fonts ? (
+      {!previewReady ? (
         <View accessibilityRole="progressbar" style={styles.loading}>
           <ActivityIndicator color={colors.accent} />
           <Text allowFontScaling style={styles.loadingText}>

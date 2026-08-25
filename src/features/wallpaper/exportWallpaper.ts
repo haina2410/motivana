@@ -1,7 +1,8 @@
 import { Skia, type SkTypefaceFontProvider } from '@shopify/react-native-skia';
-import { Directory, File, Paths } from 'expo-file-system';
+import { Directory, Paths } from 'expo-file-system';
 
 import type { RenderedWallpaper, WallpaperComposition } from './composition';
+import { EXPORT_DIRECTORY_NAME, exportedWallpaperFile } from './exportCache';
 import { drawWallpaperScene, measureSkiaComposition } from './scene';
 import { RenderError } from './renderErrors';
 
@@ -34,9 +35,9 @@ export function createExportDependencies(
     drawScene: (canvas, composition) =>
       drawWallpaperScene(canvas, composition, fontProvider),
     writePng: (cacheKey, pngBytes) => {
-      const directory = new Directory(Paths.cache, 'motivana-exports');
+      const directory = new Directory(Paths.cache, EXPORT_DIRECTORY_NAME);
       directory.create({ idempotent: true, intermediates: true });
-      const output = new File(directory, `${cacheKey}.png`);
+      const output = exportedWallpaperFile(cacheKey);
       output.create({ overwrite: true, intermediates: true });
       output.write(pngBytes);
       return output.uri;
