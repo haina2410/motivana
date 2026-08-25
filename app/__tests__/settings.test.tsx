@@ -36,7 +36,7 @@ test('Settings persists random preset and favorites-only choices through store a
       favoriteQuotesOnly: true,
     }),
   );
-  expect(screen.getByText('Motivana 1.0.0')).toBeOnTheScreen();
+  expect(screen.getByText('Motivana 0.1.0')).toBeOnTheScreen();
 });
 
 // Mutation caught: reading a hard-coded English string would leave the interface English after the reader picks Vietnamese.

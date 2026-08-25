@@ -218,7 +218,7 @@ export default function SettingsScreen() {
           message={translate('settings.about.message')}
         />
         <Text allowFontScaling style={styles.version}>
-          Motivana 1.0.0
+          Motivana 0.1.0
         </Text>
       </ScrollView>
     </SafeAreaView>
