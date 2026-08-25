@@ -22,9 +22,14 @@ import { Toast } from '../src/components/Toast';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
 import { createComposition } from '../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../src/features/wallpaper/composition';
+import {
+  deckLayers,
+  deckLayerReach,
+} from '../src/features/wallpaper/deckLayers';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { exportedWallpaperUri } from '../src/features/wallpaper/exportCache';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
+import type { WallpaperPreset } from '../src/features/wallpaper/types';
 import type { Locale } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type { StringKey } from '../src/features/i18n/t';
@@ -137,6 +142,7 @@ export default function HomeScreen() {
           <PeekDeck
             composition={composition}
             onNext={state.randomQuote}
+            preset={preset}
             showGuides={state.showSafeGuides}
           />
         </PreviewErrorBoundary>
@@ -220,40 +226,70 @@ export default function HomeScreen() {
 
 /**
  * The board's home direction: two wallpapers peek out behind the live card, so
- * the deck reads as a finite stack the reader handles rather than a feed.
+ * the deck reads as a finite stack the reader handles rather than a feed. The
+ * cards behind are drawn from the preset's own colour, not rendered.
  */
 function PeekDeck({
   composition,
   onNext,
+  preset,
   showGuides,
 }: {
   composition: WallpaperComposition | undefined;
   onNext: () => boolean;
+  preset: WallpaperPreset | undefined;
   showGuides: boolean;
 }) {
   const translate = useTranslate();
+  const layers = useMemo(() => deckLayers(preset), [preset]);
   if (!composition) {
     throw new Error('The selected wallpaper data is unavailable.');
   }
+  // The card carries the wallpaper's own shape, so the preview fills it edge to
+  // edge and the rounded corners read as the card the reader hands on.
+  // The layers only reach right and down, so the stack moves back by half of
+  // that reach to sit centred on the screen.
+  const shape = {
+    aspectRatio: composition.width / composition.height,
+    marginRight: deckLayerReach,
+  };
   return (
     <View style={styles.deck}>
-      <View pointerEvents="none" style={[styles.peek, styles.peekFar]} />
-      <View pointerEvents="none" style={[styles.peek, styles.peekNear]} />
-      <Pressable
-        accessibilityHint={translate('home.next.hint')}
-        accessibilityLabel={translate('home.next.label')}
-        accessibilityRole="button"
-        onPress={onNext}
-        style={styles.card}
-      >
-        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-          <WallpaperCanvas
-            composition={composition}
-            style={StyleSheet.absoluteFill}
+      <View style={[styles.stack, shape]}>
+        {/* Drawn far to near, so the nearest layer sits closest to the card. */}
+        {[...layers].reverse().map((layer, index) => (
+          <View
+            key={index}
+            pointerEvents="none"
+            style={[
+              styles.peek,
+              {
+                backgroundColor: layer.color,
+                opacity: layer.opacity,
+                transform: [
+                  { translateX: layer.shift },
+                  { translateY: layer.shift },
+                ],
+              },
+            ]}
           />
-          {showGuides ? <SafeAreaGuides /> : null}
-        </View>
-      </Pressable>
+        ))}
+        <Pressable
+          accessibilityHint={translate('home.next.hint')}
+          accessibilityLabel={translate('home.next.label')}
+          accessibilityRole="button"
+          onPress={onNext}
+          style={styles.card}
+        >
+          <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+            <WallpaperCanvas
+              composition={composition}
+              style={StyleSheet.absoluteFill}
+            />
+            {showGuides ? <SafeAreaGuides /> : null}
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -363,23 +399,36 @@ const styles = StyleSheet.create({
   headerActions: { flexDirection: 'row', gap: spacing.x1 },
   date: { ...typography.caption, fontSize: 11, letterSpacing: 0.5 },
   title: { ...typography.title, fontSize: 21, marginTop: 6 },
-  deck: { flex: 1, justifyContent: 'center', paddingVertical: spacing.x2 },
-  // The two cards behind the live one are offset the way the board draws them.
-  peek: {
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: 24,
-    bottom: spacing.x3,
-    position: 'absolute',
-    top: spacing.x3,
+  deck: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    paddingBottom: spacing.x4,
+    paddingHorizontal: spacing.x3,
+    paddingTop: spacing.x2,
   },
-  peekFar: { left: spacing.x5, opacity: 0.45, right: 0 },
-  peekNear: { left: spacing.x4, opacity: 0.7, right: spacing.x1 },
+  // Sized by the card, so the layers behind it share the wallpaper's shape.
+  stack: { flex: 1 },
+  // The cards behind the live one share its frame, then move right and down.
+  peek: {
+    borderColor: colors.borderSubtle,
+    borderRadius: spacing.radiusLarge,
+    borderWidth: StyleSheet.hairlineWidth,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   card: {
     borderRadius: spacing.radiusLarge,
+    elevation: 12,
     flex: 1,
-    marginLeft: spacing.x3,
-    marginRight: spacing.x4,
     overflow: 'hidden',
+    shadowColor: colors.bezel,
+    shadowOffset: { height: 10, width: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 24,
   },
   footer: { gap: 10, paddingHorizontal: spacing.x3, paddingBottom: spacing.x2 },
   chips: { alignItems: 'center', flexDirection: 'row', gap: spacing.x1 },
