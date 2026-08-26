@@ -6,7 +6,12 @@ import {
   getAllQuotes,
   selectRandomQuote,
 } from '../features/quotes/quoteRepository';
-import { isLocale, type Locale } from '../features/i18n/locale';
+import {
+  isContentLocale,
+  isLocale,
+  type ContentLocale,
+  type Locale,
+} from '../features/i18n/locale';
 import {
   hydrateAppState,
   isValidPresetId,
@@ -43,7 +48,7 @@ export interface AppState extends PersistedAppStateV2 {
   selectPreset(presetId: string): Promise<boolean>;
   setRandomizePreset(randomizePreset: boolean): Promise<boolean>;
   setAppLocale(locale: Locale): Promise<boolean>;
-  setContentLocale(locale: Locale): Promise<boolean>;
+  setContentLocale(locale: ContentLocale): Promise<boolean>;
   setFavoriteQuotesOnly(favoriteQuotesOnly: boolean): Promise<boolean>;
   setSaveToPhotoLibrary(saveToPhotoLibrary: boolean): boolean;
   setShowSafeGuides(showSafeGuides: boolean): boolean;
@@ -205,7 +210,7 @@ function createAppState(
           ? commitAutomation((state) => ({ ...state, appLocale: locale }))
           : Promise.resolve(false),
       setContentLocale: (locale) =>
-        isLocale(locale)
+        isContentLocale(locale)
           ? commitAutomation((state) => {
               const pool = getAllQuotes(locale);
               if (pool.length === 0) {

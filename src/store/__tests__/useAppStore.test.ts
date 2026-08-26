@@ -513,3 +513,17 @@ test('reports a rejected preview-option write instead of claiming success', () =
   expect(store.getState().setShowSafeGuides(true)).toBe(false);
   expect(store.getState().showSafeGuides).toBe(false);
 });
+
+// Mutation caught: guarding the setter with isLocale would refuse the every-language choice and leave the setting screen inert.
+test('switches into every language and keeps a quote the wider pool still holds', async () => {
+  const storage = createMemoryStorage();
+  const store = createAppStore({ storage });
+  const before = store.getState().currentQuoteId;
+
+  await expect(store.getState().setContentLocale('all')).resolves.toBe(true);
+  expect(store.getState().contentLocale).toBe('all');
+  expect(store.getState().currentQuoteId).toBe(before);
+  expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
+    contentLocale: 'all',
+  });
+});

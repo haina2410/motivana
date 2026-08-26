@@ -91,3 +91,16 @@ test('Settings persists the two preview and export options', () => {
   fireEvent.press(screen.getByLabelText(t('en', 'settings.safeGuides.label')));
   expect(useAppStore.getState().showSafeGuides).toBe(true);
 });
+
+// Mutation caught: listing only the catalogue locales would leave the reader no way to ask for every language, and would offer "All languages" as an interface language.
+test('offers every language for the quotes only', async () => {
+  render(<SettingsScreen />);
+
+  expect(
+    screen.queryByLabelText('Interface language: All languages'),
+  ).toBeNull();
+  fireEvent.press(screen.getByLabelText('Quote language: All languages'));
+
+  await waitFor(() => expect(useAppStore.getState().contentLocale).toBe('all'));
+  expect(useAppStore.getState().appLocale).toBe('en');
+});

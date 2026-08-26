@@ -146,6 +146,7 @@ export const en = {
   'settings.contentLanguage.option': 'Quote language: {name}',
   'language.en': 'English',
   'language.vi': 'Tiếng Việt',
+  'language.all': 'All languages',
 
   'preview.item.hint': 'Applies this wallpaper style and returns to Home.',
   'preset.thumbnail.label': 'Use {name} preset',

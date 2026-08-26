@@ -123,4 +123,29 @@ class RotationContentLocaleTest {
     assertEquals("en", RotationConfigureDecoder.decode(options + ("contentLocale" to "fr")).contentLocale)
     assertEquals("vi", RotationConfigureDecoder.decode(options + ("contentLocale" to "vi")).contentLocale)
   }
+
+  // Pins the "all" setting value: every quote is eligible, and each renders in the language it was written in.
+  @Test fun everyLanguageServesTheWholeCatalogueInItsOwnLanguage() {
+    val catalog = realCatalog()
+    val sourceTexts = catalog.quotes.map { it.text.getValue(it.sourceLocale) }.toSet()
+    assertTrue(catalog.quotes.all { it.hasLocale("all") })
+    val served = (0 until 200).map { seed ->
+      val selection = RotationSelector(Random(seed.toLong())).select(catalog, null, null, null, true, catalog.presets.first().id, "all")
+      assertTrue("seed $seed served ${selection.quote.id}", selection.quote.text in sourceTexts)
+      selection.quote.id
+    }.toSet()
+    // An English-only quote is out of the "vi" pool, so serving it proves the pool widened.
+    assertTrue(served.any { id -> catalog.quotes.first { it.id == id }.hasLocale("vi").not() })
+  }
+
+  // Pins the setting values apart from the catalogue locales: "all" is stored, but is never a text key.
+  @Test fun everyLanguageSurvivesTheSnapshotAndTheDecoder() {
+    val catalog = validCatalog()
+    val snapshot = RotationSnapshot(true, 6, WallpaperTarget.HOME, "p0", false, emptyList(), false, contentLocale = "all")
+    val parsed = RotationSnapshot.parse(snapshot.toJson(), catalog) as RotationSnapshotResult.Valid
+    assertEquals("all", parsed.snapshot.contentLocale)
+    val options = mutableMapOf<String, Any?>("enabled" to true, "intervalHours" to 6, "target" to "home", "selectedPresetId" to "p0", "randomizePreset" to false, "favoriteQuoteIds" to emptyList<String>(), "favoriteQuotesOnly" to false, "contentLocale" to "all")
+    assertEquals("all", RotationConfigureDecoder.decode(options).contentLocale)
+    assertFalse("all" in RotationLocales.supported)
+  }
 }

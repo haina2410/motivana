@@ -221,3 +221,29 @@ test('falls back to the source language for a quote missing the requested locale
   expect(composition.quoteFontSize).toBeGreaterThan(0);
   expect(composition.truncated).toBe(false);
 });
+
+// Mutation caught: composing "all" as a missing text key would lay the wallpaper out for the fallback language instead of the one on screen.
+test('lays out the source language when the reader chose every language', () => {
+  const quote: Quote = {
+    id: 'motivation-900',
+    category: 'motivation',
+    sourceLocale: 'vi',
+    text: { vi: 'Bắt đầu ngay hôm nay, đừng chờ tâm trạng.' },
+    author: 'Tác giả',
+  };
+
+  const composition = createComposition(
+    { quote, preset, width: 1080, height: 2400, locale: 'all' },
+    measuredByCharacters,
+  );
+
+  expect(composition.locale).toBe('all');
+  expect(
+    createComposition(
+      { quote, preset, width: 1080, height: 2400, locale: 'vi' },
+      measuredByCharacters,
+    )
+      .cacheKey.split('-')
+      .at(-1),
+  ).toBe(composition.cacheKey.split('-').at(-1));
+});

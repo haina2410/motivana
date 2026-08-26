@@ -7,7 +7,10 @@ import org.json.JSONTokener
 data class RotationQuote(val id: String, val text: String, val author: String?, val category: String = "")
 object RotationLocales {
   const val DEFAULT = "en"
+  /** The reader asking for every language. A setting value, never a catalogue text key. */
+  const val ALL = "all"
   val supported = setOf("en", "vi")
+  val settingValues = supported + ALL
 }
 data class RotationQuoteEntry(
   val id: String,
@@ -18,7 +21,7 @@ data class RotationQuoteEntry(
 ) {
   /** Mirrors favoriteQuoteText in the JS repository: the chosen language, else the original. */
   fun resolve(locale: String) = RotationQuote(id, text[locale] ?: text.getValue(sourceLocale), author, category)
-  fun hasLocale(locale: String) = text.containsKey(locale)
+  fun hasLocale(locale: String) = locale == RotationLocales.ALL || text.containsKey(locale)
 }
 sealed class RotationBackground { data class Solid(val color: String) : RotationBackground(); data class Gradient(val start: String, val end: String, val angle: Double) : RotationBackground() }
 data class RotationPreset(val id: String, val family: String, val weight: String, val align: String, val quotePositionY: Double, val preferredRatio: Double, val minimumRatio: Double, val lineHeight: Double, val textColor: String, val authorColor: String, val background: RotationBackground, val overlay: String? = null)
@@ -48,7 +51,7 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
       if (favorites.distinct().size != favorites.size) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
       // contentLocale stays optional. Snapshots that the shipped app already saved have
       // no such key. A required key would stop rotation for every user after an upgrade.
-      val locale = json.optionalString("contentLocale")?.takeIf { it in RotationLocales.supported } ?: RotationLocales.DEFAULT
+      val locale = json.optionalString("contentLocale")?.takeIf { it in RotationLocales.settingValues } ?: RotationLocales.DEFAULT
       val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, json.optionalString("lastQuoteId"), json.optionalString("lastPresetId"), locale)
       when {
         snapshot.intervalHours !in setOf(6, 12, 24) -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")

@@ -21,3 +21,19 @@ export function resolveDeviceLocale(tags: readonly string[]): Locale {
   }
   return 'en';
 }
+
+/**
+ * The quote language the reader chose. `all` is a setting value, never a
+ * catalogue text key: it draws from every quote and shows each one in the
+ * language it was written in.
+ */
+export const contentLocales = [...locales, 'all'] as const;
+
+export type ContentLocale = (typeof contentLocales)[number];
+
+export function isContentLocale(value: unknown): value is ContentLocale {
+  return (
+    typeof value === 'string' &&
+    (contentLocales as readonly string[]).includes(value)
+  );
+}

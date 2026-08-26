@@ -299,3 +299,24 @@ test('keeps a valid lastAppliedQuoteId across the migration', () => {
 
   expect(migrated.lastAppliedQuoteId).toBe('focus-002');
 });
+
+// Mutation caught: guarding the stored setting with isLocale would drop a reader back to Vietnamese on every launch.
+test('keeps the every-language quote setting across a launch', () => {
+  const migrated = migratePersistedState({
+    version: 3,
+    appLocale: 'en',
+    contentLocale: 'all',
+    favoriteQuoteIds: [],
+    currentQuoteId: 'motivation-001',
+    selectedPresetId: 'midnight-focus',
+    randomizePreset: false,
+    favoriteQuotesOnly: false,
+    rotationEnabled: false,
+    rotationIntervalHours: 24,
+    wallpaperTarget: 'home',
+  });
+
+  expect(migrated.contentLocale).toBe('all');
+  expect(migrated.currentQuoteId).toBe('motivation-001');
+  expect(migrated.appLocale).toBe('en');
+});

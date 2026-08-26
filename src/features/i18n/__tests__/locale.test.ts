@@ -1,4 +1,10 @@
-import { isLocale, locales, resolveDeviceLocale } from '../locale';
+import {
+  contentLocales,
+  isContentLocale,
+  isLocale,
+  locales,
+  resolveDeviceLocale,
+} from '../locale';
 
 // Mutation caught: accepting an unknown tag would let an unsupported locale reach the string catalog and render undefined text.
 test('accepts only the supported locales', () => {
@@ -20,4 +26,13 @@ test('resolves the device language from the first supported tag', () => {
 test('falls back to English when no tag is supported', () => {
   expect(resolveDeviceLocale(['fr-FR', 'de-DE'])).toBe('en');
   expect(resolveDeviceLocale([])).toBe('en');
+});
+
+// Mutation caught: letting isLocale answer for the setting would either reject "all" or let "all" become a catalogue text key.
+test('accepts every content language choice, and keeps "all" out of the catalogue locales', () => {
+  expect(contentLocales).toEqual(['en', 'vi', 'all']);
+  expect(isContentLocale('all')).toBe(true);
+  expect(isContentLocale('en')).toBe(true);
+  expect(isContentLocale('fr')).toBe(false);
+  expect(isLocale('all')).toBe(false);
 });

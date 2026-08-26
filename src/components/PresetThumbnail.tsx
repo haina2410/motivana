@@ -7,14 +7,14 @@ import type { WallpaperPreset } from '../features/wallpaper/types';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import type { Quote } from '../features/quotes/types';
-import type { Locale } from '../features/i18n/locale';
+import type { ContentLocale } from '../features/i18n/locale';
 import { useTranslate } from '../features/i18n/useTranslate';
 import type { StringKey } from '../features/i18n/t';
 
 interface PresetThumbnailProps {
   preset: WallpaperPreset;
   quote: Quote;
-  locale: Locale;
+  locale: ContentLocale;
   selected: boolean;
   disabled?: boolean;
   onPress: () => void;

@@ -6,8 +6,10 @@ import {
 } from '../features/quotes/quoteRepository';
 import { getPresetById } from '../features/wallpaper/presetRepository';
 import {
+  isContentLocale,
   isLocale,
   resolveDeviceLocale,
+  type ContentLocale,
   type Locale,
 } from '../features/i18n/locale';
 import { APP_STATE_STORAGE_KEY, type KeyValueStorage } from './storage';
@@ -18,7 +20,7 @@ export type WallpaperTarget = 'home' | 'lock' | 'both';
 export interface PersistedAppStateV3 {
   version: 3;
   appLocale: Locale;
-  contentLocale: Locale;
+  contentLocale: ContentLocale;
   favoriteQuoteIds: string[];
   currentQuoteId: string;
   lastAppliedQuoteId?: string;
@@ -42,12 +44,12 @@ export type SafeWarningReporter = (message: string) => void;
 const firstQuoteId = getAllQuotes()[0]!.id;
 
 /** Falls back to the whole catalog only if a locale has no quotes at all. */
-function firstQuoteInLocale(locale: Locale): string {
+function firstQuoteInLocale(locale: ContentLocale): string {
   return getAllQuotes(locale)[0]?.id ?? firstQuoteId;
 }
 
 /** The quotes are written for Vietnamese readers first, so they start there. */
-const DEFAULT_CONTENT_LOCALE: Locale = 'vi';
+const DEFAULT_CONTENT_LOCALE: ContentLocale = 'vi';
 
 function deviceLocale(): Locale {
   try {
@@ -136,7 +138,7 @@ export function migratePersistedState(input: unknown): PersistedAppStateV3 {
   const favoriteQuoteIds = Array.isArray(input.favoriteQuoteIds)
     ? Array.from(new Set(input.favoriteQuoteIds.filter(validQuoteId)))
     : defaults.favoriteQuoteIds;
-  const contentLocale = isLocale(input.contentLocale)
+  const contentLocale = isContentLocale(input.contentLocale)
     ? input.contentLocale
     : DEFAULT_CONTENT_LOCALE;
   // The shown quote must exist in the reader's quote language. A version 1 user

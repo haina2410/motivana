@@ -1,12 +1,12 @@
 import quoteCatalog from '../../../assets/data/quotes.json';
 import { parseQuoteCatalog, quoteText, type Quote } from './types';
-import type { Locale } from '../i18n/locale';
+import type { ContentLocale } from '../i18n/locale';
 
 const quotes = parseQuoteCatalog(quoteCatalog);
 const quotesById = new Map(quotes.map((quote) => [quote.id, quote]));
 
 export interface RandomQuoteOptions {
-  locale: Locale;
+  locale: ContentLocale;
   eligibleIds?: ReadonlySet<string>;
   previousId?: string;
   random?: () => number;
@@ -21,7 +21,7 @@ export class QuoteSelectionError extends Error {
   }
 }
 
-export function getAllQuotes(locale?: Locale): readonly Quote[] {
+export function getAllQuotes(locale?: ContentLocale): readonly Quote[] {
   if (locale === undefined) {
     return quotes;
   }
@@ -39,12 +39,12 @@ export function getQuoteById(id: string): Quote | undefined {
  * Shows the text the reader chose, and falls back to the original language.
  * Only favorites use this, because the user selected the quote on purpose.
  */
-export function favoriteQuoteText(quote: Quote, locale: Locale): string {
+export function favoriteQuoteText(quote: Quote, locale: ContentLocale): string {
   return quoteText(quote, locale) ?? quote.text[quote.sourceLocale]!;
 }
 
 /** True when the quote exists and carries text in that language. */
-export function quoteInLocale(id: string, locale: Locale): boolean {
+export function quoteInLocale(id: string, locale: ContentLocale): boolean {
   const quote = quotesById.get(id);
   return quote !== undefined && quoteText(quote, locale) !== undefined;
 }
@@ -52,7 +52,7 @@ export function quoteInLocale(id: string, locale: Locale): boolean {
 export function getAdjacentQuote(
   id: string,
   direction: 'next' | 'previous',
-  locale: Locale,
+  locale: ContentLocale,
 ): Quote | undefined {
   const pool = getAllQuotes(locale);
   if (pool.length === 0) {

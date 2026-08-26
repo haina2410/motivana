@@ -1,9 +1,9 @@
 import { quoteInLocale } from './quoteRepository';
-import type { Locale } from '../i18n/locale';
+import type { ContentLocale } from '../i18n/locale';
 import { getRotationStatus } from '../../services/wallpaperNative';
 
 export interface AppliedQuoteSources {
-  contentLocale: Locale;
+  contentLocale: ContentLocale;
   /** The quote the reader applied by hand, from the stored state. */
   lastAppliedQuoteId?: string;
 }

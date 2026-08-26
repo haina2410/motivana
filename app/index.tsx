@@ -30,7 +30,7 @@ import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { exportedWallpaperUri } from '../src/features/wallpaper/exportCache';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
 import type { WallpaperPreset } from '../src/features/wallpaper/types';
-import type { Locale } from '../src/features/i18n/locale';
+import type { ContentLocale, Locale } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type { StringKey } from '../src/features/i18n/t';
 import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
@@ -322,7 +322,7 @@ function createWallpaperComposition(
   presetId: string,
   width: number,
   height: number,
-  locale: Locale,
+  locale: ContentLocale,
 ): WallpaperComposition {
   const quote = getQuoteById(quoteId);
   const preset = getPresetById(presetId);
