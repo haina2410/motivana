@@ -15,8 +15,9 @@ function signedPart(name: string, signed: SignedBody): MultipartPart {
 
 async function noUpdateAvailableResponse(env: Env): Promise<Response> {
   const directive = await readNoUpdateAvailable(env.UPDATES);
-  // With no signed directive stored, a body with no parts is the safe answer:
-  // the client keeps its current bundle.
+  // With no signed directive stored, "nothing available" is the safe answer:
+  // the client keeps its current bundle. buildMultipartResponse turns no
+  // parts into a 204, which the client accepts.
   if (!directive) {
     return buildMultipartResponse([]);
   }
@@ -44,8 +45,9 @@ export async function handleManifest(
   const currentUpdateId = request.headers.get('expo-current-update-id');
   const pointer = await readPointer(env.UPDATES, platform, runtimeVersion);
 
-  // No pointer means this build has no update. The protocol reads a body with
-  // no parts as "nothing available", which keeps old builds working.
+  // No pointer means this build has no update. buildMultipartResponse answers
+  // no parts with a 204, which the client reads as "nothing available". This
+  // keeps old builds working.
   if (!pointer) {
     return buildMultipartResponse([]);
   }

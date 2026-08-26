@@ -73,9 +73,15 @@ Run this once, right after the first deploy:
     pnpm ota:rollback --to no-update-available
 
 This is one-time setup, not a rollback. It stores a signed
-`noUpdateAvailable` directive in KV. Without it, the Worker falls back to a
-body with no parts. That still works, but it makes every launch re-download
-and re-check the manifest.
+`noUpdateAvailable` directive in KV. Without it, the Worker answers `204 No
+Content` instead. The client accepts that and keeps its current bundle, so
+nothing breaks, but the explicit signed directive is the answer the protocol
+intends and is what the client logs as a clean check.
+
+The Worker never returns a multipart body with no parts. Such a body is not
+zero bytes, so the client's zero-byte guard misses it and okhttp's
+`MultipartReader` throws `expected at least 1 part`, which the client logs as
+`UpdateFailedToLoad` on every launch.
 
 ## Deploy the Worker
 

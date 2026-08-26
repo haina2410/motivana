@@ -8,7 +8,9 @@ async function readBody(response: Response) {
 
 describe('buildMultipartResponse', () => {
   it('always states the protocol version and structured field version', async () => {
-    const response = buildMultipartResponse([]);
+    const response = buildMultipartResponse([
+      { name: 'manifest', body: '{"id":"a"}', contentType: 'application/json' },
+    ]);
 
     expect(response.status).toBe(200);
     expect(response.headers.get('expo-protocol-version')).toBe('1');
@@ -63,11 +65,22 @@ describe('buildMultipartResponse', () => {
     expect(await readBody(response)).toContain(body);
   });
 
-  it('produces a body with no parts when given no parts', async () => {
+  it('answers no parts with 204, never a zero-part body', async () => {
+    // A zero-part body reaches okhttp's MultipartReader, which throws
+    // ProtocolException("expected at least 1 part"). The client would log
+    // UpdateFailedToLoad on every launch of a build with no pointer.
     const response = buildMultipartResponse([]);
-    const boundary =
-      response.headers.get('content-type')?.match(/boundary=(\S+)/)?.[1] ?? '';
 
-    expect(await readBody(response)).toBe(`--${boundary}--\r\n`);
+    expect(response.status).toBe(204);
+    expect(response.headers.get('content-type')).toBeNull();
+    expect(await readBody(response)).toBe('');
+  });
+
+  it('keeps the protocol headers on the 204', async () => {
+    const response = buildMultipartResponse([]);
+
+    expect(response.headers.get('expo-protocol-version')).toBe('1');
+    expect(response.headers.get('expo-sfv-version')).toBe('0');
+    expect(response.headers.get('cache-control')).toBe('private, max-age=0');
   });
 });

@@ -50,16 +50,16 @@ describe('GET /api/manifest', () => {
     expect(body).toContain('content-disposition: form-data; name="manifest"');
   });
 
-  it('serves a body with no parts when the runtime version has no update', async () => {
+  it('serves 204 when the runtime version has no update', async () => {
     const response = await manifestRequest({
       'expo-runtime-version': 'fingerprint-unknown',
     });
-    const boundary =
-      response.headers.get('content-type')?.match(/boundary=(\S+)/)?.[1] ?? '';
 
-    // An old build must get a valid "nothing available" answer, not a 404.
-    expect(response.status).toBe(200);
-    expect(await response.text()).toBe(`--${boundary}--\r\n`);
+    // An old build must get a valid "nothing available" answer: not a 404,
+    // and not a zero-part multipart body, which makes the client throw.
+    expect(response.status).toBe(204);
+    expect(response.headers.get('expo-protocol-version')).toBe('1');
+    expect(await response.text()).toBe('');
   });
 
   it('serves noUpdateAvailable when the client already runs this update', async () => {
@@ -145,19 +145,16 @@ describe('GET /api/manifest', () => {
     expect(response.status).toBe(400);
   });
 
-  it('falls back to a body with no parts when noUpdateAvailable has no signed directive', async () => {
+  it('falls back to 204 when noUpdateAvailable has no signed directive', async () => {
     await putUpdatePointer();
     // noUpdateAvailableKey is deliberately absent here.
 
     const response = await manifestRequest({
       'expo-current-update-id': '11111111-2222-3333-4444-555555555555',
     });
-    const boundary =
-      response.headers.get('content-type')?.match(/boundary=(\S+)/)?.[1] ?? '';
-    const body = await response.text();
 
-    expect(body).toBe(`--${boundary}--\r\n`);
-    expect(body).not.toContain(manifestBody);
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe('');
   });
 
   it('rejects an unsupported platform', async () => {
