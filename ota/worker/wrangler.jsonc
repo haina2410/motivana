@@ -2,6 +2,11 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "motivana-ota",
   "main": "src/index.ts",
+  // Do not bump this date casually. Tests run under @cloudflare/vitest-pool-workers,
+  // which pins miniflare 4.20250906.0 and, with it, workerd 1.20250906.0 -- a runtime
+  // older than the wrangler CLI's own. That pinned runtime is what actually executes
+  // this config for tests, so this date must stay at or below what it supports until
+  // @cloudflare/vitest-pool-workers updates its pinned miniflare.
   "compatibility_date": "2025-09-06",
   "kv_namespaces": [{ "binding": "UPDATES", "id": "REPLACE_WITH_KV_ID" }],
   "r2_buckets": [{ "binding": "ASSETS", "bucket_name": "motivana-ota-assets" }],
