@@ -55,6 +55,15 @@
       "eas": {
         "projectId": "083f84d8-7c5e-4825-a9cd-11d51edf20ab"
       }
+    },
+    "runtimeVersion": { "policy": "fingerprint" },
+    "updates": {
+      "url": "https://motivana-ota.<your-subdomain>.workers.dev/api/manifest",
+      "codeSigningCertificate": "./certs/certificate.pem",
+      "codeSigningMetadata": {
+        "keyid": "main",
+        "alg": "rsa-v1_5-sha256"
+      }
     }
   }
 }
