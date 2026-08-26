@@ -23,7 +23,10 @@ async function noUpdateAvailableResponse(env: Env): Promise<Response> {
   return buildMultipartResponse([signedPart('directive', directive)]);
 }
 
-export async function handleManifest(request: Request, env: Env): Promise<Response> {
+export async function handleManifest(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   if (request.method !== 'GET') {
     return new Response('expected GET', { status: 405 });
   }

@@ -44,12 +44,16 @@ describe('GET /api/manifest', () => {
 
     expect(response.status).toBe(200);
     expect(body).toContain(manifestBody);
-    expect(body).toContain('expo-signature: sig="abc", keyid="main", alg="rsa-v1_5-sha256"');
+    expect(body).toContain(
+      'expo-signature: sig="abc", keyid="main", alg="rsa-v1_5-sha256"',
+    );
     expect(body).toContain('content-disposition: form-data; name="manifest"');
   });
 
   it('serves a body with no parts when the runtime version has no update', async () => {
-    const response = await manifestRequest({ 'expo-runtime-version': 'fingerprint-unknown' });
+    const response = await manifestRequest({
+      'expo-runtime-version': 'fingerprint-unknown',
+    });
     const boundary =
       response.headers.get('content-type')?.match(/boundary=(\S+)/)?.[1] ?? '';
 
@@ -169,7 +173,9 @@ describe('GET /api/manifest', () => {
   });
 
   it('rejects a method other than GET', async () => {
-    const response = await SELF.fetch('https://ota.test/api/manifest', { method: 'POST' });
+    const response = await SELF.fetch('https://ota.test/api/manifest', {
+      method: 'POST',
+    });
     expect(response.status).toBe(405);
   });
 });

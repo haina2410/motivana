@@ -48,7 +48,9 @@ describe('buildMultipartResponse', () => {
       },
     ]);
 
-    expect(await readBody(response)).toContain('expo-signature: sig="abc", keyid="main"');
+    expect(await readBody(response)).toContain(
+      'expo-signature: sig="abc", keyid="main"',
+    );
   });
 
   it('writes the part body without changing a byte', async () => {
