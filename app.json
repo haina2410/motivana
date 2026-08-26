@@ -58,7 +58,7 @@
     },
     "runtimeVersion": { "policy": "fingerprint" },
     "updates": {
-      "url": "https://motivana-ota.<your-subdomain>.workers.dev/api/manifest",
+      "url": "https://motivana-ota.hainam7076.workers.dev/api/manifest",
       "codeSigningCertificate": "./certs/certificate.pem",
       "codeSigningMetadata": {
         "keyid": "main",
