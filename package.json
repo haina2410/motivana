@@ -23,6 +23,7 @@
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.2",
     "expo-system-ui": "~57.0.2",
+    "expo-updates": "~57.0.17",
     "expo-web-browser": "~57.0.2",
     "jest-expo": "~57.0.4",
     "motivana-wallpaper": "file:modules/motivana-wallpaper",
@@ -62,7 +63,10 @@
     "verify:data": "node scripts/verify-data.mjs",
     "verify:android-permissions": "node scripts/verify-android-permissions.mjs",
     "verify:native": "node scripts/verify-native.mjs",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test && pnpm verify:native"
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test && pnpm test:worker && pnpm verify:native",
+    "test:worker": "cd ota/worker && pnpm test",
+    "ota:publish": "node scripts/ota-publish.mjs",
+    "ota:rollback": "node scripts/ota-rollback.mjs"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0"

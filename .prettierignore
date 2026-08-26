@@ -6,3 +6,4 @@ node_modules/
 MVP_BUILD_SPEC.md
 docs/
 site/
+ota/worker/pnpm-lock.yaml

@@ -81,3 +81,11 @@ modules/*/android/build/
 
 # Temporary agent worktrees
 .claude/worktrees/
+
+# Over-the-air update build output
+/dist
+/certs/private-key.pem
+/certs/public-key.pem
+
+# The public code-signing certificate is safe and needed to verify updates
+!/certs/certificate.pem

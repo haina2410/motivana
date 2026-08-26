@@ -1,0 +1,342 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { generateKeyPairSync } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+
+import { publish, validateWorkerUrl } from '../ota-publish.mjs';
+
+// ota-publish.mjs pins its git calls to the repository root derived from its
+// own module location (scripts/ota-publish.mjs, one level below the root).
+// This test file sits one level deeper (scripts/__tests__/), so the root is
+// two levels up from here — computed the same way, independently, so the
+// assertion actually proves the pinning rather than restating the source.
+const repositoryRoot = resolve(__dirname, '..', '..');
+
+type Command = { command: string; args: string[] };
+
+let workingDirectory: string;
+let distDirectory: string;
+let appJsonPath: string;
+let commands: Command[];
+let requests: { url: string; init: RequestInit }[];
+
+function writeFixtureExport(directory: string) {
+  mkdirSync(join(directory, '_expo/static/js/android'), { recursive: true });
+  mkdirSync(join(directory, 'assets'), { recursive: true });
+  writeFileSync(join(directory, '_expo/static/js/android/index.hbc'), 'BUNDLE');
+  writeFileSync(join(directory, 'assets/abc123'), 'FONTDATA');
+  writeFileSync(
+    join(directory, 'metadata.json'),
+    JSON.stringify({
+      fileMetadata: {
+        android: {
+          bundle: '_expo/static/js/android/index.hbc',
+          assets: [{ path: 'assets/abc123', ext: 'ttf' }],
+        },
+      },
+    }),
+  );
+}
+
+function makeRun(
+  overrides: Record<string, { stdout?: string; status?: number }> = {},
+) {
+  return (command: string, args: string[]) => {
+    commands.push({ command, args });
+    const key = [command, ...args].join(' ');
+    // `includes`, not `startsWith`: the git commands are now prefixed with
+    // `-C <repositoryRoot>`, so a caller matching on the trailing subcommand
+    // (e.g. 'status --porcelain') must still find it.
+    const override = Object.entries(overrides).find(([needle]) =>
+      key.includes(needle),
+    );
+    if (override?.[1].status && override[1].status !== 0) {
+      throw new Error(`${key} exited with ${override[1].status}`);
+    }
+    if (override) {
+      return { stdout: override[1].stdout ?? '' };
+    }
+    if (key.startsWith('npx expo config --json --type public')) {
+      // The real shape of `npx expo config --json --type public`: one JSON
+      // object. `expo export` writes no expoConfig.json, so this is where the
+      // public config comes from.
+      return { stdout: JSON.stringify({ name: 'Motivana', slug: 'motivana' }) };
+    }
+    if (key.startsWith('npx expo-updates fingerprint:generate')) {
+      return { stdout: JSON.stringify({ hash: 'fingerprint-abc' }) };
+    }
+    if (key.includes('status --porcelain')) {
+      return { stdout: '' };
+    }
+    if (key.includes('rev-parse')) {
+      return { stdout: 'deadbeef' };
+    }
+    return { stdout: '' };
+  };
+}
+
+const fetchImpl = async (url: string, init: RequestInit) => {
+  requests.push({ url, init });
+  return new Response(null, { status: 204 });
+};
+
+function baseOptions() {
+  return {
+    distDirectory,
+    appJsonPath,
+    platform: 'android',
+    bucket: 'motivana-ota-assets',
+    workerUrl: 'https://ota.test',
+    token: 'test-token',
+    skipExport: true,
+  };
+}
+
+beforeEach(() => {
+  workingDirectory = mkdtempSync(join(tmpdir(), 'ota-publish-'));
+  distDirectory = join(workingDirectory, 'dist');
+  mkdirSync(distDirectory);
+  writeFixtureExport(distDirectory);
+
+  const { privateKey } = generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: 'spki', format: 'pem' },
+    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+  });
+  const keyPath = join(workingDirectory, 'private-key.pem');
+  writeFileSync(keyPath, privateKey);
+  process.env.OTA_PRIVATE_KEY_PATH = keyPath;
+
+  appJsonPath = join(workingDirectory, 'app.json');
+  writeFileSync(
+    appJsonPath,
+    JSON.stringify({
+      expo: { updates: { codeSigningMetadata: { keyid: 'motivana-root' } } },
+    }),
+  );
+
+  commands = [];
+  requests = [];
+});
+
+afterEach(() => {
+  rmSync(workingDirectory, { recursive: true, force: true });
+  delete process.env.OTA_PRIVATE_KEY_PATH;
+});
+
+describe('publish', () => {
+  it('uploads every asset before it writes the pointer', async () => {
+    await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    const uploadCount = commands.filter((entry) =>
+      entry.args.join(' ').startsWith('wrangler r2 object put'),
+    ).length;
+    expect(uploadCount).toBe(2);
+    // The pointer is the last write. Anything else risks a pointer that names
+    // a manifest whose assets are absent.
+    expect(requests).toHaveLength(1);
+  });
+
+  it('never writes the pointer when an upload fails', async () => {
+    const run = makeRun({ 'npx wrangler r2 object put': { status: 1 } });
+
+    await expect(
+      publish({ options: baseOptions(), run, fetchImpl, log: () => {} }),
+    ).rejects.toThrow();
+    expect(requests).toHaveLength(0);
+  });
+
+  it('writes an update pointer keyed on platform and fingerprint', async () => {
+    const result = await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    const payload = JSON.parse(String(requests[0]!.init.body));
+    expect(payload.key).toBe('pointer:android:fingerprint-abc');
+    expect(payload.value.kind).toBe('update');
+    expect(payload.value.updateId).toBe(result.updateId);
+    expect(result.runtimeVersion).toBe('fingerprint-abc');
+  });
+
+  it('signs the exact manifest bytes it stores', async () => {
+    await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    const payload = JSON.parse(String(requests[0]!.init.body));
+    const manifest = JSON.parse(payload.value.body);
+    expect(manifest.runtimeVersion).toBe('fingerprint-abc');
+    expect(payload.value.signature).toMatch(
+      /^sig="[^"]+", keyid="motivana-root", alg="rsa-v1_5-sha256"$/,
+    );
+  });
+
+  it('reads the public expo config from the CLI, not from dist/', async () => {
+    const run = makeRun();
+    await publish({ options: baseOptions(), run, fetchImpl, log: () => {} });
+
+    expect(
+      commands.some(
+        (entry) =>
+          entry.command === 'npx' &&
+          entry.args.join(' ') === 'expo config --json --type public',
+      ),
+    ).toBe(true);
+    const manifest = JSON.parse(
+      JSON.parse(String(requests[0]!.init.body)).value.body,
+    );
+    expect(manifest.extra.expoClient.slug).toBe('motivana');
+  });
+
+  it('points asset urls at the Worker', async () => {
+    await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    const manifest = JSON.parse(
+      JSON.parse(String(requests[0]!.init.body)).value.body,
+    );
+    expect(manifest.launchAsset.url).toMatch(/^https:\/\/ota\.test\/assets\//);
+  });
+
+  it('sends the publish token', async () => {
+    await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    expect(
+      (requests[0]!.init.headers as Record<string, string>).authorization,
+    ).toBe('Bearer test-token');
+  });
+
+  it('refuses to publish from a dirty worktree', async () => {
+    const run = makeRun({
+      'status --porcelain': { stdout: ' M app/index.tsx\n' },
+    });
+
+    await expect(
+      publish({ options: baseOptions(), run, fetchImpl, log: () => {} }),
+    ).rejects.toThrow(/uncommitted/i);
+    expect(requests).toHaveLength(0);
+
+    // The guard must actually inspect the Motivana checkout, not whatever
+    // directory the process happens to be running from. If `-C` were
+    // dropped, the args would no longer contain the repository root and
+    // this assertion would fail even though the throw above still passes.
+    const statusCall = commands.find((entry) => entry.args.includes('status'));
+    expect(statusCall?.args.slice(0, 2)).toEqual(['-C', repositoryRoot]);
+  });
+
+  it('pins the git status check to the repository root, not the caller cwd', async () => {
+    await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    const statusCall = commands.find((entry) => entry.args.includes('status'));
+    const revParseCall = commands.find((entry) =>
+      entry.args.includes('rev-parse'),
+    );
+    expect(statusCall?.args.slice(0, 2)).toEqual(['-C', repositoryRoot]);
+    expect(revParseCall?.args.slice(0, 2)).toEqual(['-C', repositoryRoot]);
+  });
+
+  it('also stores the update under its id so a rollback can find it', async () => {
+    const run = makeRun();
+    await publish({
+      options: { ...baseOptions(), archive: true },
+      run,
+      fetchImpl,
+      log: () => {},
+    });
+
+    // Two pointer writes: the archive record and the live pointer.
+    expect(requests).toHaveLength(2);
+    const keys = requests.map(
+      (entry) => JSON.parse(String(entry.init.body)).key,
+    );
+    expect(keys[0]).toMatch(/^update:/);
+    expect(keys[1]).toBe('pointer:android:fingerprint-abc');
+  });
+});
+
+describe('validateWorkerUrl', () => {
+  function writeUpdatesUrl(url: unknown) {
+    const path = join(workingDirectory, 'app-updates.json');
+    writeFileSync(path, JSON.stringify({ expo: { updates: { url } } }));
+    return path;
+  }
+
+  it('accepts a url whose origin matches expo.updates.url', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(
+      validateWorkerUrl({
+        workerUrl: 'https://ota.test',
+        appJsonPath: appJson,
+      }),
+    ).toBe('https://ota.test');
+  });
+
+  it('rejects a trailing slash, which builds //assets urls the Worker 404s', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(() =>
+      validateWorkerUrl({
+        workerUrl: 'https://ota.test/',
+        appJsonPath: appJson,
+      }),
+    ).toThrow(/trailing slash/);
+  });
+
+  it('rejects an origin that no device will ever ask', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(() =>
+      validateWorkerUrl({
+        workerUrl: 'https://staging-ota.test',
+        appJsonPath: appJson,
+      }),
+    ).toThrow(/would reach nobody/);
+  });
+
+  it('rejects a url that does not parse', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(() =>
+      validateWorkerUrl({ workerUrl: 'ota.test', appJsonPath: appJson }),
+    ).toThrow(/not a valid url/);
+  });
+
+  it('rejects an unconfigured expo.updates.url placeholder', () => {
+    const appJson = writeUpdatesUrl(
+      'https://motivana-ota.<your-subdomain>.workers.dev/api/manifest',
+    );
+
+    expect(() =>
+      validateWorkerUrl({
+        workerUrl: 'https://motivana-ota.example.workers.dev',
+        appJsonPath: appJson,
+      }),
+    ).toThrow(/expo\.updates\.url/);
+  });
+});

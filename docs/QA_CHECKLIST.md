@@ -93,3 +93,11 @@ App and local module lint remain enabled and are the reported gates.
 - [ ] Reboot and app-update behavior
 - [ ] Shipping-version media permission behavior
 - [ ] OEM battery optimization/Doze behavior
+
+## Over-the-air updates
+
+- [ ] A fresh install starts with no network, and shows the embedded bundle.
+- [ ] After `pnpm ota:publish`, the app applies the update on the second launch.
+- [ ] With the Worker unreachable, the app still starts on its current bundle.
+- [ ] After `pnpm ota:rollback --to embedded`, the app returns to the bundle in its binary.
+- [ ] A build whose fingerprint has no pointer starts normally and stays on its own bundle.

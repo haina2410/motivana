@@ -27,6 +27,9 @@ repository-local Android paths. The helper changes only the current shell.
 ```bash
 nvm use
 pnpm install --frozen-lockfile
+# The update Worker is a separate workspace with its own lockfile. `pnpm
+# verify` runs its tests, so this install is needed on a fresh clone.
+(cd ota/worker && pnpm install --frozen-lockfile)
 source scripts/android-env.sh
 emulator -avd Medium_Phone
 adb wait-for-device
