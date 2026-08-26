@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 import { buildManifest } from './ota/manifest.mjs';
@@ -11,6 +12,25 @@ import {
   readPrivateKey,
   signBody,
 } from './ota/sign.mjs';
+
+// This module lives at <repositoryRoot>/scripts/ota-publish.mjs, so the
+// repository root is always one directory above it, regardless of the
+// caller's process.cwd(). The dirty-worktree guard and every path that must
+// not depend on where the command was invoked from are pinned to this.
+//
+// Real Node ESM has no __dirname, so fileURLToPath(import.meta.url) is the
+// normal way to get it. Under the Jest/Babel transform used to test this
+// .mjs file, import.meta is not rewritten to a usable URL, but the
+// CommonJS wrapper Babel emits does supply a correct __dirname for the
+// original file. `typeof __dirname` is a safe check in both worlds: it
+// never throws on an unbound identifier. The reference below is only
+// reached under that Jest/CJS transform; real ESM never evaluates it.
+const moduleDirectory =
+  typeof __dirname !== 'undefined'
+    ? // eslint-disable-next-line no-undef
+      __dirname
+    : dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(moduleDirectory, '..');
 
 export function runCommand(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', stdio: 'pipe' });
@@ -25,13 +45,27 @@ export function runCommand(command, args) {
 export async function publish({ options, run, fetchImpl, log }) {
   // A dirty worktree makes the fingerprint impossible to match against a
   // released binary, so the update could reach a build it does not fit.
-  const status = run('git', ['status', '--porcelain']).stdout.trim();
+  // `-C repositoryRoot` pins these to the Motivana checkout itself, so the
+  // guard cannot be fooled by running the command from inside some other
+  // repository.
+  const status = run('git', [
+    '-C',
+    repositoryRoot,
+    'status',
+    '--porcelain',
+  ]).stdout.trim();
   if (status) {
     throw new Error(
       'The worktree has uncommitted changes. Commit them so the fingerprint matches a known build.',
     );
   }
-  const gitSha = run('git', ['rev-parse', '--short', 'HEAD']).stdout.trim();
+  const gitSha = run('git', [
+    '-C',
+    repositoryRoot,
+    'rev-parse',
+    '--short',
+    'HEAD',
+  ]).stdout.trim();
 
   if (!options.skipExport) {
     log('Exporting the bundle');
@@ -120,8 +154,11 @@ function readOptionsFromArgv() {
 
   return {
     platform: values.platform,
-    distDirectory: resolve(values['dist-directory']),
-    appJsonPath: resolve('app.json'),
+    // A relative --dist-directory is resolved against the repository root,
+    // not process.cwd(), for the same reason the git commands are pinned
+    // above. An absolute path the caller gave is honoured as given.
+    distDirectory: resolve(repositoryRoot, values['dist-directory']),
+    appJsonPath: resolve(repositoryRoot, 'app.json'),
     skipExport: values['skip-export'],
     archive: true,
     workerUrl,

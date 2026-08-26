@@ -1,9 +1,16 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { generateKeyPairSync } from 'node:crypto';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import { publish } from '../ota-publish.mjs';
+
+// ota-publish.mjs pins its git calls to the repository root derived from its
+// own module location (scripts/ota-publish.mjs, one level below the root).
+// This test file sits one level deeper (scripts/__tests__/), so the root is
+// two levels up from here — computed the same way, independently, so the
+// assertion actually proves the pinning rather than restating the source.
+const repositoryRoot = resolve(__dirname, '..', '..');
 
 type Command = { command: string; args: string[] };
 
@@ -41,8 +48,11 @@ function makeRun(
   return (command: string, args: string[]) => {
     commands.push({ command, args });
     const key = [command, ...args].join(' ');
-    const override = Object.entries(overrides).find(([prefix]) =>
-      key.startsWith(prefix),
+    // `includes`, not `startsWith`: the git commands are now prefixed with
+    // `-C <repositoryRoot>`, so a caller matching on the trailing subcommand
+    // (e.g. 'status --porcelain') must still find it.
+    const override = Object.entries(overrides).find(([needle]) =>
+      key.includes(needle),
     );
     if (override?.[1].status && override[1].status !== 0) {
       throw new Error(`${key} exited with ${override[1].status}`);
@@ -53,10 +63,10 @@ function makeRun(
     if (key.startsWith('npx expo-updates fingerprint:generate')) {
       return { stdout: JSON.stringify({ hash: 'fingerprint-abc' }) };
     }
-    if (key.startsWith('git status')) {
+    if (key.includes('status --porcelain')) {
       return { stdout: '' };
     }
-    if (key.startsWith('git rev-parse')) {
+    if (key.includes('rev-parse')) {
       return { stdout: 'deadbeef' };
     }
     return { stdout: '' };
@@ -198,12 +208,37 @@ describe('publish', () => {
   });
 
   it('refuses to publish from a dirty worktree', async () => {
-    const run = makeRun({ 'git status': { stdout: ' M app/index.tsx\n' } });
+    const run = makeRun({
+      'status --porcelain': { stdout: ' M app/index.tsx\n' },
+    });
 
     await expect(
       publish({ options: baseOptions(), run, fetchImpl, log: () => {} }),
     ).rejects.toThrow(/uncommitted/i);
     expect(requests).toHaveLength(0);
+
+    // The guard must actually inspect the Motivana checkout, not whatever
+    // directory the process happens to be running from. If `-C` were
+    // dropped, the args would no longer contain the repository root and
+    // this assertion would fail even though the throw above still passes.
+    const statusCall = commands.find((entry) => entry.args.includes('status'));
+    expect(statusCall?.args.slice(0, 2)).toEqual(['-C', repositoryRoot]);
+  });
+
+  it('pins the git status check to the repository root, not the caller cwd', async () => {
+    await publish({
+      options: baseOptions(),
+      run: makeRun(),
+      fetchImpl,
+      log: () => {},
+    });
+
+    const statusCall = commands.find((entry) => entry.args.includes('status'));
+    const revParseCall = commands.find((entry) =>
+      entry.args.includes('rev-parse'),
+    );
+    expect(statusCall?.args.slice(0, 2)).toEqual(['-C', repositoryRoot]);
+    expect(revParseCall?.args.slice(0, 2)).toEqual(['-C', repositoryRoot]);
   });
 
   it('also stores the update under its id so a rollback can find it', async () => {
