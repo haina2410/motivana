@@ -45,6 +45,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.20.1",
     "@types/react": "~19.2.2",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.1",
     "eslint-config-prettier": "^10.1.8",
@@ -65,8 +66,8 @@
     "verify:native": "node scripts/verify-native.mjs",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test && pnpm test:worker && pnpm verify:native",
     "test:worker": "cd ota/worker && pnpm test",
-    "ota:publish": "node scripts/ota-publish.mjs",
-    "ota:rollback": "node scripts/ota-rollback.mjs"
+    "ota:publish": "dotenv -e .env.local -- node scripts/ota-publish.mjs",
+    "ota:rollback": "dotenv -e .env.local -- node scripts/ota-rollback.mjs"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0"

@@ -36,6 +36,15 @@ The current Android fingerprint is `d92aa450fe74ef29a94d71c9dea1a60d2582c47f`.
 Asset upload goes through the `wrangler` CLI. No R2 access key or secret
 exists anywhere in this system.
 
+`pnpm ota:publish` and `pnpm ota:rollback` read these from `.env.local`, which
+`.gitignore` excludes. Write `OTA_PRIVATE_KEY_PATH` as an absolute path: the
+scripts resolve it against the current directory, and a dotenv file does not
+expand `~`.
+
+Keep the key file itself outside this repository, at mode 0600. `eas build`
+uploads the project directory, so a key inside the repository is protected only
+by an ignore rule. The key is the one secret that makes signing worth doing.
+
 ## Certificates
 
 The private key lives outside this repository. `certs/certificate.pem` is
