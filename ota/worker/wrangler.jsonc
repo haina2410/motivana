@@ -8,7 +8,12 @@
   // this config for tests, so this date must stay at or below what it supports until
   // @cloudflare/vitest-pool-workers updates its pinned miniflare.
   "compatibility_date": "2025-09-06",
-  "kv_namespaces": [{ "binding": "UPDATES", "id": "REPLACE_WITH_KV_ID" }],
+  // The Worker code reads the ASSETS binding only. Do not add a second binding to the
+  // same bucket: wrangler and the dashboard both offer to, and it hides which one the
+  // code depends on.
+  "kv_namespaces": [
+    { "binding": "UPDATES", "id": "304d2f9a0a9f4cbd8482b379449af9cf" },
+  ],
   "r2_buckets": [{ "binding": "ASSETS", "bucket_name": "motivana-ota-assets" }],
   "observability": { "enabled": true },
 }
