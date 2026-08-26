@@ -124,6 +124,38 @@ describe('GET /api/manifest', () => {
     expect(body).not.toContain('rollBackToEmbedded');
   });
 
+  it('rejects a rollback pointer with no expo-embedded-update-id header', async () => {
+    await env.UPDATES.put(
+      pointerKey('android', runtimeVersion),
+      JSON.stringify({
+        kind: 'rollback',
+        body: '{"type":"rollBackToEmbedded","parameters":{"commitTime":"2026-08-26T00:00:00.000Z"}}',
+        signature: 'sig="rb", keyid="main", alg="rsa-v1_5-sha256"',
+      }),
+    );
+
+    const response = await manifestRequest({
+      'expo-current-update-id': '11111111-2222-3333-4444-555555555555',
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('falls back to a body with no parts when noUpdateAvailable has no signed directive', async () => {
+    await putUpdatePointer();
+    // noUpdateAvailableKey is deliberately absent here.
+
+    const response = await manifestRequest({
+      'expo-current-update-id': '11111111-2222-3333-4444-555555555555',
+    });
+    const boundary =
+      response.headers.get('content-type')?.match(/boundary=(\S+)/)?.[1] ?? '';
+    const body = await response.text();
+
+    expect(body).toBe(`--${boundary}--\r\n`);
+    expect(body).not.toContain(manifestBody);
+  });
+
   it('rejects an unsupported platform', async () => {
     const response = await manifestRequest({ 'expo-platform': 'windows' });
     expect(response.status).toBe(400);

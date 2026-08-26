@@ -7,9 +7,30 @@ export type Env = {
   OTA_PUBLISH_TOKEN: string;
 };
 
+// Constant-time comparison for the bearer token. This is defence in depth,
+// not the last line of defence: a token holder can only store records that
+// were already signed by the publish-time private key, so the worst a leaked
+// token buys is a downgrade to an older signed update, or garbage the client
+// rejects on signature verification -- not arbitrary code execution. Code
+// signing is what actually protects users; this just avoids leaking the
+// token's value through response-time differences.
 function isAuthorized(request: Request, env: Env): boolean {
   const header = request.headers.get('authorization');
-  return header === `Bearer ${env.OTA_PUBLISH_TOKEN}`;
+  if (!header) {
+    return false;
+  }
+
+  const expected = `Bearer ${env.OTA_PUBLISH_TOKEN}`;
+  const encoder = new TextEncoder();
+  const headerBytes = encoder.encode(header);
+  const expectedBytes = encoder.encode(expected);
+
+  // timingSafeEqual throws on unequal lengths, so check that first.
+  if (headerBytes.byteLength !== expectedBytes.byteLength) {
+    return false;
+  }
+
+  return crypto.subtle.timingSafeEqual(headerBytes, expectedBytes);
 }
 
 async function handlePointer(request: Request, env: Env): Promise<Response> {
