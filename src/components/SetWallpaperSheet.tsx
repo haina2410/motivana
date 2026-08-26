@@ -1,13 +1,6 @@
 import type { SkTypefaceFontProvider } from '@shopify/react-native-skia';
 import { useEffect, useRef, useState } from 'react';
-import {
-  Linking,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type {
@@ -69,8 +62,6 @@ function errorMessage(error: unknown, translate: Translate): string {
     case 'ENCODE_FAILED':
     case 'FILE_WRITE_FAILED':
       return translate('actions.export.failed', { code });
-    case 'PERMISSION_DENIED':
-      return translate('actions.error.permissionDenied');
     case 'WALLPAPER_NOT_ALLOWED':
       return translate('actions.error.wallpaperNotAllowed');
     case 'LOCK_UNSUPPORTED':
@@ -113,8 +104,6 @@ export function SetWallpaperSheet({
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
   const [canRetry, setCanRetry] = useState(false);
-  const [permissionDeniedPermanently, setPermissionDeniedPermanently] =
-    useState(false);
   const retryExport = useRef<
     { cacheKey: string; rendered: RenderedWallpaper } | undefined
   >(undefined);
@@ -150,7 +139,6 @@ export function SetWallpaperSheet({
     setMessage(undefined);
     setError(undefined);
     setCanRetry(false);
-    setPermissionDeniedPermanently(false);
     let rendered: RenderedWallpaper | undefined;
     try {
       rendered =
@@ -168,20 +156,7 @@ export function SetWallpaperSheet({
         try {
           await saveWallpaper(rendered.uri);
         } catch (caught) {
-          const code =
-            typeof caught === 'object' && caught !== null && 'code' in caught
-              ? (caught as { code?: unknown }).code
-              : undefined;
-          const canAskAgain =
-            typeof caught === 'object' &&
-            caught !== null &&
-            'canAskAgain' in caught
-              ? (caught as { canAskAgain?: unknown }).canAskAgain
-              : undefined;
           setError(errorMessage(caught, translate));
-          setPermissionDeniedPermanently(
-            code === 'PERMISSION_DENIED' && canAskAgain === false,
-          );
         }
       }
     } catch (caught) {
@@ -189,18 +164,11 @@ export function SetWallpaperSheet({
         typeof caught === 'object' && caught !== null && 'code' in caught
           ? (caught as { code?: unknown }).code
           : undefined;
-      const canAskAgain =
-        typeof caught === 'object' && caught !== null && 'canAskAgain' in caught
-          ? (caught as { canAskAgain?: unknown }).canAskAgain
-          : undefined;
       if (code === 'FILE_NOT_FOUND' || !rendered)
         retryExport.current = undefined;
       else retryExport.current = { cacheKey: composition.cacheKey, rendered };
       setError(errorMessage(caught, translate));
       setCanRetry(true);
-      setPermissionDeniedPermanently(
-        code === 'PERMISSION_DENIED' && canAskAgain === false,
-      );
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -291,14 +259,6 @@ export function SetWallpaperSheet({
               hint={translate('actions.retry.hint')}
               label={translate('actions.retry.label')}
               onPress={() => void apply(true)}
-              variant="outline"
-            />
-          ) : null}
-          {permissionDeniedPermanently ? (
-            <AppButton
-              hint={translate('actions.appSettings.hint')}
-              label={translate('actions.appSettings.label')}
-              onPress={() => void Linking.openSettings()}
               variant="outline"
             />
           ) : null}

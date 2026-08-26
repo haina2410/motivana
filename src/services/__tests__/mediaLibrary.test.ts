@@ -1,18 +1,13 @@
 import {
   createMediaLibrarySaver,
   isAppOwnedWallpaperUri,
-  WallpaperServiceError,
 } from '../mediaLibrary';
 
 const appCacheUri = 'file:///data/user/0/org.haina2410.motivana/cache';
 
-function createDependencies(permission: {
-  granted: boolean;
-  canAskAgain: boolean;
-}) {
+function createDependencies() {
   return {
     appCacheUri,
-    requestPermissionsAsync: jest.fn(async () => permission),
     createAsset: jest.fn(async () => ({ id: 'media-asset-42' })),
   };
 }
@@ -35,42 +30,21 @@ test('recognizes only an exported app-cache file as saveable', () => {
   );
 });
 
-test('requests write-only photo permission and creates a modern media asset', async () => {
-  const dependencies = createDependencies({ granted: true, canAskAgain: true });
+// The write asks for no permission: from Android 11 the media library inserts
+// the asset through MediaStore, and the app declares no media permission.
+test('creates a modern media asset without requesting a permission', async () => {
+  const dependencies = createDependencies();
   const saveWallpaper = createMediaLibrarySaver(dependencies);
   const uri = `${appCacheUri}/motivana-exports/forest.png`;
 
   await expect(saveWallpaper(uri)).resolves.toEqual({
     assetId: 'media-asset-42',
   });
-  expect(dependencies.requestPermissionsAsync).toHaveBeenCalledWith({
-    writeOnly: true,
-    granularPermissions: ['photo'],
-  });
   expect(dependencies.createAsset).toHaveBeenCalledWith(uri);
 });
 
-test.each([
-  [{ granted: false, canAskAgain: true }, true],
-  [{ granted: false, canAskAgain: false }, false],
-])(
-  'reports denied save permission with canAskAgain=%s',
-  async (permission, expected) => {
-    const saveWallpaper = createMediaLibrarySaver(
-      createDependencies(permission),
-    );
-
-    await expect(
-      saveWallpaper(`${appCacheUri}/motivana-exports/forest.png`),
-    ).rejects.toMatchObject<Partial<WallpaperServiceError>>({
-      code: 'PERMISSION_DENIED',
-      canAskAgain: expected,
-    });
-  },
-);
-
-test('rejects a non-app-owned URI before prompting for media permission', async () => {
-  const dependencies = createDependencies({ granted: true, canAskAgain: true });
+test('rejects a non-app-owned URI before touching the media library', async () => {
+  const dependencies = createDependencies();
   const saveWallpaper = createMediaLibrarySaver(dependencies);
 
   await expect(saveWallpaper('content://media/image/42')).rejects.toMatchObject(
@@ -78,14 +52,12 @@ test('rejects a non-app-owned URI before prompting for media permission', async 
       code: 'FILE_NOT_FOUND',
     },
   );
-  expect(dependencies.requestPermissionsAsync).not.toHaveBeenCalled();
+  expect(dependencies.createAsset).not.toHaveBeenCalled();
 });
 
-test('maps a rejected permission request to a safe save failure', async () => {
-  const dependencies = createDependencies({ granted: true, canAskAgain: true });
-  dependencies.requestPermissionsAsync.mockRejectedValueOnce(
-    new Error('secret'),
-  );
+test('maps a rejected asset write to a safe save failure', async () => {
+  const dependencies = createDependencies();
+  dependencies.createAsset.mockRejectedValueOnce(new Error('secret'));
   await expect(
     createMediaLibrarySaver(dependencies)(
       `${appCacheUri}/motivana-exports/forest.png`,

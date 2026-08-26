@@ -11,11 +11,13 @@
       "package": "org.haina2410.motivana",
       "permissions": ["android.permission.SET_WALLPAPER"],
       "blockedPermissions": [
+        "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_MEDIA_AUDIO",
         "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon-foreground.png",
@@ -26,12 +28,6 @@
     "plugins": [
       "expo-router",
       [
-        "expo-media-library",
-        {
-          "granularPermissions": ["photo"]
-        }
-      ],
-      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
@@ -41,6 +37,14 @@
           "dark": {
             "image": "./assets/images/splash-icon-dark.png",
             "backgroundColor": "#010318"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 30
           }
         }
       ]

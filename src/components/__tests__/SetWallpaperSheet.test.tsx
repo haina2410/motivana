@@ -221,12 +221,9 @@ test('reports the renderer failure code without applying anything', async () => 
 
 // Mutation caught: saving the photo copy inside the apply attempt would report an
 // applied wallpaper as failed when only the optional copy could not be written.
-test('keeps the applied wallpaper reported when the photo copy is refused', async () => {
+test('keeps the applied wallpaper reported when the photo copy fails', async () => {
   useAppStore.setState({ saveToPhotoLibrary: true });
-  mockSaveWallpaper.mockRejectedValueOnce({
-    code: 'PERMISSION_DENIED',
-    canAskAgain: false,
-  });
+  mockSaveWallpaper.mockRejectedValueOnce({ code: 'SAVE_FAILED' });
   renderSheet();
   await waitFor(() => expect(applyButton()).toBeEnabled());
 
@@ -234,15 +231,10 @@ test('keeps the applied wallpaper reported when the photo copy is refused', asyn
 
   await waitFor(() =>
     expect(
-      screen.getByText(t('en', 'actions.error.permissionDenied')),
+      screen.getByText(t('en', 'actions.error.saveFailed')),
     ).toBeOnTheScreen(),
   );
   expect(screen.getByText(t('en', 'actions.success.home'))).toBeOnTheScreen();
-  expect(
-    screen.getByRole('button', {
-      name: t('en', 'actions.appSettings.label'),
-    }),
-  ).toBeOnTheScreen();
 });
 
 test.each([
