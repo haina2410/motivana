@@ -63,7 +63,8 @@
     "verify:data": "node scripts/verify-data.mjs",
     "verify:android-permissions": "node scripts/verify-android-permissions.mjs",
     "verify:native": "node scripts/verify-native.mjs",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test && pnpm verify:native",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:data && pnpm verify:android-permissions && pnpm test && pnpm test:worker && pnpm verify:native",
+    "test:worker": "cd ota/worker && pnpm test",
     "ota:publish": "node scripts/ota-publish.mjs",
     "ota:rollback": "node scripts/ota-rollback.mjs"
   },
