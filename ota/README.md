@@ -26,12 +26,12 @@ The current Android fingerprint is `d92aa450fe74ef29a94d71c9dea1a60d2582c47f`.
 
 ## Environment
 
-| Name                   | Purpose                                                             |
-| ---------------------- | ------------------------------------------------------------------- |
-| `OTA_WORKER_URL`       | The deployed Worker origin, with no trailing slash.                 |
-| `OTA_PUBLISH_TOKEN`    | Bearer token for the pointer routes. Also a Worker secret.          |
-| `OTA_PRIVATE_KEY_PATH` | The signing key, kept outside this repository.                      |
-| `CLOUDFLARE_API_TOKEN` | Used by wrangler to upload assets. Optional after `wrangler login`. |
+| Name                   | Purpose                                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `OTA_WORKER_URL`       | The deployed Worker origin, with no trailing slash. Its origin must match `expo.updates.url` in `app.json`. |
+| `OTA_PUBLISH_TOKEN`    | Bearer token for the pointer routes. Also a Worker secret.                                                  |
+| `OTA_PRIVATE_KEY_PATH` | The signing key, kept outside this repository.                                                              |
+| `CLOUDFLARE_API_TOKEN` | Used by wrangler to upload assets. Optional after `wrangler login`.                                         |
 
 Asset upload goes through the `wrangler` CLI. No R2 access key or secret
 exists anywhere in this system.
@@ -44,6 +44,13 @@ the only certificate file tracked in the repository.
 ## Publish
 
     pnpm ota:publish
+
+`OTA_WORKER_URL` is checked before anything is uploaded. A trailing slash is
+refused, because it builds `//assets/<hash>` urls that the Worker 404s. An
+origin that differs from `expo.updates.url` in `app.json` is refused too: a
+device asks only that one address, so such a publish would report success and
+reach nobody. Set `expo.updates.url` to the deployed Worker before the first
+publish.
 
 It refuses to run on a dirty worktree, because a fingerprint that matches no
 commit cannot be traced to a released build. It uploads every asset before it
@@ -82,6 +89,18 @@ The Worker never returns a multipart body with no parts. Such a body is not
 zero bytes, so the client's zero-byte guard misses it and okhttp's
 `MultipartReader` throws `expected at least 1 part`, which the client logs as
 `UpdateFailedToLoad` on every launch.
+
+## Worker development
+
+`ota/worker` is a separate workspace with its own lockfile, so the repository
+root install does not cover it. `pnpm verify` runs the Worker tests, so this
+install is needed once on any fresh clone:
+
+    cd ota/worker && pnpm install --frozen-lockfile
+
+Without it, `pnpm verify` fails with `vitest not found`.
+
+    cd ota/worker && pnpm test
 
 ## Deploy the Worker
 
