@@ -2,7 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { md5Hex, sha256Base64Url, sha256HexToUuid } from '../ota/hash.mjs';
+import {
+  md5Hex,
+  sha256Base64Url,
+  sha256Hex,
+  sha256HexToUuid,
+} from '../ota/hash.mjs';
 import { buildManifest } from '../ota/manifest.mjs';
 
 let distDirectory: string;
@@ -47,10 +52,25 @@ describe('hash', () => {
     const hash = sha256Base64Url(Buffer.from('BUNDLE'));
     expect(hash).not.toMatch(/[+/=]/);
     expect(hash).toHaveLength(43);
+    // Known-digest oracle, independent of the implementation: derived with
+    // `printf 'BUNDLE' | openssl dgst -sha256 -binary | base64` and then the
+    // trailing `=` padding stripped (this digest has no `+`/`/` to translate).
+    expect(hash).toBe('TtmqRvu8myeNrBqjUHdH3N02GDLOmpfwfstBLQpgHFg');
   });
 
   it('encodes md5 as hex', () => {
     expect(md5Hex(Buffer.from('BUNDLE'))).toMatch(/^[0-9a-f]{32}$/);
+    // Known-digest oracle: `printf 'BUNDLE' | openssl dgst -md5`.
+    expect(md5Hex(Buffer.from('BUNDLE'))).toBe(
+      'd552d087dbb294cf488590937d70d0f6',
+    );
+  });
+
+  it('encodes sha256 as hex', () => {
+    // Known-digest oracle: `printf 'BUNDLE' | openssl dgst -sha256`.
+    expect(sha256Hex(Buffer.from('BUNDLE'))).toBe(
+      '4ed9aa46fbbc9b278dac1aa3507747dcdd361832ce9a97f07ecb412d0a601c58',
+    );
   });
 
   it('converts a sha256 hex digest into a uuid', () => {
