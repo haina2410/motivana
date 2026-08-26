@@ -36,10 +36,6 @@ function writeFixtureExport(directory: string) {
       },
     }),
   );
-  writeFileSync(
-    join(directory, 'expoConfig.json'),
-    JSON.stringify({ slug: 'motivana' }),
-  );
 }
 
 function makeRun(
@@ -59,6 +55,12 @@ function makeRun(
     }
     if (override) {
       return { stdout: override[1].stdout ?? '' };
+    }
+    if (key.startsWith('npx expo config --json --type public')) {
+      // The real shape of `npx expo config --json --type public`: one JSON
+      // object. `expo export` writes no expoConfig.json, so this is where the
+      // public config comes from.
+      return { stdout: JSON.stringify({ name: 'Motivana', slug: 'motivana' }) };
     }
     if (key.startsWith('npx expo-updates fingerprint:generate')) {
       return { stdout: JSON.stringify({ hash: 'fingerprint-abc' }) };
@@ -178,6 +180,23 @@ describe('publish', () => {
     expect(payload.value.signature).toMatch(
       /^sig="[^"]+", keyid="motivana-root", alg="rsa-v1_5-sha256"$/,
     );
+  });
+
+  it('reads the public expo config from the CLI, not from dist/', async () => {
+    const run = makeRun();
+    await publish({ options: baseOptions(), run, fetchImpl, log: () => {} });
+
+    expect(
+      commands.some(
+        (entry) =>
+          entry.command === 'npx' &&
+          entry.args.join(' ') === 'expo config --json --type public',
+      ),
+    ).toBe(true);
+    const manifest = JSON.parse(
+      JSON.parse(String(requests[0]!.init.body)).value.body,
+    );
+    expect(manifest.extra.expoClient.slug).toBe('motivana');
   });
 
   it('points asset urls at the Worker', async () => {

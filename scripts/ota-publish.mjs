@@ -91,11 +91,21 @@ export async function publish({ options, run, fetchImpl, log }) {
   ).hash;
   log(`Runtime version ${fingerprint} at commit ${gitSha}`);
 
+  // `npx expo export` writes no expoConfig.json, so the public config comes
+  // from the Expo CLI. This is exactly what Constants.expoConfig resolves to
+  // after an over-the-air launch, so it is the correct content for
+  // manifest.extra.expoClient. buildManifest stays command-free: the parsed
+  // object is threaded in.
+  const expoConfig = JSON.parse(
+    run('npx', ['expo', 'config', '--json', '--type', 'public']).stdout,
+  );
+
   const { manifest, files } = buildManifest({
     distDirectory: options.distDirectory,
     platform: options.platform,
     runtimeVersion: fingerprint,
     assetBaseUrl: `${options.workerUrl}/assets`,
+    expoConfig,
   });
 
   // Upload first. A failure here throws, so the pointer is never written and

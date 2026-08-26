@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import {
@@ -57,12 +57,30 @@ function describeFile({ distDirectory, filePath, extension, assetBaseUrl }) {
   };
 }
 
+// `buildManifest` stays a pure function over a directory: it runs no command.
+// The public Expo config cannot be read from the export, because
+// `npx expo export` writes no expoConfig.json on SDK 57 -- only
+// metadata.json, an optional assetmap.json, `_expo/` and `assets/`. The
+// caller reads it with `npx expo config --json --type public`, which is what
+// `Constants.expoConfig` resolves to after an over-the-air launch, and threads
+// it in here.
 export function buildManifest({
   distDirectory,
   platform,
   runtimeVersion,
   assetBaseUrl,
+  expoConfig,
+  createdAt,
 }) {
+  if (
+    !expoConfig ||
+    typeof expoConfig !== 'object' ||
+    Array.isArray(expoConfig)
+  ) {
+    throw new Error(
+      'buildManifest needs the public Expo config object. Read it with `npx expo config --json --type public` and pass it as expoConfig.',
+    );
+  }
   const metadataPath = resolve(join(distDirectory, 'metadata.json'));
   const metadataContents = readFileSync(metadataPath);
   const metadata = JSON.parse(metadataContents.toString('utf8'));
@@ -89,15 +107,13 @@ export function buildManifest({
     }),
   );
 
-  const expoConfig = JSON.parse(
-    readFileSync(resolve(join(distDirectory, 'expoConfig.json'))).toString(
-      'utf8',
-    ),
-  );
-
   const manifest = {
     id: sha256HexToUuid(sha256Hex(metadataContents)),
-    createdAt: statSync(metadataPath).mtime.toISOString(),
+    // Publish wall-clock time, never a file mtime. expo-updates orders
+    // updates by commitTime and takes only a strictly newer one, so a stale
+    // dist/metadata.json mtime would make every device silently ignore the
+    // publish.
+    createdAt: createdAt ?? new Date().toISOString(),
     runtimeVersion,
     launchAsset: launch.asset,
     assets: assets.map((entry) => entry.asset),

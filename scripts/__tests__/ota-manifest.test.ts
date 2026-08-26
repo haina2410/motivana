@@ -1,4 +1,10 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -32,11 +38,12 @@ function writeFixtureExport(directory: string) {
       },
     }),
   );
-  writeFileSync(
-    join(directory, 'expoConfig.json'),
-    JSON.stringify({ name: 'Motivana', slug: 'motivana' }),
-  );
 }
+
+// What `npx expo config --json --type public` prints: the public Expo config
+// as a single JSON object. `expo export` writes no such file, so the publish
+// script reads it from the CLI and threads it in here.
+const expoConfig = { name: 'Motivana', slug: 'motivana' };
 
 beforeEach(() => {
   distDirectory = mkdtempSync(join(tmpdir(), 'ota-dist-'));
@@ -88,6 +95,7 @@ describe('buildManifest', () => {
       platform: 'android',
       runtimeVersion: 'fingerprint-1',
       assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
     });
 
     expect(manifest.launchAsset.contentType).toBe('application/javascript');
@@ -107,6 +115,7 @@ describe('buildManifest', () => {
       platform: 'android',
       runtimeVersion: 'fingerprint-1',
       assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
     });
 
     expect(manifest.assets).toHaveLength(1);
@@ -120,12 +129,14 @@ describe('buildManifest', () => {
       platform: 'android',
       runtimeVersion: 'fingerprint-1',
       assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
     });
     const second = buildManifest({
       distDirectory,
       platform: 'android',
       runtimeVersion: 'fingerprint-1',
       assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
     });
 
     expect(first.manifest.id).toBe(second.manifest.id);
@@ -140,6 +151,7 @@ describe('buildManifest', () => {
       platform: 'android',
       runtimeVersion: 'fingerprint-1',
       assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
     });
 
     expect(manifest.extra.expoClient.slug).toBe('motivana');
@@ -151,6 +163,7 @@ describe('buildManifest', () => {
       platform: 'android',
       runtimeVersion: 'fingerprint-1',
       assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
     });
 
     expect(files).toHaveLength(2);
@@ -160,6 +173,65 @@ describe('buildManifest', () => {
     ]);
   });
 
+  it('explains what to pass when the expo config is absent', () => {
+    expect(() =>
+      buildManifest({
+        distDirectory,
+        platform: 'android',
+        runtimeVersion: 'fingerprint-1',
+        assetBaseUrl: 'https://ota.test/assets',
+      }),
+    ).toThrow(/expo config --json --type public/);
+  });
+
+  it('rejects an expo config that is not an object', () => {
+    for (const bad of ['{"slug":"motivana"}', 42, [{ slug: 'motivana' }]]) {
+      expect(() =>
+        buildManifest({
+          distDirectory,
+          platform: 'android',
+          runtimeVersion: 'fingerprint-1',
+          assetBaseUrl: 'https://ota.test/assets',
+          expoConfig: bad,
+        }),
+      ).toThrow(/expoConfig/);
+    }
+  });
+
+  it('stamps createdAt with publish time, not the metadata mtime', () => {
+    // A stale dist/metadata.json mtime would make expo-updates drop the
+    // publish: it takes only a strictly newer commitTime.
+    const staleTime = new Date('2001-01-01T00:00:00.000Z');
+    utimesSync(join(distDirectory, 'metadata.json'), staleTime, staleTime);
+    const before = Date.now();
+
+    const { manifest } = buildManifest({
+      distDirectory,
+      platform: 'android',
+      runtimeVersion: 'fingerprint-1',
+      assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
+    });
+
+    expect(Date.parse(manifest.createdAt)).toBeGreaterThanOrEqual(
+      before - 1000,
+    );
+    expect(manifest.createdAt).not.toBe(staleTime.toISOString());
+  });
+
+  it('honours an injected createdAt so a publish stays reproducible', () => {
+    const { manifest } = buildManifest({
+      distDirectory,
+      platform: 'android',
+      runtimeVersion: 'fingerprint-1',
+      assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
+      createdAt: '2026-08-26T12:00:00.000Z',
+    });
+
+    expect(manifest.createdAt).toBe('2026-08-26T12:00:00.000Z');
+  });
+
   it('rejects a platform that the export does not contain', () => {
     expect(() =>
       buildManifest({
@@ -167,6 +239,7 @@ describe('buildManifest', () => {
         platform: 'ios',
         runtimeVersion: 'fingerprint-1',
         assetBaseUrl: 'https://ota.test/assets',
+        expoConfig,
       }),
     ).toThrow(/ios/);
   });
