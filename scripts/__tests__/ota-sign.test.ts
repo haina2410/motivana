@@ -97,6 +97,47 @@ describe('readKeyId', () => {
 
     expect(() => readKeyId(appJsonPath)).toThrow(/codeSigningMetadata/);
   });
+
+  it('rejects a keyid containing a double quote', () => {
+    const appJsonPath = join(workingDirectory, 'app.json');
+    writeFileSync(
+      appJsonPath,
+      JSON.stringify({
+        expo: { updates: { codeSigningMetadata: { keyid: 'main"evil' } } },
+      }),
+    );
+
+    expect(() => readKeyId(appJsonPath)).toThrow(
+      /expo\.updates\.codeSigningMetadata\.keyid/,
+    );
+  });
+
+  it('rejects a keyid containing a backslash', () => {
+    const appJsonPath = join(workingDirectory, 'app.json');
+    writeFileSync(
+      appJsonPath,
+      JSON.stringify({
+        expo: { updates: { codeSigningMetadata: { keyid: 'main\\evil' } } },
+      }),
+    );
+
+    expect(() => readKeyId(appJsonPath)).toThrow(
+      /expo\.updates\.codeSigningMetadata\.keyid/,
+    );
+  });
+
+  it('accepts a keyid using every allowed character class', () => {
+    const appJsonPath = join(workingDirectory, 'app.json');
+    const keyid = 'Motivana-root_key.v2';
+    writeFileSync(
+      appJsonPath,
+      JSON.stringify({
+        expo: { updates: { codeSigningMetadata: { keyid } } },
+      }),
+    );
+
+    expect(readKeyId(appJsonPath)).toBe(keyid);
+  });
 });
 
 describe('readPrivateKey', () => {

@@ -9,11 +9,14 @@ export function signBody(body, privateKeyPem) {
   return signer.sign(privateKeyPem, 'base64');
 }
 
-// A structured field dictionary. Base64 contains no quote and no backslash,
-// so quoting the value needs no escaping.
+// A structured field dictionary. Base64 (the `signature` value) contains no
+// quote and no backslash, so quoting it needs no escaping. `keyid` is
+// validated by readKeyId before it ever reaches here.
 export function formatSignatureHeader({ signature, keyid }) {
   return `sig="${signature}", keyid="${keyid}", alg="rsa-v1_5-sha256"`;
 }
+
+const SAFE_KEYID = /^[A-Za-z0-9._-]+$/;
 
 export function readKeyId(appJsonPath) {
   const appConfig = JSON.parse(readFileSync(resolve(appJsonPath), 'utf8'));
@@ -21,6 +24,11 @@ export function readKeyId(appJsonPath) {
   if (!keyid) {
     throw new Error(
       `No expo.updates.codeSigningMetadata.keyid in ${appJsonPath}. Run npx expo-updates codesigning:configure.`,
+    );
+  }
+  if (!SAFE_KEYID.test(keyid)) {
+    throw new Error(
+      `Invalid expo.updates.codeSigningMetadata.keyid "${keyid}": only letters, digits, ".", "_", and "-" are allowed.`,
     );
   }
   return keyid;
