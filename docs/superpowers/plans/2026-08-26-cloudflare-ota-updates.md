@@ -205,6 +205,7 @@ git commit -m "feat: install expo-updates with fingerprint runtime version and c
 Pure functions over a `dist/` directory. No network, no crypto keys.
 
 **Files:**
+- Modify: `jest.config.js`
 - Create: `scripts/ota/hash.mjs`
 - Create: `scripts/ota/manifest.mjs`
 - Test: `scripts/__tests__/ota-manifest.test.ts`
@@ -371,12 +372,47 @@ describe('buildManifest', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [ ] **Step 2: Teach Jest to import a `.mjs` module**
+
+No existing test in `scripts/__tests__/` imports a `.mjs` file. All three spawn
+their script as a subprocess instead, so this import path is unproven and must
+be made to work before any later task depends on it.
+
+In `jest.config.js`, add `mjs` to the resolved extensions and extend, rather
+than replace, the preset's transform:
+
+```js
+const expoPreset = require('jest-expo/jest-preset');
+
+module.exports = {
+  preset: 'jest-expo',
+  setupFilesAfterEach: undefined,
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'node'],
+  // The OTA helpers are .mjs so the publish scripts can import them directly.
+  // The jest-expo transform only matches .ts/.tsx/.js/.jsx, so .mjs needs its
+  // own entry or the import fails to resolve.
+  transform: { ...expoPreset.transform, '^.+\\.mjs$': 'babel-jest' },
+  ...
+};
+```
+
+Keep every existing key (`setupFilesAfterEnv`, `collectCoverageFrom`,
+`testPathIgnorePatterns`) exactly as it is. Remove the `setupFilesAfterEach`
+line above — it is only there to mark where the new keys go.
+
+- [ ] **Step 3: Run the test to verify it fails for the right reason**
 
 Run: `pnpm test scripts/__tests__/ota-manifest.test.ts`
-Expected: FAIL, cannot resolve `../ota/hash.mjs`.
+Expected: FAIL because `scripts/ota/hash.mjs` does not exist yet — not because
+Jest cannot parse or resolve a `.mjs` file. If the failure is a transform or
+resolution error, fix the Jest configuration before continuing.
 
-- [ ] **Step 3: Write `scripts/ota/hash.mjs`**
+Then confirm nothing else broke:
+
+Run: `pnpm test`
+Expected: the existing suites still pass.
+
+- [ ] **Step 4: Write `scripts/ota/hash.mjs`**
 
 ```js
 import { createHash } from 'node:crypto';
@@ -411,7 +447,7 @@ export function sha256HexToUuid(hex) {
 }
 ```
 
-- [ ] **Step 4: Write `scripts/ota/manifest.mjs`**
+- [ ] **Step 5: Write `scripts/ota/manifest.mjs`**
 
 ```js
 import { readFileSync, statSync } from 'node:fs';
@@ -518,15 +554,15 @@ export function buildManifest({
 }
 ```
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [ ] **Step 6: Run the test to verify it passes**
 
 Run: `pnpm test scripts/__tests__/ota-manifest.test.ts`
 Expected: PASS, nine tests.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/ota/hash.mjs scripts/ota/manifest.mjs scripts/__tests__/ota-manifest.test.ts
+git add jest.config.js scripts/ota/hash.mjs scripts/ota/manifest.mjs scripts/__tests__/ota-manifest.test.ts
 git commit -m "feat: add manifest assembly for over-the-air updates"
 ```
 
@@ -730,6 +766,7 @@ git commit -m "feat: add manifest signing for over-the-air updates"
 
 **Files:**
 - Create: `ota/worker/package.json`
+- Create: `ota/worker/pnpm-workspace.yaml`
 - Create: `ota/worker/wrangler.jsonc`
 - Create: `ota/worker/tsconfig.json`
 - Create: `ota/worker/vitest.config.ts`
@@ -743,7 +780,7 @@ git commit -m "feat: add manifest signing for over-the-air updates"
 **Interfaces:**
 - Consumes: nothing
 - Produces:
-  - `multipart.ts`: `buildMultipartResponse(parts: MultipartPart[], extraHeaders?: Record<string, string>): Response`, and `type MultipartPart = { name: string; body: string; contentType: string; headers?: Record<string, string> }`
+  - `multipart.ts`: `buildMultipartResponse(parts: MultipartPart[]): Response`, and `type MultipartPart = { name: string; body: string; contentType: string; headers?: Record<string, string> }`
   - `pointer.ts`: `type Pointer`, `pointerKey(platform: string, runtimeVersion: string): string`, `readPointer(kv: KVNamespace, platform: string, runtimeVersion: string): Promise<Pointer | null>`
   - `index.ts`: `type Env = { UPDATES: KVNamespace; ASSETS: R2Bucket; OTA_PUBLISH_TOKEN: string }`
 
@@ -846,9 +883,26 @@ In `jest.config.js`, add `'/ota/'` to `testPathIgnorePatterns`, with a comment m
 
 - [ ] **Step 3: Install the Worker dependencies**
 
-```bash
-cd ota/worker && pnpm install && cd ../..
+The repository root holds a `pnpm-workspace.yaml`. Without its own workspace
+root, pnpm walks up from `ota/worker` and can install into the app's
+`node_modules`. Create `ota/worker/pnpm-workspace.yaml`:
+
+```yaml
+packages: []
 ```
+
+An install inside the command sandbox destroys this repository's
+`node_modules`, so this install must run with the sandbox disabled. Record the
+root package count before and after to prove the app tree was untouched:
+
+```bash
+ls node_modules | wc -l
+cd ota/worker && pnpm install && cd ../..
+ls node_modules | wc -l
+```
+
+Both counts must match. If the second collapses to a small number, stop: the
+root install was damaged and needs an unsandboxed `pnpm install` to restore.
 
 - [ ] **Step 4: Write the failing multipart test**
 
@@ -949,10 +1003,7 @@ function generateBoundary(): string {
   return `motivana-${crypto.randomUUID()}`;
 }
 
-export function buildMultipartResponse(
-  parts: MultipartPart[],
-  extraHeaders: Record<string, string> = {},
-): Response {
+export function buildMultipartResponse(parts: MultipartPart[]): Response {
   const boundary = generateBoundary();
   const sections = parts.map((part) => {
     const headers = {
@@ -973,7 +1024,6 @@ export function buildMultipartResponse(
       'expo-protocol-version': '1',
       'expo-sfv-version': '0',
       'cache-control': 'private, max-age=0',
-      ...extraHeaders,
     },
   });
 }
@@ -1621,7 +1671,7 @@ describe('publish', () => {
     await publish({ options: baseOptions(), run: makeRun(), fetchImpl, log: () => {} });
 
     const uploadCount = commands.filter((entry) =>
-      entry.args.join(' ').startsWith('r2 object put'),
+      entry.args.join(' ').startsWith('wrangler r2 object put'),
     ).length;
     expect(uploadCount).toBe(2);
     // The pointer is the last write. Anything else risks a pointer that names
@@ -1711,7 +1761,17 @@ describe('publish', () => {
 Run: `pnpm test scripts/__tests__/ota-publish.test.ts`
 Expected: FAIL, cannot resolve `../ota-publish.mjs`.
 
-- [ ] **Step 3: Write `scripts/ota/r2.mjs`**
+- [ ] **Step 3: Confirm what the fingerprint command prints**
+
+Run: `npx expo-updates fingerprint:generate --platform android --help`, then
+run the command itself and look at stdout.
+
+The implementation below assumes stdout is JSON holding a `hash` field. If the
+real output differs, adapt the parse inside `publish()` to match, and keep the
+injected `run` contract that the tests depend on. A wrong parse writes the
+pointer under a key no build ever requests, so updates silently reach nobody.
+
+- [ ] **Step 4: Write `scripts/ota/r2.mjs`**
 
 ```js
 // The wrangler CLI handles Cloudflare authentication, so no S3 signing code
@@ -1733,7 +1793,7 @@ export function uploadFile({ bucket, hash, absolutePath, contentType, run }) {
 }
 ```
 
-- [ ] **Step 4: Write `scripts/ota/pointerClient.mjs`**
+- [ ] **Step 5: Write `scripts/ota/pointerClient.mjs`**
 
 ```js
 export async function putPointer({ workerUrl, token, key, value, fetchImpl }) {
@@ -1754,7 +1814,7 @@ export async function putPointer({ workerUrl, token, key, value, fetchImpl }) {
 }
 ```
 
-- [ ] **Step 5: Write `scripts/ota-publish.mjs`**
+- [ ] **Step 6: Write `scripts/ota-publish.mjs`**
 
 ```js
 import { spawnSync } from 'node:child_process';
@@ -1797,6 +1857,8 @@ export async function publish({ options, run, fetchImpl, log }) {
     run('npx', ['expo', 'export', '--platform', options.platform, '--output-dir', options.distDirectory]);
   }
 
+  // The parse must match what the installed expo-updates CLI actually prints.
+  // Confirm the shape against the CLI before trusting this line.
   const fingerprint = JSON.parse(
     run('npx', ['expo-updates', 'fingerprint:generate', '--platform', options.platform]).stdout,
   ).hash;
@@ -1887,7 +1949,7 @@ if (isCliEntryPoint) {
 }
 ```
 
-- [ ] **Step 6: Add the script to `package.json`**
+- [ ] **Step 7: Add the script to `package.json`**
 
 In `scripts`, add:
 
@@ -1895,12 +1957,12 @@ In `scripts`, add:
 "ota:publish": "node scripts/ota-publish.mjs",
 ```
 
-- [ ] **Step 7: Run the test to verify it passes**
+- [ ] **Step 8: Run the test to verify it passes**
 
 Run: `pnpm test scripts/__tests__/ota-publish.test.ts`
 Expected: PASS, eight tests.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add scripts/ota/r2.mjs scripts/ota/pointerClient.mjs scripts/ota-publish.mjs scripts/__tests__/ota-publish.test.ts package.json
