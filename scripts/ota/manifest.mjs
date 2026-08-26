@@ -64,6 +64,16 @@ function describeFile({ distDirectory, filePath, extension, assetBaseUrl }) {
 // caller reads it with `npx expo config --json --type public`, which is what
 // `Constants.expoConfig` resolves to after an over-the-air launch, and threads
 // it in here.
+/**
+ * @param {{
+ *   distDirectory: string,
+ *   platform: string,
+ *   runtimeVersion: string,
+ *   assetBaseUrl: string,
+ *   expoConfig?: any,
+ *   createdAt?: string,
+ * }} options
+ */
 export function buildManifest({
   distDirectory,
   platform,
