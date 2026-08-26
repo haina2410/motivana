@@ -1,7 +1,11 @@
-import { generateKeyPairSync, createVerify } from 'node:crypto';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  createPublicKey,
+  createVerify,
+  generateKeyPairSync,
+} from 'node:crypto';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import {
   formatSignatureHeader,
@@ -11,6 +15,10 @@ import {
 } from '../ota/sign.mjs';
 
 let workingDirectory: string;
+
+// Captured before beforeEach clears it: the real signing key path, if this
+// machine has one.
+const configuredKeyPath = process.env.OTA_PRIVATE_KEY_PATH;
 
 beforeEach(() => {
   workingDirectory = mkdtempSync(join(tmpdir(), 'ota-sign-'));
@@ -137,6 +145,45 @@ describe('readKeyId', () => {
     );
 
     expect(readKeyId(appJsonPath)).toBe(keyid);
+  });
+});
+
+// Spec section 9 names this test as the guard against key-format drift, the
+// most probable silent failure: a key the signer cannot use, or one that does
+// not match the certificate the app ships, breaks every update at
+// verification time on device and nowhere earlier.
+//
+// It needs the real private key, which is deliberately kept outside this
+// repository, so it skips where OTA_PRIVATE_KEY_PATH is unset. CI and other
+// machines are unaffected; the machine that publishes gets the check.
+describe('the committed certificate', () => {
+  const itWithKey = configuredKeyPath ? it : it.skip;
+
+  itWithKey('verifies a signature made with the configured private key', () => {
+    process.env.OTA_PRIVATE_KEY_PATH = configuredKeyPath;
+    const certificate = readFileSync(
+      resolve(__dirname, '../../certs/certificate.pem'),
+      'utf8',
+    );
+    const publicKey = createPublicKey(certificate);
+    const body = JSON.stringify({
+      id: '11111111-2222-3333-4444-555555555555',
+      runtimeVersion: 'fingerprint-1',
+    });
+
+    const signature = signBody(body, readPrivateKey());
+
+    const verifier = createVerify('RSA-SHA256');
+    verifier.update(body, 'utf8');
+    verifier.end();
+    expect(verifier.verify(publicKey, signature, 'base64')).toBe(true);
+
+    // The same certificate must reject a changed body, so the assertion above
+    // cannot pass by accident.
+    const tampered = createVerify('RSA-SHA256');
+    tampered.update(`${body} `, 'utf8');
+    tampered.end();
+    expect(tampered.verify(publicKey, signature, 'base64')).toBe(false);
   });
 });
 
