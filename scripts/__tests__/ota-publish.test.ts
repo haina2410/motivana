@@ -3,7 +3,7 @@ import { generateKeyPairSync } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-import { publish } from '../ota-publish.mjs';
+import { publish, validateWorkerUrl } from '../ota-publish.mjs';
 
 // ota-publish.mjs pins its git calls to the repository root derived from its
 // own module location (scripts/ota-publish.mjs, one level below the root).
@@ -276,5 +276,67 @@ describe('publish', () => {
     );
     expect(keys[0]).toMatch(/^update:/);
     expect(keys[1]).toBe('pointer:android:fingerprint-abc');
+  });
+});
+
+describe('validateWorkerUrl', () => {
+  function writeUpdatesUrl(url: unknown) {
+    const path = join(workingDirectory, 'app-updates.json');
+    writeFileSync(path, JSON.stringify({ expo: { updates: { url } } }));
+    return path;
+  }
+
+  it('accepts a url whose origin matches expo.updates.url', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(
+      validateWorkerUrl({
+        workerUrl: 'https://ota.test',
+        appJsonPath: appJson,
+      }),
+    ).toBe('https://ota.test');
+  });
+
+  it('rejects a trailing slash, which builds //assets urls the Worker 404s', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(() =>
+      validateWorkerUrl({
+        workerUrl: 'https://ota.test/',
+        appJsonPath: appJson,
+      }),
+    ).toThrow(/trailing slash/);
+  });
+
+  it('rejects an origin that no device will ever ask', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(() =>
+      validateWorkerUrl({
+        workerUrl: 'https://staging-ota.test',
+        appJsonPath: appJson,
+      }),
+    ).toThrow(/would reach nobody/);
+  });
+
+  it('rejects a url that does not parse', () => {
+    const appJson = writeUpdatesUrl('https://ota.test/api/manifest');
+
+    expect(() =>
+      validateWorkerUrl({ workerUrl: 'ota.test', appJsonPath: appJson }),
+    ).toThrow(/not a valid url/);
+  });
+
+  it('rejects an unconfigured expo.updates.url placeholder', () => {
+    const appJson = writeUpdatesUrl(
+      'https://motivana-ota.<your-subdomain>.workers.dev/api/manifest',
+    );
+
+    expect(() =>
+      validateWorkerUrl({
+        workerUrl: 'https://motivana-ota.example.workers.dev',
+        appJsonPath: appJson,
+      }),
+    ).toThrow(/expo\.updates\.url/);
   });
 });

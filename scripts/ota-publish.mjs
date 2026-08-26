@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -144,6 +145,51 @@ export async function publish({ options, run, fetchImpl, log }) {
   return { updateId: manifest.id, runtimeVersion: fingerprint };
 }
 
+// A trailing slash on OTA_WORKER_URL yields `//assets/<hash>` asset urls, and
+// the Worker's `^/assets/([A-Za-z0-9_-]+)$` route 404s those. The client then
+// abandons the update and the app silently stays on the old bundle.
+//
+// The origin check is a throw, not a warning. Devices ask exactly the origin
+// in app.json's expo.updates.url. Publishing to any other origin uploads the
+// assets and writes the pointer somewhere no device will ever look, so the
+// command reports success and changes nothing -- the same silent no-op class
+// this whole guard exists to remove. There is no workflow where a mismatch is
+// wanted: reaching a device requires editing app.json and shipping a build
+// anyway.
+export function validateWorkerUrl({ workerUrl, appJsonPath }) {
+  if (workerUrl.endsWith('/')) {
+    throw new Error(
+      `OTA_WORKER_URL must have no trailing slash: "${workerUrl}" would build "${workerUrl}/assets/<hash>" urls that the Worker rejects.`,
+    );
+  }
+
+  let workerOrigin;
+  try {
+    workerOrigin = new URL(workerUrl).origin;
+  } catch {
+    throw new Error(`OTA_WORKER_URL "${workerUrl}" is not a valid url.`);
+  }
+
+  const updatesUrl = JSON.parse(readFileSync(appJsonPath, 'utf8')).expo?.updates
+    ?.url;
+  let updatesOrigin;
+  try {
+    updatesOrigin = new URL(updatesUrl).origin;
+  } catch {
+    throw new Error(
+      `expo.updates.url in ${appJsonPath} is "${updatesUrl}", which is not a valid url. Set it to the deployed Worker before publishing, because that is the only address a device asks.`,
+    );
+  }
+
+  if (workerOrigin !== updatesOrigin) {
+    throw new Error(
+      `OTA_WORKER_URL origin ${workerOrigin} differs from expo.updates.url origin ${updatesOrigin} in ${appJsonPath}. A device asks only ${updatesOrigin}, so this publish would reach nobody.`,
+    );
+  }
+
+  return workerUrl;
+}
+
 function readOptionsFromArgv() {
   const { values } = parseArgs({
     options: {
@@ -162,13 +208,16 @@ function readOptionsFromArgv() {
     );
   }
 
+  const appJsonPath = resolve(repositoryRoot, 'app.json');
+  validateWorkerUrl({ workerUrl, appJsonPath });
+
   return {
     platform: values.platform,
     // A relative --dist-directory is resolved against the repository root,
     // not process.cwd(), for the same reason the git commands are pinned
     // above. An absolute path the caller gave is honoured as given.
     distDirectory: resolve(repositoryRoot, values['dist-directory']),
-    appJsonPath: resolve(repositoryRoot, 'app.json'),
+    appJsonPath,
     skipExport: values['skip-export'],
     archive: true,
     workerUrl,
