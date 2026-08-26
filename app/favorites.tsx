@@ -14,7 +14,7 @@ import {
   getQuoteById,
 } from '../src/features/quotes/quoteRepository';
 import type { Quote } from '../src/features/quotes/types';
-import type { Locale } from '../src/features/i18n/locale';
+import type { ContentLocale } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
@@ -117,7 +117,7 @@ function SavedRow({
   onRemove,
 }: {
   quote: Quote;
-  locale: Locale;
+  locale: ContentLocale;
   onPress: () => void;
   onRemove: () => void;
 }) {

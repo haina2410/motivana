@@ -1,6 +1,6 @@
 import { favoriteQuoteText } from '../quotes/quoteRepository';
 import type { Quote } from '../quotes/types';
-import type { Locale } from '../i18n/locale';
+import type { ContentLocale } from '../i18n/locale';
 import type { WallpaperPreset } from './types';
 import { fitText, type TextMeasurer } from './textFit';
 
@@ -11,7 +11,7 @@ export interface WallpaperCompositionInput {
   preset: WallpaperPreset;
   width: number;
   height: number;
-  locale: Locale;
+  locale: ContentLocale;
 }
 
 export interface RenderedWallpaper {

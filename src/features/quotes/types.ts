@@ -1,4 +1,4 @@
-import { isLocale, type Locale } from '../i18n/locale';
+import { isLocale, type ContentLocale, type Locale } from '../i18n/locale';
 
 export const quoteCategories = [
   'motivation',
@@ -22,9 +22,16 @@ export interface Quote {
   author?: string;
 }
 
-/** Returns the text for one locale, with no fallback to another language. */
-export function quoteText(quote: Quote, locale: Locale): string | undefined {
-  return quote.text[locale];
+/**
+ * Returns the text for one locale, with no fallback to another language.
+ * `all` is the reader asking for every language, so the quote answers in the
+ * one it was written in.
+ */
+export function quoteText(
+  quote: Quote,
+  locale: ContentLocale,
+): string | undefined {
+  return locale === 'all' ? quote.text[quote.sourceLocale] : quote.text[locale];
 }
 
 export class QuoteCatalogValidationError extends Error {

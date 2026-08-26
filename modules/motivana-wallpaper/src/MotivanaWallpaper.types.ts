@@ -1,4 +1,4 @@
-import type { Locale } from '../../../src/features/i18n/locale';
+import type { ContentLocale } from '../../../src/features/i18n/locale';
 
 export type WallpaperTarget = 'home' | 'lock' | 'both';
 
@@ -26,7 +26,7 @@ export interface ConfigureRotationOptions {
   randomizePreset: boolean;
   favoriteQuoteIds: string[];
   favoriteQuotesOnly: boolean;
-  contentLocale: Locale;
+  contentLocale: ContentLocale;
 }
 
 export interface MotivanaWallpaperNativeContract {

@@ -145,6 +145,7 @@ export const vi: Record<keyof typeof en, string> = {
   'settings.contentLanguage.option': 'Ngôn ngữ câu nói: {name}',
   'language.en': 'English',
   'language.vi': 'Tiếng Việt',
+  'language.all': 'Tất cả ngôn ngữ',
 
   'preview.item.hint': 'Dùng kiểu nền này và trở lại Trang chính.',
   'preset.thumbnail.label': 'Dùng kiểu nền {name}',

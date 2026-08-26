@@ -3,6 +3,7 @@ import {
   getAdjacentQuote,
   getAllQuotes,
   getQuoteById,
+  quoteInLocale,
   QuoteSelectionError,
   selectRandomQuote,
 } from '../quoteRepository';
@@ -227,4 +228,28 @@ test('falls back to the source language for a favorite', () => {
 
   expect(favoriteQuoteText(englishOnly, 'vi')).toBe(englishOnly.text.en);
   expect(favoriteQuoteText(englishOnly, 'en')).toBe(englishOnly.text.en);
+});
+
+// Mutation caught: reading text["all"] would render undefined on the wallpaper for every quote.
+test('renders the source language when the reader chose every language', () => {
+  const [quote] = parseQuoteCatalog([
+    {
+      ...validEntry,
+      sourceLocale: 'vi',
+      text: { vi: 'Bắt đầu ngay hôm nay.' },
+    },
+  ]);
+
+  expect(quoteText(quote!, 'all')).toBe('Bắt đầu ngay hôm nay.');
+});
+
+// Mutation caught: filtering on a text key named "all" would empty the pool and break rotation.
+test('draws from the whole catalog when the reader chose every language', () => {
+  const every = getAllQuotes('all');
+
+  expect(every.length).toBe(getAllQuotes().length);
+  expect(quoteInLocale(every.at(-1)!.id, 'all')).toBe(true);
+  expect(selectRandomQuote({ locale: 'all', random: () => 0 }).id).toBe(
+    every.at(0)!.id,
+  );
 });

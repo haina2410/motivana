@@ -16,7 +16,7 @@ import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Toggle } from '../src/components/Toggle';
 import { useAppStore } from '../src/store/useAppStore';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
-import { locales } from '../src/features/i18n/locale';
+import { contentLocales, locales } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type { StringKey } from '../src/features/i18n/t';
 import { colors } from '../src/theme/colors';
@@ -40,9 +40,10 @@ export default function SettingsScreen() {
     text: string;
     tone: 'default' | 'error';
   }>();
+  // Takes the write itself, because only the quote language accepts `all`.
   const updateLanguage = async (
     kind: 'app' | 'content',
-    locale: (typeof locales)[number],
+    apply: () => Promise<boolean>,
   ) => {
     if (pending !== undefined) return;
     setPending(kind);
@@ -51,10 +52,7 @@ export default function SettingsScreen() {
     // finally, so a rejected write cannot leave every control disabled.
     let saved: boolean;
     try {
-      saved =
-        kind === 'app'
-          ? await state.setAppLocale(locale)
-          : await state.setContentLocale(locale);
+      saved = await apply();
     } finally {
       setPending(undefined);
     }
@@ -150,7 +148,9 @@ export default function SettingsScreen() {
               })}
               selected={state.appLocale === locale}
               disabled={pending !== undefined}
-              onPress={() => void updateLanguage('app', locale)}
+              onPress={() =>
+                void updateLanguage('app', () => state.setAppLocale(locale))
+              }
             />
           ))}
         </View>
@@ -161,7 +161,7 @@ export default function SettingsScreen() {
           {translate('settings.contentLanguage.description')}
         </Text>
         <View style={styles.choices}>
-          {locales.map((locale) => (
+          {contentLocales.map((locale) => (
             <Choice
               key={locale}
               label={translate(`language.${locale}` as StringKey)}
@@ -170,7 +170,11 @@ export default function SettingsScreen() {
               })}
               selected={state.contentLocale === locale}
               disabled={pending !== undefined}
-              onPress={() => void updateLanguage('content', locale)}
+              onPress={() =>
+                void updateLanguage('content', () =>
+                  state.setContentLocale(locale),
+                )
+              }
             />
           ))}
         </View>
