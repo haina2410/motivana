@@ -34,10 +34,6 @@ function isAuthorized(request: Request, env: Env): boolean {
 }
 
 async function handlePointer(request: Request, env: Env): Promise<Response> {
-  if (!isAuthorized(request, env)) {
-    return new Response('unauthorized', { status: 401 });
-  }
-
   let payload: { key?: unknown; value?: unknown };
   try {
     payload = (await request.json()) as { key?: unknown; value?: unknown };
@@ -62,8 +58,25 @@ export default {
     }
 
     if (pathname === '/api/pointer') {
+      if (!isAuthorized(request, env)) {
+        return new Response('unauthorized', { status: 401 });
+      }
+      if (request.method === 'GET') {
+        const key = new URL(request.url).searchParams.get('key');
+        if (!key) {
+          return new Response('expected a key parameter', { status: 400 });
+        }
+        const stored = await env.UPDATES.get(key);
+        if (!stored) {
+          return new Response('not found', { status: 404 });
+        }
+        return new Response(stored, {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
       if (request.method !== 'PUT') {
-        return new Response('expected PUT', { status: 405 });
+        return new Response('expected GET or PUT', { status: 405 });
       }
       return await handlePointer(request, env);
     }

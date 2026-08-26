@@ -53,3 +53,36 @@ describe('PUT /api/pointer', () => {
     expect(response.status).toBe(400);
   });
 });
+
+describe('GET /api/pointer', () => {
+  it('returns a stored record to an authorized reader', async () => {
+    await env.UPDATES.put('update:abc', JSON.stringify(record.value));
+
+    const response = await SELF.fetch(
+      'https://ota.test/api/pointer?key=update:abc',
+      {
+        headers: { authorization: 'Bearer test-token' },
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(record.value);
+  });
+
+  it('returns 404 for a record that is absent', async () => {
+    const response = await SELF.fetch(
+      'https://ota.test/api/pointer?key=update:missing',
+      {
+        headers: { authorization: 'Bearer test-token' },
+      },
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it('rejects an unauthorized reader', async () => {
+    const response = await SELF.fetch(
+      'https://ota.test/api/pointer?key=update:abc',
+    );
+    expect(response.status).toBe(401);
+  });
+});

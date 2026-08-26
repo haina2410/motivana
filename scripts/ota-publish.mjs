@@ -30,7 +30,7 @@ const moduleDirectory =
     ? // eslint-disable-next-line no-undef
       __dirname
     : dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(moduleDirectory, '..');
+export const repositoryRoot = resolve(moduleDirectory, '..');
 
 export function runCommand(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', stdio: 'pipe' });
