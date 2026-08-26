@@ -151,8 +151,9 @@ increment after a change to the Kotlin module sends a crash to every user.
 | `GET /assets/:hash` | none | Streams the object from R2 with `cache-control: public, max-age=31536000, immutable`. |
 | `PUT /api/pointer` | bearer token | The only write path. The publish script calls it last. |
 
-Asset uploads do not go through the Worker. The publish script writes to R2
-over the S3 API with local credentials, so the Worker needs no write access.
+Asset uploads do not go through the Worker. The publish script uploads to R2
+by shelling out to `wrangler r2 object put`, so no R2 access key or secret
+exists anywhere in this system. The Worker needs no write access.
 
 ### Manifest response
 
@@ -209,7 +210,7 @@ The rule is fail-open. A broken update server must never degrade the app.
 | Failure | Result |
 | --- | --- |
 | Worker down, or KV read error | The app keeps its current bundle. |
-| No pointer for the requested runtimeVersion | A zero-part 200 response. The protocol defines this as "nothing available". It is not a 404. |
+| No pointer for the requested runtimeVersion | `204 No Content`. The protocol reads this as "nothing available", so an old build starts normally. It is not a 404. |
 | `expo-platform` or `expo-runtime-version` missing | 400. |
 | Asset missing from R2 | 404. The client abandons the update and keeps its current bundle. |
 | Publish interrupted part way | The pointer is written last, so it can never name a manifest whose assets are absent. |
@@ -227,7 +228,7 @@ spinner, so a slow network cannot delay the splash screen.
 
 | Target | Test |
 | --- | --- |
-| Worker | `vitest` with `@cloudflare/vitest-pool-workers`: header routing, the zero-part response, byte-exact signature pass-through, the rollback directive, and 400 on missing headers. |
+| Worker | `vitest` with `@cloudflare/vitest-pool-workers`: header routing, the 204 "nothing available" response, byte-exact signature pass-through, the rollback directive, and 400 on missing headers. |
 | Publish script | Hashing and manifest assembly against a fixture `dist/` directory. |
 | Signing | A round trip: sign a fixture manifest, then verify it with `certs/certificate.pem`. This test catches key-format drift, which is the most probable silent failure. |
 
@@ -239,7 +240,8 @@ These tests join the existing `pnpm verify` chain.
 | --- | --- | --- |
 | `OTA_PRIVATE_KEY_PATH` | local environment | Path to the signing key, outside the repository. |
 | `OTA_PUBLISH_TOKEN` | Worker secret and local environment | Bearer token for `PUT /api/pointer`. |
-| R2 access key and secret | local environment | Asset upload over the S3 API. |
+| `OTA_WORKER_URL` | local environment | The deployed Worker origin, no trailing slash. The publish script refuses to run if the URL has a trailing slash, or if its origin differs from `expo.updates.url` in `app.json`. |
+| `CLOUDFLARE_API_TOKEN` | local environment | Used by the wrangler CLI to upload assets to R2. Optional after `wrangler login`. |
 
 ## 11. Phases
 
