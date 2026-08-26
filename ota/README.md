@@ -26,11 +26,11 @@ The current Android fingerprint is `d92aa450fe74ef29a94d71c9dea1a60d2582c47f`.
 
 ## Environment
 
-| Name | Purpose |
-| --- | --- |
-| `OTA_WORKER_URL` | The deployed Worker origin, with no trailing slash. |
-| `OTA_PUBLISH_TOKEN` | Bearer token for the pointer routes. Also a Worker secret. |
-| `OTA_PRIVATE_KEY_PATH` | The signing key, kept outside this repository. |
+| Name                   | Purpose                                                             |
+| ---------------------- | ------------------------------------------------------------------- |
+| `OTA_WORKER_URL`       | The deployed Worker origin, with no trailing slash.                 |
+| `OTA_PUBLISH_TOKEN`    | Bearer token for the pointer routes. Also a Worker secret.          |
+| `OTA_PRIVATE_KEY_PATH` | The signing key, kept outside this repository.                      |
 | `CLOUDFLARE_API_TOKEN` | Used by wrangler to upload assets. Optional after `wrangler login`. |
 
 Asset upload goes through the `wrangler` CLI. No R2 access key or secret
@@ -53,6 +53,17 @@ writes the pointer, so an interrupted publish leaves the live update intact.
 
     pnpm ota:rollback --to <updateId>   # an earlier update, already archived
     pnpm ota:rollback --to embedded     # the bundle inside the installed binary
+
+`--to <updateId>` does not replay the archived record. It reads the archive,
+mints a new record from that manifest with `createdAt` set to now and a fresh
+UUID `id`, signs those exact bytes, and writes only the pointer. The archive
+itself is never modified.
+
+This matters: `expo-updates` takes an update only when its `commitTime` is
+strictly newer than the running one. Replaying the archived `createdAt` would
+leave every device on the broken update, with no error shown anywhere. The
+fresh `id` matters too, because a device that once ran that update still holds
+the old `id` in its local update database.
 
 Use `--to embedded` when no earlier update is good. Clients revert to the
 bundle in their installed binary.

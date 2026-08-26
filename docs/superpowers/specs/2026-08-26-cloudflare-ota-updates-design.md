@@ -117,9 +117,9 @@ update:<updateId>
 `manifestBody` is the exact string that was signed. The Worker does not parse
 it.
 
-The `update:<updateId>` archive lets a rollback point at an earlier manifest.
-The original signature stays valid, because the signature covers the manifest
-alone and binds no timestamp.
+The `update:<updateId>` archive lets a rollback recover an earlier manifest.
+The archive is immutable: a rollback reads it and never writes it. The stored
+signature is not replayed, for the `commitTime` reason in section 6.
 
 ## 4. runtimeVersion
 
@@ -177,8 +177,26 @@ pnpm ota:rollback --to <updateId>   # a known good earlier update
 pnpm ota:rollback --to embedded     # the bundle inside the installed binary
 ```
 
-`--to <updateId>` reads `update:<updateId>` and writes its stored manifest and
-signature into the pointer. Nothing is signed again.
+`--to <updateId>` reads `update:<updateId>`, parses the archived manifest, and
+mints a **new** record from it: `createdAt` becomes now, `id` becomes a fresh
+UUID, the result is stringified once, and that exact string is signed with the
+local private key. Only the pointer changes; the archive stays untouched.
+
+The archived record cannot be replayed verbatim. `expo-updates` orders updates
+by `commitTime` and takes only a strictly newer one:
+`LoaderSelectionPolicyFilterAware` returns
+`newUpdate.commitTime.after(launchedUpdate.commitTime)`. An archived record
+keeps its original `createdAt`, so serving it again would leave every device
+already running the broken newer update exactly where it is, with no error and
+no log line. Only a fresh install would take the older update.
+
+The `id` must be fresh as well as the time. A device that once ran that update
+still holds its `id` in the local update database, so the same `id` with a
+different `commitTime` risks being deduplicated or conflicting. A new `id` is
+unambiguously a new update to every client.
+
+Signing again costs nothing: the private key is already on the machine that
+runs a rollback, because `--to embedded` signs a directive there too.
 
 `--to embedded` writes a `rollBackToEmbedded` directive. The script signs the
 directive body locally, the same as a manifest. This recovers a build even

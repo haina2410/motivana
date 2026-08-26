@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
@@ -27,6 +28,61 @@ async function readArchivedUpdate({ workerUrl, token, updateId, fetchImpl }) {
 function signDirective({ directive, appJsonPath }) {
   const body = JSON.stringify(directive);
   return {
+    body,
+    signature: formatSignatureHeader({
+      signature: signBody(body, readPrivateKey()),
+      keyid: readKeyId(appJsonPath),
+    }),
+  };
+}
+
+// A rollback cannot replay the archived record verbatim.
+//
+// expo-updates orders updates by commitTime and refuses anything that is not
+// strictly newer: LoaderSelectionPolicyFilterAware returns
+// `newUpdate.commitTime.after(launchedUpdate.commitTime)`. An archived record
+// keeps its original createdAt, so re-serving it would leave every device
+// already on the newer broken update exactly where it is, with no error.
+//
+// So the archived manifest is minted into a fresh record: createdAt is now,
+// and the id is a fresh UUID. The new id matters as much as the new time -- a
+// device that once ran this update still holds the old id in its local update
+// database, so the same id with a different commitTime risks being
+// deduplicated or conflicting. A new id is unambiguously a new update.
+//
+// This parses a stored manifest, which is correct here: this is the publish
+// side, holding the private key. The Worker still parses nothing and signs
+// nothing.
+//
+// The `update:<updateId>` archive is left untouched. Archives are immutable;
+// only the pointer changes.
+function mintRollforwardRecord({ archived, appJsonPath, createdAt, updateId }) {
+  let manifest;
+  try {
+    manifest = JSON.parse(archived.body);
+  } catch {
+    throw new Error(
+      `The archived record for ${archived.updateId} holds no readable manifest. Nothing was changed.`,
+    );
+  }
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    throw new Error(
+      `The archived record for ${archived.updateId} holds no manifest object. Nothing was changed.`,
+    );
+  }
+
+  const fresh = {
+    ...manifest,
+    id: updateId ?? randomUUID(),
+    createdAt: createdAt ?? new Date().toISOString(),
+  };
+  // Stringified once, signed, and stored: the signature must cover the exact
+  // bytes the Worker will hand to the client.
+  const body = JSON.stringify(fresh);
+
+  return {
+    kind: 'update',
+    updateId: fresh.id,
     body,
     signature: formatSignatureHeader({
       signature: signBody(body, readPrivateKey()),
@@ -93,9 +149,15 @@ export async function rollback({ options, run, fetchImpl, log }) {
     updateId: options.to,
     fetchImpl,
   });
-  await putPointer({ ...options, key, value: archived, fetchImpl });
+  const value = mintRollforwardRecord({
+    archived,
+    appJsonPath: options.appJsonPath,
+    createdAt: options.createdAt,
+    updateId: options.updateId,
+  });
+  await putPointer({ ...options, key, value, fetchImpl });
   log(
-    `Rolled ${options.platform} ${runtimeVersion} back to update ${options.to}`,
+    `Rolled ${options.platform} ${runtimeVersion} back to update ${options.to}, served as new update ${value.updateId}`,
   );
 }
 

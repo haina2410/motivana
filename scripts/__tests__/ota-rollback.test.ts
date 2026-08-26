@@ -9,10 +9,26 @@ let workingDirectory: string;
 let appJsonPath: string;
 let requests: { url: string; init: RequestInit }[];
 
+const archivedCreatedAt = '2026-08-01T00:00:00.000Z';
+const archivedManifest = {
+  id: '11111111-2222-3333-4444-555555555555',
+  createdAt: archivedCreatedAt,
+  runtimeVersion: 'fingerprint-abc',
+  launchAsset: {
+    hash: 'launch-hash',
+    key: 'launch-key',
+    fileExtension: '.bundle',
+    contentType: 'application/javascript',
+    url: 'https://ota.test/assets/launch-hash',
+  },
+  assets: [],
+  metadata: {},
+  extra: { expoClient: { slug: 'motivana' } },
+};
 const archivedUpdate = {
   kind: 'update',
-  updateId: '11111111-2222-3333-4444-555555555555',
-  body: '{"id":"11111111-2222-3333-4444-555555555555"}',
+  updateId: archivedManifest.id,
+  body: JSON.stringify(archivedManifest),
   signature: 'sig="original", keyid="motivana-root", alg="rsa-v1_5-sha256"',
 };
 
@@ -71,21 +87,67 @@ afterEach(() => {
   delete process.env.OTA_PRIVATE_KEY_PATH;
 });
 
-describe('rollback to an earlier update', () => {
-  it('reuses the archived manifest and its original signature', async () => {
-    await rollback({
-      options: { ...baseOptions(), to: archivedUpdate.updateId },
-      run,
-      fetchImpl,
-      log: () => {},
-    });
+async function rollbackToArchive(extra: Record<string, unknown> = {}) {
+  await rollback({
+    options: { ...baseOptions(), to: archivedUpdate.updateId, ...extra },
+    run,
+    fetchImpl,
+    log: () => {},
+  });
+  const write = requests.find((entry) => entry.init.method === 'PUT');
+  const payload = JSON.parse(String(write!.init.body));
+  return { payload, manifest: JSON.parse(payload.value.body) };
+}
 
-    const write = requests.find((entry) => entry.init.method === 'PUT');
-    const payload = JSON.parse(String(write!.init.body));
+describe('rollback to an earlier update', () => {
+  it('keeps the archived bundle and runtime version', async () => {
+    const { payload, manifest } = await rollbackToArchive();
+
     expect(payload.key).toBe('pointer:android:fingerprint-abc');
-    // The signature covers the manifest alone and binds no time, so the
-    // original signature stays valid and nothing is signed again.
-    expect(payload.value).toEqual(archivedUpdate);
+    expect(payload.value.kind).toBe('update');
+    expect(manifest.runtimeVersion).toBe(archivedManifest.runtimeVersion);
+    expect(manifest.launchAsset).toEqual(archivedManifest.launchAsset);
+    expect(manifest.extra).toEqual(archivedManifest.extra);
+  });
+
+  it('mints a fresh id, because a device still holds the archived one', async () => {
+    const { payload, manifest } = await rollbackToArchive();
+
+    expect(manifest.id).not.toBe(archivedManifest.id);
+    expect(manifest.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
+    expect(payload.value.updateId).toBe(manifest.id);
+  });
+
+  it('stamps a createdAt strictly newer than the archived one', async () => {
+    // expo-updates takes an update only when its commitTime is strictly after
+    // the launched update's. Replaying the archived createdAt would leave
+    // every device on the broken update, silently.
+    const { manifest } = await rollbackToArchive();
+
+    expect(Date.parse(manifest.createdAt)).toBeGreaterThan(
+      Date.parse(archivedCreatedAt),
+    );
+  });
+
+  it('signs the new bytes rather than replaying the archived signature', async () => {
+    const { payload } = await rollbackToArchive();
+
+    expect(payload.value.signature).not.toBe(archivedUpdate.signature);
+    expect(payload.value.signature).toMatch(
+      /^sig="[^"]+", keyid="motivana-root", alg="rsa-v1_5-sha256"$/,
+    );
+  });
+
+  it('writes only the pointer, so the archive stays immutable', async () => {
+    await rollbackToArchive();
+
+    const writes = requests.filter((entry) => entry.init.method === 'PUT');
+    expect(writes).toHaveLength(1);
+    expect(JSON.parse(String(writes[0]!.init.body)).key).toBe(
+      'pointer:android:fingerprint-abc',
+    );
   });
 
   it('fails when the update id is not archived', async () => {
