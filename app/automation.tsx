@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActionMessage } from '../src/components/ActionMessage';
 import { AppButton } from '../src/components/AppButton';
 import { DeckTabBar } from '../src/components/DeckTabBar';
-import { Icon } from '../src/components/Icon';
 import { RadioRow } from '../src/components/RadioRow';
 import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Segmented } from '../src/components/Segmented';
@@ -24,33 +23,39 @@ import {
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type {
   WallpaperAutomationAvailability,
-  WallpaperAutomationStatus,
+  WallpaperCapabilities,
 } from '../src/services/wallpaperAvailability';
 import type { StringKey } from '../src/features/i18n/t';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
-import type {
-  RotationIntervalHours,
-  WallpaperTarget,
-} from '../src/store/schema';
+import type { WallpaperTarget } from '../src/store/schema';
+import {
+  rotationSchedules,
+  type RotationSchedule,
+} from '../src/features/rotation/schedule';
 
-const stateKeys: Record<WallpaperAutomationStatus['state'], StringKey> = {
-  disabled: 'automation.state.disabled',
-  scheduled: 'automation.state.scheduled',
-  running: 'automation.state.running',
-  succeeded: 'automation.state.succeeded',
-  failed: 'automation.state.failed',
-};
-const capabilityKeys: Record<'available' | 'unavailable', StringKey> = {
-  available: 'automation.capability.available',
-  unavailable: 'automation.capability.unavailable',
-};
 const targetKeys: Record<WallpaperTarget, StringKey> = {
   home: 'automation.targetName.home',
   lock: 'automation.targetName.lock',
   both: 'automation.targetName.both',
 };
+
+/**
+ * The best target the device can actually set, most screens first. A device
+ * that cannot set either one still reports `home`, so the control has a
+ * selection to show while every option sits disabled.
+ */
+function firstAvailableTarget(
+  capabilities: WallpaperCapabilities,
+): WallpaperTarget {
+  const preference: readonly WallpaperTarget[] = ['both', 'home', 'lock'];
+  return (
+    preference.find((value) =>
+      isWallpaperTargetAvailable(value, capabilities),
+    ) ?? 'home'
+  );
+}
 
 /** Screen 1i of the board. */
 export default function AutomationScreen() {
@@ -58,7 +63,7 @@ export default function AutomationScreen() {
   const translate = useTranslate();
   const [availability, setAvailability] =
     useState<WallpaperAutomationAvailability>();
-  const [target, setTarget] = useState<WallpaperTarget>('home');
+  const [target, setTarget] = useState<WallpaperTarget>('both');
   const [persistedTarget] = useState<WallpaperTarget>(state.wallpaperTarget);
   useEffect(() => {
     let active = true;
@@ -71,7 +76,7 @@ export default function AutomationScreen() {
             ? persistedTarget
             : isWallpaperTargetAvailable(current, value.capabilities)
               ? current
-              : 'home',
+              : firstAvailableTarget(value.capabilities),
         );
       })
       .catch(() => active && setAvailability(wallpaperAutomationFallback));
@@ -79,8 +84,8 @@ export default function AutomationScreen() {
       active = false;
     };
   }, [persistedTarget]);
-  const [interval, setInterval] = useState<RotationIntervalHours>(
-    state.rotationIntervalHours,
+  const [schedule, setSchedule] = useState<RotationSchedule>(
+    state.rotationSchedule,
   );
   const [favoritesOnly, setFavoritesOnly] = useState(state.favoriteQuotesOnly);
   const [randomizePreset, setRandomizePreset] = useState(state.randomizePreset);
@@ -102,7 +107,7 @@ export default function AutomationScreen() {
     }
     const saved = await state.setRotationConfiguration({
       enabled,
-      intervalHours: interval,
+      schedule,
       target,
       favoriteQuotesOnly: nextFavoritesOnly,
       randomizePreset,
@@ -152,10 +157,6 @@ export default function AutomationScreen() {
     }
     void save();
   };
-  const statusText =
-    availability === undefined
-      ? translate('automation.status.loading')
-      : translate(stateKeys[availability.status.state]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
@@ -174,18 +175,18 @@ export default function AutomationScreen() {
         </View>
 
         <Text allowFontScaling style={typography.sectionLabel}>
-          {translate('automation.interval.label')}
+          {translate('automation.schedule.label')}
         </Text>
         <Segmented
-          onSelect={setInterval}
-          options={([6, 12, 24] as const).map((hours) => ({
-            value: hours,
-            label: translate('rotation.interval.option', { hours }),
-            accessibilityLabel: translate('automation.interval.option', {
-              hours,
-            }),
+          onSelect={setSchedule}
+          options={rotationSchedules.map((value) => ({
+            value,
+            label: translate(`rotation.schedule.${value}` as StringKey),
+            accessibilityLabel: translate(
+              `automation.schedule.${value}` as StringKey,
+            ),
           }))}
-          selected={interval}
+          selected={schedule}
         />
 
         <Text allowFontScaling style={typography.sectionLabel}>
@@ -237,49 +238,6 @@ export default function AutomationScreen() {
           />
         </View>
 
-        <View style={styles.runs}>
-          <RunRow
-            label={translate('automation.available.title')}
-            value={translate('automation.status.capability', {
-              kind:
-                availability === undefined
-                  ? translate('automation.status.loading')
-                  : translate(capabilityKeys[availability.capabilities.kind]),
-            })}
-          />
-          <RunRow
-            label={translate('rotation.runs.lastRun')}
-            value={
-              availability?.status.lastAppliedAt
-                ? new Date(availability.status.lastAppliedAt).toLocaleString(
-                    state.appLocale,
-                  )
-                : translate('rotation.runs.pending')
-            }
-          />
-          <RunRow
-            label={translate('rotation.runs.nextRun')}
-            value={translate('automation.status.schedule', {
-              hours: availability?.status.intervalHours ?? interval,
-              target: translate(
-                targetKeys[availability?.status.target ?? target],
-              ),
-            })}
-          />
-          <RunRow
-            label={translate('rotation.runs.status')}
-            tone={availability?.status.state === 'failed' ? 'error' : 'success'}
-            value={statusText}
-          />
-        </View>
-
-        <View style={styles.warning}>
-          <Icon name="triangle-exclamation" size={12} color={colors.accent} />
-          <Text allowFontScaling style={styles.warningText}>
-            {translate('rotation.battery')}
-          </Text>
-        </View>
-
         {statusRecovery ? (
           <ActionMessage
             tone="error"
@@ -318,34 +276,6 @@ export default function AutomationScreen() {
   );
 }
 
-function RunRow({
-  label,
-  value,
-  tone = 'default',
-}: {
-  label: string;
-  value: string;
-  tone?: 'default' | 'success' | 'error';
-}) {
-  return (
-    <View style={styles.runRow}>
-      <Text allowFontScaling style={styles.runLabel}>
-        {label}
-      </Text>
-      <Text
-        allowFontScaling
-        style={[
-          styles.runValue,
-          tone === 'success' && styles.runSuccess,
-          tone === 'error' && styles.runError,
-        ]}
-      >
-        {value}
-      </Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: { backgroundColor: colors.background, flex: 1 },
   content: {
@@ -363,39 +293,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   sources: { gap: spacing.x1 },
-  runs: {
-    backgroundColor: colors.fillFaint,
-    borderColor: 'rgba(255, 255, 255, 0.07)',
-    borderRadius: 10,
-    borderWidth: 1,
-    gap: 10,
-    marginTop: 12,
-    padding: 13,
-  },
-  runRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: spacing.x2,
-    justifyContent: 'space-between',
-  },
-  runLabel: { ...typography.caption, fontSize: 12 },
-  runValue: {
-    ...typography.rowValue,
-    color: colors.text,
-    flexShrink: 1,
-    fontSize: 12,
-    textAlign: 'right',
-  },
-  runSuccess: { color: colors.success },
-  runError: { color: colors.danger },
-  warning: {
-    backgroundColor: colors.accentWash,
-    borderColor: colors.accentBorder,
-    borderRadius: spacing.x1,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 9,
-    padding: 12,
-  },
-  warningText: { ...typography.caption, flex: 1, fontSize: 11, lineHeight: 17 },
 });

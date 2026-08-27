@@ -52,14 +52,15 @@ export const vi: Record<keyof typeof en, string> = {
 
   'automation.eyebrow': 'TỰ ĐỘNG',
   'automation.title': 'Đổi hình nền tự động',
-  'automation.available.title': 'Có thể đặt hình nền',
   'automation.available.message':
     'Việc đổi nền chạy theo khoảng thời gian gần đúng; Android có thể hoãn lại để tiết kiệm pin.',
   'automation.attention.title': 'Việc đổi nền cần được xem lại',
   'automation.enable.label': 'Bật đổi hình nền tự động',
   'automation.enable.description': 'Đặt hình nền mới theo lịch bạn chọn.',
-  'automation.interval.label': 'Mỗi',
-  'automation.interval.option': 'Mỗi {hours} giờ',
+  'automation.schedule.label': 'Đổi nền',
+  'automation.schedule.hourly': 'Đổi nền mỗi giờ',
+  'automation.schedule.twice-daily': 'Đổi nền lúc 6 giờ sáng và 6 giờ chiều',
+  'automation.schedule.daily': 'Đổi nền lúc 6 giờ sáng',
   'automation.target.label': 'Áp dụng cho',
   'automation.target.home': 'Áp dụng cho Trang chính',
   'automation.target.lock': 'Áp dụng cho Màn hình khóa',
@@ -70,20 +71,6 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.run': 'Đổi nền ngay',
   'automation.lastQuote': 'Câu gần nhất: {text}',
   'automation.lastQuote.fallback': 'câu đã lưu',
-  'automation.status.label':
-    'Trạng thái dịch vụ {state} {intervalHours} {target}',
-  'automation.status.capability': 'Khả năng: {kind}',
-  'automation.status.checking':
-    'Trạng thái: đang kiểm tra khả năng hỗ trợ của thiết bị',
-  'automation.status.schedule': 'Lịch gần đúng: mỗi {hours} giờ trên {target}.',
-  'automation.status.value': 'Trạng thái: {state}',
-  'automation.state.disabled': 'đã tắt',
-  'automation.state.scheduled': 'đã lên lịch',
-  'automation.state.running': 'đang chạy',
-  'automation.state.succeeded': 'đã xong',
-  'automation.state.failed': 'bị lỗi',
-  'automation.capability.available': 'có sẵn',
-  'automation.capability.unavailable': 'không có sẵn',
   'automation.targetName.home': 'màn hình chính',
   'automation.targetName.lock': 'màn hình khóa',
   'automation.targetName.both': 'cả hai màn hình',
@@ -118,7 +105,6 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.recovery.reschedule.hint':
     'Lưu tùy chọn hiện tại để Android lên lịch cho lần chạy sau.',
   'automation.status.lastApplied': 'Lần áp dụng gần nhất: {date}',
-  'automation.status.loading': 'đang tải',
   'automation.favoritesOnly.error':
     'Hãy thêm một câu yêu thích trước khi chỉ dùng câu yêu thích.',
   'automation.save.error':
@@ -230,7 +216,9 @@ export const vi: Record<keyof typeof en, string> = {
   'sheet.target.both': 'Cả hai',
   'sheet.saveAlso': 'Một bản sao cũng vào thư viện ảnh.',
 
-  'rotation.interval.option': '{hours} giờ',
+  'rotation.schedule.hourly': 'Mỗi giờ',
+  'rotation.schedule.twice-daily': '6 sáng & 6 chiều',
+  'rotation.schedule.daily': '6 sáng',
   'rotation.randomize.label': 'Đổi kiểu nền ngẫu nhiên',
   'rotation.randomize.description':
     'Mỗi lần đổi nền sẽ dùng một kiểu nền khác.',
@@ -238,12 +226,6 @@ export const vi: Record<keyof typeof en, string> = {
   'rotation.source.label': 'Nguồn',
   'rotation.source.saved': 'Câu đã lưu',
   'rotation.source.all': 'Tất cả',
-  'rotation.runs.lastRun': 'Lần chạy trước',
-  'rotation.runs.nextRun': 'Lần chạy tới',
-  'rotation.runs.status': 'Trạng thái',
-  'rotation.runs.pending': 'Chưa có',
-  'rotation.battery':
-    'Tính năng tiết kiệm pin có thể làm chậm một lần chạy. Hãy loại Motivana ra để giữ đúng giờ.',
 
   'settings.export.label': 'Xuất ảnh',
   'settings.resolution.label': 'Độ phân giải',

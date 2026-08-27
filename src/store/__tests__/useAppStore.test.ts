@@ -195,29 +195,29 @@ test('persists only a valid complete rotation configuration', async () => {
   await expect(
     store.getState().setRotationConfiguration({
       enabled: true,
-      intervalHours: 12,
+      schedule: 'twice-daily',
       target: 'both',
     }),
   ).resolves.toBe(true);
   expect(store.getState()).toMatchObject({
     rotationEnabled: true,
-    rotationIntervalHours: 12,
+    rotationSchedule: 'twice-daily',
     wallpaperTarget: 'both',
   });
   expect(JSON.parse(storage.read('motivana.app-state')!)).toMatchObject({
     rotationEnabled: true,
-    rotationIntervalHours: 12,
+    rotationSchedule: 'twice-daily',
     wallpaperTarget: 'both',
   });
 
   await expect(
     store.getState().setRotationConfiguration({
       enabled: true,
-      intervalHours: 8 as 6,
+      schedule: 'weekly' as 'daily',
       target: 'desktop' as 'home',
     }),
   ).resolves.toBe(false);
-  expect(store.getState().rotationIntervalHours).toBe(12);
+  expect(store.getState().rotationSchedule).toBe('twice-daily');
   expect(store.getState().wallpaperTarget).toBe('both');
 });
 
@@ -289,7 +289,7 @@ test('synchronizes every worker-visible preference change while rotation is enab
   await store.getState().setFavoriteQuotesOnly(true);
   await store.getState().setRotationConfiguration({
     enabled: true,
-    intervalHours: 6,
+    schedule: 'twice-daily',
     target: 'both',
   });
 
@@ -297,7 +297,7 @@ test('synchronizes every worker-visible preference change while rotation is enab
   expect(synchronizeRotation).toHaveBeenLastCalledWith(
     expect.objectContaining({
       rotationEnabled: true,
-      rotationIntervalHours: 6,
+      rotationSchedule: 'twice-daily',
       wallpaperTarget: 'both',
       selectedPresetId: 'sunrise-drive',
       randomizePreset: true,

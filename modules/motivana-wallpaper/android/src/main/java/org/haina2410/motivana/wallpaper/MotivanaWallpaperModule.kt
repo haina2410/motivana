@@ -93,7 +93,7 @@ class MotivanaWallpaperModule : Module() {
       val workState = runCatching { WorkManager.getInstance(context).getWorkInfosForUniqueWork(RotationScheduler.PERIODIC_NAME).get().firstOrNull()?.state }.getOrNull()
       val state = when (workState) { WorkInfo.State.RUNNING -> RotationState.RUNNING; WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED -> if (stored.enabled) RotationState.SCHEDULED else stored.state; else -> stored.state }
       val snapshot = runCatching { RotationCatalogLoader.load(context.assets).let(preferences::snapshot).let { it as? RotationSnapshotResult.Valid }?.snapshot }.getOrNull()
-      mapOf("enabled" to stored.enabled, "state" to state.name.lowercase(), "lastAppliedAt" to stored.lastAppliedAt, "lastQuoteId" to stored.quoteId, "lastPresetId" to stored.presetId, "errorCode" to stored.errorCode, "intervalHours" to snapshot?.intervalHours, "target" to snapshot?.target?.name?.lowercase())
+      mapOf("enabled" to stored.enabled, "state" to state.name.lowercase(), "lastAppliedAt" to stored.lastAppliedAt, "lastQuoteId" to stored.quoteId, "lastPresetId" to stored.presetId, "errorCode" to stored.errorCode, "intervalHours" to snapshot?.intervalHours, "anchorHour" to snapshot?.anchorHour, "target" to snapshot?.target?.name?.lowercase())
     }
     AsyncFunction("runRotationNow") {
       if (!BuildConfig.DEBUG) throw WallpaperException("DEBUG_ONLY", "Run rotation now is available in debug builds only.")

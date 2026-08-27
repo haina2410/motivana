@@ -42,8 +42,8 @@ test('falls back to defaults when persisted JSON is corrupt', () => {
     currentQuoteId: getAllQuotes()[0]!.id,
     selectedPresetId: 'midnight-focus',
     favoriteQuoteIds: [],
-    rotationIntervalHours: 24,
-    wallpaperTarget: 'home',
+    rotationSchedule: 'daily',
+    wallpaperTarget: 'both',
   });
   expect(warnings).toEqual([
     'Motivana preferences were reset because stored preferences are invalid.',
@@ -112,8 +112,8 @@ test('repairs invalid rotation configuration values to safe defaults', () => {
     randomizePreset: false,
     favoriteQuotesOnly: false,
     rotationEnabled: false,
-    rotationIntervalHours: 24,
-    wallpaperTarget: 'home',
+    rotationSchedule: 'daily',
+    wallpaperTarget: 'both',
   });
 });
 
@@ -148,7 +148,7 @@ test('migrates version 1 state and keeps every favorite', () => {
   expect(migrated.version).toBe(3);
   expect(migrated.favoriteQuoteIds).toEqual(['motivation-001', 'focus-002']);
   expect(migrated.randomizePreset).toBe(true);
-  expect(migrated.rotationIntervalHours).toBe(12);
+  expect(migrated.rotationSchedule).toBe('twice-daily');
   expect(migrated.wallpaperTarget).toBe('both');
   expect(migrated.appLocale).toBe('en');
   expect(migrated.contentLocale).toBe('vi');
@@ -319,4 +319,28 @@ test('keeps the every-language quote setting across a launch', () => {
   expect(migrated.contentLocale).toBe('all');
   expect(migrated.currentQuoteId).toBe('motivation-001');
   expect(migrated.appLocale).toBe('en');
+});
+
+// Mutation caught: dropping the legacy interval would reset a reader who chose
+// six-hour rotation to the daily default instead of the nearest named schedule.
+test('maps a stored interval onto a named schedule, preferring an explicit one', () => {
+  expect(
+    migratePersistedState({ version: 2, rotationIntervalHours: 6 })
+      .rotationSchedule,
+  ).toBe('twice-daily');
+  expect(
+    migratePersistedState({ version: 2, rotationIntervalHours: 24 })
+      .rotationSchedule,
+  ).toBe('daily');
+  expect(
+    migratePersistedState({
+      version: 3,
+      rotationSchedule: 'hourly',
+      rotationIntervalHours: 24,
+    }).rotationSchedule,
+  ).toBe('hourly');
+  expect(
+    migratePersistedState({ version: 3, rotationSchedule: 'weekly' })
+      .rotationSchedule,
+  ).toBe('daily');
 });

@@ -80,7 +80,14 @@ export async function configureRotation(
   options: ConfigureRotationOptions,
 ): Promise<void> {
   validateWallpaperTarget(options.target);
-  if (![6, 12, 24].includes(options.intervalHours))
+  if (![1, 12, 24].includes(options.intervalHours))
+    throw new WallpaperServiceError('INVALID_TARGET');
+  if (
+    options.anchorHour !== undefined &&
+    (!Number.isInteger(options.anchorHour) ||
+      options.anchorHour < 0 ||
+      options.anchorHour > 23)
+  )
     throw new WallpaperServiceError('INVALID_TARGET');
   if (options.favoriteQuotesOnly && options.favoriteQuoteIds.length === 0)
     throw new WallpaperServiceError(
