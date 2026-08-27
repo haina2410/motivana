@@ -19,6 +19,8 @@ const contentTypesByExtension = {
   jpeg: 'image/jpeg',
   webp: 'image/webp',
   json: 'application/json',
+  // `expo export` emits android vector drawables as .xml assets.
+  xml: 'application/xml',
 };
 
 function contentTypeForExtension(extension) {
