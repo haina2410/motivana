@@ -133,10 +133,9 @@ pnpm verify:data && pnpm test
 its face. Every other rule holds.
 
 **The floor that can still stop you** is in `verify-data.mjs`: every category
-needs at least 6 quotes and 5 of them carrying Vietnamese. A single English
-import into a category sitting exactly on that floor pushes it under. The
-message names the category; report it and ask whether to file the quote
-elsewhere.
+needs at least 6 quotes. An import only adds, so it cannot break that floor; a
+retire can. The message names the category; report it and ask whether to file
+the quote elsewhere.
 
 **Every id moves on a promote.** The catalogue is renumbered, so never quote a
 specific id back to the owner as though it were stable.

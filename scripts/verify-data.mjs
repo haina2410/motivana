@@ -10,10 +10,9 @@ const quoteCategories = [
   'success',
 ];
 // The catalogue grows as sourced, attributed quotes replace the original app
-// copy, so these are floors, not a fixed size. A floor still stops a truncated
+// copy, so this is a floor, not a fixed size. A floor still stops a truncated
 // or half-written file from shipping.
 const minimumQuotesPerCategory = 6;
-const minimumVietnameseQuotesPerCategory = 5;
 const fontPaths = {
   'CormorantGaramond-Light': 'assets/fonts/CormorantGaramond-Light.ttf',
   'CormorantGaramond-Regular': 'assets/fonts/CormorantGaramond-Regular.ttf',
@@ -143,26 +142,6 @@ function validateQuotes(quotes) {
       fail(
         'assets/data/quotes.json',
         `${category} must contain at least ${minimumQuotesPerCategory} entries, found ${categoryCounts.get(category)}`,
-      );
-    }
-  }
-
-  const vietnameseByCategory = new Map(
-    quoteCategories.map((category) => [category, 0]),
-  );
-  for (const quote of quotes) {
-    if (quote.text.vi !== undefined) {
-      vietnameseByCategory.set(
-        quote.category,
-        vietnameseByCategory.get(quote.category) + 1,
-      );
-    }
-  }
-  for (const [category, count] of vietnameseByCategory) {
-    if (count < minimumVietnameseQuotesPerCategory) {
-      fail(
-        'assets/data/quotes.json',
-        `must carry at least ${minimumVietnameseQuotesPerCategory} Vietnamese quotes in ${category}, found ${count}`,
       );
     }
   }

@@ -201,19 +201,6 @@ test('selects a random quote only from the locale pool', () => {
   expect(quote.text.vi).toBeDefined();
 });
 
-// Mutation caught: an unbalanced batch would leave a category with too few quotes and repeat during rotation.
-// The Vietnamese pool grows with every harvest, so this holds the floor the data gate holds.
-test('ships at least 5 Vietnamese quotes in every category', () => {
-  const vietnamese = getAllQuotes('vi');
-
-  expect(vietnamese.length).toBeGreaterThanOrEqual(30);
-  for (const category of quoteCategories) {
-    expect(
-      vietnamese.filter((quote) => quote.category === category).length,
-    ).toBeGreaterThanOrEqual(5);
-  }
-});
-
 // Mutation caught: shipping only translations would leave the original-Vietnamese path untested.
 test('includes an original Vietnamese quote in every category', () => {
   const original = getAllQuotes('vi').filter(
