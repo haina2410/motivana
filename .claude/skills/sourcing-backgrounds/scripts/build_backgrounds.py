@@ -9,10 +9,16 @@ Four stages, each cached on disk so a re-run resumes rather than restarts:
     build     fetch a 4200px render of the winners, crop, encode WebP
     template  derive the per-image typography and write the catalogue
 
+Plus one stage that stands outside the harvest:
+
+    import    add a single image the owner supplied, straight into the repo
+
 Usage:
     python3 build_backgrounds.py all      --work ./bg --repo /path/to/repo
     python3 build_backgrounds.py harvest  --work ./bg
     python3 build_backgrounds.py template --work ./bg --repo /path/to/repo
+    python3 build_backgrounds.py import   --repo /path/to/repo \
+        --image ~/Pictures/dune.jpg --category texture
 
 Requires Pillow and cwebp. Neither is an app dependency — this is skill
 tooling, run by hand, not part of the build.
@@ -150,17 +156,21 @@ def band_stats(grey, centre, height_fraction):
     return stat.mean[0] / 255.0, stat.stddev[0] / 255.0
 
 
-def best_crop(image):
+def best_crop(image, edge=EDGE):
     """Choose the 9:16 window whose quote band is calmest.
 
     Two constraints matter and are easy to get wrong. Trim the edges first,
     or the search drifts onto the scan margin and the signature. Then keep the
     window interior: scoring purely for a quiet band pins it to the very top or
     bottom of the plate, which is exactly where those artefacts live.
+
+    Pass `edge=0` for a photograph the owner framed themselves: it carries no
+    margin to trim, so trimming only crops the composition they chose.
     """
     w, h = image.size
-    image = image.crop((int(w * EDGE), int(h * EDGE),
-                        int(w * (1 - EDGE)), int(h * (1 - EDGE))))
+    if edge:
+        image = image.crop((int(w * edge), int(h * edge),
+                            int(w * (1 - edge)), int(h * (1 - edge))))
     w, h = image.size
     cw, ch = int(h * TW / TH), h
     if cw > w:
@@ -348,6 +358,61 @@ def stage_build(work, scored, quality):
     return rows
 
 
+def template_entry(grey, row):
+    """Derive one catalogue entry from a finished 9:16 crop.
+
+    Shared by `template` and `import` so the safe-strip arithmetic exists once.
+    """
+    # Pass one learns how busy the region is, which picks the font.
+    _, _, _, nominal_var = safe_centre(grey, block_height(0.064, 1.42))
+    family, weight, size, line_height = font_for(nominal_var)
+    # Pass two re-scans with the block that font actually produces.
+    height = block_height(size, line_height)
+    _, centre, mean, variance = safe_centre(grey, height)
+    # Round first, then nudge inward, so the stored three-decimal value
+    # still satisfies the check when recomputed from the stored fields.
+    centre = round(centre, 3)
+    for _ in range(50):
+        if centre - height / 2 < CLOCK_SAFE_TOP:
+            centre = round(centre + 0.001, 3)
+            continue
+        if centre + height / 2 > BOTTOM_SAFE:
+            centre = round(centre - 0.001, 3)
+            continue
+        break
+    assert centre - height / 2 >= CLOCK_SAFE_TOP, row["id"]
+    assert centre + height / 2 <= BOTTOM_SAFE, row["id"]
+
+    dark = mean < 0.5
+    opacity = round(min(0.82, max(0.40, 0.40 + 1.6 * variance)), 2)
+    effective = round(mean * (1 - opacity) + (0.0 if dark else 1.0) * opacity, 3)
+    return {
+        "id": row["id"], "category": row["category"],
+        "fontFamily": family, "fontWeight": weight, "textAlign": "center",
+        "quotePositionY": centre,
+        "textColor": "#FFFFFF" if effective < 0.5 else "#171717",
+        "authorColor": "#D6DBE4" if effective < 0.5 else "#454545",
+        "preferredFontSizeRatio": size,
+        "minimumFontSizeRatio": round(size * 0.56, 3),
+        "lineHeight": line_height,
+        "background": {
+            "kind": "image", "asset": f"backgrounds/{row['id']}.webp",
+            "scrimColor": "#000000" if dark else "#FFFFFF",
+            "scrimOpacity": opacity, "effectiveLuminance": effective,
+        },
+        "safeArea": {
+            "blockTop": round(centre - height / 2, 4),
+            "blockBottom": round(centre + height / 2, 4),
+            "clockSafeTop": CLOCK_SAFE_TOP, "bottomSafe": BOTTOM_SAFE,
+        },
+        "source": {"provider": row["source"], "url": row["sourceUrl"],
+                   "creator": row["creator"], "title": row["title"],
+                   "license": row["license"], "retrievedAt": row["retrievedAt"]},
+        "measured": {"bandLuminance": round(mean, 3),
+                     "bandVariance": round(variance, 3), "bytes": row["bytes"]},
+    }
+
+
 def stage_template(work, rows, repo):
     # A rerun must never bring back an image a reviewer deleted, so the
     # repo folder acts as an allow-list once it holds anything.
@@ -357,54 +422,7 @@ def stage_template(work, rows, repo):
     out = []
     for row in rows:
         grey = Image.open(f"{work}/crop/{row['id']}.webp").convert("L")
-        # Pass one learns how busy the region is, which picks the font.
-        _, _, _, nominal_var = safe_centre(grey, block_height(0.064, 1.42))
-        family, weight, size, line_height = font_for(nominal_var)
-        # Pass two re-scans with the block that font actually produces.
-        height = block_height(size, line_height)
-        _, centre, mean, variance = safe_centre(grey, height)
-        # Round first, then nudge inward, so the stored three-decimal value
-        # still satisfies the check when recomputed from the stored fields.
-        centre = round(centre, 3)
-        for _ in range(50):
-            if centre - height / 2 < CLOCK_SAFE_TOP:
-                centre = round(centre + 0.001, 3)
-                continue
-            if centre + height / 2 > BOTTOM_SAFE:
-                centre = round(centre - 0.001, 3)
-                continue
-            break
-        assert centre - height / 2 >= CLOCK_SAFE_TOP, row["id"]
-        assert centre + height / 2 <= BOTTOM_SAFE, row["id"]
-
-        dark = mean < 0.5
-        opacity = round(min(0.82, max(0.40, 0.40 + 1.6 * variance)), 2)
-        effective = round(mean * (1 - opacity) + (0.0 if dark else 1.0) * opacity, 3)
-        out.append({
-            "id": row["id"], "category": row["category"],
-            "fontFamily": family, "fontWeight": weight, "textAlign": "center",
-            "quotePositionY": centre,
-            "textColor": "#FFFFFF" if effective < 0.5 else "#171717",
-            "authorColor": "#D6DBE4" if effective < 0.5 else "#454545",
-            "preferredFontSizeRatio": size,
-            "minimumFontSizeRatio": round(size * 0.56, 3),
-            "lineHeight": line_height,
-            "background": {
-                "kind": "image", "asset": f"backgrounds/{row['id']}.webp",
-                "scrimColor": "#000000" if dark else "#FFFFFF",
-                "scrimOpacity": opacity, "effectiveLuminance": effective,
-            },
-            "safeArea": {
-                "blockTop": round(centre - height / 2, 4),
-                "blockBottom": round(centre + height / 2, 4),
-                "clockSafeTop": CLOCK_SAFE_TOP, "bottomSafe": BOTTOM_SAFE,
-            },
-            "source": {"provider": row["source"], "url": row["sourceUrl"],
-                       "creator": row["creator"], "title": row["title"],
-                       "license": row["license"], "retrievedAt": row["retrievedAt"]},
-            "measured": {"bandLuminance": round(mean, 3),
-                         "bandVariance": round(variance, 3), "bytes": row["bytes"]},
-        })
+        out.append(template_entry(grey, row))
     json.dump(out, open(f"{work}/templates.json", "w"), indent=1, ensure_ascii=False)
     if repo:
         write_asset_module(repo, out)
@@ -418,6 +436,103 @@ def stage_template(work, rows, repo):
         print(f"wrote {repo}/assets/data/backgrounds.json and {len(rows)} images",
               file=sys.stderr)
     return out
+
+
+def next_id(repo, category):
+    """The next free number in a category, from the catalogue and the folder
+    together.
+
+    Never fills a gap. A gap means an id that shipped once, and a user may have
+    that wallpaper set right now -- handing the number to a different image
+    changes the picture under them.
+    """
+    used = set()
+    path = f"{repo}/assets/data/backgrounds.json"
+    if os.path.exists(path):
+        used |= {entry["id"] for entry in json.load(open(path))}
+    used |= kept_ids(repo) or set()
+    numbers = [int(match.group(1)) for identifier in used
+               if (match := re.fullmatch(rf"{re.escape(category)}-(\d+)", identifier))]
+    return f"{category}-{max(numbers, default=0) + 1:02d}"
+
+
+def stage_import(repo, image, category, quality,
+                 creator=None, title=None, url=None):
+    """Add one image the owner supplied to the catalogue, in place.
+
+    The rights questions the harvest asks do not apply: the owner holds these
+    images, so there is no licence to read and no creator to credit. Every
+    geometric step still runs, because a wallpaper whose quote lands under the
+    lock-screen clock is broken whoever owns the photograph.
+
+    Additive by construction. It reads the catalogue, inserts one entry, and
+    renumbers nothing.
+    """
+    if category not in TARGET:
+        raise SystemExit(f"category must be one of: {' '.join(sorted(TARGET))}")
+    if not os.path.exists(image):
+        raise SystemExit(f"no such image: {image}")
+
+    source = Image.open(image).convert("RGB")
+    w, h = source.size
+    aspect, target_aspect = w / h, TW / TH
+    if abs(aspect - target_aspect) / target_aspect < 0.02:
+        # Already the output shape, so the owner framed it. Searching for a
+        # calmer window here would crop away the framing they chose.
+        crop = source
+        grey = crop.convert("L")
+        mean, band_var = band_stats(grey, 0.5, 0.30)
+        whole_var = ImageStat.Stat(grey).stddev[0] / 255.0
+        print(f"{image}: already 9:16, kept whole", file=sys.stderr)
+    else:
+        # edge=0: an owner's photograph has no scan margin or plate mark.
+        _, fx, fy, crop, mean, band_var, whole_var = best_crop(source, edge=0)
+        print(f"{image}: cropped to 9:16 at fx={fx:.2f} fy={fy:.2f}",
+              file=sys.stderr)
+
+    if crop.width < TW * 0.7:
+        raise SystemExit(
+            f"the 9:16 crop is only {crop.width}x{crop.height}, too small for "
+            f"{TW}x{TH}: upscaling that far ships a blurry wallpaper")
+    if crop.width < TW:
+        print(f"  warning: upscaling {crop.width}x{crop.height} to {TW}x{TH}",
+              file=sys.stderr)
+    # A flat frame is a reject in a harvest, where it means the scorer found a
+    # blank plate. From the owner it may be the whole point, so only say so.
+    if band_var < MIN_BAND_VARIANCE or whole_var < MIN_WHOLE_VARIANCE:
+        print(f"  note: very flat frame (band {band_var:.3f}, "
+              f"whole {whole_var:.3f})", file=sys.stderr)
+
+    bid = next_id(repo, category)
+    images = f"{repo}/assets/images/backgrounds"
+    os.makedirs(images, exist_ok=True)
+    destination = f"{images}/{bid}.webp"
+    temporary = f"{images}/.{bid}.png"
+    crop.resize((TW, TH), Image.LANCZOS).save(temporary)
+    subprocess.run(["cwebp", "-q", str(quality), "-m", "6",
+                    temporary, "-o", destination],
+                   capture_output=True, check=True)
+    os.remove(temporary)
+
+    row = dict(id=bid, category=category, bytes=os.path.getsize(destination),
+               # The basename, never the absolute path: a home directory is
+               # meaningless to the next reader and ships in the app bundle.
+               source="owner", sourceUrl=url or os.path.basename(image),
+               creator=creator or "Motivana", title=title or os.path.basename(image),
+               license="owner-supplied", retrievedAt=time.strftime("%Y-%m-%d"))
+    entry = template_entry(Image.open(destination).convert("L"), row)
+
+    path = f"{repo}/assets/data/backgrounds.json"
+    entries = json.load(open(path)) if os.path.exists(path) else []
+    # Sit with the rest of the category rather than at the end of the file.
+    after = max((index for index, existing in enumerate(entries)
+                 if existing["category"] == category), default=len(entries) - 1)
+    entries.insert(after + 1, entry)
+    write_catalog(path, entries)
+    write_asset_module(repo, entries)
+    print(f"imported {bid} ({row['bytes'] // 1024} KB), "
+          f"catalogue now {len(entries)} entries", file=sys.stderr)
+    return entry
 
 
 def write_catalog(path, entries):
@@ -482,15 +597,27 @@ def write_asset_module(repo, entries):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("stage", choices=["harvest", "score", "build", "template", "sync", "all"])
+    parser.add_argument("stage", choices=["harvest", "score", "build", "template",
+                                         "sync", "import", "all"])
     parser.add_argument("--work", default="./bg", help="cache directory")
     parser.add_argument("--repo", default=None, help="repo root to write the catalogue into")
     parser.add_argument("--quality", type=int, default=70, help="cwebp quality")
+    parser.add_argument("--image", default=None, help="import: the image file to add")
+    parser.add_argument("--category", default=None, help="import: catalogue category")
+    parser.add_argument("--creator", default=None, help="import: who made it, if credited")
+    parser.add_argument("--title", default=None, help="import: a human name for it")
+    parser.add_argument("--url", default=None, help="import: where it came from, if anywhere")
     args = parser.parse_args()
     if args.stage == "sync":
         if not args.repo:
             raise SystemExit("sync needs --repo")
         stage_sync(args.repo)
+        return
+    if args.stage == "import":
+        if not (args.repo and args.image and args.category):
+            raise SystemExit("import needs --repo, --image and --category")
+        stage_import(args.repo, args.image, args.category, args.quality,
+                     creator=args.creator, title=args.title, url=args.url)
         return
     os.makedirs(args.work, exist_ok=True)
 

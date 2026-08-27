@@ -248,6 +248,26 @@ two.
 Needs Pillow and `cwebp`. Neither is an app dependency; this is skill tooling
 run by hand, not part of the build.
 
+### Importing One Image the Owner Supplied
+
+An image the owner hands over skips the harvest and every licence question in
+this skill - they hold it. The `import` stage adds one file straight to the
+repo, additively:
+
+```bash
+python3 scripts/build_backgrounds.py import --repo /path/to/repo \
+    --image ~/Pictures/dune.jpg --category texture --title "Dune at dusk"
+```
+
+It runs the same crop search, band measurement, typography derivation and
+safe-strip placement as `template`, so the entry it writes is
+indistinguishable in shape from a harvested one. Two differences: `source`
+records `provider: "owner"` and `license: "owner-supplied"`, and an image that
+is already 9:16 is kept whole rather than cropped, because the owner framed it.
+
+The id is the next free number in the category, never a gap-fill. Nothing
+existing is renumbered. The `import-content` skill is the front door for this.
+
 ## Manifest Row
 
 ```json
