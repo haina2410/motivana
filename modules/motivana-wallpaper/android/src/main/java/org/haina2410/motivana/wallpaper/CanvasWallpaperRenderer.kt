@@ -9,6 +9,34 @@ import kotlin.math.*
 
 data class RotationLayout(val quoteLeft: Float, val quoteTop: Float, val quoteRight: Float, val quoteBottom: Float, val fontSize: Float, val authorY: Float, val truncated: Boolean, val maxLines: Int? = null, val lineCount: Int = 0)
 data class RotationAccent(val centerX: Float, val centerY: Float, val radius: Float)
+/** How far above and below the quote the scrim fades out, as a fraction. */
+private const val SCRIM_SPREAD = 0.42f
+
+/**
+ * The five gradient stops of the scrim: clear at both edges, peaking on the
+ * quote, and clear again well before the frame ends. A wash over the whole
+ * frame would flatten the photograph; the quote only needs contrast where it
+ * sits. Stops stay non-decreasing when the quote sits near an edge.
+ */
+internal fun scrimStops(quotePositionY: Double): FloatArray {
+  val centre = quotePositionY.toFloat().coerceIn(0f, 1f)
+  return floatArrayOf(0f, max(0f, centre - SCRIM_SPREAD), centre, min(1f, centre + SCRIM_SPREAD), 1f)
+}
+
+/**
+ * The source rectangle that fills the canvas without distorting the
+ * photograph. Backgrounds are cut to the phone aspect ratio already, so this
+ * normally takes the whole frame; it bites when the two disagree.
+ */
+internal fun coverSource(imageWidth: Int, imageHeight: Int, width: Int, height: Int): Rect {
+  val scale = max(width.toFloat() / imageWidth, height.toFloat() / imageHeight)
+  val sourceWidth = width / scale; val sourceHeight = height / scale
+  val left = (imageWidth - sourceWidth) / 2f; val top = (imageHeight - sourceHeight) / 2f
+  return Rect(left.roundToInt(), top.roundToInt(), (left + sourceWidth).roundToInt(), (top + sourceHeight).roundToInt())
+}
+
+/** The measured brightness of the scrimmed quote band, as a flat grey. */
+internal fun bandGrey(luminance: Double): Int { val channel = (luminance.coerceIn(0.0, 1.0) * 255).roundToInt(); return Color.rgb(channel, channel, channel) }
 private data class RendererResources(val bitmapFactory: (Int, Int) -> Bitmap, val afterAllocation: (Bitmap) -> Unit)
 class CanvasWallpaperRenderer private constructor(
   private val catalog: RotationCatalog,
@@ -44,11 +72,55 @@ class CanvasWallpaperRenderer private constructor(
     val quoteTop = desired.coerceIn(topSafe, maximumQuoteTop)
     return MeasuredQuote(RotationLayout(left, quoteTop, right, quoteTop + quoteHeight, size.toFloat(), quoteTop + quoteHeight + gap, truncated, maxLines, quoteLayout.lineCount), quoteLayout)
   }
+  /**
+   * Draws the photograph over the flat band colour, then a scrim that peaks on
+   * the quote and fades out well before either edge. A wash over the whole
+   * frame would flatten the photograph; the quote only needs contrast where it
+   * sits. A decode that fails leaves the flat colour, which is the measured
+   * brightness of the scrimmed band, so the quote stays readable either way.
+   */
+  private fun drawPhotograph(canvas: Canvas, background: RotationBackground.Image, preset: RotationPreset, width: Int, height: Int) {
+    val photograph = decode(background.asset, width, height) ?: return
+    try {
+      canvas.drawBitmap(photograph, coverSource(photograph.width, photograph.height, width, height), Rect(0, 0, width, height), Paint(Paint.FILTER_BITMAP_FLAG))
+    } finally {
+      photograph.recycle()
+    }
+    val clear = Color.parseColor(background.scrimColor) and 0x00FFFFFF
+    val peak = clear or ((background.scrimOpacity * 255).roundToInt() shl 24)
+    val scrim = Paint()
+    scrim.shader = LinearGradient(0f, 0f, 0f, height.toFloat(), intArrayOf(clear, clear, peak, clear, clear), scrimStops(preset.quotePositionY), Shader.TileMode.CLAMP)
+    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), scrim)
+  }
+
+  /** Samples the photograph down to the wallpaper before it reaches memory. */
+  private fun decode(asset: String, width: Int, height: Int): Bitmap? {
+    val assets = assets ?: return null
+    val path = "images/$asset"
+    return try {
+      val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+      assets.open(path).use { BitmapFactory.decodeStream(it, null, bounds) }
+      if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+      var sample = 1
+      while (bounds.outWidth / (sample * 2) >= width && bounds.outHeight / (sample * 2) >= height) sample *= 2
+      if (!WallpaperImageSafety.hasSafeRgbaAllocation(bounds.outWidth / sample, bounds.outHeight / sample)) return null
+      assets.open(path).use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample; inPreferredConfig = Bitmap.Config.ARGB_8888 }) }
+    } catch (_: Exception) {
+      null
+    }
+  }
+
   fun render(quote: RotationQuote, preset: RotationPreset, width: Int, height: Int): Bitmap {
     require(WallpaperImageSafety.hasSafeRgbaAllocation(width, height)); val bitmap = resources.bitmapFactory(width, height)
     try {
       resources.afterAllocation(bitmap)
-      val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG); paint.shader = when (val bg = preset.background) { is RotationBackground.Solid -> null; is RotationBackground.Gradient -> gradient(bg, width, height) }; canvas.drawColor((preset.background as? RotationBackground.Solid)?.let { Color.parseColor(it.color) } ?: Color.TRANSPARENT); if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }
+      val canvas = Canvas(bitmap); val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+      paint.shader = (preset.background as? RotationBackground.Gradient)?.let { gradient(it, width, height) }
+      canvas.drawColor(when (val bg = preset.background) { is RotationBackground.Solid -> Color.parseColor(bg.color); is RotationBackground.Image -> bandGrey(bg.luminance); else -> Color.TRANSPARENT })
+      if (paint.shader != null) canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+      (preset.background as? RotationBackground.Image)?.let { drawPhotograph(canvas, it, preset, width, height) }
+      paint.shader = null
+      preset.overlay?.let { canvas.drawColor(Color.parseColor(it)) }
       val measured = measure(quote, preset, width, height); val layout = measured.geometry
       val accent = accentGeometry(layout, preset); paint.shader = null; paint.color = Color.argb((255 * .35f).toInt(), Color.red(Color.parseColor(preset.authorColor)), Color.green(Color.parseColor(preset.authorColor)), Color.blue(Color.parseColor(preset.authorColor))); canvas.drawCircle(accent.centerX, accent.centerY, accent.radius, paint)
       paint.shader = null; paint.color = Color.parseColor(preset.textColor); paint.typeface = typeface(preset); paint.textSize = layout.fontSize

@@ -363,6 +363,12 @@ first, then step the centre inward until the recomputed block fits, and assert
 with the same arithmetic the test uses. Skipping this put 20 of 90 entries a
 few ten-thousandths over the line.
 
-For reference, the eight gradient presets in `assets/data/presets.json` sit
-between 0.39 and 0.47. Those predate this rule and sit slightly higher than it
-allows.
+For reference, the eight plain presets that share
+`assets/data/backgrounds.json` sit between 0.39 and 0.47. Those predate this
+rule and sit slightly higher than it allows.
+
+**The catalogue holds both kinds of entry.** A photograph carries a `category`
+and an image background; a plain preset carries neither, and has no file in
+`assets/images/backgrounds`. Every stage that rewrites the catalogue writes the
+plain presets back first and leaves them untouched, so `sync` never drops them
+and the asset module never emits a `require()` for one.

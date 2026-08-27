@@ -90,11 +90,26 @@ function runVerifier(files: Record<string, string | Buffer>) {
 
 const backgroundIds = ['sky-01', 'mountain-01'];
 
+function plainPresets() {
+  return Array.from({ length: 8 }, (_, index) => ({
+    ...validPreset,
+    id: presetIds[index],
+    ...presetFonts[index % presetFonts.length],
+    background: {
+      kind: 'solid',
+      color: `#1118${String(index).padStart(2, '0')}`,
+    },
+  }));
+}
+
 function serializedCatalogFiles(): Record<string, string | Buffer> {
   return {
     'assets/data/quotes.json': JSON.stringify(validQuotes()),
-    'assets/data/backgrounds.json': JSON.stringify(
-      backgroundIds.map((id) => ({
+    // One file, both kinds of entry: the eight plain presets first, then the
+    // photographs, exactly as the shipped catalogue is laid out.
+    'assets/data/backgrounds.json': JSON.stringify([
+      ...plainPresets(),
+      ...backgroundIds.map((id) => ({
         ...validPreset,
         id,
         category: id.split('-')[0],
@@ -106,7 +121,7 @@ function serializedCatalogFiles(): Record<string, string | Buffer> {
           effectiveLuminance: 0.25,
         },
       })),
-    ),
+    ]),
     // The verifier only checks that the pair of files exists, so a stand-in
     // byte keeps the fixture from carrying two real photographs.
     ...Object.fromEntries(
@@ -114,17 +129,6 @@ function serializedCatalogFiles(): Record<string, string | Buffer> {
         [`assets/images/backgrounds/${id}.webp`, Buffer.from([0])],
         [`assets/images/backgrounds/thumbs/${id}.webp`, Buffer.from([0])],
       ]),
-    ),
-    'assets/data/presets.json': JSON.stringify(
-      Array.from({ length: 8 }, (_, index) => ({
-        ...validPreset,
-        id: presetIds[index],
-        ...presetFonts[index % presetFonts.length],
-        background: {
-          kind: 'solid',
-          color: `#1118${String(index).padStart(2, '0')}`,
-        },
-      })),
     ),
     ...Object.fromEntries(
       [
@@ -234,20 +238,51 @@ test('rejects malformed JSON with its catalog path', () => {
 
 test('rejects invalid preset ratios with a precise data path', () => {
   const files = serializedCatalogFiles();
-  const invalidPresets = Array.from({ length: 8 }, (_, index) => ({
-    ...validPreset,
-    id: presetIds[index],
-    preferredFontSizeRatio: 0.02,
-    minimumFontSizeRatio: 0.04,
-  }));
-  files['assets/data/presets.json'] = JSON.stringify(invalidPresets);
+  files['assets/data/backgrounds.json'] = JSON.stringify(
+    plainPresets().map((preset) => ({
+      ...preset,
+      preferredFontSizeRatio: 0.02,
+      minimumFontSizeRatio: 0.04,
+    })),
+  );
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(
-    'assets/data/presets.json: presets[0].minimumFontSizeRatio',
+    'assets/data/backgrounds.json: templates[0].minimumFontSizeRatio',
   );
+});
+
+/**
+ * presetRepository.ts splits the picker's "Plain" filter on the category alone,
+ * so a photograph that lost its category would join the eight presets and be
+ * offered as a colour swatch that renders a photograph.
+ */
+test('rejects a photograph that carries no category', () => {
+  const files = serializedCatalogFiles();
+  const templates = JSON.parse(String(files['assets/data/backgrounds.json']));
+  delete templates[8].category;
+  files['assets/data/backgrounds.json'] = JSON.stringify(templates);
+
+  const result = runVerifier(files);
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain(
+    'assets/data/backgrounds.json: templates[8].category',
+  );
+});
+
+test('rejects a plain preset that carries a category', () => {
+  const files = serializedCatalogFiles();
+  const templates = JSON.parse(String(files['assets/data/backgrounds.json']));
+  templates[0].category = 'sky';
+  files['assets/data/backgrounds.json'] = JSON.stringify(templates);
+
+  const result = runVerifier(files);
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain('must carry no category');
 });
 
 test('rejects a missing font asset with its exact path', () => {

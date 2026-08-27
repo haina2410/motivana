@@ -23,7 +23,17 @@ data class RotationQuoteEntry(
   fun resolve(locale: String) = RotationQuote(id, text[locale] ?: text.getValue(sourceLocale), author, category)
   fun hasLocale(locale: String) = locale == RotationLocales.ALL || text.containsKey(locale)
 }
-sealed class RotationBackground { data class Solid(val color: String) : RotationBackground(); data class Gradient(val start: String, val end: String, val angle: Double) : RotationBackground() }
+sealed class RotationBackground {
+  data class Solid(val color: String) : RotationBackground()
+  data class Gradient(val start: String, val end: String, val angle: Double) : RotationBackground()
+  /**
+   * A photograph bundled under assets/images. `luminance` is the measured
+   * brightness of the quote band once the scrim is applied; the renderer paints
+   * it as a flat grey underneath, so a decode that fails still leaves the quote
+   * on the tone it was judged readable against.
+   */
+  data class Image(val asset: String, val scrimColor: String, val scrimOpacity: Double, val luminance: Double) : RotationBackground()
+}
 data class RotationPreset(val id: String, val family: String, val weight: String, val align: String, val quotePositionY: Double, val preferredRatio: Double, val minimumRatio: Double, val lineHeight: Double, val textColor: String, val authorColor: String, val background: RotationBackground, val overlay: String? = null)
 data class RotationCatalog(val quotes: List<RotationQuoteEntry>, val presets: List<RotationPreset>) {
   fun quote(id: String) = quotes.firstOrNull { it.id == id }

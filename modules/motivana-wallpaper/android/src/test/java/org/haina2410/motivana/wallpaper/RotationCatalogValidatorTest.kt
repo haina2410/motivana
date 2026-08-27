@@ -28,4 +28,32 @@ class RotationCatalogValidatorTest {
     RotationCatalogValidator.validate(catalog().copy(quotes = duplicated))
   }
   @Test(expected = CatalogException::class) fun rejectsUnsupportedFontAndBadColor() { RotationCatalogValidator.validate(catalog().copy(presets = catalog().presets.toMutableList().also { it[0] = it[0].copy(family = "Missing", textColor = "white") })) }
+
+  private fun photograph(background: RotationBackground.Image) =
+    catalog().let { it.copy(presets = it.presets + it.presets[0].copy(id = "mountain-01", background = background)) }
+  private val image = RotationBackground.Image("backgrounds/mountain-01.webp", "#000000", .45, .257)
+
+  // Mutation caught: rejecting the image kind is what stopped the worker from
+  // accepting a photograph at all, so a plain-only validator would restore the
+  // "Could not update the preset used for rotation" failure.
+  @Test fun acceptsAPhotographAlongsideThePlainPresets() { RotationCatalogValidator.validate(photograph(image)) }
+
+  // Mutation caught: an asset path free to name any file would let one entry
+  // draw another entry's photograph.
+  @Test(expected = CatalogException::class) fun rejectsAnAssetThatDoesNotMatchTheId() {
+    RotationCatalogValidator.validate(photograph(image.copy(asset = "backgrounds/ocean-02.webp")))
+  }
+
+  // Mutation caught: an opacity outside 0..1 makes an alpha channel wrap around,
+  // so a scrim meant to be faint would paint the photograph solid black.
+  @Test(expected = CatalogException::class) fun rejectsAScrimOpacityOutsideTheUnitRange() {
+    RotationCatalogValidator.validate(photograph(image.copy(scrimOpacity = 1.4)))
+  }
+
+  // Mutation caught: the measured luminance is the fallback colour behind the
+  // quote, so a value off the scale would leave unreadable text when a decode
+  // fails.
+  @Test(expected = CatalogException::class) fun rejectsALuminanceOutsideTheUnitRange() {
+    RotationCatalogValidator.validate(photograph(image.copy(luminance = -0.1)))
+  }
 }

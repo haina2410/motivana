@@ -42,9 +42,53 @@ class CanvasWallpaperRendererGeometryTest {
     bitmap.recycle()
   }
 
+  // Mutation caught: a scrim washed flat over the frame would grey out every
+  // photograph, and stops out of order would make LinearGradient throw.
+  @Test fun theScrimPeaksOnTheQuoteAndClearsBothEdges() {
+    val stops = scrimStops(.468)
+    assertEquals(listOf(0f, .048f, .468f, .888f, 1f), stops.map { round(it * 1000) / 1000 })
+    // A quote near an edge clamps rather than running past the frame.
+    listOf(.1, .9).forEach { centre ->
+      val clamped = scrimStops(centre)
+      assertTrue(clamped.toList() == clamped.sorted())
+      assertEquals(0f, clamped.first(), 0f); assertEquals(1f, clamped.last(), 0f)
+    }
+  }
+
+  // Mutation caught: filling the frame by stretching, rather than cropping the
+  // longer side, would squash every photograph whose shape differs from the
+  // phone's.
+  @Test fun theSourceRectangleCoversTheCanvasWithoutDistortion() {
+    // Same shape: the whole photograph.
+    assertEquals(android.graphics.Rect(0, 0, 1290, 2796), coverSource(1290, 2796, 1290, 2796))
+    // Wider than the canvas: the sides are cropped, the full height is kept.
+    val cropped = coverSource(2000, 1000, 500, 1000)
+    assertEquals(1000, cropped.height())
+    assertEquals(500, cropped.width())
+    assertEquals(cropped.left, 2000 - cropped.right)
+  }
+
+  // Mutation caught: a decode that fails leaves this colour behind the quote,
+  // so a fixed grey would put white text on white for a bright photograph.
+  @Test fun theFallbackColourIsTheMeasuredBandBrightness() {
+    assertEquals(android.graphics.Color.rgb(66, 66, 66), bandGrey(.257))
+    assertEquals(android.graphics.Color.rgb(255, 255, 255), bandGrey(1.4))
+    assertEquals(android.graphics.Color.rgb(0, 0, 0), bandGrey(-.2))
+  }
+
+  // Mutation caught: parsing a photograph as a solid or dropping it entirely
+  // would put a plain colour where the shipped catalogue promises an image.
+  @Test fun theShippedCatalogueParsesItsPhotographsAsImageBackgrounds() {
+    val catalog = authoritativeCatalog()
+    val photographs = catalog.presets.mapNotNull { it.background as? RotationBackground.Image }
+    assertTrue(photographs.size >= 40)
+    assertTrue(photographs.all { it.asset.startsWith("backgrounds/") && it.asset.endsWith(".webp") })
+    assertEquals(8, catalog.presets.size - photographs.size)
+  }
+
   private fun authoritativeCatalog(): RotationCatalog {
     val root = assetRoot()
-    val catalog = RotationCatalog(RotationCatalogLoader.parseQuotes(root.resolve("data/quotes.json").readText()), RotationCatalogLoader.parsePresets(root.resolve("data/presets.json").readText()))
+    val catalog = RotationCatalog(RotationCatalogLoader.parseQuotes(root.resolve("data/quotes.json").readText()), RotationCatalogLoader.parsePresets(root.resolve("data/backgrounds.json").readText()))
     RotationCatalogValidator.validate(catalog)
     return catalog
   }

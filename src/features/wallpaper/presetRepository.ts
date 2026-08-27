@@ -1,21 +1,24 @@
-import backgroundCatalog from '../../../assets/data/backgrounds.json';
-import presetCatalog from '../../../assets/data/presets.json';
+import catalog from '../../../assets/data/backgrounds.json';
 import { parseWallpaperPresetCatalog, type WallpaperPreset } from './types';
 
 /**
- * Two catalogues, one lookup. The eight curated presets and the photographic
- * backgrounds are validated by the same parser but kept in separate files:
- * a background carries a category, a safe area and a licence record that a
- * preset has no use for, and verify-data.mjs holds presets.json to a fixed set
- * of stable ids.
+ * One catalogue, two kinds of entry. A photographic background carries a
+ * category; a plain preset -- the eight curated colours and gradients -- does
+ * not. That one field is what the picker's "Plain" filter reads, and what the
+ * sourcing skill uses to leave the presets alone when it rewrites the file.
  */
-const presets = parseWallpaperPresetCatalog(presetCatalog);
-const backgrounds = parseWallpaperPresetCatalog(backgroundCatalog);
-const templates = Object.freeze([...presets, ...backgrounds]);
+const templates = parseWallpaperPresetCatalog(catalog);
+const presets = Object.freeze(
+  templates.filter((template) => template.category === undefined),
+);
+const backgrounds = Object.freeze(
+  templates.filter((template) => template.category !== undefined),
+);
 const templatesById = new Map(
   templates.map((template) => [template.id, template]),
 );
 
+/** The curated plain presets, in catalogue order. */
 export function getAllPresets(): readonly WallpaperPreset[] {
   return presets;
 }
@@ -30,7 +33,7 @@ export function getAllTemplates(): readonly WallpaperPreset[] {
   return templates;
 }
 
-/** Resolves an id from either catalogue, so a saved photograph survives a restart. */
+/** Resolves any id in the catalogue, so a saved photograph survives a restart. */
 export function getPresetById(id: string): WallpaperPreset | undefined {
   return templatesById.get(id);
 }

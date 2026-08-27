@@ -1,10 +1,9 @@
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-import backgrounds from '../../../../assets/data/backgrounds.json';
 import { backgroundAssets } from '../backgroundAssets';
 import { backgroundThumbAssets } from '../backgroundThumbAssets';
-import { parseWallpaperPresetCatalog } from '../types';
+import { getAllBackgrounds, getAllPresets } from '../presetRepository';
 
 /**
  * The lock screen keeps two strips for itself. Above, the Android 12+ large
@@ -17,8 +16,14 @@ const BOTTOM_SAFE = 0.84;
 const MAX_LINES = 3;
 const AUTHOR_LINES = 0.7;
 
+/**
+ * One file holds both kinds of entry. Everything below is about the
+ * photographs, so it reads the catalogue through the same split the picker
+ * uses rather than over the whole file: a plain preset has no image on disk and
+ * predates the safe-area rule.
+ */
 describe('backgrounds catalogue', () => {
-  const parsed = parseWallpaperPresetCatalog(backgrounds);
+  const parsed = getAllBackgrounds();
 
   const imageDirectory = join(
     __dirname,
@@ -31,6 +36,23 @@ describe('backgrounds catalogue', () => {
 
   it('parses every entry under the wallpaper preset validator', () => {
     expect(parsed.length).toBeGreaterThan(0);
+  });
+
+  /**
+   * The category is the only thing separating a photograph from a plain preset
+   * once they share a file, so the picker's "Plain" filter and this suite both
+   * rest on it. A photograph that lost its category would quietly join the
+   * presets and stop being checked here at all.
+   */
+  it('splits the shared file into photographs and plain presets', () => {
+    expect(parsed.every((preset) => preset.category !== undefined)).toBe(true);
+    expect(getAllPresets().length).toBe(8);
+    expect(
+      getAllPresets().every(
+        (preset) =>
+          preset.category === undefined && preset.background.kind !== 'image',
+      ),
+    ).toBe(true);
   });
 
   /**

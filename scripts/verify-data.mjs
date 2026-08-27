@@ -168,8 +168,15 @@ function validateQuotes(quotes) {
   }
 }
 
-function validatePreset(preset, index) {
-  const path = `assets/data/presets.json: presets[${index}]`;
+/** Turns a measured band luminance into the grey the quote is read against. */
+function luminanceToGrey(luminance) {
+  const channel = Math.round(Math.min(1, Math.max(0, luminance)) * 255);
+  return `#${channel.toString(16).padStart(2, '0').repeat(3)}`;
+}
+
+function validateTemplate(template, index) {
+  const preset = template;
+  const path = `assets/data/backgrounds.json: templates[${index}]`;
   if (!isRecord(preset)) {
     fail(path, 'must be an object');
   }
@@ -259,8 +266,24 @@ function validatePreset(preset, index) {
       preset.background.startColor,
       preset.background.endColor,
     ];
+  } else if (preset.background.kind === 'image') {
+    if (preset.background.asset !== `backgrounds/${preset.id}.webp`) {
+      fail(`${path}.background.asset`, 'must be backgrounds/<id>.webp');
+    }
+    if (!isHexColor(preset.background.scrimColor)) {
+      fail(`${path}.background.scrimColor`, 'must be a #RRGGBB color');
+    }
+    for (const field of ['scrimOpacity', 'effectiveLuminance']) {
+      const value = preset.background[field];
+      if (typeof value !== 'number' || !(value >= 0) || !(value <= 1)) {
+        fail(`${path}.background.${field}`, 'must be between 0 and 1');
+      }
+    }
+    // The quote is read against the scrimmed band, not the raw photograph, so
+    // the measured luminance is what the contrast rule below has to weigh.
+    backgroundColors = [luminanceToGrey(preset.background.effectiveLuminance)];
   } else {
-    fail(`${path}.background.kind`, 'must be solid or linear-gradient');
+    fail(`${path}.background.kind`, 'must be solid, linear-gradient or image');
   }
   if (
     !backgroundColors.every((color) => meetsAaContrast(preset.textColor, color))
@@ -270,34 +293,69 @@ function validatePreset(preset, index) {
   return fontPath;
 }
 
-function validatePresets(presets) {
-  if (!Array.isArray(presets)) {
-    fail('assets/data/presets.json', 'presets must be an array');
-  }
-  if (presets.length !== 8) {
-    fail('assets/data/presets.json', 'presets must contain exactly 8 entries');
+/**
+ * One catalogue holds both kinds of entry. A photograph carries a category and
+ * an image background; a plain preset carries neither. The two are checked
+ * together so a single file cannot drift into a half-described entry, and the
+ * pairing is enforced both ways: presetRepository.ts splits the picker's
+ * "Plain" filter on the category alone, so a photograph that lost its category
+ * would silently join the presets.
+ *
+ * The picker bundles a thumbnail per photograph and decodes those instead of
+ * the 1290x2796 originals. A missing one is a dangling require() that fails the
+ * bundle, so the gate checks the pair rather than waiting for a red build.
+ */
+function validateTemplates(templates) {
+  const path = 'assets/data/backgrounds.json';
+  if (!Array.isArray(templates)) {
+    fail(path, 'templates must be an array');
   }
   const ids = new Set();
-  const backgrounds = new Set();
+  const plainBackgrounds = new Set();
   const referencedFonts = new Set();
-  for (const [index, preset] of presets.entries()) {
-    const fontPath = validatePreset(preset, index);
-    if (ids.has(preset.id)) {
-      fail(`assets/data/presets.json: presets[${index}].id`, 'must be unique');
+  for (const [index, template] of templates.entries()) {
+    const entryPath = `${path}: templates[${index}]`;
+    const fontPath = validateTemplate(template, index);
+    if (ids.has(template.id)) {
+      fail(`${entryPath}.id`, 'must be unique');
     }
-    ids.add(preset.id);
-    const background = JSON.stringify(preset.background);
-    if (backgrounds.has(background)) {
+    ids.add(template.id);
+    referencedFonts.add(fontPath);
+    const isPhotograph = template.background.kind === 'image';
+    const hasCategory =
+      typeof template.category === 'string' && template.category.trim() !== '';
+    if (isPhotograph !== hasCategory) {
       fail(
-        `assets/data/presets.json: presets[${index}].background`,
-        'must be visually distinct',
+        `${entryPath}.category`,
+        isPhotograph
+          ? 'a photograph must name a filter group'
+          : 'a plain preset must carry no category',
       );
     }
-    backgrounds.add(background);
-    referencedFonts.add(fontPath);
+    if (isPhotograph) {
+      for (const asset of [
+        `assets/images/backgrounds/${template.id}.webp`,
+        `assets/images/backgrounds/thumbs/${template.id}.webp`,
+      ]) {
+        if (!existsSync(resolve(asset))) {
+          fail(
+            `${entryPath}.id`,
+            `missing ${asset}; run node scripts/make-thumbnails.mjs`,
+          );
+        }
+      }
+      continue;
+    }
+    // Two photographs of the same mountain are the point of a catalogue; two
+    // identical plain presets are a duplicate the reader cannot tell apart.
+    const background = JSON.stringify(template.background);
+    if (plainBackgrounds.has(background)) {
+      fail(`${entryPath}.background`, 'must be visually distinct');
+    }
+    plainBackgrounds.add(background);
   }
   if (expectedPresetIds.some((id) => !ids.has(id))) {
-    fail('assets/data/presets.json', 'must contain all stable preset IDs');
+    fail(path, 'must contain all stable preset IDs');
   }
   return referencedFonts;
 }
@@ -370,57 +428,11 @@ function validateTrueTypeFont(path, font) {
   }
 }
 
-/**
- * The picker bundles a thumbnail per background and decodes those instead of
- * the 1290x2796 originals. A missing one is a dangling require() that fails the
- * bundle, so the gate checks the pair rather than waiting for a red build.
- */
-function validateBackgrounds(backgrounds) {
-  const path = 'assets/data/backgrounds.json';
-  if (!Array.isArray(backgrounds)) {
-    fail(path, 'backgrounds must be an array');
-  }
-  const ids = new Set();
-  for (const [index, background] of backgrounds.entries()) {
-    const entryPath = `${path}: backgrounds[${index}]`;
-    if (!isRecord(background)) {
-      fail(entryPath, 'must be an object');
-    }
-    const id = background.id;
-    if (typeof id !== 'string' || id.trim() === '') {
-      fail(`${entryPath}.id`, 'must be a non-empty string');
-    }
-    if (ids.has(id)) {
-      fail(`${entryPath}.id`, 'must be unique');
-    }
-    ids.add(id);
-    if (
-      typeof background.category !== 'string' ||
-      background.category.trim() === ''
-    ) {
-      fail(`${entryPath}.category`, 'must name a filter group');
-    }
-    for (const asset of [
-      `assets/images/backgrounds/${id}.webp`,
-      `assets/images/backgrounds/thumbs/${id}.webp`,
-    ]) {
-      if (!existsSync(resolve(asset))) {
-        fail(
-          `${entryPath}.id`,
-          `missing ${asset}; run node scripts/make-thumbnails.mjs`,
-        );
-      }
-    }
-  }
-}
-
 try {
   const quotes = parseJson('assets/data/quotes.json');
-  const presets = parseJson('assets/data/presets.json');
-  const backgrounds = parseJson('assets/data/backgrounds.json');
+  const templates = parseJson('assets/data/backgrounds.json');
   validateQuotes(quotes);
-  validateBackgrounds(backgrounds);
-  const referencedFonts = validatePresets(presets);
+  const referencedFonts = validateTemplates(templates);
   for (const fontPath of referencedFonts) {
     const absolutePath = resolve(fontPath);
     if (!existsSync(absolutePath)) {

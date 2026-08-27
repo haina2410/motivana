@@ -17,7 +17,7 @@ class RotationContentLocaleTest {
     .map { it.resolve("assets") }
     .first { it.resolve("data/quotes.json").isFile }
   private fun realQuotes() = RotationCatalogLoader.parseQuotes(assetRoot().resolve("data/quotes.json").readText())
-  private fun realCatalog() = RotationCatalog(realQuotes(), RotationCatalogLoader.parsePresets(assetRoot().resolve("data/presets.json").readText()))
+  private fun realCatalog() = RotationCatalog(realQuotes(), RotationCatalogLoader.parsePresets(assetRoot().resolve("data/backgrounds.json").readText()))
   private fun validCatalog() = RotationCatalog(
     (0 until 120).map { index -> testEntry("q$index", "A valid quote has more than twelve characters $index.", null, listOf("motivation", "discipline", "focus", "confidence", "growth", "success")[index % 6]) },
     (0 until 8).map { index -> RotationPreset("p$index", "BeVietnamPro", "Light", "center", .43, .064, .036, 1.18, "#FFFFFF", "#DDEEFF", RotationBackground.Solid("#000000")) },

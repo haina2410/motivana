@@ -432,7 +432,8 @@ def stage_template(work, rows, repo):
             src = f"{work}/crop/{row['id']}.webp"
             if os.path.exists(src):
                 open(f"{images}/{row['id']}.webp", "wb").write(open(src, "rb").read())
-        write_catalog(f"{repo}/assets/data/backgrounds.json", out)
+        write_catalog(f"{repo}/assets/data/backgrounds.json",
+                      plain_presets(repo) + out)
         print(f"wrote {repo}/assets/data/backgrounds.json and {len(rows)} images",
               file=sys.stderr)
     return out
@@ -542,6 +543,18 @@ def write_catalog(path, entries):
     open(path, "w").write(text + "\n")
 
 
+def plain_presets(repo):
+    """The curated plain presets that share the catalogue with the photographs.
+
+    They carry no category and no image file, so every stage that rewrites the
+    catalogue from the image folder would drop them. They are always written
+    back first, in their original order."""
+    path = f"{repo}/assets/data/backgrounds.json"
+    if not os.path.exists(path):
+        return []
+    return [e for e in json.load(open(path)) if not e.get("category")]
+
+
 def kept_ids(repo):
     """The image ids a reviewer chose to keep.
 
@@ -565,13 +578,16 @@ def stage_sync(repo):
     path = f"{repo}/assets/data/backgrounds.json"
     entries = json.load(open(path))
     keep = kept_ids(repo) or set()
-    synced = [e for e in entries if e["id"] in keep]
-    orphans = sorted(keep - {e["id"] for e in synced})
+    plain = [e for e in entries if not e.get("category")]
+    photographs = [e for e in entries if e.get("category") and e["id"] in keep]
+    synced = plain + photographs
+    orphans = sorted(keep - {e["id"] for e in photographs})
     if orphans:
         raise SystemExit(f"images with no catalogue entry: {' '.join(orphans)}")
     write_catalog(path, synced)
     write_asset_module(repo, synced)
-    print(f"kept {len(synced)} of {len(entries)} entries", file=sys.stderr)
+    print(f"kept {len(photographs)} of {len(entries) - len(plain)} photographs "
+          f"and {len(plain)} plain presets", file=sys.stderr)
     return synced
 
 
@@ -585,7 +601,7 @@ def write_asset_module(repo, entries):
         "",
         "export const backgroundAssets: Readonly<Record<string, number>> = {",
     ]
-    for entry in entries:
+    for entry in [e for e in entries if e.get("category")]:
         lines.append(f"  '{entry['id']}': "
                      f"require('../../../assets/images/backgrounds/{entry['id']}.webp'),")
     lines += ["};", ""]
