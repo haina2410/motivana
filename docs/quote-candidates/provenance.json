@@ -409,5 +409,18 @@
     "edit": "a comma added after 'Không sao cả'; the supplied English line's trailing '…..!' replaced with a full stop",
     "reviewedReason": "chosen by the product owner; the English line came with it",
     "promotedFrom": ".claude/skills/sourcing-quotes/references/example-owner-supplied.json"
+  },
+  "e59ae2e961786295": {
+    "text": "Nếu thế gian lấy đúng sai làm pháp tắc dốc sức ngăn cản ta, ta sẽ chỉ đưa ra sự lựa chọn duy nhất ta muốn trong lòng.",
+    "author": null,
+    "category": "confidence",
+    "sourceKind": "owner-supplied",
+    "providedBy": "owner",
+    "verification": "owner-supplied",
+    "rights": "unknown-author",
+    "englishRendering": "none",
+    "edit": "removed the quotation marks that wrapped the paste; wording, punctuation and diacritics unchanged",
+    "reviewedReason": "pasted by the owner",
+    "promotedFrom": "docs/quote-candidates/2026-08-27-import.json"
   }
 }
