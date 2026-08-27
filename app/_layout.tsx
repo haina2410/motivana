@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 import { resolveAppliedQuoteId } from '../src/features/quotes/appliedQuote';
 import { rotationSchedulePlan } from '../src/features/rotation/schedule';
@@ -58,8 +59,11 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
-          // The board's supporting screens rise over the deck.
-          animation: 'fade',
+          // The supporting screens slide in from the side of the deck. On iOS
+          // `default` already is that slide, with the edge swipe and the
+          // parallax of the screen below; `slide_from_right` would fall back to
+          // it anyway, so name it and keep the platform behaviour.
+          animation: Platform.select({ ios: 'default', android: 'slide_from_right' } as const),
         }}
       />
     </>
