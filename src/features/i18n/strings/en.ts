@@ -248,9 +248,6 @@ export const en = {
   'rotation.battery':
     'Battery optimisation can delay a run. Exclude Motivana to keep the timing exact.',
 
-  'settings.offline.title': 'Fully offline',
-  'settings.offline.message':
-    'No account, no server, no analytics. Quotes, presets, fonts and exports stay on this device.',
   'settings.export.label': 'Export',
   'settings.resolution.label': 'Resolution',
   'settings.language.label': 'Language',
@@ -267,7 +264,7 @@ export const en = {
   'settings.licences.hint':
     'Every bundled typeface ships under the SIL Open Font License.',
   'settings.version.label': 'Version',
-  'settings.version.value': '{version} · offline',
+  'settings.version.value': '{version}',
   'settings.update.label': 'Update',
   'settings.update.embedded': 'Built in',
   'settings.update.unknown': 'Not available',
