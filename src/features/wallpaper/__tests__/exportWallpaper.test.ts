@@ -259,3 +259,67 @@ test('maps file persistence failures to FILE_WRITE_FAILED', async () => {
     exportWithDependencies(composition, dependencies),
   ).rejects.toEqual(new RenderError('FILE_WRITE_FAILED'));
 });
+
+jest.mock('../useBackgroundImage', () => ({
+  getBackgroundImage: jest.fn(),
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { getBackgroundImage } = require('../useBackgroundImage') as {
+  getBackgroundImage: jest.Mock;
+};
+
+const imageComposition = () =>
+  createComposition({
+    quote: {
+      id: 'export-quote',
+      category: 'success',
+      sourceLocale: 'en',
+      text: { en: 'Success is the sum of small efforts repeated every day.' },
+      author: 'Robert Collier',
+    } satisfies Quote,
+    preset: {
+      ...getPresetById('midnight-focus')!,
+      background: {
+        kind: 'image',
+        asset: 'backgrounds/mountain-01.webp',
+        scrimColor: '#000000',
+        scrimOpacity: 0.6,
+        effectiveLuminance: 0.12,
+      },
+    },
+    width: 1080,
+    height: 2400,
+    locale: 'en',
+  });
+
+// Mutation caught: exporting before the photograph is decoded writes the
+// stand-in colour, so the reader applies a plain grey screen as a wallpaper.
+test('hands the decoded photograph to the draw for an image background', async () => {
+  const handed: unknown[] = [];
+  const decodedImage = { width: () => 1290, height: () => 2796 };
+  getBackgroundImage.mockResolvedValueOnce(decodedImage);
+  const dependencies = workingDependencies();
+  const inner = dependencies.drawScene;
+  dependencies.drawScene = (target, composition, backgroundImage) => {
+    handed.push(backgroundImage);
+    inner(target, composition, backgroundImage);
+  };
+
+  await exportWithDependencies(imageComposition(), dependencies);
+
+  expect(getBackgroundImage).toHaveBeenCalledWith(
+    'backgrounds/mountain-01.webp',
+  );
+  expect(handed).toEqual([decodedImage]);
+});
+
+// Mutation caught: treating a failed decode as "carry on" silently exports a
+// blank wallpaper instead of telling the reader the render failed.
+test('fails the export when the photograph cannot be decoded', async () => {
+  getBackgroundImage.mockResolvedValueOnce(undefined);
+
+  await expect(
+    exportWithDependencies(imageComposition(), workingDependencies()),
+  ).rejects.toMatchObject({ code: 'DRAW_FAILED' });
+});

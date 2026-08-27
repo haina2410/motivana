@@ -29,7 +29,10 @@ import {
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { exportedWallpaperUri } from '../src/features/wallpaper/exportCache';
 import { getPresetById } from '../src/features/wallpaper/presetRepository';
-import type { WallpaperPreset } from '../src/features/wallpaper/types';
+import {
+  backgroundSwatch,
+  type WallpaperPreset,
+} from '../src/features/wallpaper/types';
 import type { ContentLocale, Locale } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
 import type { StringKey } from '../src/features/i18n/t';
@@ -312,9 +315,7 @@ function formatToday(locale: Locale): string {
 function presetSwatch(presetId: string): string {
   const preset = getPresetById(presetId);
   if (!preset) return colors.accent;
-  return preset.background.kind === 'solid'
-    ? preset.background.color
-    : preset.background.startColor;
+  return backgroundSwatch(preset.background);
 }
 
 function createWallpaperComposition(

@@ -1,4 +1,9 @@
-import { Canvas, Image as SkiaImage, Skia } from '@shopify/react-native-skia';
+import {
+  Canvas,
+  Image as SkiaImage,
+  Skia,
+  type SkImage,
+} from '@shopify/react-native-skia';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Image as NativeImage,
@@ -13,6 +18,7 @@ import {
 import type { WallpaperComposition } from './composition';
 import { exportedWallpaperUri } from './exportCache';
 import { drawWallpaperScene, measureSkiaComposition } from './scene';
+import { useBackgroundImage } from './useBackgroundImage';
 import { useWallpaperFonts } from './useWallpaperFonts';
 
 export interface WallpaperCanvasProps {
@@ -22,6 +28,7 @@ export interface WallpaperCanvasProps {
 
 export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   const fonts = useWallpaperFonts();
+  const backgroundImage = useBackgroundImage(composition.preset.background);
   // The wallpaper the reader already applied is on disk as a finished PNG. Using
   // it skips both the typeface load and the draw, so the card fills the first
   // frame instead of holding a spinner for the whole font load.
@@ -48,16 +55,16 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
   const fallbackUri = useMemo(
     () =>
       fonts && Platform.OS === 'android' && exported === undefined
-        ? createPreviewDataUri(measuredComposition, fonts)
+        ? createPreviewDataUri(measuredComposition, fonts, backgroundImage)
         : null,
-    [exported, fonts, measuredComposition],
+    [backgroundImage, exported, fonts, measuredComposition],
   );
   const preview = useMemo(
     () =>
       fonts && Platform.OS !== 'android'
-        ? createPreviewImage(measuredComposition, fonts)
+        ? createPreviewImage(measuredComposition, fonts, backgroundImage)
         : null,
-    [fonts, measuredComposition],
+    [backgroundImage, fonts, measuredComposition],
   );
   useEffect(
     () => () => {
@@ -106,6 +113,7 @@ export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
 export function createPreviewImage(
   composition: WallpaperComposition,
   fonts: NonNullable<ReturnType<typeof useWallpaperFonts>>,
+  backgroundImage?: SkImage | null,
 ) {
   const surface = Skia.Surface.MakeOffscreen(
     composition.width,
@@ -113,7 +121,12 @@ export function createPreviewImage(
   );
   if (!surface) return null;
   try {
-    drawWallpaperScene(surface.getCanvas(), composition, fonts);
+    drawWallpaperScene(
+      surface.getCanvas(),
+      composition,
+      fonts,
+      backgroundImage ?? undefined,
+    );
     surface.flush();
     return { image: surface.makeImageSnapshot(), surface };
   } catch (error) {
@@ -125,8 +138,9 @@ export function createPreviewImage(
 export function createPreviewDataUri(
   composition: WallpaperComposition,
   fonts: NonNullable<ReturnType<typeof useWallpaperFonts>>,
+  backgroundImage?: SkImage | null,
 ): string | null {
-  const preview = createPreviewImage(composition, fonts);
+  const preview = createPreviewImage(composition, fonts, backgroundImage);
   if (!preview) return null;
   try {
     return `data:image/png;base64,${preview.image.encodeToBase64()}`;

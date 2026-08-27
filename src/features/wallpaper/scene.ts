@@ -3,6 +3,7 @@ import {
   TextAlign,
   TileMode,
   type SkCanvas,
+  type SkImage,
   type SkParagraph,
   type SkParagraphBuilder,
   type SkTypefaceFontProvider,
@@ -14,6 +15,7 @@ import {
   type WallpaperComposition,
 } from './composition';
 import { gradientEndpoints } from './gradient';
+import { backgroundSwatch } from './types';
 import { favoriteQuoteText } from '../quotes/quoteRepository';
 
 function skiaFontWeight(
@@ -128,22 +130,65 @@ export function measureSkiaComposition(
   );
 }
 
+/** `#RRGGBB` plus an alpha, as a colour string both Skia and the tests accept. */
+function withAlpha(hex: string, alpha: number): string {
+  'worklet';
+  const red = Number.parseInt(hex.slice(1, 3), 16);
+  const green = Number.parseInt(hex.slice(3, 5), 16);
+  const blue = Number.parseInt(hex.slice(5, 7), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+/**
+ * The source rectangle that fills the canvas without distorting the
+ * photograph. Backgrounds are cut to the canvas aspect ratio already, so this
+ * normally takes the whole frame; it matters on a preview card whose aspect
+ * ratio differs from the phone's.
+ */
+function coverSource(
+  imageWidth: number,
+  imageHeight: number,
+  width: number,
+  height: number,
+): { x: number; y: number; width: number; height: number } {
+  'worklet';
+  const scale = Math.max(width / imageWidth, height / imageHeight);
+  const sourceWidth = width / scale;
+  const sourceHeight = height / scale;
+  return {
+    x: (imageWidth - sourceWidth) / 2,
+    y: (imageHeight - sourceHeight) / 2,
+    width: sourceWidth,
+    height: sourceHeight,
+  };
+}
+
+/** How far above and below the quote the scrim fades out, as a fraction. */
+const SCRIM_SPREAD = 0.42;
+
 export function drawWallpaperScene(
   target: unknown,
   composition: WallpaperComposition,
   fontProvider?: SkTypefaceFontProvider,
+  backgroundImage?: SkImage,
 ): void {
   'worklet';
   const canvas = target as SkCanvas;
   const backgroundPaint = Skia.Paint();
   const markPaint = Skia.Paint();
   let shader: ReturnType<typeof Skia.Shader.MakeLinearGradient> | undefined;
+  let scrimShader:
+    ReturnType<typeof Skia.Shader.MakeLinearGradient> | undefined;
   let quote: ReturnType<typeof createParagraph> | undefined;
   let author: ReturnType<typeof createParagraph> | undefined;
 
   try {
-    if (composition.preset.background.kind === 'solid') {
-      backgroundPaint.setColor(Skia.Color(composition.preset.background.color));
+    if (composition.preset.background.kind !== 'linear-gradient') {
+      // Solid, or a photograph standing in as its measured band colour until
+      // the decoded image is handed to the scene.
+      backgroundPaint.setColor(
+        Skia.Color(backgroundSwatch(composition.preset.background)),
+      );
     } else {
       const endpoints = gradientEndpoints(
         composition.preset.background.angleDegrees,
@@ -166,6 +211,61 @@ export function drawWallpaperScene(
       Skia.XYWHRect(0, 0, composition.width, composition.height),
       backgroundPaint,
     );
+
+    const background = composition.preset.background;
+    if (background.kind === 'image' && backgroundImage) {
+      // The fill above stays underneath as the backdrop, so a canvas whose
+      // aspect ratio the photograph cannot cover has no bare edge.
+      const source = coverSource(
+        backgroundImage.width(),
+        backgroundImage.height(),
+        composition.width,
+        composition.height,
+      );
+      const imagePaint = Skia.Paint();
+      try {
+        canvas.drawImageRect(
+          backgroundImage,
+          Skia.XYWHRect(source.x, source.y, source.width, source.height),
+          Skia.XYWHRect(0, 0, composition.width, composition.height),
+          imagePaint,
+        );
+      } finally {
+        imagePaint.dispose?.();
+      }
+
+      // A scrim that peaks on the quote and fades out well before either
+      // edge. A flat wash over the whole frame would flatten the photograph;
+      // the quote only needs contrast where it actually sits.
+      const centre = composition.preset.quotePositionY;
+      const top = Math.max(0, centre - SCRIM_SPREAD);
+      const bottom = Math.min(1, centre + SCRIM_SPREAD);
+      const scrimPaint = Skia.Paint();
+      try {
+        scrimShader = Skia.Shader.MakeLinearGradient(
+          Skia.Point(0, 0),
+          Skia.Point(0, composition.height),
+          [
+            Skia.Color(withAlpha(background.scrimColor, 0)),
+            Skia.Color(withAlpha(background.scrimColor, 0)),
+            Skia.Color(
+              withAlpha(background.scrimColor, background.scrimOpacity),
+            ),
+            Skia.Color(withAlpha(background.scrimColor, 0)),
+            Skia.Color(withAlpha(background.scrimColor, 0)),
+          ],
+          [0, top, centre, bottom, 1],
+          TileMode.Clamp,
+        );
+        scrimPaint.setShader(scrimShader);
+        canvas.drawRect(
+          Skia.XYWHRect(0, 0, composition.width, composition.height),
+          scrimPaint,
+        );
+      } finally {
+        scrimPaint.dispose?.();
+      }
+    }
 
     if (composition.preset.overlay) {
       const overlayPaint = Skia.Paint();
@@ -230,6 +330,7 @@ export function drawWallpaperScene(
     author?.builder.dispose?.();
     quote?.paragraph.dispose?.();
     quote?.builder.dispose?.();
+    scrimShader?.dispose?.();
     shader?.dispose?.();
     markPaint.dispose?.();
     backgroundPaint.dispose?.();

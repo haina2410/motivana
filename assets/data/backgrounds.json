@@ -1,0 +1,1562 @@
+[
+  {
+    "id": "mountain-01",
+    "category": "mountain",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.468,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-01.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.45,
+      "effectiveLuminance": 0.257
+    },
+    "safeArea": {
+      "blockTop": 0.3007,
+      "blockBottom": 0.6353,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Aerosols_over_India_and_Bangladesh_(MODIS).jpg",
+      "creator": "MODIS Land Rapid Response Team, NASA GSF",
+      "title": "Aerosols over India and Bangladesh (MODIS).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.468,
+      "bandVariance": 0.032,
+      "bytes": 236864
+    }
+  },
+  {
+    "id": "mountain-02",
+    "category": "mountain",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.544,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-02.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.47,
+      "effectiveLuminance": 0.227
+    },
+    "safeArea": {
+      "blockTop": 0.3767,
+      "blockBottom": 0.7113,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Haze_Over_China_(MODIS_2026-01-10).jpg",
+      "creator": "MODIS Land Rapid Response Team, NASA GSF",
+      "title": "Haze Over China (MODIS 2026-01-10).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.429,
+      "bandVariance": 0.045,
+      "bytes": 293636
+    }
+  },
+  {
+    "id": "mountain-04",
+    "category": "mountain",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.504,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-04.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.61,
+      "effectiveLuminance": 0.925
+    },
+    "safeArea": {
+      "blockTop": 0.3546,
+      "blockBottom": 0.6534,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Malaspina-panorama-meters.jpg",
+      "creator": "Tom Patterson",
+      "title": "Malaspina-panorama-meters.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.808,
+      "bandVariance": 0.129,
+      "bytes": 431492
+    }
+  },
+  {
+    "id": "mountain-08",
+    "category": "mountain",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.459,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-08.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.53,
+      "effectiveLuminance": 0.886
+    },
+    "safeArea": {
+      "blockTop": 0.3003,
+      "blockBottom": 0.6177,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Tersius_van_Rhyn_2017_(Unsplash).jpg",
+      "creator": "Tersius van Rhyn tersiusvanrhyn",
+      "title": "Tersius van Rhyn 2017 (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.758,
+      "bandVariance": 0.082,
+      "bytes": 398128
+    }
+  },
+  {
+    "id": "mountain-09",
+    "category": "mountain",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.672,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-09.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.51,
+      "effectiveLuminance": 0.129
+    },
+    "safeArea": {
+      "blockTop": 0.5047,
+      "blockBottom": 0.8393,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Eastern_China_(MODIS_2016-02-12).jpg",
+      "creator": "Jeff Schmaltz, MODIS Land Rapid Response",
+      "title": "Eastern China (MODIS 2016-02-12).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.263,
+      "bandVariance": 0.07,
+      "bytes": 597122
+    }
+  },
+  {
+    "id": "mountain-10",
+    "category": "mountain",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.626,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-10.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.4,
+      "effectiveLuminance": 0.0
+    },
+    "safeArea": {
+      "blockTop": 0.4587,
+      "blockBottom": 0.7933,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Foggy_views_of_Druid_Peak_near_Tower_Junction_(50514608822).jpg",
+      "creator": "YellowstoneNPS",
+      "title": "Foggy views of Druid Peak near Tower Junction (50514608822).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.0,
+      "bandVariance": 0.001,
+      "bytes": 17700
+    }
+  },
+  {
+    "id": "mountain-11",
+    "category": "mountain",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.681,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-11.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.55,
+      "effectiveLuminance": 0.104
+    },
+    "safeArea": {
+      "blockTop": 0.5223,
+      "blockBottom": 0.8397,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:%D0%9C%D0%B0%D0%B3%D0%BB%D0%B0_%D0%BD%D0%B0_%D1%80%D0%B8%D0%B4%D0%BE%D1%82_%D0%9A%D0%B0%D0%BB%D0%B5.jpg",
+      "creator": "Делфина",
+      "title": "Магла на ридот Кале.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.231,
+      "bandVariance": 0.092,
+      "bytes": 488526
+    }
+  },
+  {
+    "id": "mountain-12",
+    "category": "mountain",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.487,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/mountain-12.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.55,
+      "effectiveLuminance": 0.851
+    },
+    "safeArea": {
+      "blockTop": 0.3283,
+      "blockBottom": 0.6457,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Smoke_and_Haze_across_India_(MODIS_2020-11-03).jpg",
+      "creator": "MODIS Land Rapid Response Team, NASA GSF",
+      "title": "Smoke and Haze across India (MODIS 2020-11-03).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.67,
+      "bandVariance": 0.095,
+      "bytes": 173042
+    }
+  },
+  {
+    "id": "ocean-01",
+    "category": "ocean",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.668,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/ocean-01.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.46,
+      "effectiveLuminance": 0.084
+    },
+    "safeArea": {
+      "blockTop": 0.5007,
+      "blockBottom": 0.8353,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:YOUNGSTERS_DOING_A_LITTLE_EARLY_MORNING_FISHING_ON_MALIBU_LAKE_IN_THE_SANTA_MONICA_MOUNTAINS_NEAR_MALIBU,_CALIFORNIA..._-_NARA_-_557565.jpg",
+      "creator": "Charles O'Rear",
+      "title": "YOUNGSTERS DOING A LITTLE EARLY MORNING FISHING ON MALIBU LAKE IN THE SANTA MONICA MOUNTAINS NEAR MALIBU, CALIFORNIA... - NARA - 557565.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.155,
+      "bandVariance": 0.038,
+      "bytes": 80204
+    }
+  },
+  {
+    "id": "ocean-06",
+    "category": "ocean",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.681,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/ocean-06.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.57,
+      "effectiveLuminance": 0.092
+    },
+    "safeArea": {
+      "blockTop": 0.5223,
+      "blockBottom": 0.8397,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Richly_colored_sky_over_calm_sea_water_(Unsplash).jpg",
+      "creator": "paul morris oldskool2016",
+      "title": "Richly colored sky over calm sea water (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.215,
+      "bandVariance": 0.106,
+      "bytes": 197362
+    }
+  },
+  {
+    "id": "ocean-10",
+    "category": "ocean",
+    "fontFamily": "BeVietnamPro",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.696,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.056,
+    "minimumFontSizeRatio": 0.031,
+    "lineHeight": 1.48,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/ocean-10.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.68,
+      "effectiveLuminance": 0.088
+    },
+    "safeArea": {
+      "blockTop": 0.5521,
+      "blockBottom": 0.8399,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Monochrome_ships_on_horizon_(Unsplash).jpg",
+      "creator": "Tim Mossholder timmossholder",
+      "title": "Monochrome ships on horizon (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.275,
+      "bandVariance": 0.175,
+      "bytes": 137660
+    }
+  },
+  {
+    "id": "ocean-11",
+    "category": "ocean",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.69,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/ocean-11.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.6,
+      "effectiveLuminance": 0.801
+    },
+    "safeArea": {
+      "blockTop": 0.5405,
+      "blockBottom": 0.8394,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Calm_Lake_Matheson_with_mist_at_sunrise.jpg",
+      "creator": "Pseudopanax at English Wikipedia",
+      "title": "Calm Lake Matheson with mist at sunrise.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.503,
+      "bandVariance": 0.125,
+      "bytes": 89536
+    }
+  },
+  {
+    "id": "sky-01",
+    "category": "sky",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.508,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-01.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.52,
+      "effectiveLuminance": 0.114
+    },
+    "safeArea": {
+      "blockTop": 0.3407,
+      "blockBottom": 0.6753,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Painted_Hills_at_sunset,_Oregon_-_Flickr_-_Bonnie_Moreland_(free_images).jpg",
+      "creator": "Bonnie Moreland from Oregon, United Stat",
+      "title": "Painted Hills at sunset, Oregon - Flickr - Bonnie Moreland (free images).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.238,
+      "bandVariance": 0.072,
+      "bytes": 201450
+    }
+  },
+  {
+    "id": "sky-02",
+    "category": "sky",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.514,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-02.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.58,
+      "effectiveLuminance": 0.919
+    },
+    "safeArea": {
+      "blockTop": 0.3553,
+      "blockBottom": 0.6727,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Cloudscape_Over_the_Philippine_Sea.jpg",
+      "creator": "NASA",
+      "title": "Cloudscape Over the Philippine Sea.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.808,
+      "bandVariance": 0.113,
+      "bytes": 228916
+    }
+  },
+  {
+    "id": "sky-03",
+    "category": "sky",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.468,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-03.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.48,
+      "effectiveLuminance": 0.829
+    },
+    "safeArea": {
+      "blockTop": 0.3007,
+      "blockBottom": 0.6353,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Pastel_Colors_the_Sky_Over_Seedskadee_NWR_(23754381165).jpg",
+      "creator": "USFWS Mountain-Prairie",
+      "title": "Pastel Colors the Sky Over Seedskadee NWR (23754381165).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.672,
+      "bandVariance": 0.052,
+      "bytes": 69670
+    }
+  },
+  {
+    "id": "sky-04",
+    "category": "sky",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.459,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-04.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.58,
+      "effectiveLuminance": 0.048
+    },
+    "safeArea": {
+      "blockTop": 0.3003,
+      "blockBottom": 0.6177,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Sunset_from_the_ISS.JPG",
+      "creator": "ISS Expedition 23 crew",
+      "title": "Sunset from the ISS.JPG",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.114,
+      "bandVariance": 0.112,
+      "bytes": 29026
+    }
+  },
+  {
+    "id": "sky-05",
+    "category": "sky",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.54,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-05.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.64,
+      "effectiveLuminance": 0.042
+    },
+    "safeArea": {
+      "blockTop": 0.3906,
+      "blockBottom": 0.6895,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Sunset_over_Trommekilen_from_Norrkila_6.jpg",
+      "creator": "W.carter",
+      "title": "Sunset over Trommekilen from Norrkila 6.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.115,
+      "bandVariance": 0.152,
+      "bytes": 91234
+    }
+  },
+  {
+    "id": "sky-06",
+    "category": "sky",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.598,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-06.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.58,
+      "effectiveLuminance": 0.874
+    },
+    "safeArea": {
+      "blockTop": 0.4393,
+      "blockBottom": 0.7567,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:February_2026_Cloud_Inversion_During_Sunset_-_1536_(55097435013).jpg",
+      "creator": "Grand Canyon NPS",
+      "title": "February 2026 Cloud Inversion During Sunset - 1536 (55097435013).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.7,
+      "bandVariance": 0.113,
+      "bytes": 193888
+    }
+  },
+  {
+    "id": "sky-07",
+    "category": "sky",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.606,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-07.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.5,
+      "effectiveLuminance": 0.227
+    },
+    "safeArea": {
+      "blockTop": 0.4387,
+      "blockBottom": 0.7733,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Rocky_ride._-_Flickr_-_simon_berger.jpg",
+      "creator": "simon from Austria",
+      "title": "Rocky ride. - Flickr - simon berger.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.453,
+      "bandVariance": 0.062,
+      "bytes": 70482
+    }
+  },
+  {
+    "id": "sky-09",
+    "category": "sky",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.611,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-09.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.51,
+      "effectiveLuminance": 0.223
+    },
+    "safeArea": {
+      "blockTop": 0.4437,
+      "blockBottom": 0.7783,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Sky_Clouds_Sea.jpg",
+      "creator": "Unknown authorUnknown author",
+      "title": "Sky Clouds Sea.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.456,
+      "bandVariance": 0.071,
+      "bytes": 79850
+    }
+  },
+  {
+    "id": "sky-11",
+    "category": "sky",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.462,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/sky-11.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.65,
+      "effectiveLuminance": 0.877
+    },
+    "safeArea": {
+      "blockTop": 0.3126,
+      "blockBottom": 0.6115,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Sunset_View_of_Udaipur.jpg",
+      "creator": "Siddharthseth20",
+      "title": "Sunset View of Udaipur.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.65,
+      "bandVariance": 0.156,
+      "bytes": 97504
+    }
+  },
+  {
+    "id": "cosmos-12",
+    "category": "cosmos",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.681,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/cosmos-12.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.56,
+      "effectiveLuminance": 0.077
+    },
+    "safeArea": {
+      "blockTop": 0.5223,
+      "blockBottom": 0.8397,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Milky_way1.jpg",
+      "creator": "NASA/JPL-Caltech/UCLA",
+      "title": "Milky way1.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.175,
+      "bandVariance": 0.102,
+      "bytes": 502322
+    }
+  },
+  {
+    "id": "texture-02",
+    "category": "texture",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.681,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/texture-02.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.55,
+      "effectiveLuminance": 0.856
+    },
+    "safeArea": {
+      "blockTop": 0.5223,
+      "blockBottom": 0.8397,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:New_snow_on_a_roof.jpg",
+      "creator": "W.carter",
+      "title": "New snow on a roof.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.681,
+      "bandVariance": 0.092,
+      "bytes": 604608
+    }
+  },
+  {
+    "id": "texture-05",
+    "category": "texture",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.606,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/texture-05.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.59,
+      "effectiveLuminance": 0.885
+    },
+    "safeArea": {
+      "blockTop": 0.4566,
+      "blockBottom": 0.7554,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Snow_surface_in_Chamonix.jpg",
+      "creator": "Ben Duchac",
+      "title": "Snow surface in Chamonix.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.721,
+      "bandVariance": 0.121,
+      "bytes": 157574
+    }
+  },
+  {
+    "id": "texture-07",
+    "category": "texture",
+    "fontFamily": "BeVietnamPro",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.444,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.056,
+    "minimumFontSizeRatio": 0.031,
+    "lineHeight": 1.48,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/texture-07.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.65,
+      "effectiveLuminance": 0.103
+    },
+    "safeArea": {
+      "blockTop": 0.3001,
+      "blockBottom": 0.5879,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Baja_California%E2%80%99s_Arid_Delta_(154051).jpg",
+      "creator": "Astronaut photograph ISS071-E-138692 was",
+      "title": "Baja California’s Arid Delta (154051).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.295,
+      "bandVariance": 0.155,
+      "bytes": 345238
+    }
+  },
+  {
+    "id": "texture-08",
+    "category": "texture",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.45,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/texture-08.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.61,
+      "effectiveLuminance": 0.884
+    },
+    "safeArea": {
+      "blockTop": 0.3006,
+      "blockBottom": 0.5995,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Ice_Texture.jpg",
+      "creator": "Jenn Richardson",
+      "title": "Ice Texture.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.703,
+      "bandVariance": 0.131,
+      "bytes": 276028
+    }
+  },
+  {
+    "id": "botanical-02",
+    "category": "botanical",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.672,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-02.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.5,
+      "effectiveLuminance": 0.077
+    },
+    "safeArea": {
+      "blockTop": 0.5047,
+      "blockBottom": 0.8393,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Fog-wreathed_trees_(Unsplash).jpg",
+      "creator": "adrian aows",
+      "title": "Fog-wreathed trees (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.153,
+      "bandVariance": 0.061,
+      "bytes": 102690
+    }
+  },
+  {
+    "id": "botanical-03",
+    "category": "botanical",
+    "fontFamily": "BeVietnamPro",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.696,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.056,
+    "minimumFontSizeRatio": 0.031,
+    "lineHeight": 1.48,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-03.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.66,
+      "effectiveLuminance": 0.055
+    },
+    "safeArea": {
+      "blockTop": 0.5521,
+      "blockBottom": 0.8399,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Moody,_foggy_black_forest_-_Flickr_-_Tannenschleicher.jpg",
+      "creator": "F R",
+      "title": "Moody, foggy black forest - Flickr - Tannenschleicher.jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.162,
+      "bandVariance": 0.161,
+      "bytes": 873938
+    }
+  },
+  {
+    "id": "botanical-04",
+    "category": "botanical",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.57,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-04.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.62,
+      "effectiveLuminance": 0.113
+    },
+    "safeArea": {
+      "blockTop": 0.4205,
+      "blockBottom": 0.7194,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Misty_forest_creek_(Unsplash).jpg",
+      "creator": "Alex Iby ibydesigns",
+      "title": "Misty forest creek (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.298,
+      "bandVariance": 0.138,
+      "bytes": 986276
+    }
+  },
+  {
+    "id": "botanical-05",
+    "category": "botanical",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.459,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-05.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.53,
+      "effectiveLuminance": 0.819
+    },
+    "safeArea": {
+      "blockTop": 0.3003,
+      "blockBottom": 0.6177,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:View_from_Stony_Man_summit_(55340079377).jpg",
+      "creator": "ShenandoahNPS",
+      "title": "View from Stony Man summit (55340079377).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.615,
+      "bandVariance": 0.082,
+      "bytes": 772648
+    }
+  },
+  {
+    "id": "botanical-07",
+    "category": "botanical",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.525,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-07.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.55,
+      "effectiveLuminance": 0.198
+    },
+    "safeArea": {
+      "blockTop": 0.3663,
+      "blockBottom": 0.6837,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Fog_rolls_through_the_trees_on_the_Petrified_Forest_Interpretive_Trail_(48789075437).jpg",
+      "creator": "Yellowstone National Park",
+      "title": "Fog rolls through the trees on the Petrified Forest Interpretive Trail (48789075437).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.439,
+      "bandVariance": 0.095,
+      "bytes": 243090
+    }
+  },
+  {
+    "id": "botanical-08",
+    "category": "botanical",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.455,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.061,
+    "minimumFontSizeRatio": 0.034,
+    "lineHeight": 1.4,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-08.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.6,
+      "effectiveLuminance": 0.831
+    },
+    "safeArea": {
+      "blockTop": 0.3056,
+      "blockBottom": 0.6044,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Bilberry_bush_and_moss_in_Gullmarsskogen_ravine.jpg",
+      "creator": "W.carter",
+      "title": "Bilberry bush and moss in Gullmarsskogen ravine.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.577,
+      "bandVariance": 0.126,
+      "bytes": 308820
+    }
+  },
+  {
+    "id": "botanical-09",
+    "category": "botanical",
+    "fontFamily": "BeVietnamPro",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.444,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.056,
+    "minimumFontSizeRatio": 0.031,
+    "lineHeight": 1.48,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-09.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.68,
+      "effectiveLuminance": 0.952
+    },
+    "safeArea": {
+      "blockTop": 0.3001,
+      "blockBottom": 0.5879,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Fog_image.jpg",
+      "creator": "Abinayasekar357",
+      "title": "Fog image.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.851,
+      "bandVariance": 0.173,
+      "bytes": 228490
+    }
+  },
+  {
+    "id": "botanical-10",
+    "category": "botanical",
+    "fontFamily": "BeVietnamPro",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.444,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.056,
+    "minimumFontSizeRatio": 0.031,
+    "lineHeight": 1.48,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/botanical-10.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.67,
+      "effectiveLuminance": 0.945
+    },
+    "safeArea": {
+      "blockTop": 0.3001,
+      "blockBottom": 0.5879,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Misty_coniferous_forest_on_a_slope_(Unsplash).jpg",
+      "creator": "Jon Flobrant jonflobrant",
+      "title": "Misty coniferous forest on a slope (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.833,
+      "bandVariance": 0.167,
+      "bytes": 453002
+    }
+  },
+  {
+    "id": "nocturne-01",
+    "category": "nocturne",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.468,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/nocturne-01.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.51,
+      "effectiveLuminance": 0.1
+    },
+    "safeArea": {
+      "blockTop": 0.3007,
+      "blockBottom": 0.6353,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Night_Sky_Over_Chisos_Mountains_(de3b5b2d-7015-4ca5-871b-4da5a8858774).jpg",
+      "creator": "NPS Photo",
+      "title": "Night Sky Over Chisos Mountains (de3b5b2d-7015-4ca5-871b-4da5a8858774).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.204,
+      "bandVariance": 0.072,
+      "bytes": 236470
+    }
+  },
+  {
+    "id": "nocturne-05",
+    "category": "nocturne",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.468,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/nocturne-05.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.46,
+      "effectiveLuminance": 0.078
+    },
+    "safeArea": {
+      "blockTop": 0.3007,
+      "blockBottom": 0.6353,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Stars_in_the_Night_Sky_at_Big_Meadows_(51834249781).jpg",
+      "creator": "ShenandoahNPS",
+      "title": "Stars in the Night Sky at Big Meadows (51834249781).jpg",
+      "license": "Public domain",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.144,
+      "bandVariance": 0.039,
+      "bytes": 156094
+    }
+  },
+  {
+    "id": "nocturne-10",
+    "category": "nocturne",
+    "fontFamily": "CormorantGaramond",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.468,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.07,
+    "minimumFontSizeRatio": 0.039,
+    "lineHeight": 1.36,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/nocturne-10.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.49,
+      "effectiveLuminance": 0.044
+    },
+    "safeArea": {
+      "blockTop": 0.3007,
+      "blockBottom": 0.6353,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Spotlights_in_forest_(Unsplash).jpg",
+      "creator": "Ilario Piatti ilariopiatti",
+      "title": "Spotlights in forest (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.087,
+      "bandVariance": 0.055,
+      "bytes": 249168
+    }
+  },
+  {
+    "id": "architecture-03",
+    "category": "architecture",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.681,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/architecture-03.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.53,
+      "effectiveLuminance": 0.91
+    },
+    "safeArea": {
+      "blockTop": 0.5223,
+      "blockBottom": 0.8397,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Concrete_architecture_(Unsplash).jpg",
+      "creator": "Lance Anderson lanceanderson",
+      "title": "Concrete architecture (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.808,
+      "bandVariance": 0.079,
+      "bytes": 128280
+    }
+  },
+  {
+    "id": "architecture-06",
+    "category": "architecture",
+    "fontFamily": "BeVietnamPro",
+    "fontWeight": "Light",
+    "textAlign": "center",
+    "quotePositionY": 0.696,
+    "textColor": "#FFFFFF",
+    "authorColor": "#D6DBE4",
+    "preferredFontSizeRatio": 0.056,
+    "minimumFontSizeRatio": 0.031,
+    "lineHeight": 1.48,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/architecture-06.webp",
+      "scrimColor": "#000000",
+      "scrimOpacity": 0.7,
+      "effectiveLuminance": 0.112
+    },
+    "safeArea": {
+      "blockTop": 0.5521,
+      "blockBottom": 0.8399,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Modern_Architectural_Design_of_Concrete_Building.jpg",
+      "creator": "Lekeboy54",
+      "title": "Modern Architectural Design of Concrete Building.jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.373,
+      "bandVariance": 0.185,
+      "bytes": 332482
+    }
+  },
+  {
+    "id": "architecture-08",
+    "category": "architecture",
+    "fontFamily": "Lora",
+    "fontWeight": "Regular",
+    "textAlign": "center",
+    "quotePositionY": 0.681,
+    "textColor": "#171717",
+    "authorColor": "#454545",
+    "preferredFontSizeRatio": 0.064,
+    "minimumFontSizeRatio": 0.036,
+    "lineHeight": 1.42,
+    "background": {
+      "kind": "image",
+      "asset": "backgrounds/architecture-08.webp",
+      "scrimColor": "#FFFFFF",
+      "scrimOpacity": 0.57,
+      "effectiveLuminance": 0.856
+    },
+    "safeArea": {
+      "blockTop": 0.5223,
+      "blockBottom": 0.8397,
+      "clockSafeTop": 0.3,
+      "bottomSafe": 0.84
+    },
+    "source": {
+      "provider": "wikimedia",
+      "url": "https://commons.wikimedia.org/wiki/File:Concrete_slab_architecture_(Unsplash).jpg",
+      "creator": "Samuel Zeller samuelzeller",
+      "title": "Concrete slab architecture (Unsplash).jpg",
+      "license": "CC0",
+      "retrievedAt": "2026-08-26"
+    },
+    "measured": {
+      "bandLuminance": 0.665,
+      "bandVariance": 0.106,
+      "bytes": 486498
+    }
+  }
+]

@@ -1,5 +1,5 @@
 import { colors } from '../../theme/colors';
-import type { WallpaperPreset } from './types';
+import { backgroundSwatch, type WallpaperPreset } from './types';
 
 /**
  * The layers behind the live card, near to far: how far each fades into the ink
@@ -30,9 +30,7 @@ export function deckLayers(preset: WallpaperPreset | undefined): DeckLayer[] {
   const source =
     preset === undefined
       ? colors.surfaceRaised
-      : preset.background.kind === 'solid'
-        ? preset.background.color
-        : preset.background.endColor;
+      : backgroundSwatch(preset.background, 'end');
   return layerSpecs.map((spec) => ({
     color: fadeToBackground(source, spec.fade),
     shift: spec.shift,
