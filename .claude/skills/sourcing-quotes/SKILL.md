@@ -18,6 +18,11 @@ One agent doing both marks its own homework.
 **Vietnamese is the target language, not a translation step.** Read
 `references/vietnamese-sources.md` before the first fetch.
 
+**One quote, one language.** The catalogue keeps each quote in the language it
+was written in and in no other. A candidate's `text` holds exactly one entry,
+the `sourceLocale` one. There is no second slot, so there is no English
+rendering to write, and no way to translate your way to a Vietnamese share.
+
 ## The Contract
 
 State these four numbers before you start, and hold them:
@@ -32,11 +37,10 @@ State these four numbers before you start, and hold them:
 Half is a ceiling, not a target. A harvest that approves 24 of 50 is healthy.
 A harvest that approves 45 of 50 did not search hard enough to have a choice.
 
-The Vietnamese share is nobody's check but yours. Nothing enforces it any more:
-the catalogue holds each quote in the one language it was written in, so a
-Vietnamese quote can only arrive from Vietnamese source material. The one floor
-left in `verify-data.mjs` counts quotes, not languages - at least six in every
-category - and an all-English harvest passes it.
+The Vietnamese share is nobody's check but yours. Nothing enforces it, and a
+Vietnamese quote can now arrive only from Vietnamese source material. The one
+floor left in `verify-data.mjs` counts quotes, not languages - at least six in
+every category - and an all-English harvest passes it.
 
 ## Never Do These
 
@@ -49,9 +53,10 @@ category - and an all-English harvest passes it.
   quote. Even when the sourcing was easy.
 - **Never keep a quote whose only trail is a quote-aggregator site.** No primary
   or cited secondary source means no entry.
-- **Never translate an attributed author's words into Vietnamese to fill the
-  Vietnamese share.** Source material that was written in Vietnamese. A
-  translation you wrote is your sentence with their name on it.
+- **Never write a second language into a candidate.** `text` carries the source
+  language and nothing else, in either direction. A translation you wrote is
+  your sentence with the author's name on it, and the catalogue would ship it as
+  a quote. Fill the Vietnamese share by sourcing Vietnamese material.
 
 ## Step 1: Harvest
 
@@ -66,8 +71,7 @@ Write every candidate as this record. Every field is required:
 ```json
 {
   "text": {
-    "vi": "Đường đi khó không khó vì ngăn sông cách núi mà khó vì lòng người ngại núi e sông.",
-    "en": "The road is hard, not because rivers and mountains block it, but because the heart shrinks from them."
+    "vi": "Đường đi khó không khó vì ngăn sông cách núi mà khó vì lòng người ngại núi e sông."
   },
   "sourceLocale": "vi",
   "author": "Nguyễn Bá Học",
@@ -78,7 +82,6 @@ Write every candidate as this record. Every field is required:
     "citation": "Quốc văn trích diễm, 1925",
     "verification": "grep-primary",
     "rights": "public-domain",
-    "englishRendering": "ours",
     "edit": "none"
   }
 }
@@ -88,12 +91,13 @@ This example is a real quote and the catalogue already ships it. Do not
 re-harvest it: `promote-quotes.mjs` refuses a duplicate, which costs you a whole
 review cycle to find out.
 
+- `text`: one entry, keyed by the `sourceLocale`. A second language is a
+  rejection, not a bonus.
 - `sourceKind`: `primary-text` | `reference-work` (a dictionary or a proverb
   collection) | `wikiquote-cited` | `transcript` | `news` | `social-post`
 - `verification`: `grep-primary` (you found the wording inside the full source
   text) | `cited-secondary` | `weak`. Weak means reject.
 - `rights`: `public-domain` | `folk-anonymous` | `in-copyright`
-- `englishRendering`: `ours` | `published:<translator>` | `none`
 - `edit`: `none`, or every change you made to the source wording - words cut,
   verse lines joined, a first letter capitalised, the source's own quotation
   marks dropped. Anything you do not record becomes the author's own words in the
@@ -120,8 +124,9 @@ read this skill for the rules:
 
 The reviewer rejects on any of: wording absent from the source, uncertain
 author, an event or date inside the text, a named institution or product, text
-under 12 or over 160 characters, near-duplicate of a catalogue entry, or
-Vietnamese text with broken diacritics.
+under 12 or over 160 characters, near-duplicate of a catalogue entry, a `text`
+holding any language but the source one, or Vietnamese text with broken
+diacritics.
 
 **It also rejects on readability.** A reader has to take the whole line in at a
 glance, off a wallpaper, with no context. Perfect provenance does not save a
@@ -201,12 +206,13 @@ timeless, a 2019 line about a startup is not.
 | Thought                                                     | Reality                                                                                                                                                                        |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | "The Vietnamese slots are already full, so English is fine" | Both baseline runs said this and produced zero Vietnamese. `promote-quotes.mjs` no longer counts your batch, so nothing but your own searching keeps the catalogue Vietnamese. |
-| "Translating this quote gives me Vietnamese content"        | It gives you your own sentence under someone else's name. Source Vietnamese material instead.                                                                                  |
+| "Translating this quote gives me Vietnamese content"        | It gives you your own sentence under someone else's name, and `text` has no second slot to put it in. Source Vietnamese material instead.                                      |
+| "An English rendering helps the reviewer read it"           | The reviewer reads the source language. A rendering in the record reaches the catalogue and a reader then sees it as the author's own words.                                   |
 | "All 50 candidates are good, culling wastes them"           | Approving nearly all of them means you never had a choice. The surplus is what makes the cut real.                                                                             |
 | "The gate blocks my batch, so the gate needs updating"      | A baseline run edited seven files to fit its harvest. The gate is the app's contract, not a variable.                                                                          |
 | "I verified these myself, a reviewer is ceremony"           | You cannot see your own confirmation bias. One fake quote on a wallpaper is a permanent, shareable error.                                                                      |
 | "Wikiquote shows it, so it has a source"                    | Only its cited entries do. An uncited Wikiquote line is an aggregator line.                                                                                                    |
-| "The author is public domain, so the text is"               | Translations carry their own copyright. Use a public-domain translation or write your own rendering.                                                                           |
+| "The author is public domain, so the text is"               | Translations carry their own copyright, and the catalogue has no room for one. Harvest the text in the language the author wrote it in.                                        |
 | "It is only one quote, I will add it directly"              | A direct write skips provenance. An entry with no recorded source cannot be defended later.                                                                                    |
 
 ## Red Flags - Stop
@@ -216,6 +222,6 @@ timeless, a 2019 line about a startup is not.
 - Your approved list is more than half your candidates
 - Your approved list is mostly English and you did not search Vietnamese sources
 - A candidate's `verification` is `weak` and you are keeping it
-- You are writing Vietnamese text for a quote that was written in English
+- You are writing a second language into a candidate's `text`, either way round
 
 All of these mean: go back to Step 1.

@@ -1,14 +1,13 @@
 {
   "harvest": {
-    "note": "Worked example of the owner-supplied path. These five lines were handed over directly with no source named, so each carries providedBy instead of sourceUrl, and verification 'owner-supplied'. None names an author, so the author field is left out and the wallpaper draws no author line. Promoted with --owner-supplied, which lifts the cull ceiling and nothing else. ALREADY IN THE CATALOGUE: read this file for the record shape, never re-promote it. promote-quotes.mjs refuses a duplicate, which costs a whole review cycle to find out.",
+    "note": "Worked example of the owner-supplied path. These five lines were handed over directly with no source named, so each carries providedBy instead of sourceUrl, and verification 'owner-supplied'. None names an author, so the author field is left out and the wallpaper draws no author line. Promoted with --owner-supplied, which lifts the cull ceiling and nothing else. ALREADY IN THE CATALOGUE: read this file for the record shape. Each text carries the source language only: the catalogue stores no translations, never re-promote it. promote-quotes.mjs refuses a duplicate, which costs a whole review cycle to find out.",
     "date": "2026-08-25",
     "sourceKind": "owner-supplied"
   },
   "candidates": [
     {
       "text": {
-        "vi": "Đừng vì thấy người khác đã nộp bài mà bạn vội vã điền đại đáp án.",
-        "en": "Do not scribble any answer down just because somebody else has handed their paper in."
+        "vi": "Đừng vì thấy người khác đã nộp bài mà bạn vội vã điền đại đáp án."
       },
       "sourceLocale": "vi",
       "category": "focus",
@@ -19,7 +18,6 @@
         "citation": "handed over in the Claude Code session, no source named",
         "verification": "owner-supplied",
         "rights": "unknown-author",
-        "englishRendering": "ours",
         "edit": "none"
       },
       "review": {
@@ -30,8 +28,7 @@
     },
     {
       "text": {
-        "vi": "Cuộc đời là những gam màu đẹp đẽ, mong em luôn vui, đừng buồn vì những chuyện không đáng.",
-        "en": "Life is made of beautiful colours. Stay glad, and do not grieve over what does not deserve it."
+        "vi": "Cuộc đời là những gam màu đẹp đẽ, mong em luôn vui, đừng buồn vì những chuyện không đáng."
       },
       "sourceLocale": "vi",
       "category": "motivation",
@@ -42,7 +39,6 @@
         "citation": "handed over in the Claude Code session, no source named",
         "verification": "owner-supplied",
         "rights": "unknown-author",
-        "englishRendering": "ours",
         "edit": "none"
       },
       "review": {
@@ -53,8 +49,7 @@
     },
     {
       "text": {
-        "vi": "Thứ gì cần kết thúc thì hãy để nó kết thúc đi.",
-        "en": "Whatever needs to end, let it end."
+        "vi": "Thứ gì cần kết thúc thì hãy để nó kết thúc đi."
       },
       "sourceLocale": "vi",
       "category": "growth",
@@ -65,7 +60,6 @@
         "citation": "handed over in the Claude Code session, no source named",
         "verification": "owner-supplied",
         "rights": "unknown-author",
-        "englishRendering": "ours",
         "edit": "none"
       },
       "review": {
@@ -76,8 +70,7 @@
     },
     {
       "text": {
-        "vi": "Đôi khi sự đổ vỡ lại là cơ hội để chúng ta sắp xếp lại cuộc đời mình.",
-        "en": "Sometimes a breaking is the chance to put a life back in order."
+        "vi": "Đôi khi sự đổ vỡ lại là cơ hội để chúng ta sắp xếp lại cuộc đời mình."
       },
       "sourceLocale": "vi",
       "category": "growth",
@@ -88,7 +81,6 @@
         "citation": "handed over in the Claude Code session, no source named",
         "verification": "owner-supplied",
         "rights": "unknown-author",
-        "englishRendering": "ours",
         "edit": "none"
       },
       "review": {
@@ -99,8 +91,7 @@
     },
     {
       "text": {
-        "vi": "Không sao cả, tất cả chúng ta đều xấu trong câu chuyện của người khác.",
-        "en": "It's okay: we are all the bad one in someone else's story."
+        "vi": "Không sao cả, tất cả chúng ta đều xấu trong câu chuyện của người khác."
       },
       "sourceLocale": "vi",
       "category": "confidence",
@@ -111,7 +102,6 @@
         "citation": "handed over in the Claude Code session, no source named",
         "verification": "owner-supplied",
         "rights": "unknown-author",
-        "englishRendering": "as supplied",
         "edit": "a comma added after 'Không sao cả'; the supplied English line's trailing '…..!' replaced with a full stop"
       },
       "review": {

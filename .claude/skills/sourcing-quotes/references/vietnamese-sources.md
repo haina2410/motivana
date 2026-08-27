@@ -81,8 +81,8 @@ rewrite it.
 - **Prefer 110 characters or fewer for `vi`.** Vietnamese needs the taller line
   height the presets carry, so a long Vietnamese line shrinks on the wallpaper
   faster than the same length in English. The hard cap stays 160.
-- **`text.en` is a rendering, not a quote.** For folk material, translate freely
-  and set `englishRendering: "ours"`. For a named author, prefer a published
-  translation and name the translator; if none exists, write your own and mark
-  it `ours` so nobody quotes your English as the author's words.
+- **No `text.en`.** The record holds the Vietnamese only. An English rendering
+  of yours would reach the catalogue as a quote, and the next reader would take
+  it for the author's own words. A Vietnamese source gives a Vietnamese entry;
+  that is the whole point of this page.
 - **`sourceLocale` is `vi`** for everything on this page.
