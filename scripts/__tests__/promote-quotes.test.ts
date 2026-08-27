@@ -199,21 +199,28 @@ test('refuses a batch that approves more than half of its candidates', () => {
   expect(result.promoted).toHaveLength(36);
 });
 
-// Mutation caught: the Vietnamese share is the whole point of the harvest.
-test('refuses a batch that is mostly not Vietnamese', () => {
-  const result = runPromoter([
-    candidate({ vi: '', en: 'An English line that is long enough here.' }),
-    candidate({
-      vi: '',
-      en: 'Another English line that is long enough.',
-      category: 'success',
-    }),
-    candidate({ verdict: 'reject' }),
-    candidate({ verdict: 'reject', category: 'growth' }),
-  ]);
+// Mutation caught: an all-English import must not be gated on a batch-wide
+// Vietnamese share. The enforced floor is per catalogue category, not per batch.
+test('promotes an all-English batch and still holds the per-category floor', () => {
+  const result = runPromoter(
+    [
+      candidate({ vi: '', en: 'An English line that is long enough here.' }),
+      candidate({
+        vi: '',
+        en: 'Another English line that is long enough.',
+        category: 'success',
+      }),
+    ],
+    ['--owner-supplied'],
+  );
 
-  expect(result.status).toBe(1);
-  expect(result.stderr).toMatch(/under the 70% share/);
+  expect(result.stderr).toBe('');
+  expect(result.status).toBe(0);
+  expect(result.promoted).toHaveLength(38);
+  const vietnameseInDiscipline = result.promoted.filter(
+    (quote: Quote) => quote.category === 'discipline' && quote.text.vi,
+  );
+  expect(vietnameseInDiscipline).toHaveLength(5);
 });
 
 test('refuses a weakly verified quote and an unreviewed batch', () => {

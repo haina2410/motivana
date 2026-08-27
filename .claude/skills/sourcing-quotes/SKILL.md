@@ -26,11 +26,16 @@ State these four numbers before you start, and hold them:
 | ---------------------------- | ------------------------------------------- |
 | Candidates per harvest       | 50 (minimum 40)                             |
 | Approved output              | at most half of the candidates              |
-| Vietnamese share of approved | at least 70%                                |
+| Vietnamese share of approved | aim for most of the batch (not enforced)    |
 | Staging file                 | `docs/quote-candidates/<date>-<topic>.json` |
 
 Half is a ceiling, not a target. A harvest that approves 24 of 50 is healthy.
 A harvest that approves 45 of 50 did not search hard enough to have a choice.
+
+The Vietnamese share is the one number the promoter no longer checks, so it is
+on you. The only enforced floor is `verify-data.mjs`: at least five Vietnamese
+quotes in every category. That floor guards the catalogue, not your batch - a
+harvest can sit well above it and still be an all-English harvest.
 
 ## Never Do These
 
@@ -177,6 +182,11 @@ What changes in the record:
 `references/example-owner-supplied.json` is a full worked example. Those five
 quotes already ship, so read it for the shape and never promote it again.
 
+**One quote at a time has its own front door.** When the owner pastes a single
+line they met while browsing, use the `import-content` skill rather than this
+one: it writes the one-entry staging file and promotes it. Come back here when
+the job is a harvest.
+
 ## The Timeless Test
 
 A quote is timeless when nothing inside it dates it. Reject text that names a
@@ -187,23 +197,23 @@ timeless, a 2019 line about a startup is not.
 
 ## Rationalizations
 
-| Thought                                                     | Reality                                                                                                                |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| "The Vietnamese slots are already full, so English is fine" | Both baseline runs said this and produced zero Vietnamese. The share is 70% of what you approve, not of the catalogue. |
-| "Translating this quote gives me Vietnamese content"        | It gives you your own sentence under someone else's name. Source Vietnamese material instead.                          |
-| "All 50 candidates are good, culling wastes them"           | Approving nearly all of them means you never had a choice. The surplus is what makes the cut real.                     |
-| "The gate blocks my batch, so the gate needs updating"      | A baseline run edited seven files to fit its harvest. The gate is the app's contract, not a variable.                  |
-| "I verified these myself, a reviewer is ceremony"           | You cannot see your own confirmation bias. One fake quote on a wallpaper is a permanent, shareable error.              |
-| "Wikiquote shows it, so it has a source"                    | Only its cited entries do. An uncited Wikiquote line is an aggregator line.                                            |
-| "The author is public domain, so the text is"               | Translations carry their own copyright. Use a public-domain translation or write your own rendering.                   |
-| "It is only one quote, I will add it directly"              | A direct write skips provenance. An entry with no recorded source cannot be defended later.                            |
+| Thought                                                     | Reality                                                                                                                                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "The Vietnamese slots are already full, so English is fine" | Both baseline runs said this and produced zero Vietnamese. `promote-quotes.mjs` no longer counts your batch, so nothing but your own searching keeps the catalogue Vietnamese. |
+| "Translating this quote gives me Vietnamese content"        | It gives you your own sentence under someone else's name. Source Vietnamese material instead.                                                                                  |
+| "All 50 candidates are good, culling wastes them"           | Approving nearly all of them means you never had a choice. The surplus is what makes the cut real.                                                                             |
+| "The gate blocks my batch, so the gate needs updating"      | A baseline run edited seven files to fit its harvest. The gate is the app's contract, not a variable.                                                                          |
+| "I verified these myself, a reviewer is ceremony"           | You cannot see your own confirmation bias. One fake quote on a wallpaper is a permanent, shareable error.                                                                      |
+| "Wikiquote shows it, so it has a source"                    | Only its cited entries do. An uncited Wikiquote line is an aggregator line.                                                                                                    |
+| "The author is public domain, so the text is"               | Translations carry their own copyright. Use a public-domain translation or write your own rendering.                                                                           |
+| "It is only one quote, I will add it directly"              | A direct write skips provenance. An entry with no recorded source cannot be defended later.                                                                                    |
 
 ## Red Flags - Stop
 
 - You are about to open `assets/data/quotes.json` in an editor
 - You are about to change a count or a rule in `scripts/verify-data.mjs`
 - Your approved list is more than half your candidates
-- Your approved list is mostly English
+- Your approved list is mostly English and you did not search Vietnamese sources
 - A candidate's `verification` is `weak` and you are keeping it
 - You are writing Vietnamese text for a quote that was written in English
 

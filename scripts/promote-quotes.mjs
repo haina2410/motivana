@@ -19,7 +19,6 @@ const categories = [
   'success',
 ];
 const maximumApprovedShare = 0.5;
-const minimumVietnameseShare = 0.7;
 const provenancePath = 'docs/quote-candidates/provenance.json';
 
 const [, , stagingArgument, ...flags] = process.argv;
@@ -82,14 +81,6 @@ if (
 ) {
   fail(
     `approved ${approved.length} of ${candidates.length} candidates, over the half ceiling: cull further or harvest more candidates`,
-  );
-}
-const vietnamese = approved.filter(
-  (candidate) => typeof candidate.text?.vi === 'string',
-);
-if (vietnamese.length < approved.length * minimumVietnameseShare) {
-  fail(
-    `only ${vietnamese.length} of ${approved.length} approved quotes carry Vietnamese text, under the ${minimumVietnameseShare * 100}% share`,
   );
 }
 
@@ -260,7 +251,8 @@ for (const category of retainFiller === undefined ? [] : categories) {
 const report = [
   `candidates ${candidates.length}`,
   `approved ${approved.length}`,
-  `vietnamese ${vietnamese.length}/${approved.length}`,
+  // Reported, not gated: the enforced floor is per category, checked above.
+  `vietnamese ${approved.filter((candidate) => typeof candidate.text?.vi === 'string').length}/${approved.length}`,
   `retired filler ${retired.length}`,
   `catalogue ${catalogue.length} -> ${renumbered.length}`,
 ];
