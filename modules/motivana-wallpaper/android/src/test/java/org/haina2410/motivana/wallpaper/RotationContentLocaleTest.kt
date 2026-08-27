@@ -118,7 +118,7 @@ class RotationContentLocaleTest {
 
   // Pins the fallback in RotationConfigureDecoder: an older JS bundle must not stop rotation.
   @Test fun decoderFallsBackWhenTheLanguageIsAbsentOrUnknown() {
-    val options = mutableMapOf<String, Any?>("enabled" to true, "intervalHours" to 6, "target" to "home", "selectedPresetId" to "p0", "randomizePreset" to false, "favoriteQuoteIds" to emptyList<String>(), "favoriteQuotesOnly" to false)
+    val options = mutableMapOf<String, Any?>("enabled" to true, "intervalHours" to 12, "target" to "home", "selectedPresetId" to "p0", "randomizePreset" to false, "favoriteQuoteIds" to emptyList<String>(), "favoriteQuotesOnly" to false)
     assertEquals("en", RotationConfigureDecoder.decode(options).contentLocale)
     assertEquals("en", RotationConfigureDecoder.decode(options + ("contentLocale" to "fr")).contentLocale)
     assertEquals("vi", RotationConfigureDecoder.decode(options + ("contentLocale" to "vi")).contentLocale)
@@ -144,7 +144,7 @@ class RotationContentLocaleTest {
     val snapshot = RotationSnapshot(true, 6, WallpaperTarget.HOME, "p0", false, emptyList(), false, contentLocale = "all")
     val parsed = RotationSnapshot.parse(snapshot.toJson(), catalog) as RotationSnapshotResult.Valid
     assertEquals("all", parsed.snapshot.contentLocale)
-    val options = mutableMapOf<String, Any?>("enabled" to true, "intervalHours" to 6, "target" to "home", "selectedPresetId" to "p0", "randomizePreset" to false, "favoriteQuoteIds" to emptyList<String>(), "favoriteQuotesOnly" to false, "contentLocale" to "all")
+    val options = mutableMapOf<String, Any?>("enabled" to true, "intervalHours" to 12, "target" to "home", "selectedPresetId" to "p0", "randomizePreset" to false, "favoriteQuoteIds" to emptyList<String>(), "favoriteQuotesOnly" to false, "contentLocale" to "all")
     assertEquals("all", RotationConfigureDecoder.decode(options).contentLocale)
     assertFalse("all" in RotationLocales.supported)
   }

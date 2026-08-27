@@ -51,15 +51,16 @@ export const en = {
 
   'automation.eyebrow': 'AUTOMATION',
   'automation.title': 'Rotation',
-  'automation.available.title': 'Wallpaper targets available',
   'automation.available.message':
     'Rotation runs at an approximate interval; Android may defer work to preserve battery.',
   'automation.attention.title': 'Rotation needs attention',
   'automation.enable.label': 'Enable automatic rotation',
   'automation.enable.description':
     'Apply a new wallpaper on the selected schedule.',
-  'automation.interval.label': 'Every',
-  'automation.interval.option': 'Every {hours} hours',
+  'automation.schedule.label': 'Rotate',
+  'automation.schedule.hourly': 'Rotate every hour',
+  'automation.schedule.twice-daily': 'Rotate at 6 AM and 6 PM',
+  'automation.schedule.daily': 'Rotate at 6 AM',
   'automation.target.label': 'Apply to',
   'automation.target.home': 'Apply to Home screen',
   'automation.target.lock': 'Apply to Lock screen',
@@ -71,19 +72,6 @@ export const en = {
   'automation.run': 'Run rotation now',
   'automation.lastQuote': 'Last quote: {text}',
   'automation.lastQuote.fallback': 'saved quote',
-  'automation.status.label': 'Service status {state} {intervalHours} {target}',
-  'automation.status.capability': 'Capability: {kind}',
-  'automation.status.checking': 'Status: checking device support',
-  'automation.status.schedule':
-    'Approximate schedule: every {hours} hours on {target}.',
-  'automation.status.value': 'Status: {state}',
-  'automation.state.disabled': 'disabled',
-  'automation.state.scheduled': 'scheduled',
-  'automation.state.running': 'running',
-  'automation.state.succeeded': 'succeeded',
-  'automation.state.failed': 'failed',
-  'automation.capability.available': 'available',
-  'automation.capability.unavailable': 'unavailable',
   'automation.targetName.home': 'Home screen',
   'automation.targetName.lock': 'Lock screen',
   'automation.targetName.both': 'both screens',
@@ -118,7 +106,6 @@ export const en = {
   'automation.recovery.reschedule.hint':
     'Saves the current rotation preferences so Android schedules a future run.',
   'automation.status.lastApplied': 'Last applied: {date}',
-  'automation.status.loading': 'loading',
   'automation.favoritesOnly.error':
     'Add a favorite before using favorites-only rotation.',
   'automation.save.error':
@@ -233,7 +220,9 @@ export const en = {
   'sheet.target.both': 'Both',
   'sheet.saveAlso': 'A copy also goes to your photos.',
 
-  'rotation.interval.option': '{hours}h',
+  'rotation.schedule.hourly': 'Hourly',
+  'rotation.schedule.twice-daily': '6am & 6pm',
+  'rotation.schedule.daily': '6am',
   'rotation.randomize.label': 'Randomize preset',
   'rotation.randomize.description':
     'Each rotation picks a different curated style.',
@@ -241,12 +230,6 @@ export const en = {
   'rotation.source.label': 'Source',
   'rotation.source.saved': 'Saved quotes',
   'rotation.source.all': 'All quotes',
-  'rotation.runs.lastRun': 'Last run',
-  'rotation.runs.nextRun': 'Next run',
-  'rotation.runs.status': 'Status',
-  'rotation.runs.pending': 'Not yet',
-  'rotation.battery':
-    'Battery optimisation can delay a run. Exclude Motivana to keep the timing exact.',
 
   'settings.export.label': 'Export',
   'settings.resolution.label': 'Resolution',

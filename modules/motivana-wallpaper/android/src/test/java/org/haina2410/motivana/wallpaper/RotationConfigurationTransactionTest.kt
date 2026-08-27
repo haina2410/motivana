@@ -24,6 +24,6 @@ class RotationConfigurationTransactionTest {
     override fun saveStatus(status: RotationStatus): Boolean { if (!this.status) return false; savedStatus = status; rawStatus = status.toJson(); return true }
     override fun restoreRawSnapshot(value: String?): Boolean { if (!restore) return false; rawSnapshot = value; return true }
     override fun restoreRawStatus(value: String?): Boolean { if (!restore) return false; rawStatus = value; return true }
-    fun transaction() = RotationConfigurationTransaction(this, RotationScheduler(object : RotationWorkScheduler { override fun updatePeriodic(name: String, intervalHours: Long): Boolean { calls++; return schedule }; override fun cancel(name: String): Boolean { calls++; return schedule }; override fun enqueueDebug(name: String) = true }), { 1L })
+    fun transaction() = RotationConfigurationTransaction(this, RotationScheduler(object : RotationWorkScheduler { override fun updatePeriodic(name: String, intervalHours: Long, initialDelayMillis: Long): Boolean { calls++; return schedule }; override fun cancel(name: String): Boolean { calls++; return schedule }; override fun enqueueDebug(name: String) = true }), { 1L })
   }
 }

@@ -24,13 +24,13 @@ class RotationConfigurationTransaction(private val store: RotationConfigurationS
       lastPresetId = next.lastPresetId ?: oldSnapshot?.lastPresetId,
     )
     if (!store.saveSnapshot(mergedNext)) return false
-    if (!scheduler.configure(mergedNext.enabled, mergedNext.intervalHours)) return restore(oldSnapshot, oldSnapshotRaw, oldStatusRaw)
+    if (!scheduler.configure(mergedNext.enabled, mergedNext.intervalHours, mergedNext.anchorHour)) return restore(oldSnapshot, oldSnapshotRaw, oldStatusRaw)
     val nextStatus = RotationStatus(mergedNext.enabled, if (mergedNext.enabled) RotationState.SCHEDULED else RotationState.DISABLED, clock(), oldStatus.lastAppliedAt, oldStatus.quoteId, oldStatus.presetId)
     if (store.saveStatus(nextStatus)) return true
     return restore(oldSnapshot, oldSnapshotRaw, oldStatusRaw)
   }
   private fun restore(old: RotationSnapshot?, snapshotRaw: String?, statusRaw: String?): Boolean {
-    val scheduleRestored = if (old == null) scheduler.configure(false, 6) else scheduler.configure(old.enabled, old.intervalHours)
+    val scheduleRestored = if (old == null) scheduler.configure(false, 24) else scheduler.configure(old.enabled, old.intervalHours, old.anchorHour)
     val snapshotRestored = store.restoreRawSnapshot(snapshotRaw)
     val statusRestored = store.restoreRawStatus(statusRaw)
     // A compensated operation is never reported as successfully configured.

@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { resolveAppliedQuoteId } from '../src/features/quotes/appliedQuote';
+import { rotationSchedulePlan } from '../src/features/rotation/schedule';
 import { useUpdateLog } from '../src/services/updateStatus';
 import { configureRotation } from '../src/services/wallpaperNative';
 import { setRotationSynchronizer } from '../src/store/automationSynchronization';
@@ -13,7 +14,7 @@ import { useAppFonts } from '../src/theme/useAppFonts';
 setRotationSynchronizer(async (state) =>
   configureRotation({
     enabled: state.rotationEnabled,
-    intervalHours: state.rotationIntervalHours,
+    ...rotationSchedulePlan(state.rotationSchedule),
     target: state.wallpaperTarget,
     selectedPresetId: state.selectedPresetId,
     randomizePreset: state.randomizePreset,

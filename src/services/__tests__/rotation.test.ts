@@ -25,7 +25,8 @@ test('configures native rotation before a caller can persist UI state', async ()
   native.configureRotation.mockImplementation(async () => order.push('native'));
   await configureRotation({
     enabled: true,
-    intervalHours: 6,
+    intervalHours: 12,
+    anchorHour: 6,
     target: 'home',
     selectedPresetId: 'midnight-focus',
     randomizePreset: false,

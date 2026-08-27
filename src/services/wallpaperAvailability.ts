@@ -17,7 +17,8 @@ export type WallpaperAutomationStatus = {
   lastAppliedAt?: number;
   lastQuoteId?: string;
   errorCode?: string;
-  intervalHours?: 6 | 12 | 24;
+  intervalHours?: 1 | 12 | 24;
+  anchorHour?: number;
   target?: WallpaperTarget;
 };
 
@@ -59,6 +60,7 @@ export async function getWallpaperAutomationAvailability(): Promise<WallpaperAut
       lastQuoteId: status.lastQuoteId,
       errorCode: status.errorCode,
       intervalHours: status.intervalHours,
+      anchorHour: status.anchorHour,
       target: status.target,
     },
   };

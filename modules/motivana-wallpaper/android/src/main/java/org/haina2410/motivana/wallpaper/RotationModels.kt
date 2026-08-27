@@ -32,8 +32,8 @@ data class RotationCatalog(val quotes: List<RotationQuoteEntry>, val presets: Li
 data class RotationSelection(val quote: RotationQuote, val preset: RotationPreset)
 class SelectionException(val code: String) : IllegalStateException(code)
 enum class RotationState { DISABLED, SCHEDULED, RUNNING, SUCCEEDED, FAILED; companion object { fun parse(value: String) = entries.firstOrNull { it.name.equals(value, true) } } }
-data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val target: WallpaperTarget, val selectedPresetId: String, val randomizePreset: Boolean, val favoriteQuoteIds: List<String>, val favoriteQuotesOnly: Boolean, val lastQuoteId: String? = null, val lastPresetId: String? = null, val contentLocale: String = RotationLocales.DEFAULT) {
-  fun toJson() = """{"enabled":$enabled,"intervalHours":$intervalHours,"target":"${target.name.lowercase()}","selectedPresetId":"$selectedPresetId","randomizePreset":$randomizePreset,"favoriteQuoteIds":[${favoriteQuoteIds.joinToString(",") { "\"$it\"" }}],"favoriteQuotesOnly":$favoriteQuotesOnly,"contentLocale":"$contentLocale"${lastQuoteId?.let { ",\"lastQuoteId\":\"$it\"" } ?: ""}${lastPresetId?.let { ",\"lastPresetId\":\"$it\"" } ?: ""}}"""
+data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val target: WallpaperTarget, val selectedPresetId: String, val randomizePreset: Boolean, val favoriteQuoteIds: List<String>, val favoriteQuotesOnly: Boolean, val lastQuoteId: String? = null, val lastPresetId: String? = null, val contentLocale: String = RotationLocales.DEFAULT, val anchorHour: Int? = null) {
+  fun toJson() = """{"enabled":$enabled,"intervalHours":$intervalHours,"target":"${target.name.lowercase()}","selectedPresetId":"$selectedPresetId","randomizePreset":$randomizePreset,"favoriteQuoteIds":[${favoriteQuoteIds.joinToString(",") { "\"$it\"" }}],"favoriteQuotesOnly":$favoriteQuotesOnly,"contentLocale":"$contentLocale"${anchorHour?.let { ",\"anchorHour\":$it" } ?: ""}${lastQuoteId?.let { ",\"lastQuoteId\":\"$it\"" } ?: ""}${lastPresetId?.let { ",\"lastPresetId\":\"$it\"" } ?: ""}}"""
   companion object {
     private val required = setOf("enabled", "intervalHours", "target", "selectedPresetId", "randomizePreset", "favoriteQuoteIds", "favoriteQuotesOnly")
     fun parse(value: String?, catalog: RotationCatalog): RotationSnapshotResult {
@@ -52,9 +52,17 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
       // contentLocale stays optional. Snapshots that the shipped app already saved have
       // no such key. A required key would stop rotation for every user after an upgrade.
       val locale = json.optionalString("contentLocale")?.takeIf { it in RotationLocales.settingValues } ?: RotationLocales.DEFAULT
-      val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, json.optionalString("lastQuoteId"), json.optionalString("lastPresetId"), locale)
+      // anchorHour stays optional for the same reason contentLocale does: a snapshot
+      // the shipped app already saved has no such key, and a required one would stop
+      // rotation for every reader after an upgrade.
+      val anchor = json.requiredExactInt("anchorHour")
+      val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, json.optionalString("lastQuoteId"), json.optionalString("lastPresetId"), locale, anchor)
       when {
-        snapshot.intervalHours !in setOf(6, 12, 24) -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+        // Six hours is no longer offered, but a snapshot the shipped app saved still
+        // holds it. Rejecting it here would stop rotation for that reader until they
+        // happened to open the schedule screen and press Save.
+        snapshot.intervalHours !in setOf(1, 6, 12, 24) -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+        snapshot.anchorHour?.let { it !in 0..23 } == true -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
         catalog.preset(snapshot.selectedPresetId) == null -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
         favorites.any { catalog.quote(it) == null } || snapshot.lastQuoteId?.let { catalog.quote(it) == null } == true || snapshot.lastPresetId?.let { catalog.preset(it) == null } == true -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
         snapshot.favoriteQuotesOnly && favorites.isEmpty() -> RotationSnapshotResult.Invalid("EMPTY_FAVORITES")

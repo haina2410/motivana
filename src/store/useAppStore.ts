@@ -16,11 +16,10 @@ import {
   hydrateAppState,
   isValidPresetId,
   isValidQuoteId,
-  isValidRotationIntervalHours,
+  isValidRotationSchedule,
   isValidWallpaperTarget,
   serializePersistedAppState,
   type PersistedAppStateV2,
-  type RotationIntervalHours,
   type SafeWarningReporter,
   type WallpaperTarget,
 } from './schema';
@@ -30,10 +29,11 @@ import {
   type KeyValueStorage,
 } from './storage';
 import { synchronizeRotationState } from './automationSynchronization';
+import type { RotationSchedule } from '../features/rotation/schedule';
 
 export interface RotationConfiguration {
   enabled: boolean;
-  intervalHours: RotationIntervalHours;
+  schedule: RotationSchedule;
   target: WallpaperTarget;
   favoriteQuotesOnly?: boolean;
   randomizePreset?: boolean;
@@ -252,7 +252,7 @@ function createAppState(
         if (
           !isRecord(configuration) ||
           typeof configuration.enabled !== 'boolean' ||
-          !isValidRotationIntervalHours(configuration.intervalHours) ||
+          !isValidRotationSchedule(configuration.schedule) ||
           !isValidWallpaperTarget(configuration.target) ||
           (configuration.favoriteQuotesOnly !== undefined &&
             typeof configuration.favoriteQuotesOnly !== 'boolean') ||
@@ -270,7 +270,7 @@ function createAppState(
           return {
             ...state,
             rotationEnabled: configuration.enabled,
-            rotationIntervalHours: configuration.intervalHours,
+            rotationSchedule: configuration.schedule,
             wallpaperTarget: configuration.target,
             favoriteQuotesOnly,
             randomizePreset:
@@ -299,7 +299,7 @@ function toPersistedState(state: AppState): PersistedAppStateV2 {
     randomizePreset,
     favoriteQuotesOnly,
     rotationEnabled,
-    rotationIntervalHours,
+    rotationSchedule,
     wallpaperTarget,
     saveToPhotoLibrary,
     showSafeGuides,
@@ -316,7 +316,7 @@ function toPersistedState(state: AppState): PersistedAppStateV2 {
     randomizePreset,
     favoriteQuotesOnly,
     rotationEnabled,
-    rotationIntervalHours,
+    rotationSchedule,
     wallpaperTarget,
     saveToPhotoLibrary,
     showSafeGuides,

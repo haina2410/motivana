@@ -12,9 +12,13 @@ import {
   type ContentLocale,
   type Locale,
 } from '../features/i18n/locale';
+import {
+  isRotationSchedule,
+  rotationScheduleFromLegacyHours,
+  type RotationSchedule,
+} from '../features/rotation/schedule';
 import { APP_STATE_STORAGE_KEY, type KeyValueStorage } from './storage';
 
-export type RotationIntervalHours = 6 | 12 | 24;
 export type WallpaperTarget = 'home' | 'lock' | 'both';
 
 export interface PersistedAppStateV3 {
@@ -28,7 +32,7 @@ export interface PersistedAppStateV3 {
   randomizePreset: boolean;
   favoriteQuotesOnly: boolean;
   rotationEnabled: boolean;
-  rotationIntervalHours: RotationIntervalHours;
+  rotationSchedule: RotationSchedule;
   wallpaperTarget: WallpaperTarget;
   /** Applying a wallpaper also writes a copy to the photo library. */
   saveToPhotoLibrary: boolean;
@@ -71,8 +75,8 @@ export function createDefaultPersistedAppState(): PersistedAppStateV3 {
     randomizePreset: false,
     favoriteQuotesOnly: false,
     rotationEnabled: false,
-    rotationIntervalHours: 24,
-    wallpaperTarget: 'home',
+    rotationSchedule: 'daily',
+    wallpaperTarget: 'both',
     saveToPhotoLibrary: false,
     showSafeGuides: false,
   };
@@ -80,12 +84,6 @@ export function createDefaultPersistedAppState(): PersistedAppStateV3 {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isRotationIntervalHours(
-  value: unknown,
-): value is RotationIntervalHours {
-  return value === 6 || value === 12 || value === 24;
 }
 
 function isWallpaperTarget(value: unknown): value is WallpaperTarget {
@@ -104,10 +102,10 @@ function validPresetId(value: unknown): value is string {
   return typeof value === 'string' && getPresetById(value) !== undefined;
 }
 
-export function isValidRotationIntervalHours(
+export function isValidRotationSchedule(
   value: unknown,
-): value is RotationIntervalHours {
-  return isRotationIntervalHours(value);
+): value is RotationSchedule {
+  return isRotationSchedule(value);
 }
 
 export function isValidWallpaperTarget(
@@ -172,9 +170,12 @@ export function migratePersistedState(input: unknown): PersistedAppStateV3 {
     rotationEnabled: isBoolean(input.rotationEnabled)
       ? input.rotationEnabled
       : defaults.rotationEnabled,
-    rotationIntervalHours: isRotationIntervalHours(input.rotationIntervalHours)
-      ? input.rotationIntervalHours
-      : defaults.rotationIntervalHours,
+    // A reader on the old six, twelve or twenty-four hour control has no
+    // schedule stored, so their interval is mapped across before the default.
+    rotationSchedule: isRotationSchedule(input.rotationSchedule)
+      ? input.rotationSchedule
+      : (rotationScheduleFromLegacyHours(input.rotationIntervalHours) ??
+        defaults.rotationSchedule),
     wallpaperTarget: isWallpaperTarget(input.wallpaperTarget)
       ? input.wallpaperTarget
       : defaults.wallpaperTarget,
