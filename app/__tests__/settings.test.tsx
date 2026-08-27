@@ -6,6 +6,7 @@ import {
 } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
+import appJson from '../../app.json';
 import SettingsScreen from '../settings';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
@@ -25,7 +26,15 @@ test('Settings leaves every rotation preference to the rotation screen', () => {
 
   expect(screen.queryByLabelText('Randomize preset')).toBeNull();
   expect(screen.queryByLabelText('Use favorite quotes only')).toBeNull();
-  expect(screen.getByText('0.1.0')).toBeOnTheScreen();
+});
+
+// Mutation caught: a hand-written version literal here and in the screen agree
+// with each other while both disagree with app.json, which is what shipped
+// 0.1.0 on a 0.2.0 build. app.json is the only honest oracle.
+test('shows the version app.json declares, not a copy of it', () => {
+  render(<SettingsScreen />);
+
+  expect(screen.getByText(appJson.expo.version)).toBeOnTheScreen();
 });
 
 // Mutation caught: dropping these rows leaves no way to tell, from a device in
