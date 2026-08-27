@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { useState } from 'react';
 import {
   PixelRatio,
@@ -26,7 +27,10 @@ import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
 
-const version = '0.1.0';
+// Read, never retyped: a hand-written copy went stale the moment app.json moved
+// to 0.2.0, and nothing failed. On an updated install this reports the version
+// the update carries, which is the one actually running.
+const version = Constants.expoConfig?.version ?? '—';
 
 // Fixed for the life of the process, so it is read once rather than per render.
 const { update, runtime } = runningUpdateSummary(readRunningUpdate());
