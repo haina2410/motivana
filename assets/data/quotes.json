@@ -380,6 +380,14 @@
     }
   },
   {
+    "id": "confidence-012",
+    "category": "confidence",
+    "sourceLocale": "vi",
+    "text": {
+      "vi": "Nếu thế gian lấy đúng sai làm pháp tắc dốc sức ngăn cản ta, ta sẽ chỉ đưa ra sự lựa chọn duy nhất ta muốn trong lòng."
+    }
+  },
+  {
     "id": "growth-001",
     "category": "growth",
     "sourceLocale": "vi",

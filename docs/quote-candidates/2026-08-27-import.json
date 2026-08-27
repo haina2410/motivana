@@ -1,0 +1,24 @@
+{
+  "candidates": [
+    {
+      "text": {
+        "vi": "Nếu thế gian lấy đúng sai làm pháp tắc dốc sức ngăn cản ta, ta sẽ chỉ đưa ra sự lựa chọn duy nhất ta muốn trong lòng."
+      },
+      "sourceLocale": "vi",
+      "category": "confidence",
+      "provenance": {
+        "sourceKind": "owner-supplied",
+        "providedBy": "owner",
+        "verification": "owner-supplied",
+        "rights": "unknown-author",
+        "englishRendering": "none",
+        "edit": "removed the quotation marks that wrapped the paste; wording, punctuation and diacritics unchanged"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "pasted by the owner",
+        "category": "confidence"
+      }
+    }
+  ]
+}
