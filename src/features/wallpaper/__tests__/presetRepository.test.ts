@@ -1,4 +1,9 @@
-import { getAllPresets, getPresetById } from '../presetRepository';
+import {
+  getAllBackgrounds,
+  getAllPresets,
+  getAllTemplates,
+  getPresetById,
+} from '../presetRepository';
 import { parseWallpaperPresetCatalog, type WallpaperPreset } from '../types';
 import { en } from '../../i18n/strings/en';
 
@@ -100,4 +105,36 @@ test('rejects quote text colors that fail WCAG AA contrast', () => {
       },
     ]),
   ).toThrow('presets[0].textColor must meet WCAG AA contrast');
+});
+
+// Mutation caught: resolving only presets.json would make every saved
+// photograph look like a deleted preset and reset the reader to the default.
+test('a photographic background resolves by id like any preset', () => {
+  const background = getAllBackgrounds()[0]!;
+
+  expect(getPresetById(background.id)).toBe(background);
+  expect(getPresetById(background.id)?.background.kind).toBe('image');
+});
+
+// Mutation caught: letting the two catalogues overlap would give one id two
+// different wallpapers, and the lookup would silently pick one.
+test('the two catalogues are disjoint and together make the template list', () => {
+  const presetIds = new Set(getAllPresets().map((preset) => preset.id));
+  const backgroundIds = getAllBackgrounds().map((entry) => entry.id);
+
+  expect(backgroundIds.filter((id) => presetIds.has(id))).toEqual([]);
+  expect(getAllTemplates()).toHaveLength(
+    getAllPresets().length + getAllBackgrounds().length,
+  );
+});
+
+// Mutation caught: a preset carrying a category would be filed under a photo
+// filter, and a background without one would vanish from every category.
+test('only the photographs carry a category', () => {
+  expect(getAllPresets().every((preset) => preset.category === undefined)).toBe(
+    true,
+  );
+  expect(
+    getAllBackgrounds().every((entry) => typeof entry.category === 'string'),
+  ).toBe(true);
 });

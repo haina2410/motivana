@@ -1,8 +1,9 @@
-import { readdirSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 import backgrounds from '../../../../assets/data/backgrounds.json';
 import { backgroundAssets } from '../backgroundAssets';
+import { backgroundThumbAssets } from '../backgroundThumbAssets';
 import { parseWallpaperPresetCatalog } from '../types';
 
 /**
@@ -42,6 +43,33 @@ describe('backgrounds catalogue', () => {
   it('matches the images actually bundled', () => {
     expect(parsed.map((preset) => preset.id).sort()).toEqual(onDisk);
     expect(Object.keys(backgroundAssets).sort()).toEqual(onDisk);
+  });
+
+  /**
+   * The picker decodes thumbnails, not the full 1290x2796 originals, so a
+   * background with no thumbnail is a dangling require() that fails the bundle.
+   * Re-run `node scripts/make-thumbnails.mjs` to repair.
+   */
+  it('carries a thumbnail for every background', () => {
+    const thumbsOnDisk = readdirSync(join(imageDirectory, 'thumbs'))
+      .filter((name) => name.endsWith('.webp'))
+      .map((name) => name.slice(0, -'.webp'.length))
+      .sort();
+    expect(thumbsOnDisk).toEqual(onDisk);
+    expect(Object.keys(backgroundThumbAssets).sort()).toEqual(onDisk);
+  });
+
+  /**
+   * A thumbnail has to stay far smaller than its source, or the grid is back to
+   * decoding hundreds of megabytes and the whole point is lost.
+   */
+  it('keeps every thumbnail a small fraction of its source', () => {
+    for (const id of onDisk) {
+      const full = statSync(join(imageDirectory, `${id}.webp`)).size;
+      const thumb = statSync(join(imageDirectory, 'thumbs', `${id}.webp`)).size;
+      expect({ id, smaller: thumb < full }).toEqual({ id, smaller: true });
+      expect({ id, under: thumb < 120_000 }).toEqual({ id, under: true });
+    }
   });
 
   it('backs every entry with a bundled image', () => {

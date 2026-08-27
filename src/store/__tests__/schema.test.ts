@@ -1,5 +1,6 @@
 import { getLocales } from 'expo-localization';
 import { getAllQuotes } from '../../features/quotes/quoteRepository';
+import { getAllBackgrounds } from '../../features/wallpaper/presetRepository';
 import {
   createDefaultPersistedAppState,
   hydrateAppState,
@@ -343,4 +344,15 @@ test('maps a stored interval onto a named schedule, preferring an explicit one',
     migratePersistedState({ version: 3, rotationSchedule: 'weekly' })
       .rotationSchedule,
   ).toBe('daily');
+});
+
+// Mutation caught: validating the selection against presets.json alone would
+// reject a saved photograph on the next launch and reset the reader's choice.
+test('a photographic background survives as a persisted selection', () => {
+  const backgroundId = getAllBackgrounds()[0]!.id;
+
+  expect(
+    migratePersistedState({ version: 3, selectedPresetId: backgroundId })
+      .selectedPresetId,
+  ).toBe(backgroundId);
 });

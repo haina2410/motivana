@@ -1,26 +1,45 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import {
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
 import { AppButton } from '../src/components/AppButton';
 import { DeckTabBar } from '../src/components/DeckTabBar';
+import { FilterChip } from '../src/components/FilterChip';
 import { PresetThumbnail } from '../src/components/PresetThumbnail';
 import { ScreenHeader } from '../src/components/ScreenHeader';
 import { getQuoteById } from '../src/features/quotes/quoteRepository';
-import { getAllPresets } from '../src/features/wallpaper/presetRepository';
+import { getAllTemplates } from '../src/features/wallpaper/presetRepository';
+import {
+  ALL_FILTER,
+  PLAIN_FILTER,
+  filterTemplates,
+  templateFilters,
+} from '../src/features/wallpaper/templateFilters';
+import { GRID_GAP, gridColumns } from '../src/features/wallpaper/gridColumns';
 import { useTranslate } from '../src/features/i18n/useTranslate';
+import type { StringKey } from '../src/features/i18n/t';
 import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 
-/** Screen 1f of the board: eight curated presets, two to a row. */
+const HORIZONTAL_PADDING = spacing.x2 + 2;
+
+/** Screen 1f of the board: the curated presets and every photographic background. */
 export default function CustomizeScreen() {
   const state = useAppStore();
   const translate = useTranslate();
+  const { width } = useWindowDimensions();
   const [pendingPresetId, setPendingPresetId] = useState<string>();
   const [failedPresetId, setFailedPresetId] = useState<string>();
+  const [filter, setFilter] = useState<string>(ALL_FILTER);
   const selectPreset = async (presetId: string) => {
     if (pendingPresetId !== undefined) return;
     setPendingPresetId(presetId);
@@ -33,9 +52,22 @@ export default function CustomizeScreen() {
     }
     setFailedPresetId(presetId);
   };
+  const templates = getAllTemplates();
+  const filters = useMemo(() => templateFilters(templates), [templates]);
+  const shown = useMemo(
+    () => filterTemplates(templates, filter),
+    [templates, filter],
+  );
+  const columns = gridColumns(width - HORIZONTAL_PADDING * 2);
   const quote = getQuoteById(state.currentQuoteId);
-  const presets = getAllPresets();
   if (!quote) return null;
+
+  const filterLabel = (id: string): string => {
+    if (id === ALL_FILTER) return translate('filter.all');
+    if (id === PLAIN_FILTER) return translate('filter.plain');
+    return translate(`category.${id}` as StringKey);
+  };
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
       <View style={styles.body}>
@@ -59,22 +91,50 @@ export default function CustomizeScreen() {
           </View>
         ) : null}
         <ScrollView
-          contentContainerStyle={styles.grid}
-          showsVerticalScrollIndicator={false}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filters}
+          style={styles.filterRow}
         >
-          {presets.map((preset) => (
-            <View key={preset.id} style={styles.slot}>
-              <PresetThumbnail
-                preset={preset}
-                quote={quote}
-                locale={state.contentLocale}
-                selected={state.selectedPresetId === preset.id}
-                disabled={pendingPresetId !== undefined}
-                onPress={() => void selectPreset(preset.id)}
-              />
-            </View>
+          {filters.map((entry) => (
+            <FilterChip
+              key={entry.id}
+              accessibilityHint={translate('filter.chip.hint', {
+                name: filterLabel(entry.id),
+              })}
+              count={entry.count}
+              label={filterLabel(entry.id)}
+              onPress={() => setFilter(entry.id)}
+              selected={filter === entry.id}
+            />
           ))}
         </ScrollView>
+        <FlatList
+          // Remounting on a column change is what makes numColumns safe to vary.
+          key={columns}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.grid}
+          data={shown}
+          // Without virtualisation every card would mount a Skia canvas at once.
+          initialNumToRender={columns * 4}
+          keyExtractor={(preset) => preset.id}
+          numColumns={columns}
+          removeClippedSubviews
+          renderItem={({ item }) => (
+            <View style={styles.slot}>
+              <PresetThumbnail
+                preset={item}
+                quote={quote}
+                locale={state.contentLocale}
+                selected={state.selectedPresetId === item.id}
+                disabled={pendingPresetId !== undefined}
+                onPress={() => void selectPreset(item.id)}
+              />
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+          windowSize={5}
+        />
       </View>
       <DeckTabBar active="presets" />
     </SafeAreaView>
@@ -85,16 +145,14 @@ const styles = StyleSheet.create({
   screen: { backgroundColor: colors.background, flex: 1 },
   body: {
     flex: 1,
-    gap: spacing.x2,
-    paddingHorizontal: spacing.x2 + 2,
+    gap: spacing.x1 + 4,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: spacing.x1,
   },
   feedback: { gap: spacing.x1 },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    paddingBottom: spacing.x3,
-  },
-  slot: { flexBasis: '47%', flexGrow: 1 },
+  filterRow: { flexGrow: 0 },
+  filters: { gap: spacing.x1, paddingRight: spacing.x2 },
+  grid: { gap: GRID_GAP, paddingBottom: spacing.x3 },
+  row: { gap: GRID_GAP },
+  slot: { flex: 1 },
 });

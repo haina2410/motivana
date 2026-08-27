@@ -370,10 +370,56 @@ function validateTrueTypeFont(path, font) {
   }
 }
 
+/**
+ * The picker bundles a thumbnail per background and decodes those instead of
+ * the 1290x2796 originals. A missing one is a dangling require() that fails the
+ * bundle, so the gate checks the pair rather than waiting for a red build.
+ */
+function validateBackgrounds(backgrounds) {
+  const path = 'assets/data/backgrounds.json';
+  if (!Array.isArray(backgrounds)) {
+    fail(path, 'backgrounds must be an array');
+  }
+  const ids = new Set();
+  for (const [index, background] of backgrounds.entries()) {
+    const entryPath = `${path}: backgrounds[${index}]`;
+    if (!isRecord(background)) {
+      fail(entryPath, 'must be an object');
+    }
+    const id = background.id;
+    if (typeof id !== 'string' || id.trim() === '') {
+      fail(`${entryPath}.id`, 'must be a non-empty string');
+    }
+    if (ids.has(id)) {
+      fail(`${entryPath}.id`, 'must be unique');
+    }
+    ids.add(id);
+    if (
+      typeof background.category !== 'string' ||
+      background.category.trim() === ''
+    ) {
+      fail(`${entryPath}.category`, 'must name a filter group');
+    }
+    for (const asset of [
+      `assets/images/backgrounds/${id}.webp`,
+      `assets/images/backgrounds/thumbs/${id}.webp`,
+    ]) {
+      if (!existsSync(resolve(asset))) {
+        fail(
+          `${entryPath}.id`,
+          `missing ${asset}; run node scripts/make-thumbnails.mjs`,
+        );
+      }
+    }
+  }
+}
+
 try {
   const quotes = parseJson('assets/data/quotes.json');
   const presets = parseJson('assets/data/presets.json');
+  const backgrounds = parseJson('assets/data/backgrounds.json');
   validateQuotes(quotes);
+  validateBackgrounds(backgrounds);
   const referencedFonts = validatePresets(presets);
   for (const fontPath of referencedFonts) {
     const absolutePath = resolve(fontPath);

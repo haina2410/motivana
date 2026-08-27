@@ -18,17 +18,29 @@ import {
 import type { WallpaperComposition } from './composition';
 import { exportedWallpaperUri } from './exportCache';
 import { drawWallpaperScene, measureSkiaComposition } from './scene';
-import { useBackgroundImage } from './useBackgroundImage';
+import {
+  useBackgroundImage,
+  type BackgroundImageVariant,
+} from './useBackgroundImage';
 import { useWallpaperFonts } from './useWallpaperFonts';
 
 export interface WallpaperCanvasProps {
   composition: WallpaperComposition;
   style?: StyleProp<ViewStyle>;
+  /** Picker cards ask for `thumb`; the full-size card and export do not. */
+  backgroundVariant?: BackgroundImageVariant;
 }
 
-export function WallpaperCanvas({ composition, style }: WallpaperCanvasProps) {
+export function WallpaperCanvas({
+  composition,
+  style,
+  backgroundVariant = 'full',
+}: WallpaperCanvasProps) {
   const fonts = useWallpaperFonts();
-  const backgroundImage = useBackgroundImage(composition.preset.background);
+  const backgroundImage = useBackgroundImage(
+    composition.preset.background,
+    backgroundVariant,
+  );
   // The wallpaper the reader already applied is on disk as a finished PNG. Using
   // it skips both the typeface load and the draw, so the card fills the first
   // frame instead of holding a spinner for the whole font load.

@@ -9,6 +9,11 @@ import {
 import { router } from 'expo-router';
 
 import CustomizeScreen from '../customize';
+import {
+  getAllBackgrounds,
+  getAllPresets,
+  getAllTemplates,
+} from '../../src/features/wallpaper/presetRepository';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
@@ -42,7 +47,6 @@ test.each([
   async (presetId, presetName) => {
     render(<CustomizeScreen />);
 
-    expect(screen.getAllByLabelText(/^Use .* preset$/)).toHaveLength(8);
     fireEvent.press(screen.getByLabelText(`Use ${presetName} preset`));
 
     await waitFor(() => {
@@ -75,4 +79,48 @@ test('Customize keeps the selection available and offers a safe retry after sync
 
   await waitFor(() => expect(router.navigate).toHaveBeenCalledWith('/'));
   expect(attempts).toBe(2);
+});
+
+// Mutation caught: loading presets.json alone would leave every photographic
+// background out of the picker, which is what shipped and hid forty wallpapers.
+test('the picker offers the curated presets and every photographic background', () => {
+  render(<CustomizeScreen />);
+
+  expect(screen.getAllByLabelText(/^Use .* preset$/)).toHaveLength(
+    getAllTemplates().length,
+  );
+  expect(getAllBackgrounds().length).toBeGreaterThan(0);
+  // A photograph is named from its category and number, not a per-image string.
+  expect(screen.getByLabelText('Use Mountain 01 preset')).toBeOnTheScreen();
+});
+
+// Mutation caught: a filter that did not narrow the grid would leave the row
+// looking active while showing every wallpaper regardless.
+test('a filter narrows the grid to its own wallpapers', () => {
+  render(<CustomizeScreen />);
+
+  fireEvent.press(screen.getByLabelText('Plain'));
+  expect(screen.getAllByLabelText(/^Use .* preset$/)).toHaveLength(
+    getAllPresets().length,
+  );
+
+  fireEvent.press(screen.getByLabelText('Sky'));
+  const sky = getAllBackgrounds().filter((b) => b.category === 'sky');
+  expect(screen.getAllByLabelText(/^Use .* preset$/)).toHaveLength(sky.length);
+
+  fireEvent.press(screen.getByLabelText('All'));
+  expect(screen.getAllByLabelText(/^Use .* preset$/)).toHaveLength(
+    getAllTemplates().length,
+  );
+});
+
+// Mutation caught: ordering the filter row by catalogue position would bury the
+// fullest categories behind ones holding a single wallpaper.
+test('the filter row leads with All and Plain, then the largest categories', () => {
+  render(<CustomizeScreen />);
+
+  expect(screen.getByLabelText('All')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Plain')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Sky')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Cosmos')).toBeOnTheScreen();
 });

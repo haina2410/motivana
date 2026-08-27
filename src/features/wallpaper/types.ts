@@ -44,6 +44,11 @@ export type WallpaperBackground =
 
 export interface WallpaperPreset {
   id: string;
+  /**
+   * Groups photographic backgrounds in the picker. Absent on the eight curated
+   * presets, which are their own group.
+   */
+  category?: string;
   fontFamily: FontFamily;
   fontWeight: FontWeight;
   textAlign: TextAlign;
@@ -331,6 +336,9 @@ export function parseWallpaperPresetCatalog(
 
     return Object.freeze({
       id,
+      ...(entry.category === undefined
+        ? {}
+        : { category: requireString(entry.category, `${path}.category`) }),
       fontFamily: fontFamily as FontFamily,
       fontWeight: fontWeight as FontWeight,
       textAlign: textAlign as TextAlign,

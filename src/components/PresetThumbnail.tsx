@@ -42,7 +42,11 @@ export function PresetThumbnail({
       }),
     [preset, quote, locale],
   );
-  const name = translate(`preset.${preset.id}.name` as StringKey);
+  // The eight curated presets each have a written name. A photograph takes its
+  // name from its category and number, so a new background needs no new string.
+  const name = preset.category
+    ? `${translate(`category.${preset.category}` as StringKey)} ${preset.id.split('-').pop()}`
+    : translate(`preset.${preset.id}.name` as StringKey);
   return (
     <Pressable
       accessibilityRole="button"
@@ -58,6 +62,7 @@ export function PresetThumbnail({
         style={[styles.preview, selected && styles.previewSelected]}
       >
         <WallpaperCanvas
+          backgroundVariant="thumb"
           composition={composition}
           style={StyleSheet.absoluteFill}
         />

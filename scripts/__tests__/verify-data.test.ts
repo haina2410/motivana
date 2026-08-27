@@ -88,9 +88,33 @@ function runVerifier(files: Record<string, string | Buffer>) {
   }
 }
 
+const backgroundIds = ['sky-01', 'mountain-01'];
+
 function serializedCatalogFiles(): Record<string, string | Buffer> {
   return {
     'assets/data/quotes.json': JSON.stringify(validQuotes()),
+    'assets/data/backgrounds.json': JSON.stringify(
+      backgroundIds.map((id) => ({
+        ...validPreset,
+        id,
+        category: id.split('-')[0],
+        background: {
+          kind: 'image',
+          asset: `backgrounds/${id}.webp`,
+          scrimColor: '#000000',
+          scrimOpacity: 0.45,
+          effectiveLuminance: 0.25,
+        },
+      })),
+    ),
+    // The verifier only checks that the pair of files exists, so a stand-in
+    // byte keeps the fixture from carrying two real photographs.
+    ...Object.fromEntries(
+      backgroundIds.flatMap((id) => [
+        [`assets/images/backgrounds/${id}.webp`, Buffer.from([0])],
+        [`assets/images/backgrounds/thumbs/${id}.webp`, Buffer.from([0])],
+      ]),
+    ),
     'assets/data/presets.json': JSON.stringify(
       Array.from({ length: 8 }, (_, index) => ({
         ...validPreset,
