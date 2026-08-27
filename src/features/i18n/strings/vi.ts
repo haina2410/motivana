@@ -265,6 +265,10 @@ export const vi: Record<keyof typeof en, string> = {
     'Mọi phông chữ kèm theo đều dùng giấy phép SIL Open Font License.',
   'settings.version.label': 'Phiên bản',
   'settings.version.value': '{version} · ngoại tuyến',
+  'settings.update.label': 'Bản cập nhật',
+  'settings.update.embedded': 'Kèm theo bản dựng',
+  'settings.update.unknown': 'Không có',
+  'settings.runtime.label': 'Mã tương thích',
 
   'preset.face.CormorantGaramond': 'Cormorant Garamond',
   'preset.face.BeVietnamPro': 'Be Vietnam Pro',

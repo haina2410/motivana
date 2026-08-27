@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { resolveAppliedQuoteId } from '../src/features/quotes/appliedQuote';
+import { useUpdateLog } from '../src/services/updateStatus';
 import { configureRotation } from '../src/services/wallpaperNative';
 import { setRotationSynchronizer } from '../src/store/automationSynchronization';
 import { useAppStore } from '../src/store/useAppStore';
@@ -24,6 +25,10 @@ setRotationSynchronizer(async (state) =>
 
 export default function RootLayout() {
   const fontsReady = useAppFonts();
+  // Prints which bundle this launch is running, then each result of the check
+  // expo-updates makes against the manifest endpoint. Read it with
+  // `adb logcat -s ReactNativeJS`.
+  useUpdateLog();
   // One time per launch, so the deck opens on the wallpaper the reader is
   // looking at. Running this on the home screen instead would undo their next
   // choice every time they came back to the deck.

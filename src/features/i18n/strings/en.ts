@@ -268,6 +268,10 @@ export const en = {
     'Every bundled typeface ships under the SIL Open Font License.',
   'settings.version.label': 'Version',
   'settings.version.value': '{version} · offline',
+  'settings.update.label': 'Update',
+  'settings.update.embedded': 'Built in',
+  'settings.update.unknown': 'Not available',
+  'settings.runtime.label': 'Runtime',
 
   'preset.face.CormorantGaramond': 'Cormorant Garamond',
   'preset.face.BeVietnamPro': 'Be Vietnam Pro',

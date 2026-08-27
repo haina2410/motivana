@@ -14,6 +14,10 @@ import { Choice } from '../src/components/Choice';
 import { Icon } from '../src/components/Icon';
 import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Toggle } from '../src/components/Toggle';
+import {
+  readRunningUpdate,
+  runningUpdateSummary,
+} from '../src/services/updateStatus';
 import { useAppStore } from '../src/store/useAppStore';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { contentLocales, locales } from '../src/features/i18n/locale';
@@ -24,6 +28,9 @@ import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
 
 const version = '0.1.0';
+
+// Fixed for the life of the process, so it is read once rather than per render.
+const { update, runtime } = runningUpdateSummary(readRunningUpdate());
 
 /** Screen 1j of the board. */
 export default function SettingsScreen() {
@@ -196,6 +203,16 @@ export default function SettingsScreen() {
           <InfoRow
             label={translate('settings.version.label')}
             value={translate('settings.version.value', { version })}
+          />
+          {/* Which JS this install is running, so an over-the-air update can be
+              confirmed from the device instead of from a cable. */}
+          <InfoRow
+            label={translate('settings.update.label')}
+            value={update ?? translate('settings.update.embedded')}
+          />
+          <InfoRow
+            label={translate('settings.runtime.label')}
+            value={runtime ?? translate('settings.update.unknown')}
           />
         </View>
         <Text allowFontScaling style={styles.about}>

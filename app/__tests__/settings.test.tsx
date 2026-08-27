@@ -28,6 +28,15 @@ test('Settings leaves every rotation preference to the rotation screen', () => {
   expect(screen.getByText('0.1.0 · offline')).toBeOnTheScreen();
 });
 
+// Mutation caught: dropping these rows leaves no way to tell, from a device in
+// someone's hand, whether an over-the-air update actually landed.
+test('names the bundle and the runtime this install is running', () => {
+  render(<SettingsScreen />);
+
+  expect(screen.getByText(t('en', 'settings.update.label'))).toBeOnTheScreen();
+  expect(screen.getByText(t('en', 'settings.runtime.label'))).toBeOnTheScreen();
+});
+
 // Mutation caught: reading a hard-coded English string would leave the interface English after the reader picks Vietnamese.
 test('renders the interface in the stored app language', async () => {
   useAppStore.setState({ appLocale: 'vi' });
