@@ -52,7 +52,7 @@ test('returns text only for the locale that has it', () => {
 
 // Mutation caught: losing a category or an id would shrink the pool without any failing assertion.
 // The catalogue has no fixed size, so this holds the same floor as the data gate.
-test('ships unique English quotes across every category', () => {
+test('ships unique quotes across every category', () => {
   const quotes = getAllQuotes();
 
   expect(quotes.length).toBeGreaterThanOrEqual(36);
@@ -65,8 +65,12 @@ test('ships unique English quotes across every category', () => {
       quotes.filter((quote) => quote.category === category).length,
     ).toBeGreaterThanOrEqual(6);
   }
+  // Every quote must read in the language it was written in. A second locale is
+  // optional, so a Vietnamese-only quote is a complete entry, not a gap.
   expect(
-    quotes.every((quote) => (quote.text.en ?? '').trim().length >= 12),
+    quotes.every(
+      (quote) => (quote.text[quote.sourceLocale] ?? '').trim().length >= 12,
+    ),
   ).toBe(true);
   // Sourced quotes carry the person who said them; original app copy carries none.
   expect(
@@ -165,12 +169,20 @@ test('rejects an empty eligible set with a selection error code', () => {
 
 // Mutation caught: leaving untranslated quotes in the pool would show English text to a Vietnamese reader.
 test('offers only quotes that have text for the requested locale', () => {
+  const all = getAllQuotes();
   const english = getAllQuotes('en');
   const vietnamese = getAllQuotes('vi');
 
-  expect(english.length).toBe(getAllQuotes().length);
+  expect(english.every((quote) => quote.text.en !== undefined)).toBe(true);
   expect(vietnamese.every((quote) => quote.text.vi !== undefined)).toBe(true);
-  expect(vietnamese.length).toBeLessThan(english.length);
+  // Neither language covers the whole catalogue, so each pool holds exactly the
+  // quotes that carry it. A filter that ignored the locale would fail both.
+  expect(english.length).toBe(
+    all.filter((quote) => quote.text.en !== undefined).length,
+  );
+  expect(vietnamese.length).toBe(
+    all.filter((quote) => quote.text.vi !== undefined).length,
+  );
 });
 
 // Mutation caught: stepping through the unfiltered catalog would land on a quote with no text in the active language.
