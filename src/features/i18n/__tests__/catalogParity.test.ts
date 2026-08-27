@@ -8,6 +8,7 @@ test('every Vietnamese entry differs from English except proper nouns', () => {
     'settings.about.title', // product name
     'language.en', // each language reads in its own name
     'language.vi', // each language reads in its own name
+    'settings.version.value', // a bare version placeholder has no words
     // A typeface name is the designer's proper noun in every language.
     'preset.face.CormorantGaramond',
     'preset.face.BeVietnamPro',

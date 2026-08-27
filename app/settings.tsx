@@ -11,7 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
 import { Choice } from '../src/components/Choice';
-import { Icon } from '../src/components/Icon';
 import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Toggle } from '../src/components/Toggle';
 import { useAppStore } from '../src/store/useAppStore';
@@ -69,18 +68,6 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <ScreenHeader title={translate('settings.title')} />
-
-        <View style={styles.offline}>
-          <View style={styles.offlineHead}>
-            <Icon name="shield-halved" size={13} color={colors.accent} />
-            <Text allowFontScaling style={styles.offlineTitle}>
-              {translate('settings.offline.title')}
-            </Text>
-          </View>
-          <Text allowFontScaling style={styles.offlineBody}>
-            {translate('settings.offline.message')}
-          </Text>
-        </View>
 
         <Text allowFontScaling style={typography.sectionLabel}>
           {translate('settings.export.label')}
@@ -227,18 +214,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.x2 + 2,
     paddingTop: spacing.x1,
   },
-  offline: {
-    backgroundColor: colors.accentWash,
-    borderColor: 'rgba(232, 180, 76, 0.22)',
-    borderRadius: spacing.radius,
-    borderWidth: 1,
-    gap: spacing.x1,
-    marginBottom: 6,
-    padding: 14,
-  },
-  offlineHead: { alignItems: 'center', flexDirection: 'row', gap: 9 },
-  offlineTitle: { ...typography.chip, fontSize: 13 },
-  offlineBody: { ...typography.caption, fontSize: 11, lineHeight: 17 },
   list: { marginBottom: 6 },
   divider: {
     backgroundColor: 'rgba(255, 255, 255, 0.06)',

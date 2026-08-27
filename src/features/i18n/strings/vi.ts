@@ -245,9 +245,6 @@ export const vi: Record<keyof typeof en, string> = {
   'rotation.battery':
     'Tính năng tiết kiệm pin có thể làm chậm một lần chạy. Hãy loại Motivana ra để giữ đúng giờ.',
 
-  'settings.offline.title': 'Hoàn toàn ngoại tuyến',
-  'settings.offline.message':
-    'Không tài khoản, không máy chủ, không phân tích. Câu nói, mẫu, phông chữ và ảnh xuất ra đều ở lại trên máy này.',
   'settings.export.label': 'Xuất ảnh',
   'settings.resolution.label': 'Độ phân giải',
   'settings.language.label': 'Ngôn ngữ',
@@ -264,7 +261,7 @@ export const vi: Record<keyof typeof en, string> = {
   'settings.licences.hint':
     'Mọi phông chữ kèm theo đều dùng giấy phép SIL Open Font License.',
   'settings.version.label': 'Phiên bản',
-  'settings.version.value': '{version} · ngoại tuyến',
+  'settings.version.value': '{version}',
 
   'preset.face.CormorantGaramond': 'Cormorant Garamond',
   'preset.face.BeVietnamPro': 'Be Vietnam Pro',

@@ -25,7 +25,7 @@ test('Settings leaves every rotation preference to the rotation screen', () => {
 
   expect(screen.queryByLabelText('Randomize preset')).toBeNull();
   expect(screen.queryByLabelText('Use favorite quotes only')).toBeNull();
-  expect(screen.getByText('0.1.0 · offline')).toBeOnTheScreen();
+  expect(screen.getByText('0.1.0')).toBeOnTheScreen();
 });
 
 // Mutation caught: reading a hard-coded English string would leave the interface English after the reader picks Vietnamese.
@@ -58,12 +58,9 @@ test('changes the quote language without changing the interface language', async
   expect(useAppStore.getState().appLocale).toBe('en');
 });
 
-test('Settings states the offline promise and exposes one control per setting', () => {
+test('Settings exposes one control per setting', () => {
   render(<SettingsScreen />);
 
-  expect(
-    screen.getByText(t('en', 'settings.offline.message')),
-  ).toBeOnTheScreen();
   expect(
     screen.getAllByRole('switch', {
       name: t('en', 'settings.saveToLibrary.label'),
