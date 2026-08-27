@@ -123,6 +123,36 @@ describe('buildManifest', () => {
     expect(manifest.assets[0].contentType).toBe('font/ttf');
   });
 
+  // A real `expo export` for android emits vector drawables as .xml assets.
+  // The first publish failed on exactly this extension.
+  it('describes an xml asset as xml, not as an unknown extension', () => {
+    writeFileSync(join(distDirectory, 'assets/vector'), '<vector />');
+    writeFileSync(
+      join(distDirectory, 'metadata.json'),
+      JSON.stringify({
+        version: 0,
+        bundler: 'metro',
+        fileMetadata: {
+          android: {
+            bundle: '_expo/static/js/android/index.hbc',
+            assets: [{ path: 'assets/vector', ext: 'xml' }],
+          },
+        },
+      }),
+    );
+
+    const { manifest } = buildManifest({
+      distDirectory,
+      platform: 'android',
+      runtimeVersion: 'fingerprint-1',
+      assetBaseUrl: 'https://ota.test/assets',
+      expoConfig,
+    });
+
+    expect(manifest.assets[0].fileExtension).toBe('.xml');
+    expect(manifest.assets[0].contentType).toBe('application/xml');
+  });
+
   it('derives a stable uuid id from metadata.json', () => {
     const first = buildManifest({
       distDirectory,
