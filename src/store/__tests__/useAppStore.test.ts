@@ -87,7 +87,7 @@ test('selects a random quote without immediately repeating the current quote', (
 
   expect(store.getState().randomQuote()).toBe(true);
   expect(store.getState().currentQuoteId).not.toBe(initialQuoteId);
-  expect(store.getState().currentQuoteId).toBe(getAllQuotes()[1]!.id);
+  expect(store.getState().currentQuoteId).toBe(getAllQuotes('vi')[1]!.id);
 });
 
 // Mutation caught: failing to check a quote ID against the catalog would persist a selection screens cannot render.
@@ -239,7 +239,9 @@ test('rejects null and undefined rotation configurations without changing state'
 
 // Mutation caught: omitting migration during hydration would restore duplicate and removed favorites into live state.
 test('hydrates repaired persisted preferences through the store action', () => {
-  const quoteId = getAllQuotes()[2]!.id;
+  // The default content locale is Vietnamese, so the id has to sit in that
+  // pool or hydration repairs it instead of keeping it.
+  const quoteId = getAllQuotes('vi')[2]!.id;
   const storage = createMemoryStorage();
   storage.set(
     'motivana.app-state',

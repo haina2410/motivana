@@ -32,10 +32,11 @@ State these four numbers before you start, and hold them:
 Half is a ceiling, not a target. A harvest that approves 24 of 50 is healthy.
 A harvest that approves 45 of 50 did not search hard enough to have a choice.
 
-The Vietnamese share is the one number the promoter no longer checks, so it is
-on you. The only enforced floor is `verify-data.mjs`: at least five Vietnamese
-quotes in every category. That floor guards the catalogue, not your batch - a
-harvest can sit well above it and still be an all-English harvest.
+The Vietnamese share is nobody's check but yours. Nothing enforces it any more:
+the catalogue holds each quote in the one language it was written in, so a
+Vietnamese quote can only arrive from Vietnamese source material. The one floor
+left in `verify-data.mjs` counts quotes, not languages - at least six in every
+category - and an all-English harvest passes it.
 
 ## Never Do These
 

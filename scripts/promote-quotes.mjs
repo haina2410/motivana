@@ -4,8 +4,7 @@
 // The staging file is the only place a harvest may write. This script is the
 // only thing that may write the catalogue, so the contract in
 // .claude/skills/sourcing-quotes/SKILL.md is enforced here rather than trusted:
-// a batch that approves more than half of its candidates, or that is mostly not
-// Vietnamese, is refused.
+// a batch that approves more than half of its candidates is refused.
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -38,10 +37,9 @@ if (stagingArgument === undefined) {
 if (retireFlag && !(Number.isInteger(retainFiller) && retainFiller >= 0)) {
   fail('--retire-filler needs a whole number of entries to keep per category');
 }
-// The same floors as scripts/verify-data.mjs, so a retire that would break the
+// The same floor as scripts/verify-data.mjs, so a retire that would break the
 // gate fails here with a message about filler instead of there about counts.
 const minimumQuotesPerCategory = 6;
-const minimumVietnameseQuotesPerCategory = 5;
 
 function fail(message) {
   console.error(`promote-quotes: ${message}`);
@@ -184,8 +182,8 @@ function keptInCategory(category) {
   if (retainFiller === undefined) return inCategory;
   const filler = inCategory.filter(isFiller);
   if (filler.length <= retainFiller) return inCategory;
-  // Vietnamese filler is kept first: it holds the bilingual floor up while the
-  // sourced Vietnamese quotes are still arriving.
+  // Vietnamese filler is kept first, so a retire does not leave a category
+  // English-only.
   const keep = new Set(
     [...filler]
       .sort(
@@ -238,20 +236,12 @@ for (const category of retainFiller === undefined ? [] : categories) {
       `${category} would hold ${inCategory.length} quotes, under the floor of ${minimumQuotesPerCategory}: retire less filler or harvest more`,
     );
   }
-  const withVietnamese = inCategory.filter(
-    (quote) => quote.text.vi !== undefined,
-  );
-  if (withVietnamese.length < minimumVietnameseQuotesPerCategory) {
-    fail(
-      `${category} would hold ${withVietnamese.length} Vietnamese quotes, under the floor of ${minimumVietnameseQuotesPerCategory}`,
-    );
-  }
 }
 
 const report = [
   `candidates ${candidates.length}`,
   `approved ${approved.length}`,
-  // Reported, not gated: the enforced floor is per category, checked above.
+  // Reported, not gated: nothing enforces a Vietnamese share any more.
   `vietnamese ${approved.filter((candidate) => typeof candidate.text?.vi === 'string').length}/${approved.length}`,
   `retired filler ${retired.length}`,
   `catalogue ${catalogue.length} -> ${renumbered.length}`,

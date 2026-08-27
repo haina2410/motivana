@@ -26,9 +26,11 @@ class RotationContentLocaleTest {
   // Pins RotationCatalog.kt parseQuotes: `text` is read as an object, never as a string.
   @Test fun parseQuotesReadsEveryLanguageAndNeverYieldsARawJsonBlob() {
     val quotes = realQuotes()
-    val bilingual = requireNotNull(quotes.firstOrNull { it.id == "motivation-001" })
-    assertEquals(setOf("en", "vi"), bilingual.text.keys)
-    assertEquals("vi", bilingual.sourceLocale)
+    // Every catalogue entry now carries only the language it was written in, so a
+    // two-language entry comes from a literal here to keep the multi-key read pinned.
+    val twoLanguages = RotationCatalogLoader.parseQuotes("""[{"id":"q1","category":"focus","sourceLocale":"vi","text":{"vi":"Một câu tiếng Việt đủ dài.","en":"An English rendering long enough."}}]""").single()
+    assertEquals(setOf("vi", "en"), twoLanguages.text.keys)
+    assertEquals("vi", twoLanguages.sourceLocale)
     RotationLocales.supported.forEach { locale ->
       quotes.forEach { quote -> assertFalse("${quote.id} $locale", quote.resolve(locale).text.startsWith("{")) }
     }
@@ -37,9 +39,9 @@ class RotationContentLocaleTest {
   // Pins RotationModels.kt RotationQuoteEntry.resolve: chosen language, else the original.
   @Test fun resolveUsesTheChosenLanguageAndFallsBackToTheOriginal() {
     val quotes = realQuotes()
-    val bilingual = requireNotNull(quotes.firstOrNull { it.id == "motivation-001" })
-    val englishOnly = requireNotNull(quotes.firstOrNull { it.id == "motivation-006" })
-    assertEquals(bilingual.text.getValue("vi"), bilingual.resolve("vi").text)
+    val vietnamese = requireNotNull(quotes.firstOrNull { it.hasLocale("vi") })
+    val englishOnly = requireNotNull(quotes.firstOrNull { !it.hasLocale("vi") })
+    assertEquals(vietnamese.text.getValue("vi"), vietnamese.resolve("vi").text)
     assertEquals(englishOnly.text.getValue("en"), englishOnly.resolve("vi").text)
   }
 
@@ -57,7 +59,7 @@ class RotationContentLocaleTest {
   // Pins the favorites exception in RotationCatalog.kt select: no language filter there.
   @Test fun favoritesStayUsableInAnyLanguage() {
     val catalog = realCatalog()
-    val englishOnly = requireNotNull(catalog.quotes.firstOrNull { it.id == "motivation-006" })
+    val englishOnly = requireNotNull(catalog.quotes.firstOrNull { !it.hasLocale("vi") })
     assertFalse(englishOnly.hasLocale("vi"))
     val selection = RotationSelector(Random(3)).select(catalog, listOf(englishOnly.id), null, null, false, catalog.presets.first().id, "vi")
     assertEquals(englishOnly.id, selection.quote.id)
