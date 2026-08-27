@@ -27,6 +27,8 @@ const paragraphStyles: Record<string, unknown>[] = [];
 const gradientCalls: {
   start: { x: number; y: number };
   end: { x: number; y: number };
+  colors?: unknown[];
+  positions?: number[] | null;
 }[] = [];
 let mockParagraphText = '';
 const mockGoldenMeasurements = new Map<
@@ -89,8 +91,10 @@ jest.mock('@shopify/react-native-skia', () => {
         MakeLinearGradient: (
           start: { x: number; y: number },
           end: { x: number; y: number },
+          colors?: unknown[],
+          positions?: number[] | null,
         ) => {
-          gradientCalls.push({ start, end });
+          gradientCalls.push({ start, end, colors, positions });
           return undefined;
         },
       },
@@ -325,4 +329,153 @@ test('uses the configured 90-degree gradient axis in screen coordinates', () => 
   expect(gradientCalls).toHaveLength(1);
   expect(gradientCalls[0]!.start).toEqual({ x: 540, y: -180 });
   expect(gradientCalls[0]!.end).toEqual({ x: 540, y: 1620 });
+});
+
+const imagePreset = () => ({
+  ...getPresetById('midnight-focus')!,
+  quotePositionY: 0.52,
+  background: {
+    kind: 'image' as const,
+    asset: 'backgrounds/mountain-01.webp',
+    scrimColor: '#000000',
+    scrimOpacity: 0.6,
+    effectiveLuminance: 0.12,
+  },
+});
+
+const fakeImage = (width = 1290, height = 2796) =>
+  ({ width: () => width, height: () => height }) as never;
+
+function imageCanvas() {
+  const drawn: { source: unknown; destination: unknown }[] = [];
+  return {
+    drawn,
+    canvas: {
+      drawRect: () => undefined,
+      drawCircle: () => undefined,
+      drawImageRect: (
+        _image: unknown,
+        source: unknown,
+        destination: unknown,
+      ) => {
+        drawn.push({ source, destination });
+      },
+    },
+  };
+}
+
+// Mutation caught: an image preset that only ever paints its stand-in colour
+// ships the reader a plain grey wallpaper instead of the photograph.
+test('paints the photograph over the whole canvas for an image background', () => {
+  const composition = createComposition({
+    quote,
+    preset: imagePreset(),
+    width: 1080,
+    height: 2340,
+    locale: 'en',
+  });
+  const { canvas, drawn } = imageCanvas();
+
+  drawWallpaperScene(canvas, composition, undefined, fakeImage());
+
+  expect(drawn).toHaveLength(1);
+  expect(drawn[0]!.destination).toEqual({
+    x: 0,
+    y: 0,
+    width: 1080,
+    height: 2340,
+  });
+});
+
+// Mutation caught: stretching the source rectangle to the full image distorts
+// a photograph whose aspect ratio differs from the canvas.
+test('takes a centred cover crop when the canvas is wider than the photograph', () => {
+  const composition = createComposition({
+    quote,
+    preset: imagePreset(),
+    width: 1000,
+    height: 1000,
+    locale: 'en',
+  });
+  const { canvas, drawn } = imageCanvas();
+
+  drawWallpaperScene(canvas, composition, undefined, fakeImage(1290, 2796));
+
+  // Square canvas over a tall photograph: full width, a centred square of it.
+  expect(drawn[0]!.source).toEqual({
+    x: 0,
+    y: (2796 - 1290) / 2,
+    width: 1290,
+    height: 1290,
+  });
+});
+
+// Mutation caught: drawing the image unconditionally throws on the canvas
+// before the decode resolves, taking the whole preview down.
+test('falls back to the stand-in fill while the photograph is still decoding', () => {
+  const composition = createComposition({
+    quote,
+    preset: imagePreset(),
+    width: 1080,
+    height: 2340,
+    locale: 'en',
+  });
+  const { canvas, drawn } = imageCanvas();
+
+  expect(() => drawWallpaperScene(canvas, composition)).not.toThrow();
+  expect(drawn).toHaveLength(0);
+});
+
+// Mutation caught: a scrim centred on the frame rather than on the quote
+// leaves the text on bare photograph whenever the quote sits off centre.
+test('peaks the scrim on the quote, not on the middle of the frame', () => {
+  const composition = createComposition({
+    quote,
+    preset: imagePreset(),
+    width: 1080,
+    height: 2340,
+    locale: 'en',
+  });
+  const { canvas } = imageCanvas();
+
+  drawWallpaperScene(canvas, composition, undefined, fakeImage());
+
+  expect(gradientCalls).toHaveLength(1);
+  const scrim = gradientCalls[0]!;
+  expect(scrim.start).toEqual({ x: 0, y: 0 });
+  expect(scrim.end).toEqual({ x: 0, y: 2340 });
+  const positions = scrim.positions!;
+  expect(positions).toHaveLength(5);
+  [0, 0.1, 0.52, 0.94, 1].forEach((expected, index) => {
+    expect(positions[index]!).toBeCloseTo(expected, 6);
+  });
+  expect(scrim.colors).toEqual([
+    'rgba(0, 0, 0, 0)',
+    'rgba(0, 0, 0, 0)',
+    'rgba(0, 0, 0, 0.6)',
+    'rgba(0, 0, 0, 0)',
+    'rgba(0, 0, 0, 0)',
+  ]);
+});
+
+// Mutation caught: letting the scrim stop positions run past 0 or 1 makes
+// Skia reject the shader, so the quote loses its contrast entirely.
+test('keeps the scrim stops inside the gradient range for a high quote', () => {
+  const composition = createComposition({
+    quote,
+    preset: { ...imagePreset(), quotePositionY: 0.36 },
+    width: 1080,
+    height: 2340,
+    locale: 'en',
+  });
+  const { canvas } = imageCanvas();
+
+  drawWallpaperScene(canvas, composition, undefined, fakeImage());
+
+  const positions = gradientCalls[0]!.positions!;
+  expect(positions[0]).toBe(0);
+  expect(positions.at(-1)).toBe(1);
+  for (let index = 1; index < positions.length; index += 1) {
+    expect(positions[index]!).toBeGreaterThanOrEqual(positions[index - 1]!);
+  }
 });

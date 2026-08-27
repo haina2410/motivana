@@ -23,7 +23,24 @@ export interface LinearGradientBackground {
   angleDegrees: number;
 }
 
-export type WallpaperBackground = SolidBackground | LinearGradientBackground;
+export interface ImageBackground {
+  kind: 'image';
+  /** Path under assets/images/, e.g. `backgrounds/mountain-01.webp`. */
+  asset: string;
+  /** Colour of the scrim drawn between the photograph and the quote. */
+  scrimColor: string;
+  /** Peak scrim opacity at the quote band, 0 to 1. */
+  scrimOpacity: number;
+  /**
+   * Measured luminance of the quote band once the scrim is applied, 0 to 1.
+   * Contrast is checked against this rather than against the photograph,
+   * which has no single colour to test.
+   */
+  effectiveLuminance: number;
+}
+
+export type WallpaperBackground =
+  SolidBackground | LinearGradientBackground | ImageBackground;
 
 export interface WallpaperPreset {
   id: string;
@@ -143,9 +160,47 @@ function parseBackground(value: unknown, path: string): WallpaperBackground {
       angleDegrees,
     });
   }
+  if (value.kind === 'image') {
+    const asset = requireString(value.asset, `${path}.asset`);
+    if (!/^backgrounds\/[A-Za-z0-9-]+\.webp$/.test(asset)) {
+      throw new WallpaperPresetValidationError(
+        `${path}.asset must be a backgrounds/<id>.webp path`,
+      );
+    }
+    const scrimOpacity = requireNumber(
+      value.scrimOpacity,
+      `${path}.scrimOpacity`,
+    );
+    if (scrimOpacity < 0 || scrimOpacity > 1) {
+      throw new WallpaperPresetValidationError(
+        `${path}.scrimOpacity must be between 0 and 1`,
+      );
+    }
+    const effectiveLuminance = requireNumber(
+      value.effectiveLuminance,
+      `${path}.effectiveLuminance`,
+    );
+    if (effectiveLuminance < 0 || effectiveLuminance > 1) {
+      throw new WallpaperPresetValidationError(
+        `${path}.effectiveLuminance must be between 0 and 1`,
+      );
+    }
+    return Object.freeze({
+      kind: 'image',
+      asset,
+      scrimColor: requireColor(value.scrimColor, `${path}.scrimColor`),
+      scrimOpacity,
+      effectiveLuminance,
+    });
+  }
   throw new WallpaperPresetValidationError(
-    `${path}.kind must be solid or linear-gradient`,
+    `${path}.kind must be solid, linear-gradient or image`,
   );
+}
+
+function luminanceToGrey(luminance: number): string {
+  const channel = Math.round(Math.min(1, Math.max(0, luminance)) * 255);
+  return `#${channel.toString(16).padStart(2, '0').repeat(3)}`;
 }
 
 function validateTextContrast(
@@ -153,10 +208,14 @@ function validateTextContrast(
   background: WallpaperBackground,
   path: string,
 ): void {
-  const colors =
-    background.kind === 'solid'
-      ? [background.color]
-      : [background.startColor, background.endColor];
+  let colors: readonly string[];
+  if (background.kind === 'solid') {
+    colors = [background.color];
+  } else if (background.kind === 'linear-gradient') {
+    colors = [background.startColor, background.endColor];
+  } else {
+    colors = [luminanceToGrey(background.effectiveLuminance)];
+  }
   if (
     colors.some(
       (backgroundColor) => contrastRatio(textColor, backgroundColor) < 4.5,
@@ -166,6 +225,26 @@ function validateTextContrast(
       `${path} must meet WCAG AA contrast`,
     );
   }
+}
+
+/**
+ * A single colour that stands in for a background wherever one is needed but a
+ * full render is not: the preset chip, the deck layers behind the card, and the
+ * fill drawn under a photograph that has not loaded. For an image this is the
+ * measured luminance of the quote band, so the stand-in matches what the
+ * photograph looks like where it matters.
+ */
+export function backgroundSwatch(
+  background: WallpaperBackground,
+  edge: 'start' | 'end' = 'start',
+): string {
+  if (background.kind === 'solid') {
+    return background.color;
+  }
+  if (background.kind === 'linear-gradient') {
+    return edge === 'start' ? background.startColor : background.endColor;
+  }
+  return luminanceToGrey(background.effectiveLuminance);
 }
 
 export function getFontAssetPath(
