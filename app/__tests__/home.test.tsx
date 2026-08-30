@@ -87,6 +87,12 @@ function drawnFace(composition: {
   );
 }
 
+// Captured before any test can replace them. setState shallow-merges, so a
+// test that stubs a deck action would otherwise leak the stub into the rest
+// of the file, where clearAllMocks then blanks it; a replace would wipe every
+// action instead, because this store keeps its actions alongside its data.
+const { advanceDeck, rewindDeck } = useAppStore.getState();
+
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
   jest.mocked(router.navigate).mockClear();
@@ -100,8 +106,24 @@ beforeEach(() => {
     ({ composition }: { composition: Parameters<typeof drawnFace>[0] }) =>
       drawnFace(composition),
   );
-  useAppStore.setState(createDefaultPersistedAppState());
+  useAppStore.setState({
+    ...createDefaultPersistedAppState(),
+    deckHistory: [],
+    deckCursor: -1,
+    advanceDeck,
+    rewindDeck,
+  });
   setRotationSynchronizer(async () => undefined);
+});
+
+// Mutation caught: a beforeEach that restores neither the trail nor the deck
+// actions leaves the next test in the file exercising the previous test's
+// stub, with nothing to say so.
+test('starts each test on the real deck actions and an empty trail', () => {
+  expect(useAppStore.getState().advanceDeck).toBe(advanceDeck);
+  expect(useAppStore.getState().rewindDeck).toBe(rewindDeck);
+  expect(useAppStore.getState().deckHistory).toEqual([]);
+  expect(useAppStore.getState().deckCursor).toBe(-1);
 });
 
 // Mutation caught: swallowing a rejected enabled-automation favorite change leaves users unable to retry the worker snapshot update.
@@ -173,6 +195,34 @@ test('the deck advances and rewinds through the pager', () => {
     nativeEvent: { actionName: 'previous' },
   });
   expect(rewindDeck).toHaveBeenCalledTimes(1);
+});
+
+// Mutation caught: discarding advanceDeck's boolean freezes the deck with no
+// message and no retry -- the card animates back to centre and nothing else
+// on screen says the move was refused.
+test('Home reports a refused swipe up, and stays quiet at the start of the trail', async () => {
+  useAppStore.setState({
+    advanceDeck: jest.fn().mockResolvedValue(false),
+    rewindDeck: jest.fn().mockResolvedValue(false),
+  });
+  render(<HomeScreen />);
+  const deck = screen.getByLabelText(t('en', 'home.deck.next.label'));
+
+  // A swipe down at the start of the trail is a normal no-op, not a failure.
+  fireEvent(deck, 'accessibilityAction', {
+    nativeEvent: { actionName: 'previous' },
+  });
+  await waitFor(() =>
+    expect(screen.queryByText(t('en', 'home.deck.error'))).toBeNull(),
+  );
+
+  fireEvent(deck, 'accessibilityAction', {
+    nativeEvent: { actionName: 'activate' },
+  });
+
+  await waitFor(() =>
+    expect(screen.getByText(t('en', 'home.deck.error'))).toBeOnTheScreen(),
+  );
 });
 
 test('Home exposes branded loading and a retryable render error without losing state', () => {
@@ -345,7 +395,7 @@ test('Home offers the render error and a retry when the typefaces fail to load',
  * Reconstructs the same position PresetCaption in app/(tabs)/index.tsx
  * derives, independently of that file, so the test fails if either the
  * scale or the anchor drifts from what it actually does. `box` stands in
- * for the measured viewport -- the same box WallpaperCanvas contain-fits
+ * for the measured viewport -- the same box WallpaperCanvas cover-fits
  * the composition into -- not the window.
  */
 function expectedCaptionPosition(
@@ -367,10 +417,14 @@ function expectedCaptionPosition(
     height: dimensions.height,
     locale: state.contentLocale,
   });
-  const scale = Math.min(
+  // Cover, not contain: the deck fills the box on both axes and centres what
+  // overflows, so the caption has to carry the same offset the picture does.
+  const scale = Math.max(
     box.width / composition.width,
     box.height / composition.height,
   );
+  const offsetX = (box.width - composition.width * scale) / 2;
+  const offsetY = (box.height - composition.height * scale) / 2;
   // The lower of the quote block and the author line: an attributed quote's
   // author sits close enough under the quote that quoteBounds alone is not
   // a safe anchor.
@@ -380,8 +434,10 @@ function expectedCaptionPosition(
   );
   return {
     composition,
-    left: composition.quoteBounds.x * scale,
-    top: contentBottom * scale + spacing.x3 + 1 + spacing.x2,
+    scale,
+    offsetY,
+    left: offsetX + composition.quoteBounds.x * scale,
+    top: offsetY + contentBottom * scale + spacing.x3 + 1 + spacing.x2,
   };
 }
 
@@ -415,10 +471,10 @@ test('positions the preset name from the measured viewport box, not the window',
   render(<HomeScreen />);
 
   // Deliberately wider (relative to its height) than the composition's own
-  // aspect ratio, so the height-driven ratio is the smaller of the two --
-  // catching a width-only scale, not just a wrong baseline -- and not
+  // aspect ratio, so the height-driven ratio is the larger of the two --
+  // catching a contain fit, which would pick the other one -- and not
   // proportional to the window either, so a baseline mistake also predicts a
-  // different left or top than this box's own contain-fit.
+  // different left or top than this box's own cover-fit.
   const box = { width: 390, height: 600 };
   fireEvent(screen.getByTestId('wallpaper-viewport'), 'layout', {
     nativeEvent: { layout: { x: 0, y: 0, ...box } },
@@ -455,18 +511,16 @@ test('keeps the preset name below the longest catalogue quote without crossing t
   const style = captionStyle();
   expect(style.left).toBeCloseTo(expected.left, 5);
   expect(style.top).toBeCloseTo(expected.top, 5);
-  const scale = Math.min(
-    box.width / expected.composition.width,
-    box.height / expected.composition.height,
+  expect(style.top!).toBeGreaterThanOrEqual(
+    expected.offsetY +
+      (expected.composition.quoteBounds.y +
+        expected.composition.quoteBounds.height) *
+        expected.scale,
   );
   expect(style.top!).toBeGreaterThanOrEqual(
-    (expected.composition.quoteBounds.y +
-      expected.composition.quoteBounds.height) *
-      scale,
-  );
-  expect(style.top!).toBeGreaterThanOrEqual(
-    (expected.composition.authorY + expected.composition.authorLineHeight) *
-      scale,
+    expected.offsetY +
+      (expected.composition.authorY + expected.composition.authorLineHeight) *
+        expected.scale,
   );
 });
 
@@ -488,9 +542,9 @@ test('keeps the preset name below a truncated quote block', () => {
   });
   const { unmount } = render(<HomeScreen />);
   try {
-    // Not proportional to the truncating window itself, and picks the
-    // height-driven ratio, so this still tells a wrong baseline or a
-    // width-only scale from the right answer.
+    // Not proportional to the truncating window itself, and cover picks the
+    // width-driven ratio here, so this still tells a wrong baseline or a
+    // contain fit from the right answer.
     const box = { width: 2400, height: 80 };
     fireEvent(screen.getByTestId('wallpaper-viewport'), 'layout', {
       nativeEvent: { layout: { x: 0, y: 0, ...box } },

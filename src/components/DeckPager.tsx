@@ -73,8 +73,11 @@ export function DeckPager({
           { name: 'previous', label: previousLabel },
         ]}
         onAccessibilityAction={(event) => {
+          // Named explicitly, both of them: VoiceOver sends escape and
+          // magic-tap through this same handler, and a catch-all else would
+          // move the reader forward on either one.
           if (event.nativeEvent.actionName === 'previous') onPrevious();
-          else onNext();
+          else if (event.nativeEvent.actionName === 'activate') onNext();
         }}
         onLayout={(event) => {
           // Reanimated shared values are mutable by design; the React
@@ -102,5 +105,10 @@ const styles = StyleSheet.create({
   viewport: { flex: 1, overflow: 'hidden' },
   stack: { flex: 1 },
   card: StyleSheet.absoluteFill,
-  neighbour: StyleSheet.absoluteFill,
+  // One viewport tall, stated as a height rather than left to absoluteFill's
+  // bottom: 0. Yoga stretches an absolutely-positioned box between its defined
+  // edges, so `bottom: 0` under the animated `top: -height` would make the box
+  // two viewports tall; the card inside it would then fit on the width ratio
+  // where the live card fits on the height ratio, and render about 9% larger.
+  neighbour: { height: '100%', left: 0, position: 'absolute', right: 0 },
 });

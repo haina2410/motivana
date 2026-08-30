@@ -29,6 +29,7 @@ import {
   getPresetById,
   presetDisplayName,
 } from '../../src/features/wallpaper/presetRepository';
+import { fitWallpaper } from '../../src/features/wallpaper/fit';
 import type { ContentLocale } from '../../src/features/i18n/locale';
 import { useTranslate } from '../../src/features/i18n/useTranslate';
 import { WallpaperCanvas } from '../../src/features/wallpaper/WallpaperCanvas';
@@ -57,10 +58,10 @@ export default function HomeScreen() {
   >();
   // The tab bar is an in-flow sibling below this screen (DeckTabBar in
   // app/(tabs)/_layout.tsx), not an overlay, so the screen's own box is
-  // shorter than the window. WallpaperCanvas contain-fits the composition
-  // into that same box (measured the same way, on a wrapping View, since
-  // Skia's <Canvas> rejects onLayout on Android); the caption has to use the
-  // identical box and ratio or it drifts off the quote as the tab bar grows.
+  // shorter than the window. WallpaperCanvas cover-fits the composition into
+  // that same box (measured the same way, on a wrapping View, since Skia's
+  // <Canvas> rejects onLayout on Android); the caption has to use the
+  // identical box and fit or it drifts off the quote as the tab bar grows.
   const [containerSize, setContainerSize] = useState<{
     width: number;
     height: number;
@@ -94,9 +95,6 @@ export default function HomeScreen() {
     );
   };
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
-  // The style changes on every swipe, so the label under the quote is the
-  // only way to tell which preset is on screen.
-  const preset = getPresetById(state.selectedPresetId);
   // Keeps one composition object, so the preview renders only when the quote,
   // the preset or the screen size changes.
   const composition: WallpaperComposition | undefined = useMemo(() => {
@@ -140,13 +138,23 @@ export default function HomeScreen() {
       setSaveBusy(false);
     }
   };
+  // A refused advance leaves the card animating back to centre with nothing
+  // else to show for it, so it gets the same toast every other failure on
+  // this screen gets. A refused rewind does not: the pager reports the gesture
+  // at either end of the trail, and "there is nothing before this" is the
+  // normal answer, not a failure.
+  const advanceDeck = async () => {
+    if (!(await state.advanceDeck())) {
+      setFavoriteFeedback({ message: translate('home.deck.error') });
+    }
+  };
   // The neighbours come from the trail the store would actually replay. Reading
   // deckHistory raw would show a card that rewindDeck then refuses, because
   // selectPreset moves the on-screen pair without recording a step.
   const { history, cursor } = currentDeckTrail(state);
   const previousPair = history[cursor - 1];
   const nextPair = history[cursor + 1];
-  // The decode cache lives for the application's lifetime, so warming the next
+  // The decode cache holds several full backgrounds, so warming the next
   // photograph costs nothing a later swipe would not have paid anyway. Reads
   // nextPair, already dropped when the trail cannot be replayed, so this never
   // warms a card the deck could not actually swipe to.
@@ -170,7 +178,7 @@ export default function HomeScreen() {
           label and the retry button would never reach a screen reader. */}
       <PreviewErrorBoundary>
         <DeckPager
-          onNext={() => void state.advanceDeck()}
+          onNext={() => void advanceDeck()}
           onPrevious={() => void state.rewindDeck()}
           nextLabel={translate('home.deck.next.label')}
           nextHint={translate('home.deck.next.hint')}
@@ -232,15 +240,15 @@ export default function HomeScreen() {
         </View>
       </View>
       {/* Sits outside the padded chrome box, at the screen's own top-left, so
-          quoteBounds -- measured in the same box WallpaperCanvas contain-fits
+          quoteBounds -- measured in the same box WallpaperCanvas cover-fits
           into -- lands exactly where it says without insets.top shifting it a
           second time. The style changes on every swipe, so this is the only
           way to tell which preset is on screen. */}
-      {composition && preset && containerSize ? (
+      {composition && containerSize ? (
         <PresetCaption
           composition={composition}
           containerSize={containerSize}
-          name={presetDisplayName(preset, translate)}
+          name={presetDisplayName(composition.preset, translate)}
         />
       ) : null}
       <View pointerEvents="box-none" style={styles.footer}>
@@ -330,6 +338,7 @@ function LiveFace({
   return (
     <WallpaperCanvas
       composition={composition}
+      fit="cover"
       style={StyleSheet.absoluteFill}
     />
   );
@@ -337,14 +346,11 @@ function LiveFace({
 
 /**
  * The preset's name, positioned from the composition's own measurements
- * rather than a guessed constant. `quoteBounds` is in wallpaper pixels;
- * WallpaperCanvas contain-fits the composition into `containerSize` with
- * `Math.min(boxWidth / compWidth, boxHeight / compHeight)`, anchored at the
- * box's own top-left (no centering translate -- see WallpaperCanvas.tsx's
- * Group transform). The caption uses that identical box and ratio, so a
- * long, six-line quote pushes the label down with it instead of the label
- * overlapping the text, and the label cannot drift from the quote when the
- * tab bar's height changes.
+ * rather than a guessed constant. `quoteBounds` is in wallpaper pixels, and
+ * fitWallpaper is what turns those into screen pixels -- the same call, with
+ * the same box and the same `cover`, that WallpaperCanvas places the picture
+ * with. Reading the scale from anywhere else is how the label drifted off the
+ * quote once already.
  *
  * The anchor is the lower of the quote block and the author line (zero
  * height when the quote is unattributed): an attributed quote's author sits
@@ -360,16 +366,13 @@ function PresetCaption({
   containerSize: { width: number; height: number };
   name: string;
 }) {
-  const scale = Math.min(
-    containerSize.width / composition.width,
-    containerSize.height / composition.height,
-  );
+  const placement = fitWallpaper(composition, containerSize, 'cover');
   const contentBottom = Math.max(
     composition.quoteBounds.y + composition.quoteBounds.height,
     composition.authorY + composition.authorLineHeight,
   );
-  const left = composition.quoteBounds.x * scale;
-  const ruleTop = contentBottom * scale + spacing.x3;
+  const left = placement.x + composition.quoteBounds.x * placement.scale;
+  const ruleTop = placement.y + contentBottom * placement.scale + spacing.x3;
   const nameTop = ruleTop + 1 + spacing.x2;
   return (
     <View pointerEvents="none">
@@ -412,6 +415,7 @@ function DeckFace({
   return (
     <WallpaperCanvas
       composition={composition}
+      fit="cover"
       style={StyleSheet.absoluteFill}
     />
   );

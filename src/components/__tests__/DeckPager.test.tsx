@@ -48,3 +48,20 @@ test('exposes both directions as accessibility actions', () => {
   });
   expect(onPrevious).toHaveBeenCalledTimes(1);
 });
+
+// Mutation caught: an else that runs for any unrecognised action name moves the
+// reader forward on a VoiceOver escape or a magic tap.
+test('ignores an accessibility action it does not name', () => {
+  const { onNext, onPrevious } = renderPager();
+
+  const deck = screen.getByLabelText('Next wallpaper');
+  fireEvent(deck, 'accessibilityAction', {
+    nativeEvent: { actionName: 'escape' },
+  });
+  fireEvent(deck, 'accessibilityAction', {
+    nativeEvent: { actionName: 'magicTap' },
+  });
+
+  expect(onNext).not.toHaveBeenCalled();
+  expect(onPrevious).not.toHaveBeenCalled();
+});

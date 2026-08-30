@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import type { WallpaperComposition } from './composition';
+import { fitWallpaper, type WallpaperFit } from './fit';
 import { drawWallpaperScene, measureSkiaComposition } from './scene';
 import {
   useBackgroundImage,
@@ -21,12 +22,18 @@ export interface WallpaperCanvasProps {
   style?: StyleProp<ViewStyle>;
   /** Picker cards ask for `thumb`; the full-size card and export do not. */
   backgroundVariant?: BackgroundImageVariant;
+  /**
+   * `contain` letterboxes and is what every card but the deck wants. The deck
+   * asks for `cover`, so the wallpaper reaches all four edges of the screen.
+   */
+  fit?: WallpaperFit;
 }
 
 export function WallpaperCanvas({
   composition,
   style,
   backgroundVariant = 'full',
+  fit = 'contain',
 }: WallpaperCanvasProps) {
   const { provider: fonts } = useWallpaperFonts();
   const backgroundImage = useBackgroundImage(
@@ -72,6 +79,13 @@ export function WallpaperCanvas({
     return recorder.finishRecordingAsPicture();
   }, [backgroundImage, fonts, measuredComposition]);
 
+  // fitWallpaper is the one place the scale and the origin are decided,
+  // because the preset caption is positioned from the same arithmetic and has
+  // to land on the quote this draws.
+  const placement = canvasSize
+    ? fitWallpaper(measuredComposition, canvasSize, fit)
+    : undefined;
+
   // Skia's <Canvas> rejects onLayout on Android, so a plain view measures.
   return (
     <View
@@ -81,18 +95,14 @@ export function WallpaperCanvas({
       style={style}
     >
       <Canvas style={StyleSheet.absoluteFill}>
-        {picture && canvasSize ? (
+        {picture && canvasSize && placement ? (
+          // Applied in order, so the picture is scaled first and the centring
+          // offset moves the scaled result.
           <Group
-            // The smaller of the two ratios preserves the contain behaviour
-            // the previous <SkiaImage fit="contain"> gave: a box whose aspect
-            // ratio differs from the wallpaper's letterboxes rather than crops.
             transform={[
-              {
-                scale: Math.min(
-                  canvasSize.width / measuredComposition.width,
-                  canvasSize.height / measuredComposition.height,
-                ),
-              },
+              { translateX: placement.x },
+              { translateY: placement.y },
+              { scale: placement.scale },
             ]}
           >
             <Picture picture={picture} />

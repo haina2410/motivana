@@ -49,7 +49,6 @@ jest.mock('../useBackgroundImage', () => ({
   useBackgroundImage: () => null,
   getBackgroundImage: () => Promise.resolve(undefined),
 }));
-jest.mock('../exportCache', () => ({ exportedWallpaperUri: () => undefined }));
 
 const quote: Quote = {
   id: 'preview-quote',
@@ -100,5 +99,33 @@ test('picks the height-driven scale when the box is wider than the composition',
     nativeEvent: { layout: { x: 0, y: 0, width: 300, height: 300 } },
   });
 
-  expect(transforms.at(-1)).toEqual([{ scale: 0.5 }]);
+  // Contain keeps the box's own top-left anchor, which the preset caption's
+  // geometry is derived from.
+  expect(transforms.at(-1)).toEqual([
+    { translateX: 0 },
+    { translateY: 0 },
+    { scale: 0.5 },
+  ]);
+});
+
+// Mutation caught: contain-fitting the deck leaves a band of the screen's own
+// background down the long edge, so the wallpaper is not full-bleed.
+test('fills the box on both axes when asked to cover', () => {
+  render(<WallpaperCanvas composition={composition()} fit="cover" />);
+  const view = screen.getByLabelText('Wallpaper preview');
+
+  // 270x600 into a 300x300 box: cover takes the larger ratio, the width-driven
+  // 1.111..., so nothing of the box is left uncovered.
+  fireEvent(view, 'layout', {
+    nativeEvent: { layout: { x: 0, y: 0, width: 300, height: 300 } },
+  });
+
+  const scale = 300 / 270;
+  expect(transforms.at(-1)).toEqual([
+    { translateX: 0 },
+    // Half the overflow above and half below, rather than all of it off the
+    // bottom edge.
+    { translateY: (300 - 600 * scale) / 2 },
+    { scale },
+  ]);
 });

@@ -183,6 +183,7 @@ export const vi: Record<keyof typeof en, string> = {
   'home.deck.previous.hint': 'Vuốt xuống để trở lại.',
   'home.saved.confirmation': 'Đã lưu vào thư viện ảnh.',
   'home.saved.error': 'Không lưu được vào thư viện ảnh.',
+  'home.deck.error': 'Không chuyển được sang hình nền tiếp theo. Hãy thử lại.',
   'home.font.label': 'Kiểu chữ: {name}',
 
   'presets.subtitle':

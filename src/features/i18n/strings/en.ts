@@ -189,6 +189,7 @@ export const en = {
   'home.deck.previous.hint': 'Swipe down to go back.',
   'home.saved.confirmation': 'Saved to your photo library.',
   'home.saved.error': 'Could not save to your photo library.',
+  'home.deck.error': 'Could not move to the next wallpaper. Try again.',
   'home.font.label': 'Typeface: {name}',
 
   'presets.subtitle': 'Background, typeface and layout in one tap.',
