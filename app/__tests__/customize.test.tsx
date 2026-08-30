@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
-import CustomizeScreen from '../customize';
+import CustomizeScreen from '../(tabs)/customize';
 import {
   getAllBackgrounds,
   getAllPresets,

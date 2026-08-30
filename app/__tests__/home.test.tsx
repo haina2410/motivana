@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
-import HomeScreen from '../index';
+import HomeScreen from '../(tabs)/index';
 import { useAppStore } from '../../src/store/useAppStore';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
@@ -117,17 +117,12 @@ test('Home changes the quote and favorite state through accessible controls', as
 test('Home reaches every other screen and opens the wallpaper target sheet', () => {
   render(<HomeScreen />);
 
+  // Settings sits above the tabs, so it is pushed. Restyle is a tab jump: the
+  // presets carry every style the deleted style screen could report.
   fireEvent.press(screen.getByLabelText(t('en', 'home.settings.label')));
-  fireEvent.press(screen.getByLabelText(t('en', 'home.restyle.label')));
   expect(router.push).toHaveBeenCalledWith('/settings');
-  expect(router.push).toHaveBeenCalledWith('/style');
-
-  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.presets') }));
-  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.saved') }));
-  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.rotate') }));
+  fireEvent.press(screen.getByLabelText(t('en', 'home.restyle.label')));
   expect(router.navigate).toHaveBeenCalledWith('/customize');
-  expect(router.navigate).toHaveBeenCalledWith('/favorites');
-  expect(router.navigate).toHaveBeenCalledWith('/automation');
 
   expect(screen.queryByText('target sheet')).toBeNull();
   fireEvent.press(screen.getByLabelText(t('en', 'home.set.label')));

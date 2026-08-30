@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 import { render, screen } from '@testing-library/react-native';
-import HomeScreen from '../index';
+import HomeScreen from '../(tabs)/index';
 import { t } from '../../src/features/i18n/t';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
@@ -27,7 +27,4 @@ test('renders the deck header and the live wallpaper card', () => {
 
   expect(screen.getByText(t('en', 'home.today'))).toBeOnTheScreen();
   expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
-  expect(
-    screen.getByRole('tab', { name: t('en', 'tab.deck') }),
-  ).toBeOnTheScreen();
 });

@@ -11,37 +11,36 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActionMessage } from '../src/components/ActionMessage';
-import { AppButton } from '../src/components/AppButton';
-import { AppIconButton } from '../src/components/AppIconButton';
-import { Chip } from '../src/components/Chip';
-import { DeckTabBar } from '../src/components/DeckTabBar';
-import { SafeAreaGuides } from '../src/components/SafeAreaGuides';
-import { SetWallpaperSheet } from '../src/components/SetWallpaperSheet';
-import { Toast } from '../src/components/Toast';
-import { getQuoteById } from '../src/features/quotes/quoteRepository';
-import { createComposition } from '../src/features/wallpaper/composition';
-import type { WallpaperComposition } from '../src/features/wallpaper/composition';
+import { ActionMessage } from '../../src/components/ActionMessage';
+import { AppButton } from '../../src/components/AppButton';
+import { AppIconButton } from '../../src/components/AppIconButton';
+import { Chip } from '../../src/components/Chip';
+import { SafeAreaGuides } from '../../src/components/SafeAreaGuides';
+import { SetWallpaperSheet } from '../../src/components/SetWallpaperSheet';
+import { Toast } from '../../src/components/Toast';
+import { getQuoteById } from '../../src/features/quotes/quoteRepository';
+import { createComposition } from '../../src/features/wallpaper/composition';
+import type { WallpaperComposition } from '../../src/features/wallpaper/composition';
 import {
   deckLayers,
   deckLayerReach,
-} from '../src/features/wallpaper/deckLayers';
-import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
-import { exportedWallpaperUri } from '../src/features/wallpaper/exportCache';
-import { getPresetById } from '../src/features/wallpaper/presetRepository';
+} from '../../src/features/wallpaper/deckLayers';
+import { wallpaperPixelDimensions } from '../../src/features/wallpaper/dimensions';
+import { exportedWallpaperUri } from '../../src/features/wallpaper/exportCache';
+import { getPresetById } from '../../src/features/wallpaper/presetRepository';
 import {
   backgroundSwatch,
   type WallpaperPreset,
-} from '../src/features/wallpaper/types';
-import type { ContentLocale, Locale } from '../src/features/i18n/locale';
-import { useTranslate } from '../src/features/i18n/useTranslate';
-import type { StringKey } from '../src/features/i18n/t';
-import { WallpaperCanvas } from '../src/features/wallpaper/WallpaperCanvas';
-import { useWallpaperFonts } from '../src/features/wallpaper/useWallpaperFonts';
-import { useAppStore } from '../src/store/useAppStore';
-import { colors } from '../src/theme/colors';
-import { spacing } from '../src/theme/spacing';
-import { typography } from '../src/theme/typography';
+} from '../../src/features/wallpaper/types';
+import type { ContentLocale, Locale } from '../../src/features/i18n/locale';
+import { useTranslate } from '../../src/features/i18n/useTranslate';
+import type { StringKey } from '../../src/features/i18n/t';
+import { WallpaperCanvas } from '../../src/features/wallpaper/WallpaperCanvas';
+import { useWallpaperFonts } from '../../src/features/wallpaper/useWallpaperFonts';
+import { useAppStore } from '../../src/store/useAppStore';
+import { colors } from '../../src/theme/colors';
+import { spacing } from '../../src/theme/spacing';
+import { typography } from '../../src/theme/typography';
 
 export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
@@ -186,7 +185,7 @@ export default function HomeScreen() {
             icon="wand-magic-sparkles"
             label={translate('home.restyle.label')}
             hint={translate('home.restyle.hint')}
-            onPress={() => router.push('/style')}
+            onPress={() => router.navigate('/customize')}
             style={styles.actionButton}
             variant="outline"
           />
@@ -214,7 +213,6 @@ export default function HomeScreen() {
           />
         ) : null}
       </View>
-      <DeckTabBar active="deck" />
       {fonts && composition ? (
         <SetWallpaperSheet
           composition={composition}

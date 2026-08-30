@@ -3,23 +3,22 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActionMessage } from '../src/components/ActionMessage';
-import { AppButton } from '../src/components/AppButton';
-import { AppIconButton } from '../src/components/AppIconButton';
-import { DeckTabBar } from '../src/components/DeckTabBar';
-import { ScreenHeader } from '../src/components/ScreenHeader';
-import { Toast } from '../src/components/Toast';
+import { ActionMessage } from '../../src/components/ActionMessage';
+import { AppButton } from '../../src/components/AppButton';
+import { AppIconButton } from '../../src/components/AppIconButton';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
+import { Toast } from '../../src/components/Toast';
 import {
   favoriteQuoteText,
   getQuoteById,
-} from '../src/features/quotes/quoteRepository';
-import type { Quote } from '../src/features/quotes/types';
-import type { ContentLocale } from '../src/features/i18n/locale';
-import { useTranslate } from '../src/features/i18n/useTranslate';
-import { useAppStore } from '../src/store/useAppStore';
-import { colors } from '../src/theme/colors';
-import { spacing } from '../src/theme/spacing';
-import { typography } from '../src/theme/typography';
+} from '../../src/features/quotes/quoteRepository';
+import type { Quote } from '../../src/features/quotes/types';
+import type { ContentLocale } from '../../src/features/i18n/locale';
+import { useTranslate } from '../../src/features/i18n/useTranslate';
+import { useAppStore } from '../../src/store/useAppStore';
+import { colors } from '../../src/theme/colors';
+import { spacing } from '../../src/theme/spacing';
+import { typography } from '../../src/theme/typography';
 
 /**
  * Screen 1g of the board. Saved quotes are shown as text the reader can read at
@@ -104,7 +103,6 @@ export default function FavoritesScreen() {
           ) : null}
         </View>
       </View>
-      <DeckTabBar active="saved" />
     </SafeAreaView>
   );
 }

@@ -178,31 +178,12 @@ export const en = {
 
   'home.today': 'Today',
   'home.restyle.label': 'Restyle',
-  'home.restyle.hint': 'Opens the style controls for this wallpaper.',
+  'home.restyle.hint':
+    'Opens the presets, where a different style can be picked.',
   'home.set.label': 'Set wallpaper',
   'home.set.hint': 'Chooses which screen receives this wallpaper.',
   'home.save.label': 'Save',
   'home.font.label': 'Typeface: {name}',
-
-  'style.title': 'Style',
-  'style.close.label': 'Close style',
-  'style.close.hint': 'Returns to the deck without a further change.',
-  'style.done': 'Done',
-  'style.done.hint': 'Returns to the deck.',
-  'style.typeface.label': 'Typeface',
-  'style.typeface.option': 'Set the typeface to {name}',
-  'style.size.label': 'Size',
-  'style.size.value': '{percent}% of the wallpaper width',
-  'style.lineHeight.label': 'Line height',
-  'style.lineHeight.note':
-    '{value} — leaves room for stacked Vietnamese tone marks.',
-  'style.alignment.label': 'Alignment',
-  'style.alignment.left': 'Left aligned',
-  'style.alignment.center': 'Centre aligned',
-  'style.alignment.right': 'Right aligned',
-  'style.readOnly':
-    'Size, line height and alignment belong to the preset, so a scheduled wallpaper renders exactly like this preview.',
-  'style.error': 'Could not change the typeface. Try again.',
 
   'presets.subtitle': 'Background, typeface and layout in one tap.',
 

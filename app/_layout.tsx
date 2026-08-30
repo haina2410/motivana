@@ -63,7 +63,10 @@ export default function RootLayout() {
           // `default` already is that slide, with the edge swipe and the
           // parallax of the screen below; `slide_from_right` would fall back to
           // it anyway, so name it and keep the platform behaviour.
-          animation: Platform.select({ ios: 'default', android: 'slide_from_right' } as const),
+          animation: Platform.select({
+            ios: 'default',
+            android: 'slide_from_right',
+          } as const),
         }}
       />
     </>

@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
-import FavoritesScreen from '../favorites';
+import FavoritesScreen from '../(tabs)/favorites';
 import {
   favoriteQuoteText,
   getAllQuotes,

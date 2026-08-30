@@ -10,11 +10,21 @@ import { AppIconButton } from './AppIconButton';
 interface ScreenHeaderProps {
   title: string;
   subtitle?: string;
-  /** Trailing controls; a back chevron is drawn when none are supplied. */
+  /** Trailing controls. */
   actions?: ReactNode;
+  /**
+   * Draws the back chevron. A tab root leaves this off: it has nothing behind
+   * it to go back to, and the board draws no arrow on any of the four.
+   */
+  back?: boolean;
 }
 
-export function ScreenHeader({ title, subtitle, actions }: ScreenHeaderProps) {
+export function ScreenHeader({
+  title,
+  subtitle,
+  actions,
+  back,
+}: ScreenHeaderProps) {
   const translate = useTranslate();
   return (
     <View style={styles.header}>
@@ -28,14 +38,15 @@ export function ScreenHeader({ title, subtitle, actions }: ScreenHeaderProps) {
           </Text>
         ) : null}
       </View>
-      {actions ?? (
+      {actions}
+      {back ? (
         <AppIconButton
           icon="chevron-left"
           label={translate('common.back.label')}
           hint={translate('common.back.hint')}
           onPress={() => router.back()}
         />
-      )}
+      ) : null}
     </View>
   );
 }

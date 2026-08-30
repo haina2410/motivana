@@ -9,26 +9,28 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActionMessage } from '../src/components/ActionMessage';
-import { AppButton } from '../src/components/AppButton';
-import { DeckTabBar } from '../src/components/DeckTabBar';
-import { FilterChip } from '../src/components/FilterChip';
-import { PresetThumbnail } from '../src/components/PresetThumbnail';
-import { ScreenHeader } from '../src/components/ScreenHeader';
-import { getQuoteById } from '../src/features/quotes/quoteRepository';
-import { getAllTemplates } from '../src/features/wallpaper/presetRepository';
+import { ActionMessage } from '../../src/components/ActionMessage';
+import { AppButton } from '../../src/components/AppButton';
+import { FilterChip } from '../../src/components/FilterChip';
+import { PresetThumbnail } from '../../src/components/PresetThumbnail';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
+import { getQuoteById } from '../../src/features/quotes/quoteRepository';
+import { getAllTemplates } from '../../src/features/wallpaper/presetRepository';
 import {
   ALL_FILTER,
   PLAIN_FILTER,
   filterTemplates,
   templateFilters,
-} from '../src/features/wallpaper/templateFilters';
-import { GRID_GAP, gridColumns } from '../src/features/wallpaper/gridColumns';
-import { useTranslate } from '../src/features/i18n/useTranslate';
-import type { StringKey } from '../src/features/i18n/t';
-import { useAppStore } from '../src/store/useAppStore';
-import { colors } from '../src/theme/colors';
-import { spacing } from '../src/theme/spacing';
+} from '../../src/features/wallpaper/templateFilters';
+import {
+  GRID_GAP,
+  gridColumns,
+} from '../../src/features/wallpaper/gridColumns';
+import { useTranslate } from '../../src/features/i18n/useTranslate';
+import type { StringKey } from '../../src/features/i18n/t';
+import { useAppStore } from '../../src/store/useAppStore';
+import { colors } from '../../src/theme/colors';
+import { spacing } from '../../src/theme/spacing';
 
 const HORIZONTAL_PADDING = spacing.x2 + 2;
 
@@ -136,7 +138,6 @@ export default function CustomizeScreen() {
           windowSize={5}
         />
       </View>
-      <DeckTabBar active="presets" />
     </SafeAreaView>
   );
 }

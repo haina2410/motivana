@@ -78,7 +78,7 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title={translate('settings.title')} />
+        <ScreenHeader back title={translate('settings.title')} />
 
         <Text allowFontScaling style={typography.sectionLabel}>
           {translate('settings.export.label')}

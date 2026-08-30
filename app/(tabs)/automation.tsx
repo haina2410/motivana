@@ -2,38 +2,37 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActionMessage } from '../src/components/ActionMessage';
-import { AppButton } from '../src/components/AppButton';
-import { DeckTabBar } from '../src/components/DeckTabBar';
-import { RadioRow } from '../src/components/RadioRow';
-import { ScreenHeader } from '../src/components/ScreenHeader';
-import { Segmented } from '../src/components/Segmented';
-import { Toggle } from '../src/components/Toggle';
-import { useAppStore } from '../src/store/useAppStore';
+import { ActionMessage } from '../../src/components/ActionMessage';
+import { AppButton } from '../../src/components/AppButton';
+import { RadioRow } from '../../src/components/RadioRow';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
+import { Segmented } from '../../src/components/Segmented';
+import { Toggle } from '../../src/components/Toggle';
+import { useAppStore } from '../../src/store/useAppStore';
 import {
   getWallpaperAutomationAvailability,
   isWallpaperTargetAvailable,
   wallpaperAutomationFallback,
-} from '../src/services/wallpaperAvailability';
-import { runRotationNow } from '../src/services/wallpaperNative';
+} from '../../src/services/wallpaperAvailability';
+import { runRotationNow } from '../../src/services/wallpaperNative';
 import {
   getRotationStatusRecovery,
   getRotationStatusRecoveryControl,
-} from '../src/services/rotationStatus';
-import { useTranslate } from '../src/features/i18n/useTranslate';
+} from '../../src/services/rotationStatus';
+import { useTranslate } from '../../src/features/i18n/useTranslate';
 import type {
   WallpaperAutomationAvailability,
   WallpaperCapabilities,
-} from '../src/services/wallpaperAvailability';
-import type { StringKey } from '../src/features/i18n/t';
-import { colors } from '../src/theme/colors';
-import { spacing } from '../src/theme/spacing';
-import { typography } from '../src/theme/typography';
-import type { WallpaperTarget } from '../src/store/schema';
+} from '../../src/services/wallpaperAvailability';
+import type { StringKey } from '../../src/features/i18n/t';
+import { colors } from '../../src/theme/colors';
+import { spacing } from '../../src/theme/spacing';
+import { typography } from '../../src/theme/typography';
+import type { WallpaperTarget } from '../../src/store/schema';
 import {
   rotationSchedules,
   type RotationSchedule,
-} from '../src/features/rotation/schedule';
+} from '../../src/features/rotation/schedule';
 
 const targetKeys: Record<WallpaperTarget, StringKey> = {
   home: 'automation.targetName.home',
@@ -271,7 +270,6 @@ export default function AutomationScreen() {
           <ActionMessage tone={message.tone} message={message.text} />
         ) : null}
       </ScrollView>
-      <DeckTabBar active="rotate" />
     </SafeAreaView>
   );
 }

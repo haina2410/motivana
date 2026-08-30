@@ -173,30 +173,11 @@ export const vi: Record<keyof typeof en, string> = {
 
   'home.today': 'Hôm nay',
   'home.restyle.label': 'Đổi kiểu',
-  'home.restyle.hint': 'Mở các tuỳ chọn kiểu chữ cho hình nền này.',
+  'home.restyle.hint': 'Mở mục kiểu nền, nơi có thể chọn kiểu khác.',
   'home.set.label': 'Đặt hình nền',
   'home.set.hint': 'Chọn màn hình nào nhận hình nền này.',
   'home.save.label': 'Lưu',
   'home.font.label': 'Kiểu chữ: {name}',
-
-  'style.title': 'Kiểu',
-  'style.close.label': 'Đóng kiểu',
-  'style.close.hint': 'Trở về bộ quote và không đổi gì thêm.',
-  'style.done': 'Xong',
-  'style.done.hint': 'Trở về bộ quote.',
-  'style.typeface.label': 'Kiểu chữ',
-  'style.typeface.option': 'Đổi kiểu chữ sang {name}',
-  'style.size.label': 'Cỡ chữ',
-  'style.size.value': '{percent}% chiều ngang hình nền',
-  'style.lineHeight.label': 'Giãn dòng',
-  'style.lineHeight.note': '{value} — đủ chỗ cho các dấu thanh xếp tầng.',
-  'style.alignment.label': 'Căn lề',
-  'style.alignment.left': 'Căn trái',
-  'style.alignment.center': 'Căn giữa',
-  'style.alignment.right': 'Căn phải',
-  'style.readOnly':
-    'Cỡ chữ, giãn dòng và căn lề thuộc về mẫu, nên hình nền tự đổi hiện đúng như bản xem trước này.',
-  'style.error': 'Không đổi được kiểu chữ. Hãy thử lại.',
 
   'presets.subtitle':
     'Chọn nền, kiểu chữ và cách dàn trang trong một lần chạm.',
