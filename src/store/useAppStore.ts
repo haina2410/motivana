@@ -39,6 +39,17 @@ export interface RotationConfiguration {
   randomizePreset?: boolean;
 }
 
+/** One step of the deck: the quote and the template the reader saw together. */
+export interface DeckPair {
+  quoteId: string;
+  presetId: string;
+}
+
+export interface DeckTrail {
+  history: readonly DeckPair[];
+  cursor: number;
+}
+
 export interface AppState extends PersistedAppStateV2 {
   randomQuote(): boolean;
   selectQuote(quoteId: string): boolean;
@@ -55,10 +66,38 @@ export interface AppState extends PersistedAppStateV2 {
   ): Promise<boolean>;
   recordAppliedQuote(quoteId: string): boolean;
   hydrate(): boolean;
-  deckHistory: readonly { quoteId: string; presetId: string }[];
+  deckHistory: readonly DeckPair[];
   deckCursor: number;
   advanceDeck(): Promise<boolean>;
   rewindDeck(): Promise<boolean>;
+}
+
+/**
+ * The part of the recorded trail that still describes what the reader saw.
+ *
+ * Something outside the deck (selectQuote, selectPreset, a locale switch,
+ * hydrate, a raw setState in a test) can move the on-screen pair without going
+ * through advanceDeck/rewindDeck. When that happens the recorded trail no
+ * longer describes what the reader actually saw, so treat it as a fresh deck
+ * rather than replaying pairs that do not match the screen.
+ *
+ * Exported because Home draws its neighbour cards from the same trail: reading
+ * deckHistory raw would show a card the pager then refuses to move to.
+ */
+export function currentDeckTrail(
+  state: Pick<
+    AppState,
+    'deckHistory' | 'deckCursor' | 'currentQuoteId' | 'selectedPresetId'
+  >,
+): DeckTrail {
+  const onScreen = state.deckHistory[state.deckCursor];
+  const isCurrent =
+    onScreen !== undefined &&
+    onScreen.quoteId === state.currentQuoteId &&
+    onScreen.presetId === state.selectedPresetId;
+  return isCurrent
+    ? { history: state.deckHistory, cursor: state.deckCursor }
+    : { history: [], cursor: -1 };
 }
 
 export interface CreateAppStoreOptions {
@@ -159,27 +198,6 @@ function createAppState(
         currentQuoteId: pair.quoteId,
         selectedPresetId: pair.presetId,
       }));
-    // Something outside the deck (selectQuote, a locale switch, hydrate, a
-    // raw setState in a test) can move the on-screen pair without going
-    // through advanceDeck/rewindDeck. When that happens the recorded trail no
-    // longer describes what the reader actually saw, so treat it as a fresh
-    // deck rather than replaying pairs that do not match the screen.
-    const currentDeckTrail = (
-      state: AppState,
-    ): {
-      history: readonly { quoteId: string; presetId: string }[];
-      cursor: number;
-    } => {
-      const onScreen = state.deckHistory[state.deckCursor];
-      const isCurrent =
-        onScreen !== undefined &&
-        onScreen.quoteId === state.currentQuoteId &&
-        onScreen.presetId === state.selectedPresetId;
-      return isCurrent
-        ? { history: state.deckHistory, cursor: state.deckCursor }
-        : { history: [], cursor: -1 };
-    };
-
     return {
       ...hydrateAppState(storage, warn),
       randomQuote: () => {

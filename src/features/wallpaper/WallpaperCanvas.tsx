@@ -28,7 +28,7 @@ export function WallpaperCanvas({
   style,
   backgroundVariant = 'full',
 }: WallpaperCanvasProps) {
-  const fonts = useWallpaperFonts();
+  const { provider: fonts } = useWallpaperFonts();
   const backgroundImage = useBackgroundImage(
     composition.preset.background,
     backgroundVariant,

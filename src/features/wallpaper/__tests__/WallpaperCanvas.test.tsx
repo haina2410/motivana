@@ -43,7 +43,7 @@ jest.mock('../scene', () => ({
   measureSkiaComposition: (composition: unknown) => composition,
 }));
 jest.mock('../useWallpaperFonts', () => ({
-  useWallpaperFonts: () => ({}),
+  useWallpaperFonts: () => ({ provider: {}, failed: false, retry: () => {} }),
 }));
 jest.mock('../useBackgroundImage', () => ({
   useBackgroundImage: () => null,

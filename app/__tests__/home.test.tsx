@@ -9,24 +9,24 @@ import {
 import { router } from 'expo-router';
 
 import HomeScreen from '../(tabs)/index';
+import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
+import { getAllTemplates } from '../../src/features/wallpaper/presetRepository';
 import { useAppStore } from '../../src/store/useAppStore';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { t } from '../../src/features/i18n/t';
 
-jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
-  const { View } = require('react-native');
-  return {
-    WallpaperCanvas: jest.fn(() => (
-      <View accessible accessibilityLabel="Wallpaper preview" />
-    )),
-  };
-});
+jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => ({
+  WallpaperCanvas: jest.fn(),
+}));
 jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
-  useWallpaperFonts: jest.fn(() => ({})),
+  useWallpaperFonts: jest.fn(),
 }));
 jest.mock('../../src/features/wallpaper/exportWallpaper', () => ({
   exportWallpaper: jest.fn(),
+}));
+jest.mock('../../src/services/mediaLibrary', () => ({
+  saveWallpaper: jest.fn(),
 }));
 jest.mock('../../src/services/wallpaperNative', () => ({
   getWallpaperCapabilities: jest.fn(async () => ({
@@ -52,15 +52,39 @@ const mockUseWallpaperFonts = jest.requireMock(
 const mockWallpaperCanvas = jest.requireMock(
   '../../src/features/wallpaper/WallpaperCanvas',
 ).WallpaperCanvas as jest.Mock;
+const mockExportWallpaper = jest.requireMock(
+  '../../src/features/wallpaper/exportWallpaper',
+).exportWallpaper as jest.Mock;
+const mockSaveWallpaper = jest.requireMock('../../src/services/mediaLibrary')
+  .saveWallpaper as jest.Mock;
+const retryFonts = jest.fn();
+
+/** The canvas names the pair it drew, so the three deck faces can be told apart. */
+function drawnFace(composition: {
+  quote: { id: string };
+  preset: { id: string };
+}) {
+  const { Text, View } = require('react-native');
+  return (
+    <View accessible accessibilityLabel="Wallpaper preview">
+      <Text>{`face:${composition.quote.id}/${composition.preset.id}`}</Text>
+    </View>
+  );
+}
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
   jest.mocked(router.navigate).mockClear();
-  mockUseWallpaperFonts.mockReturnValue({});
-  mockWallpaperCanvas.mockImplementation(() => {
-    const { View } = require('react-native');
-    return <View accessible accessibilityLabel="Wallpaper preview" />;
+  jest.clearAllMocks();
+  mockUseWallpaperFonts.mockReturnValue({
+    provider: {},
+    failed: false,
+    retry: retryFonts,
   });
+  mockWallpaperCanvas.mockImplementation(
+    ({ composition }: { composition: Parameters<typeof drawnFace>[0] }) =>
+      drawnFace(composition),
+  );
   useAppStore.setState(createDefaultPersistedAppState());
   setRotationSynchronizer(async () => undefined);
 });
@@ -137,12 +161,20 @@ test('the deck advances and rewinds through the pager', () => {
 });
 
 test('Home exposes branded loading and a retryable render error without losing state', () => {
-  mockUseWallpaperFonts.mockReturnValue(null);
+  mockUseWallpaperFonts.mockReturnValue({
+    provider: null,
+    failed: false,
+    retry: retryFonts,
+  });
   const { unmount } = render(<HomeScreen />);
   expect(screen.getByText(t('en', 'home.loading'))).toBeOnTheScreen();
   unmount();
 
-  mockUseWallpaperFonts.mockReturnValue({});
+  mockUseWallpaperFonts.mockReturnValue({
+    provider: {},
+    failed: false,
+    retry: retryFonts,
+  });
   useAppStore.setState({ currentQuoteId: 'missing-quote' });
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   try {
@@ -160,13 +192,14 @@ test('Home exposes branded loading and a retryable render error without losing s
 
 test('Home catches a thrown preview render and retries without changing the quote or preset', () => {
   let shouldThrow = true;
-  mockWallpaperCanvas.mockImplementation(() => {
-    if (shouldThrow) {
-      throw new Error('Canvas failed to draw');
-    }
-    const { View } = require('react-native');
-    return <View accessible accessibilityLabel="Wallpaper preview" />;
-  });
+  mockWallpaperCanvas.mockImplementation(
+    ({ composition }: { composition: Parameters<typeof drawnFace>[0] }) => {
+      if (shouldThrow) {
+        throw new Error('Canvas failed to draw');
+      }
+      return drawnFace(composition);
+    },
+  );
   const before = useAppStore.getState();
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -187,4 +220,106 @@ test('Home catches a thrown preview render and retries without changing the quot
   } finally {
     errorSpy.mockRestore();
   }
+});
+
+// Mutation caught: dropping the neighbour cards, or transposing them, leaves the drag showing the wrong wallpaper with nothing failing.
+test('the deck mounts the previous and the next wallpaper around the live one', () => {
+  const quotes = getAllQuotes();
+  const presets = getAllTemplates();
+  const trail = [
+    { quoteId: quotes[0]!.id, presetId: presets[0]!.id },
+    { quoteId: quotes[1]!.id, presetId: presets[1]!.id },
+    { quoteId: quotes[2]!.id, presetId: presets[2]!.id },
+  ];
+  useAppStore.setState({
+    currentQuoteId: trail[1]!.quoteId,
+    selectedPresetId: trail[1]!.presetId,
+    deckHistory: trail,
+    deckCursor: 1,
+  });
+  render(<HomeScreen />);
+
+  expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(3);
+  // DeckPager draws previous, then the live card, then next.
+  expect(
+    screen.getAllByText(/^face:/).map((node) => node.props.children as string),
+  ).toEqual([
+    `face:${trail[0]!.quoteId}/${trail[0]!.presetId}`,
+    `face:${trail[1]!.quoteId}/${trail[1]!.presetId}`,
+    `face:${trail[2]!.quoteId}/${trail[2]!.presetId}`,
+  ]);
+});
+
+// Mutation caught: reading deckHistory raw would show a neighbour the store then refuses to move to, so the drag snaps back with nothing changed.
+test('the deck drops its neighbours when a restyle leaves the trail behind', () => {
+  const quotes = getAllQuotes();
+  const presets = getAllTemplates();
+  useAppStore.setState({
+    currentQuoteId: quotes[1]!.id,
+    selectedPresetId: presets[1]!.id,
+    deckHistory: [
+      { quoteId: quotes[0]!.id, presetId: presets[0]!.id },
+      { quoteId: quotes[1]!.id, presetId: presets[1]!.id },
+    ],
+    deckCursor: 1,
+  });
+  // What /customize does: the preset moves, the trail does not.
+  useAppStore.setState({ selectedPresetId: presets[2]!.id });
+  render(<HomeScreen />);
+
+  expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(1);
+});
+
+// Mutation caught: dropping the busy guard starts a second Skia export on a double tap, and losing the confirmation leaves the reader unsure the file was written.
+test('Home saves the wallpaper to the photo library one time per tap', async () => {
+  mockExportWallpaper.mockResolvedValue({ uri: 'file:///exports/a.png' });
+  mockSaveWallpaper.mockResolvedValue({ assetId: 'asset-1' });
+  render(<HomeScreen />);
+
+  const save = screen.getByLabelText(t('en', 'home.saveToLibrary.label'));
+  fireEvent.press(save);
+  fireEvent.press(save);
+
+  await waitFor(() =>
+    expect(
+      screen.getByText(t('en', 'home.saved.confirmation')),
+    ).toBeOnTheScreen(),
+  );
+  expect(mockExportWallpaper).toHaveBeenCalledTimes(1);
+  expect(mockSaveWallpaper).toHaveBeenCalledWith('file:///exports/a.png');
+});
+
+// Mutation caught: swallowing the save failure tells the reader the wallpaper reached their photos when it did not.
+test('Home reports a failed save without leaving the button stuck', async () => {
+  mockExportWallpaper.mockRejectedValue(new Error('no surface'));
+  render(<HomeScreen />);
+
+  fireEvent.press(screen.getByLabelText(t('en', 'home.saveToLibrary.label')));
+
+  await waitFor(() =>
+    expect(screen.getByText(t('en', 'home.saved.error'))).toBeOnTheScreen(),
+  );
+  expect(mockSaveWallpaper).not.toHaveBeenCalled();
+  // The guard released, so the reader can try again.
+  mockExportWallpaper.mockResolvedValue({ uri: 'file:///exports/a.png' });
+  mockSaveWallpaper.mockResolvedValue({ assetId: 'asset-1' });
+  fireEvent.press(screen.getByLabelText(t('en', 'home.saveToLibrary.label')));
+  await waitFor(() => expect(mockSaveWallpaper).toHaveBeenCalledTimes(1));
+});
+
+// Mutation caught: a rejected typeface load left the deck on a spinner forever, with no error and no way out.
+test('Home offers the render error and a retry when the typefaces fail to load', () => {
+  mockUseWallpaperFonts.mockReturnValue({
+    provider: null,
+    failed: true,
+    retry: retryFonts,
+  });
+  render(<HomeScreen />);
+
+  expect(screen.queryByText(t('en', 'home.loading'))).toBeNull();
+  expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
+  fireEvent.press(
+    screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
+  );
+  expect(retryFonts).toHaveBeenCalledTimes(1);
 });

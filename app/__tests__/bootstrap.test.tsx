@@ -14,7 +14,7 @@ jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => {
   };
 });
 jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
-  useWallpaperFonts: () => ({}),
+  useWallpaperFonts: () => ({ provider: {}, failed: false, retry: () => {} }),
 }));
 // The sheet and the Save action both reach the Skia exporter, which needs the
 // native module.

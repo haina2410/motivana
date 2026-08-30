@@ -55,8 +55,19 @@ export function getWallpaperFontProvider(): Promise<SkTypefaceFontProvider> {
   return providerPromise;
 }
 
-export function useWallpaperFonts(): SkTypefaceFontProvider | null {
+export interface WallpaperFonts {
+  /** The typefaces, or null while they load and after a failed load. */
+  provider: SkTypefaceFontProvider | null;
+  /** A missing or corrupt font asset. Without it a screen waits forever. */
+  failed: boolean;
+  retry(): void;
+}
+
+export function useWallpaperFonts(): WallpaperFonts {
   const [provider, setProvider] = useState(loadedProvider);
+  const [failed, setFailed] = useState(false);
+  // Bumped by retry, so the effect runs the load again after a failure.
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (provider) return;
     let active = true;
@@ -64,10 +75,19 @@ export function useWallpaperFonts(): SkTypefaceFontProvider | null {
       .then((loaded) => {
         if (active) setProvider(loaded);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (active) setFailed(true);
+      });
     return () => {
       active = false;
     };
-  }, [provider]);
-  return provider ?? null;
+  }, [attempt, provider]);
+  return {
+    provider: provider ?? null,
+    failed,
+    retry: () => {
+      setFailed(false);
+      setAttempt((previous) => previous + 1);
+    },
+  };
 }

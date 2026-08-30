@@ -14,8 +14,8 @@ jest.mock('@shopify/react-native-skia', () => ({
 }));
 
 function FontProbe() {
-  const fonts = useWallpaperFonts();
-  return <Text>{fonts ? 'ready' : 'loading'}</Text>;
+  const { provider } = useWallpaperFonts();
+  return <Text>{provider ? 'ready' : 'loading'}</Text>;
 }
 
 beforeAll(() => {

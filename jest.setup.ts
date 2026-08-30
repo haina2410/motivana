@@ -51,7 +51,7 @@ jest.mock('expo-constants', () => ({
 // The full-bleed Home reads the insets directly, and the hook throws without a
 // provider. The library ships this mock for exactly that: fixed insets and a
 // pass-through provider.
-jest.mock('react-native-safe-area-context', () => ({
-  ...jest.requireActual('react-native-safe-area-context'),
-  useSafeAreaInsets: () => ({ bottom: 0, left: 0, right: 0, top: 0 }),
-}));
+jest.mock('react-native-safe-area-context', () => {
+  const mock: unknown = require('react-native-safe-area-context/jest/mock');
+  return (mock as { default: unknown }).default;
+});

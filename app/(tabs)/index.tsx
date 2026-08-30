@@ -29,7 +29,7 @@ import { useTranslate } from '../../src/features/i18n/useTranslate';
 import { WallpaperCanvas } from '../../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../../src/features/wallpaper/useWallpaperFonts';
 import { saveWallpaper } from '../../src/services/mediaLibrary';
-import { useAppStore } from '../../src/store/useAppStore';
+import { currentDeckTrail, useAppStore } from '../../src/store/useAppStore';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -37,10 +37,15 @@ import { typography } from '../../src/theme/typography';
 export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const fonts = useWallpaperFonts();
+  const {
+    provider: fonts,
+    failed: fontsFailed,
+    retry: retryFonts,
+  } = useWallpaperFonts();
   const state = useAppStore();
   const translate = useTranslate();
   const [favoriteBusy, setFavoriteBusy] = useState(false);
+  const [saveBusy, setSaveBusy] = useState(false);
   const [targetSheetOpen, setTargetSheetOpen] = useState(false);
   const [favoriteFeedback, setFavoriteFeedback] = useState<
     { message: string; retryQuoteId?: string } | undefined
@@ -93,57 +98,81 @@ export default function HomeScreen() {
   // that never ends.
   const previewReady = composition === undefined || !!fonts;
   const isFavorite = state.favoriteQuoteIds.includes(state.currentQuoteId);
+  // The export is a full Skia render, so a second tap has to be turned away
+  // rather than starting another one.
   const saveToLibrary = async () => {
-    if (!fonts || !composition) return;
+    if (saveBusy || !fonts || !composition) return;
+    setSaveBusy(true);
+    setFavoriteFeedback(undefined);
     try {
       const rendered = await exportWallpaper(composition, fonts);
       await saveWallpaper(rendered.uri);
       setFavoriteFeedback({ message: translate('home.saved.confirmation') });
     } catch {
       setFavoriteFeedback({ message: translate('home.saved.error') });
+    } finally {
+      setSaveBusy(false);
     }
   };
-  const previousPair = state.deckHistory[state.deckCursor - 1];
-  const nextPair = state.deckHistory[state.deckCursor + 1];
+  // The neighbours come from the trail the store would actually replay. Reading
+  // deckHistory raw would show a card that rewindDeck then refuses, because
+  // selectPreset moves the on-screen pair without recording a step.
+  const { history, cursor } = currentDeckTrail(state);
+  const previousPair = history[cursor - 1];
+  const nextPair = history[cursor + 1];
 
   return (
     <View style={styles.screen}>
-      <DeckPager
-        onNext={() => void state.advanceDeck()}
-        onPrevious={() => void state.rewindDeck()}
-        nextLabel={translate('home.deck.next.label')}
-        nextHint={translate('home.deck.next.hint')}
-        previousLabel={translate('home.deck.previous.label')}
-        previousHint={translate('home.deck.previous.hint')}
-        previous={
-          <DeckFace
-            pair={previousPair}
-            size={dimensions}
-            locale={state.contentLocale}
-          />
-        }
-        next={
-          <DeckFace
-            pair={nextPair}
-            size={dimensions}
-            locale={state.contentLocale}
-          />
-        }
-      >
-        {!previewReady ? (
-          <View accessibilityRole="progressbar" style={styles.loading}>
+      {/* The boundary sits outside the pager: the pager's viewport is one
+          `accessible` element, so anything inside it collapses into the deck
+          label and the retry button would never reach a screen reader. */}
+      <PreviewErrorBoundary>
+        <DeckPager
+          onNext={() => void state.advanceDeck()}
+          onPrevious={() => void state.rewindDeck()}
+          nextLabel={translate('home.deck.next.label')}
+          nextHint={translate('home.deck.next.hint')}
+          previousLabel={translate('home.deck.previous.label')}
+          previousHint={translate('home.deck.previous.hint')}
+          previous={
+            <DeckFace
+              pair={previousPair}
+              size={dimensions}
+              locale={state.contentLocale}
+            />
+          }
+          next={
+            <DeckFace
+              pair={nextPair}
+              size={dimensions}
+              locale={state.contentLocale}
+            />
+          }
+        >
+          {previewReady ? (
+            <>
+              <LiveFace composition={composition} />
+              {state.showSafeGuides ? <SafeAreaGuides /> : null}
+            </>
+          ) : null}
+        </DeckPager>
+      </PreviewErrorBoundary>
+      {/* A missing typeface asset never resolves, so the wait has to become the
+          same error and retry an unrenderable card gets. */}
+      {fontsFailed ? (
+        <View style={styles.overlay}>
+          <RenderError onRetry={retryFonts} />
+        </View>
+      ) : !previewReady ? (
+        <View accessibilityRole="progressbar" style={styles.overlay}>
+          <View style={styles.loading}>
             <ActivityIndicator color={colors.accent} />
             <Text allowFontScaling style={styles.loadingText}>
               {translate('home.loading')}
             </Text>
           </View>
-        ) : (
-          <PreviewErrorBoundary>
-            <LiveFace composition={composition} />
-            {state.showSafeGuides ? <SafeAreaGuides /> : null}
-          </PreviewErrorBoundary>
-        )}
-      </DeckPager>
+        </View>
+      ) : null}
       <View
         pointerEvents="box-none"
         style={[styles.chrome, { paddingTop: insets.top }]}
@@ -186,6 +215,7 @@ export default function HomeScreen() {
             icon="download"
             label={translate('home.saveToLibrary.label')}
             hint={translate('home.saveToLibrary.hint')}
+            disabled={saveBusy}
             onPress={() => void saveToLibrary()}
             variant="glass"
           />
@@ -356,6 +386,16 @@ function RenderError({ onRetry }: { onRetry: () => void }) {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: colors.background, flex: 1 },
+  // Covers the deck rather than sitting inside it, so the pager keeps its
+  // swipe actions while the spinner or the retry is on screen.
+  overlay: {
+    backgroundColor: colors.background,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   // The chrome floats over the full-bleed wallpaper, so it carries the safe
   // area itself rather than insetting the card.
   chrome: { left: 0, position: 'absolute', right: 0, top: 0 },
