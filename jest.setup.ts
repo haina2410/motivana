@@ -1,3 +1,19 @@
+// react-native-gesture-handler and react-native-reanimated both drive native
+// code the JS test runner does not have; each ships its own Jest shims for
+// exactly this reason.
+import 'react-native-gesture-handler/jestSetup';
+
+// jest-expo resolves `.native.ts` files ahead of plain `.ts` (it tests the
+// native behaviour of the app), but react-native-worklets only guards its
+// jest fallback in the plain file. That makes reanimated's own mock reach the
+// real native module and crash on `loadUnpackers`, so mock worklets directly.
+jest.mock('react-native-worklets', () =>
+  require('react-native-worklets/src/mock'),
+);
+jest.mock('react-native-reanimated', () =>
+  require('react-native-reanimated/mock'),
+);
+
 const mockMmkvValues = new Map<string, string>();
 
 jest.mock('react-native-mmkv', () => ({

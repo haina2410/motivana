@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { resolveAppliedQuoteId } from '../src/features/quotes/appliedQuote';
 import { rotationSchedulePlan } from '../src/features/rotation/schedule';
@@ -53,7 +54,9 @@ export default function RootLayout() {
   // font at every label, so the ink background holds for one frame instead.
   if (!fontsReady) return null;
   return (
-    <>
+    // The deck's vertical pan gesture needs a gesture-handler root somewhere
+    // above it in the tree; the app root is the one place that's guaranteed.
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -69,6 +72,6 @@ export default function RootLayout() {
           } as const),
         }}
       />
-    </>
+    </GestureHandlerRootView>
   );
 }
