@@ -100,6 +100,14 @@ export function currentDeckTrail(
     : { history: [], cursor: -1 };
 }
 
+/**
+ * How long the deck waits for the reader to stop swiping before it hands the
+ * pair they landed on to the native rotation worker. Long enough to swallow a
+ * burst of flicks, short enough that a reader who swipes once and puts the
+ * phone down still has the worker on the wallpaper they left.
+ */
+export const DECK_SYNCHRONIZATION_DELAY_MS = 400;
+
 export interface CreateAppStoreOptions {
   storage?: KeyValueStorage;
   random?: () => number;
@@ -185,19 +193,55 @@ function createAppState(
       if (pool.length === 0) return currentId;
       return pool[Math.floor(random() * pool.length)]!.id;
     };
-    // Both ids move together through commitAutomation: selectedPresetId is
-    // part of the payload the Kotlin rotation worker reads, and a plain
-    // commit would leave the scheduled wallpaper on the template the reader
-    // swiped past.
+    // The deck's native round trip, coalesced.
+    //
+    // selectedPresetId is part of the payload the Kotlin rotation worker
+    // reads, so a swipe has to reach native or the scheduled wallpaper stays
+    // on the template the reader swiped past. But the worker is re-enqueued
+    // on every configureRotation call, so synchronising each swipe of a burst
+    // would restart the schedule ten times over and block the card behind ten
+    // native round trips. One synchronisation once the deck settles carries
+    // the pair the reader stopped on, which is the only one that matters.
+    let deckSynchronization: ReturnType<typeof setTimeout> | undefined;
+    const flushDeckSynchronization = (): Promise<boolean> => {
+      const operation = async () => {
+        const state = toPersistedState(get());
+        if (!state.rotationEnabled) return true;
+        try {
+          await synchronizeRotation(state);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      // The same queue every other automation write uses, so a settings change
+      // and the deck cannot hand native two payloads out of order.
+      const result = automationQueue.then(operation, operation);
+      automationQueue = result.then(
+        () => undefined,
+        () => undefined,
+      );
+      return result;
+    };
+    // The local write is immediate and unconditional: the card on screen must
+    // never wait on native to change.
     const applyDeckPair = (pair: {
       quoteId: string;
       presetId: string;
-    }): Promise<boolean> =>
-      commitAutomation((state) => ({
-        ...state,
+    }): boolean => {
+      const applied = commit({
+        ...toPersistedState(get()),
         currentQuoteId: pair.quoteId,
         selectedPresetId: pair.presetId,
-      }));
+      });
+      if (!applied) return false;
+      if (deckSynchronization !== undefined) clearTimeout(deckSynchronization);
+      deckSynchronization = setTimeout(() => {
+        deckSynchronization = undefined;
+        void flushDeckSynchronization();
+      }, DECK_SYNCHRONIZATION_DELAY_MS);
+      return true;
+    };
     return {
       ...hydrateAppState(storage, warn),
       randomQuote: () => {
@@ -326,12 +370,15 @@ function createAppState(
       // has no meaning across launches, so it stays out of the persisted schema.
       deckHistory: [],
       deckCursor: -1,
+      // Both moves read the trail and write it back without awaiting in
+      // between, so two swipes in flight cannot both act on the same cursor
+      // and drop the pair the first one recorded.
       advanceDeck: async () => {
         const state = get();
         const { history, cursor } = currentDeckTrail(state);
         const replay = history[cursor + 1];
         if (replay) {
-          const applied = await applyDeckPair(replay);
+          const applied = applyDeckPair(replay);
           if (applied) set({ deckHistory: history, deckCursor: cursor + 1 });
           return applied;
         }
@@ -343,7 +390,7 @@ function createAppState(
           }).id,
           presetId: randomTemplateId(state.selectedPresetId),
         };
-        const applied = await applyDeckPair(pair);
+        const applied = applyDeckPair(pair);
         if (!applied) return false;
         const trail =
           cursor === -1
@@ -363,7 +410,7 @@ function createAppState(
         const { history, cursor } = currentDeckTrail(state);
         const previous = history[cursor - 1];
         if (!previous) return false;
-        const applied = await applyDeckPair(previous);
+        const applied = applyDeckPair(previous);
         if (applied) set({ deckHistory: history, deckCursor: cursor - 1 });
         return applied;
       },
