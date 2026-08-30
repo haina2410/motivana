@@ -8,11 +8,12 @@ Board: `Motivana Redesign.dc.html`, direction `1a`
 
 Three strands, one branch.
 
-1. **Home moves to board direction `1a`.** The wallpaper fills the screen and
-   every control floats over it, so the deck reads as the wallpaper itself
-   rather than a card on a page.
-2. **Advancing the deck re-rolls the template as well as the quote.** One tap
-   gives a new wallpaper, not a new quote in the same clothes.
+1. **Home becomes a full-bleed vertical deck**, built on board direction `1a`
+   and the reference design that supersedes its bottom row. The wallpaper
+   fills the screen, the controls float over it, and the reader swipes up and
+   down through wallpapers the way they would through Shorts or Reels.
+2. **Advancing the deck re-rolls the template as well as the quote.** One
+   swipe gives a new wallpaper, not a new quote in the same clothes.
 3. **The Android preview stops encoding a PNG on every render.** Measured at
    47-235 ms of blocking JS per tap; a recorded `SkPicture` replaces it at
    0.3 ms.
@@ -125,9 +126,13 @@ both platforms render a picture, and the `Platform.OS === 'android'` branch in
 
 ### Rejected alternatives
 
-- **Pre-render the next quote and template.** Was worth deferring ~65 ms of
-  work; the picture path deletes that work instead. Pre-rendering would add
-  held memory and a cache-invalidation rule to save 0.3 ms.
+- **Pre-render the next pair as a performance measure.** Rejected: it was
+  worth deferring ~65 ms of work, and the picture path deletes that work
+  instead. Note that the vertical pager in section 2 renders three wallpapers
+  anyway — but as a *correctness* requirement of the gesture, not an
+  optimisation. At 0.3 ms per record it is affordable; under the PNG path
+  three simultaneous wallpapers would have cost 200-800 ms and been
+  impossible. The probe is what makes that UX buildable.
 - **Render the preview as React Native `<Text>` over an image.** Faster than
   the PNG path but not than a picture, and it costs the WYSIWYG guarantee
   direction `1a` is built on: RN's text layout and Skia's paragraph shaper do
@@ -141,42 +146,102 @@ Both were reasonable before the measurement. Neither survives it.
 ## 2. Home, direction `1a`
 
 The wallpaper canvas fills the screen. Insets apply to the floating chrome,
-not to a `SafeAreaView` wrapper. Tap-to-advance moves to the full-screen
-layer, so the whole wallpaper is the target.
+not to a `SafeAreaView` wrapper.
 
 `PeekDeck`, its peek layers and `src/features/wallpaper/deckLayers.ts` are
 direction `1b`'s device and are deleted with their test.
+
+The reference design supersedes `1a` wherever the two disagree: `1a`'s
+horizontal action row, bottom scrim and right-edge segment indicator are all
+replaced by the vertical rail, the full-width pill and the position counter
+below.
+
+### Movement: a vertical pager
+
+The deck behaves like Shorts, Reels or TikTok. **Swipe up** moves forward to a
+new pair; **swipe down** moves back through the session history. Tap is no
+longer a deck gesture — on a full-bleed screen it has no visible target, and
+the floating controls are the only things worth tapping.
+
+The pager reveals the neighbouring wallpaper *during* the drag rather than
+swapping state on release. That continuous reveal is most of what makes the
+gesture read as a deck rather than a button; a swipe that only commits on
+release feels like an imitation of one.
+
+So the deck holds three live compositions — previous, current, next — and
+records a picture for each. This is why the render path has to land first: at
+0.3 ms per record it is free, and under the PNG path it would have cost
+200-800 ms per swipe and been unbuildable.
+
+`react-native-gesture-handler` is already a dependency and is currently unused
+anywhere in the application. This is what it is for.
+
+### History
+
+Swipe-down must restore the exact pair the reader saw. Ordered traversal
+cannot do this: `getAdjacentQuote` walks catalogue order, not the order the
+reader travelled, and knows nothing about templates. So the deck keeps a
+session history of `(quoteId, presetId)` pairs.
+
+Forward from a point inside the history replays what was already seen before
+generating anything new, which is how any browsable deck behaves. The history
+is session state, not persisted: it never needs to survive a restart, and
+`schema.ts` should not grow a field for it.
+
+Without this an accidental swipe destroys a pair that nothing in the
+application can reconstruct, because the pick is random. That is acceptable
+today, when a swipe costs only a quote; it stops being acceptable in section 3,
+where a swipe re-rolls the template too.
 
 ### Chrome
 
 - **Top:** the `MOTIVANA` wordmark in letterspaced caps, and one circular
   `sliders` button to Settings. The date line and `home.today` go, taking
   `formatToday` with them.
-- **Bottom:** a scrim, the preset name, then the action row — two 46pt glass
-  circles (favorite, restyle) and a flexed accent `Set wallpaper` pill. The
-  row floats directly above the tab bar.
+- **Under the quote:** a hairline rule, then the preset name in caps. Placed
+  from `composition.quoteBounds`, which already carries the fitted text block's
+  `x`, `y`, `width` and `height`, scaled to the screen — so the chrome sits
+  under the real text rather than at a guessed offset.
+- **Right rail:** three circular glass icons stacked bottom-right — favorite,
+  restyle, save to library. The reference draws a fourth, share, which is out
+  of scope for this branch.
+- **Bottom left:** an up chevron hinting the swipe, and the position counter.
+- **Bottom:** the full-width accent `Set wallpaper` pill with a
+  `mobile-screen` icon, above the tab bar.
 
-The scrim is a stepped alpha ramp of stacked views. There is no gradient
-library in the project, and Skia does not run under Jest, so neither is worth
-adding for one scrim.
+Every pill is rounded to half its height, not the current `spacing.radius`.
+This applies to the primary button, the rail circles and the chips.
 
-### Deviations from the board, and why
+### One new action
 
-1. **The tab bar stays.** `1a` draws none, but it predates the tabs landed in
-   `b5e6c20` and the other three destinations must stay reachable.
-2. **The preset name sits in the scrim, not under the quote.** `1a` places a
-   caps label directly below the quote. In the mock the quote is HTML; here it
-   is drawn inside the canvas at a position that depends on text length, so a
-   fixed overlay would collide with long quotes.
-3. **No right-edge position indicator.** `1a` draws four segments implying a
-   finite ordered deck. `randomQuote` has no position, so the indicator would
-   be decoration that lies.
+The rail's third icon does not exist in the application today. **Save to
+library** wires to `saveWallpaper` in `src/services/mediaLibrary.ts`, which
+already exists and is used by `SetWallpaperSheet`. It needs the exported PNG,
+so it runs the export path rather than the preview path, and it carries the
+same permission failure states the sheet already handles.
 
-### Set wallpaper stays labelled
+The reference also draws a share icon. Share is **out of scope** for this
+branch: no share service exists, and it would be a new feature rather than
+part of the redesign. The rail is built so a fourth icon can be added later
+without relayout.
 
-The three actions become icons except the primary one, which keeps `1a`'s
-labelled pill. The row is one line tall either way, so the label costs no
-vertical space, and the one irreversible action on the screen keeps its name.
+### The position counter
+
+The reference draws `6 / 120`. The deck is random, so this is **not** an index
+into the catalogue. It reads as the reader's position in the deck they have
+travelled — how many pairs deep the session history is — over the size of the
+quote pool for the current content locale.
+
+This is an assumption. If you meant an ordered walk of the catalogue instead,
+say so: that is a different deck, it makes `nextQuote` and `previousQuote` the
+right API, and it conflicts with section 3's random template.
+
+### One deviation from the board
+
+**The tab bar stays.** `1a` draws none, but it predates the tabs landed in
+`b5e6c20` and the other three destinations must stay reachable. A full-bleed
+vertical feed above a tab bar is what Instagram and TikTok both do, so the two
+sit together without argument.
 
 ## 3. Advancing the deck re-rolls the template
 
@@ -216,8 +281,12 @@ governs the background worker and is untouched.
   `createPreviewImage`, both of which are deleted.
 - `randomQuote`: one commit changes both ids; neither repeats the current
   value; the automation payload reaches the synchroniser.
-- Home: the floating actions keep their accessibility labels, so they stay
-  reachable by name as icons.
+- Deck history: swipe-down restores the exact previous pair; forward from
+  inside the history replays before generating; the history survives a tab
+  change and does not survive a restart.
+- Home: the rail actions and the pill keep their accessibility labels, so they
+  stay reachable by name as icons. The pager exposes the swipe as an
+  accessibility action, since a swipe alone is unreachable for a screen reader.
 - `deckLayers` and its test are deleted.
 - Every task ends with `pnpm verify` green.
 
@@ -227,4 +296,9 @@ before `pnpm verify` can pass.
 
 ## Open questions
 
-None. The probe closed the only one that gated the design.
+**What `6 / 120` counts.** Read here as depth in the session history over the
+size of the quote pool. The alternative reading — an index into an ordered
+catalogue walk — would be a different deck, would make `nextQuote` and
+`previousQuote` the right API instead of `randomQuote`, and would conflict
+with the random template in section 3. Worth confirming before the counter is
+built; nothing else in the plan depends on the answer.
