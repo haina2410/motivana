@@ -1,6 +1,7 @@
 package org.haina2410.motivana.wallpaper
 
 import androidx.test.core.app.ApplicationProvider
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.testing.WorkManagerTestInitHelper
@@ -39,7 +40,8 @@ class AndroidRotationWorkSchedulerTest {
   // The open question when this was designed: ExistingPeriodicWorkPolicy.UPDATE
   // keeps the running period, so a changed anchor would not take effect until the
   // old schedule elapsed. CANCEL_AND_REENQUEUE is what makes a saved change apply
-  // now; this pins that, so a later switch back to UPDATE fails here.
+  // now; this pins that, so a later switch back to UPDATE for a changed anchor
+  // fails here.
   @Test fun rescheduleWithANewAnchorReplacesTheEnqueuedWorkRatherThanKeepingTheOldTiming() {
     val scheduler = AndroidRotationWorkScheduler(ApplicationProvider.getApplicationContext())
     assertTrue(scheduler.updatePeriodic(RotationScheduler.PERIODIC_NAME, 1, 0L))
@@ -49,6 +51,45 @@ class AndroidRotationWorkSchedulerTest {
     val live = infos.single { it.state == WorkInfo.State.ENQUEUED }
     assertNotEquals(first.id, live.id)
     assertEquals(TimeUnit.HOURS.toMillis(5), live.initialDelayMillis)
+  }
+
+  // Mutation caught: cancelling for an unchanged schedule re-fires the worker on
+  // every deck swipe, so the wallpaper is re-rendered and re-applied each time and
+  // the reader's chosen cadence never elapses.
+  @Test fun rewritingThePayloadOnTheSameScheduleKeepsTheEnqueuedWorkAndItsNextRun() {
+    val scheduler = AndroidRotationWorkScheduler(ApplicationProvider.getApplicationContext())
+    assertTrue(scheduler.updatePeriodic(RotationScheduler.PERIODIC_NAME, 1, 0L))
+    val first = manager.getWorkInfosForUniqueWork(RotationScheduler.PERIODIC_NAME).get().single()
+
+    repeat(10) { assertTrue(scheduler.updatePeriodic(RotationScheduler.PERIODIC_NAME, 1, 0L)) }
+
+    val infos = manager.getWorkInfosForUniqueWork(RotationScheduler.PERIODIC_NAME).get()
+    assertEquals(1, infos.size)
+    assertEquals(first.id, infos.single().id)
+    assertTrue(infos.single().state == WorkInfo.State.ENQUEUED)
+  }
+
+  // Mutation caught: reading the policy from the request rather than the live work
+  // would send UPDATE for a first enqueue, or CANCEL_AND_REENQUEUE for a rewrite.
+  @Test fun theChosenPolicyFollowsWhetherTheIntervalOrTheAnchorMoved() {
+    val scheduler = AndroidRotationWorkScheduler(ApplicationProvider.getApplicationContext())
+    assertEquals(
+      ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+      scheduler.policyFor(RotationScheduler.PERIODIC_NAME, 1, 0L),
+    )
+    scheduler.updatePeriodic(RotationScheduler.PERIODIC_NAME, 1, 0L)
+    assertEquals(
+      ExistingPeriodicWorkPolicy.UPDATE,
+      scheduler.policyFor(RotationScheduler.PERIODIC_NAME, 1, 0L),
+    )
+    assertEquals(
+      ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+      scheduler.policyFor(RotationScheduler.PERIODIC_NAME, 12, 0L),
+    )
+    assertEquals(
+      ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+      scheduler.policyFor(RotationScheduler.PERIODIC_NAME, 1, TimeUnit.HOURS.toMillis(5)),
+    )
   }
 
   @Test fun cancelAndDebugUseTheirStableUniqueNames() {
