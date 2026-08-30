@@ -510,3 +510,22 @@ test('switches into every language and keeps a quote the wider pool still holds'
     contentLocale: 'all',
   });
 });
+
+// Mutation caught: the trail is excluded from the payload by destructuring, so
+// a field added to the store without a thought for toPersistedState would
+// quietly start surviving a restart -- and a restored trail describes pairs
+// this launch never showed.
+test('keeps the deck trail out of the persisted payload', async () => {
+  const storage = createMemoryStorage();
+  const store = createAppStore({ storage });
+
+  expect(await store.getState().advanceDeck()).toBe(true);
+
+  expect(store.getState().deckHistory).toHaveLength(2);
+  const persisted = JSON.parse(storage.read('motivana.app-state')!) as Record<
+    string,
+    unknown
+  >;
+  expect(persisted).not.toHaveProperty('deckHistory');
+  expect(persisted).not.toHaveProperty('deckCursor');
+});

@@ -116,9 +116,14 @@ encode through an injectable `createSurface` seam — it does not call into
 `createPreviewImage` and `createPreviewDataUri` are deleted outright: after
 this change their only remaining consumer is their own test.
 
-`exportedWallpaperUri` keeps its place as the first-choice source. A finished
-PNG on disk still beats re-recording, and it is what lets the deck show an
-already-applied wallpaper before the typefaces resolve.
+**Amended after implementation.** This paragraph originally said
+`exportedWallpaperUri` keeps its place as the first-choice source, on the
+reasoning that a finished PNG on disk beats re-recording. It does not: a
+recording costs about 0.3 ms, which no disk read beats, and reading the cache
+before every card would put a file-system call on the render path for nothing.
+The deck records every card, `exportedWallpaperUri` lost its last consumer,
+and the function has been deleted. `exportedWallpaperFile`, which names the
+file `exportWallpaper.ts` writes, stays.
 
 One platform path replaces two. iOS already renders a live canvas; after this
 both platforms render a picture, and the `Platform.OS === 'android'` branch in
