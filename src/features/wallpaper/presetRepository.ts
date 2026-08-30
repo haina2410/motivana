@@ -1,4 +1,5 @@
 import catalog from '../../../assets/data/backgrounds.json';
+import type { StringKey } from '../i18n/t';
 import { parseWallpaperPresetCatalog, type WallpaperPreset } from './types';
 
 /**
@@ -36,4 +37,21 @@ export function getAllTemplates(): readonly WallpaperPreset[] {
 /** Resolves any id in the catalogue, so a saved photograph survives a restart. */
 export function getPresetById(id: string): WallpaperPreset | undefined {
   return templatesById.get(id);
+}
+
+/**
+ * The eight curated presets each have a written name. A photograph takes its
+ * name from its category and number, so a new background needs no new string.
+ * One naming path, shared by the preset picker and the on-screen label.
+ */
+export function presetDisplayName(
+  preset: WallpaperPreset,
+  translate: (
+    key: StringKey,
+    params?: Record<string, string | number>,
+  ) => string,
+): string {
+  return preset.category
+    ? `${translate(`category.${preset.category}` as StringKey)} ${preset.id.split('-').pop()}`
+    : translate(`preset.${preset.id}.name` as StringKey);
 }

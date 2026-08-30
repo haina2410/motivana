@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
+import { StyleSheet } from 'react-native';
 import {
   fireEvent,
   render,
@@ -14,7 +15,7 @@ import { getAllTemplates } from '../../src/features/wallpaper/presetRepository';
 import { useAppStore } from '../../src/store/useAppStore';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
-import { t } from '../../src/features/i18n/t';
+import { t, type StringKey } from '../../src/features/i18n/t';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => ({
   WallpaperCanvas: jest.fn(),
@@ -329,6 +330,20 @@ test('Home offers the render error and a retry when the typefaces fail to load',
     screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
   );
   expect(retryFonts).toHaveBeenCalledTimes(1);
+});
+
+// Mutation caught: placing the label at a fixed offset instead of under the measured text overlaps long quotes.
+test('places the preset name below the measured quote block', () => {
+  render(<HomeScreen />);
+
+  const label = screen.getByText(
+    t(
+      'en',
+      `preset.${useAppStore.getState().selectedPresetId}.name` as StringKey,
+    ),
+  );
+  const style = StyleSheet.flatten(label.props.style) as { top?: number };
+  expect(style.top).toBeGreaterThan(0);
 });
 
 // Mutation caught: without a prefetch the first swipe onto an undecoded photograph shows the fallback band colour instead of the picture.

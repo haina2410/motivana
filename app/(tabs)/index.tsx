@@ -24,7 +24,10 @@ import type { WallpaperComposition } from '../../src/features/wallpaper/composit
 import { wallpaperPixelDimensions } from '../../src/features/wallpaper/dimensions';
 import { exportWallpaper } from '../../src/features/wallpaper/exportWallpaper';
 import { getBackgroundImage } from '../../src/features/wallpaper/useBackgroundImage';
-import { getPresetById } from '../../src/features/wallpaper/presetRepository';
+import {
+  getPresetById,
+  presetDisplayName,
+} from '../../src/features/wallpaper/presetRepository';
 import type { ContentLocale } from '../../src/features/i18n/locale';
 import { useTranslate } from '../../src/features/i18n/useTranslate';
 import { WallpaperCanvas } from '../../src/features/wallpaper/WallpaperCanvas';
@@ -72,6 +75,9 @@ export default function HomeScreen() {
     );
   };
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
+  // The style changes on every swipe, so the label under the quote is the
+  // only way to tell which preset is on screen.
+  const preset = getPresetById(state.selectedPresetId);
   // Keeps one composition object, so the preview renders only when the quote,
   // the preset or the screen size changes.
   const composition: WallpaperComposition | undefined = useMemo(() => {
@@ -202,6 +208,19 @@ export default function HomeScreen() {
           />
         </View>
       </View>
+      {/* Sits outside the padded chrome box, at the screen's own top-left, so
+          quoteBounds -- measured in full-screen coordinates -- lands exactly
+          where it says without insets.top shifting it a second time. The
+          style changes on every swipe, so this is the only way to tell which
+          preset is on screen. */}
+      {composition && preset ? (
+        <PresetCaption
+          composition={composition}
+          name={presetDisplayName(preset, translate)}
+          screenWidth={width}
+          screenHeight={height}
+        />
+      ) : null}
       <View pointerEvents="box-none" style={styles.footer}>
         <View style={styles.rail}>
           <AppIconButton
@@ -291,6 +310,44 @@ function LiveFace({
       composition={composition}
       style={StyleSheet.absoluteFill}
     />
+  );
+}
+
+/**
+ * The preset's name, positioned from the composition's own measurements
+ * rather than a guessed constant. `quoteBounds` is in wallpaper pixels; the
+ * preview fills the screen, so one scale factor maps the measured text
+ * block's bottom edge onto it -- a long, six-line quote pushes the label
+ * down with it instead of the label overlapping the text.
+ */
+function PresetCaption({
+  composition,
+  name,
+  screenWidth,
+  screenHeight,
+}: {
+  composition: WallpaperComposition;
+  name: string;
+  screenWidth: number;
+  screenHeight: number;
+}) {
+  const left = (composition.quoteBounds.x / composition.width) * screenWidth;
+  const quoteBottom =
+    ((composition.quoteBounds.y + composition.quoteBounds.height) /
+      composition.height) *
+    screenHeight;
+  const ruleTop = quoteBottom + spacing.x3;
+  const nameTop = ruleTop + 1 + spacing.x2;
+  return (
+    <View pointerEvents="none">
+      <View style={[styles.rule, { left, top: ruleTop }]} />
+      <Text
+        allowFontScaling
+        style={[styles.presetName, { left, top: nameTop }]}
+      >
+        {name}
+      </Text>
+    </View>
   );
 }
 
@@ -420,6 +477,19 @@ const styles = StyleSheet.create({
     paddingTop: spacing.x1,
   },
   wordmark: { ...typography.tab, color: colors.dimText, letterSpacing: 2.4 },
+  rule: {
+    backgroundColor: colors.border,
+    height: 1,
+    position: 'absolute',
+    width: 36,
+  },
+  presetName: {
+    ...typography.tab,
+    color: colors.dimText,
+    letterSpacing: 1.6,
+    position: 'absolute',
+    textTransform: 'uppercase',
+  },
   footer: {
     bottom: 0,
     gap: spacing.x2,

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { createComposition } from '../features/wallpaper/composition';
+import { presetDisplayName } from '../features/wallpaper/presetRepository';
 import { WallpaperCanvas } from '../features/wallpaper/WallpaperCanvas';
 import type { WallpaperPreset } from '../features/wallpaper/types';
 import { colors } from '../theme/colors';
@@ -42,11 +43,7 @@ export function PresetThumbnail({
       }),
     [preset, quote, locale],
   );
-  // The eight curated presets each have a written name. A photograph takes its
-  // name from its category and number, so a new background needs no new string.
-  const name = preset.category
-    ? `${translate(`category.${preset.category}` as StringKey)} ${preset.id.split('-').pop()}`
-    : translate(`preset.${preset.id}.name` as StringKey);
+  const name = presetDisplayName(preset, translate);
   return (
     <Pressable
       accessibilityRole="button"
