@@ -3,40 +3,32 @@ import { Component, type ReactNode, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   PixelRatio,
-  Pressable,
   StyleSheet,
   Text,
   View,
   useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../../src/components/ActionMessage';
 import { AppButton } from '../../src/components/AppButton';
 import { AppIconButton } from '../../src/components/AppIconButton';
-import { Chip } from '../../src/components/Chip';
+import { DeckPager } from '../../src/components/DeckPager';
+import { Icon } from '../../src/components/Icon';
 import { SafeAreaGuides } from '../../src/components/SafeAreaGuides';
 import { SetWallpaperSheet } from '../../src/components/SetWallpaperSheet';
 import { Toast } from '../../src/components/Toast';
 import { getQuoteById } from '../../src/features/quotes/quoteRepository';
 import { createComposition } from '../../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../../src/features/wallpaper/composition';
-import {
-  deckLayers,
-  deckLayerReach,
-} from '../../src/features/wallpaper/deckLayers';
 import { wallpaperPixelDimensions } from '../../src/features/wallpaper/dimensions';
-import { exportedWallpaperUri } from '../../src/features/wallpaper/exportCache';
+import { exportWallpaper } from '../../src/features/wallpaper/exportWallpaper';
 import { getPresetById } from '../../src/features/wallpaper/presetRepository';
-import {
-  backgroundSwatch,
-  type WallpaperPreset,
-} from '../../src/features/wallpaper/types';
-import type { ContentLocale, Locale } from '../../src/features/i18n/locale';
+import type { ContentLocale } from '../../src/features/i18n/locale';
 import { useTranslate } from '../../src/features/i18n/useTranslate';
-import type { StringKey } from '../../src/features/i18n/t';
 import { WallpaperCanvas } from '../../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../../src/features/wallpaper/useWallpaperFonts';
+import { saveWallpaper } from '../../src/services/mediaLibrary';
 import { useAppStore } from '../../src/store/useAppStore';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
@@ -44,6 +36,7 @@ import { typography } from '../../src/theme/typography';
 
 export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const fonts = useWallpaperFonts();
   const state = useAppStore();
   const translate = useTranslate();
@@ -73,10 +66,8 @@ export default function HomeScreen() {
     );
   };
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
-  // Keeps one composition object, so the preview renders and encodes only when
-  // the quote, the preset or the screen size changes.
-  // Built without the typefaces: the deterministic measurer is enough for the
-  // cache key, so an already exported wallpaper can be found in the first frame.
+  // Keeps one composition object, so the preview renders only when the quote,
+  // the preset or the screen size changes.
   const composition: WallpaperComposition | undefined = useMemo(() => {
     try {
       return createWallpaperComposition(
@@ -96,81 +87,85 @@ export default function HomeScreen() {
     state.currentQuoteId,
     state.selectedPresetId,
   ]);
-  // The card can be drawn from the exported file alone, so the deck waits for
-  // the typefaces only when this wallpaper was never exported.
-  const exported = useMemo(
-    () =>
-      composition === undefined
-        ? undefined
-        : exportedWallpaperUri(composition.cacheKey),
-    [composition],
-  );
-  // An unresolvable quote is not a wait: the deck raises it, so the reader gets
-  // the render error and its retry rather than a spinner that never ends.
-  const previewReady = composition === undefined || !!fonts || !!exported;
-  const preset = getPresetById(state.selectedPresetId);
+  // The canvas draws from a recorded picture, which needs the typefaces, so the
+  // deck waits for them. An unresolvable quote is not a wait: the deck raises
+  // it, so the reader gets the render error and its retry rather than a spinner
+  // that never ends.
+  const previewReady = composition === undefined || !!fonts;
   const isFavorite = state.favoriteQuoteIds.includes(state.currentQuoteId);
+  const saveToLibrary = async () => {
+    if (!fonts || !composition) return;
+    try {
+      const rendered = await exportWallpaper(composition, fonts);
+      await saveWallpaper(rendered.uri);
+      setFavoriteFeedback({ message: translate('home.saved.confirmation') });
+    } catch {
+      setFavoriteFeedback({ message: translate('home.saved.error') });
+    }
+  };
+  const previousPair = state.deckHistory[state.deckCursor - 1];
+  const nextPair = state.deckHistory[state.deckCursor + 1];
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
-      <View style={styles.header}>
-        <View>
-          <Text allowFontScaling style={styles.date}>
-            {formatToday(state.appLocale)}
+    <View style={styles.screen}>
+      <DeckPager
+        onNext={() => void state.advanceDeck()}
+        onPrevious={() => void state.rewindDeck()}
+        nextLabel={translate('home.deck.next.label')}
+        nextHint={translate('home.deck.next.hint')}
+        previousLabel={translate('home.deck.previous.label')}
+        previousHint={translate('home.deck.previous.hint')}
+        previous={
+          <DeckFace
+            pair={previousPair}
+            size={dimensions}
+            locale={state.contentLocale}
+          />
+        }
+        next={
+          <DeckFace
+            pair={nextPair}
+            size={dimensions}
+            locale={state.contentLocale}
+          />
+        }
+      >
+        {!previewReady ? (
+          <View accessibilityRole="progressbar" style={styles.loading}>
+            <ActivityIndicator color={colors.accent} />
+            <Text allowFontScaling style={styles.loadingText}>
+              {translate('home.loading')}
+            </Text>
+          </View>
+        ) : (
+          <PreviewErrorBoundary>
+            <LiveFace composition={composition} />
+            {state.showSafeGuides ? <SafeAreaGuides /> : null}
+          </PreviewErrorBoundary>
+        )}
+      </DeckPager>
+      <View
+        pointerEvents="box-none"
+        style={[styles.chrome, { paddingTop: insets.top }]}
+      >
+        <View style={styles.header}>
+          <Text allowFontScaling style={styles.wordmark}>
+            MOTIVANA
           </Text>
-          <Text allowFontScaling style={styles.title}>
-            {translate('home.today')}
-          </Text>
-        </View>
-        <View style={styles.headerActions}>
-          {/* No heart here: the Saved tab already carries that direction. */}
           <AppIconButton
-            icon="gear"
+            icon="sliders"
             label={translate('home.settings.label')}
             hint={translate('home.settings.hint')}
             onPress={() => router.push('/settings')}
           />
         </View>
       </View>
-      {!previewReady ? (
-        <View accessibilityRole="progressbar" style={styles.loading}>
-          <ActivityIndicator color={colors.accent} />
-          <Text allowFontScaling style={styles.loadingText}>
-            {translate('home.loading')}
-          </Text>
-        </View>
-      ) : (
-        <PreviewErrorBoundary>
-          <PeekDeck
-            composition={composition}
-            onNext={state.randomQuote}
-            preset={preset}
-            showGuides={state.showSafeGuides}
-          />
-        </PreviewErrorBoundary>
-      )}
-      <View style={styles.footer}>
-        <View style={styles.chips}>
-          {preset ? (
-            <>
-              <Chip
-                label={translate(`preset.${preset.id}.name` as StringKey)}
-                swatch={presetSwatch(preset.id)}
-              />
-              <Chip
-                icon="font"
-                label={translate(
-                  `preset.face.${preset.fontFamily}` as StringKey,
-                )}
-              />
-            </>
-          ) : null}
-        </View>
-        <View style={styles.actionRow}>
-          <AppButton
+      <View pointerEvents="box-none" style={styles.footer}>
+        <View style={styles.rail}>
+          <AppIconButton
             disabled={favoriteBusy}
             icon="heart"
-            iconColor={isFavorite ? colors.accent : colors.text}
+            tone={isFavorite ? 'accent' : 'default'}
             label={
               isFavorite
                 ? translate('home.favorite.remove.label')
@@ -178,24 +173,27 @@ export default function HomeScreen() {
             }
             hint={translate('home.favorite.hint')}
             onPress={() => void updateFavorite(state.currentQuoteId)}
-            style={styles.actionButton}
-            variant="outline"
+            variant="glass"
           />
-          <AppButton
-            icon="wand-magic-sparkles"
+          <AppIconButton
+            icon="palette"
             label={translate('home.restyle.label')}
             hint={translate('home.restyle.hint')}
             onPress={() => router.navigate('/customize')}
-            style={styles.actionButton}
-            variant="outline"
+            variant="glass"
+          />
+          <AppIconButton
+            icon="download"
+            label={translate('home.saveToLibrary.label')}
+            hint={translate('home.saveToLibrary.hint')}
+            onPress={() => void saveToLibrary()}
+            variant="glass"
           />
         </View>
-        <AppButton
-          disabled={!fonts || !composition}
-          hint={translate('home.set.hint')}
-          label={translate('home.set.label')}
-          onPress={() => setTargetSheetOpen(true)}
-        />
+        {/* The chevron only reports the gesture; the pager owns the action. */}
+        <View pointerEvents="none" style={styles.hint}>
+          <Icon name="chevron-up" size={12} color={colors.dimText} />
+        </View>
         {favoriteFeedback ? (
           <Toast
             duration={favoriteFeedback.retryQuoteId ? 0 : 4000}
@@ -212,6 +210,14 @@ export default function HomeScreen() {
             variant="outline"
           />
         ) : null}
+        <AppButton
+          disabled={!fonts || !composition}
+          hint={translate('home.set.hint')}
+          icon="mobile-screen"
+          label={translate('home.set.label')}
+          onPress={() => setTargetSheetOpen(true)}
+          shape="pill"
+        />
       </View>
       {fonts && composition ? (
         <SetWallpaperSheet
@@ -221,99 +227,61 @@ export default function HomeScreen() {
           visible={targetSheetOpen}
         />
       ) : null}
-    </SafeAreaView>
-  );
-}
-
-/**
- * The board's home direction: two wallpapers peek out behind the live card, so
- * the deck reads as a finite stack the reader handles rather than a feed. The
- * cards behind are drawn from the preset's own colour, not rendered.
- */
-function PeekDeck({
-  composition,
-  onNext,
-  preset,
-  showGuides,
-}: {
-  composition: WallpaperComposition | undefined;
-  onNext: () => boolean;
-  preset: WallpaperPreset | undefined;
-  showGuides: boolean;
-}) {
-  const translate = useTranslate();
-  const layers = useMemo(() => deckLayers(preset), [preset]);
-  if (!composition) {
-    throw new Error('The selected wallpaper data is unavailable.');
-  }
-  // The card carries the wallpaper's own shape, so the preview fills it edge to
-  // edge and the rounded corners read as the card the reader hands on.
-  // The layers only reach right and down, so the stack moves back by half of
-  // that reach to sit centred on the screen.
-  const shape = {
-    aspectRatio: composition.width / composition.height,
-    marginRight: deckLayerReach,
-  };
-  return (
-    <View style={styles.deck}>
-      <View style={[styles.stack, shape]}>
-        {/* Drawn far to near, so the nearest layer sits closest to the card. */}
-        {[...layers].reverse().map((layer, index) => (
-          <View
-            key={index}
-            pointerEvents="none"
-            style={[
-              styles.peek,
-              {
-                backgroundColor: layer.color,
-                opacity: layer.opacity,
-                transform: [
-                  { translateX: layer.shift },
-                  { translateY: layer.shift },
-                ],
-              },
-            ]}
-          />
-        ))}
-        <Pressable
-          accessibilityHint={translate('home.next.hint')}
-          accessibilityLabel={translate('home.next.label')}
-          accessibilityRole="button"
-          onPress={onNext}
-          style={styles.card}
-        >
-          <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-            <WallpaperCanvas
-              composition={composition}
-              style={StyleSheet.absoluteFill}
-            />
-            {showGuides ? <SafeAreaGuides /> : null}
-          </View>
-        </Pressable>
-      </View>
     </View>
   );
 }
 
-/** The reader's own date, in their interface language. */
-function formatToday(locale: Locale): string {
-  const today = new Date();
-  try {
-    return today.toLocaleDateString(locale, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    });
-  } catch {
-    return today.toDateString();
+/**
+ * The wallpaper the reader is on. It raises an unresolvable pair inside the
+ * boundary, so the render error and its retry replace the card.
+ */
+function LiveFace({
+  composition,
+}: {
+  composition: WallpaperComposition | undefined;
+}) {
+  if (!composition) {
+    throw new Error('The selected wallpaper data is unavailable.');
   }
+  return (
+    <WallpaperCanvas
+      composition={composition}
+      style={StyleSheet.absoluteFill}
+    />
+  );
 }
 
-/** The dot on the preset chip, taken from the preset's own background. */
-function presetSwatch(presetId: string): string {
-  const preset = getPresetById(presetId);
-  if (!preset) return colors.accent;
-  return backgroundSwatch(preset.background);
+/** A neighbouring wallpaper in the pager. Undefined at either end of the trail. */
+function DeckFace({
+  pair,
+  size,
+  locale,
+}: {
+  pair: { quoteId: string; presetId: string } | undefined;
+  size: { width: number; height: number };
+  locale: ContentLocale;
+}) {
+  const composition = useMemo(() => {
+    if (!pair) return undefined;
+    try {
+      return createWallpaperComposition(
+        pair.quoteId,
+        pair.presetId,
+        size.width,
+        size.height,
+        locale,
+      );
+    } catch {
+      return undefined;
+    }
+  }, [locale, pair, size.height, size.width]);
+  if (!composition) return null;
+  return (
+    <WallpaperCanvas
+      composition={composition}
+      style={StyleSheet.absoluteFill}
+    />
+  );
 }
 
 function createWallpaperComposition(
@@ -388,51 +356,28 @@ function RenderError({ onRetry }: { onRetry: () => void }) {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: colors.background, flex: 1 },
+  // The chrome floats over the full-bleed wallpaper, so it carries the safe
+  // area itself rather than insetting the card.
+  chrome: { left: 0, position: 'absolute', right: 0, top: 0 },
   header: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.x3,
+    paddingHorizontal: spacing.x2 + 2,
     paddingTop: spacing.x1,
   },
-  headerActions: { flexDirection: 'row', gap: spacing.x1 },
-  date: { ...typography.caption, fontSize: 11, letterSpacing: 0.5 },
-  title: { ...typography.title, fontSize: 21, marginTop: 6 },
-  deck: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    paddingBottom: spacing.x4,
-    paddingHorizontal: spacing.x3,
-    paddingTop: spacing.x2,
-  },
-  // Sized by the card, so the layers behind it share the wallpaper's shape.
-  stack: { flex: 1 },
-  // The cards behind the live one share its frame, then move right and down.
-  peek: {
-    borderColor: colors.borderSubtle,
-    borderRadius: spacing.radiusLarge,
-    borderWidth: StyleSheet.hairlineWidth,
+  wordmark: { ...typography.tab, color: colors.dimText, letterSpacing: 2.4 },
+  footer: {
     bottom: 0,
+    gap: spacing.x2,
     left: 0,
+    paddingBottom: spacing.x2,
+    paddingHorizontal: spacing.x2 + 2,
     position: 'absolute',
     right: 0,
-    top: 0,
   },
-  card: {
-    borderRadius: spacing.radiusLarge,
-    elevation: 12,
-    flex: 1,
-    overflow: 'hidden',
-    shadowColor: colors.bezel,
-    shadowOffset: { height: 10, width: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 24,
-  },
-  footer: { gap: 10, paddingHorizontal: spacing.x3, paddingBottom: spacing.x2 },
-  chips: { alignItems: 'center', flexDirection: 'row', gap: spacing.x1 },
-  actionRow: { flexDirection: 'row', gap: 10 },
-  actionButton: { flex: 1 },
+  rail: { alignItems: 'flex-end', alignSelf: 'flex-end', gap: spacing.x1 + 2 },
+  hint: { alignItems: 'flex-start' },
   loading: {
     alignItems: 'center',
     flex: 1,

@@ -171,7 +171,6 @@ export const vi: Record<keyof typeof en, string> = {
   'tab.rotate': 'Tự đổi',
   'tab.rotate.hint': 'Mở lịch tự đổi hình nền.',
 
-  'home.today': 'Hôm nay',
   'home.restyle.label': 'Đổi kiểu',
   'home.restyle.hint': 'Mở mục kiểu nền, nơi có thể chọn kiểu khác.',
   'home.set.label': 'Đặt hình nền',

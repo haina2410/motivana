@@ -28,9 +28,6 @@ jest.mock('../../src/features/wallpaper/useWallpaperFonts', () => ({
 jest.mock('../../src/features/wallpaper/exportWallpaper', () => ({
   exportWallpaper: jest.fn(),
 }));
-jest.mock('../../src/features/wallpaper/exportCache', () => ({
-  exportedWallpaperUri: jest.fn(() => undefined),
-}));
 jest.mock('../../src/services/wallpaperNative', () => ({
   getWallpaperCapabilities: jest.fn(async () => ({
     supportsHome: true,
@@ -55,15 +52,11 @@ const mockUseWallpaperFonts = jest.requireMock(
 const mockWallpaperCanvas = jest.requireMock(
   '../../src/features/wallpaper/WallpaperCanvas',
 ).WallpaperCanvas as jest.Mock;
-const mockExportedWallpaperUri = jest.requireMock(
-  '../../src/features/wallpaper/exportCache',
-).exportedWallpaperUri as jest.Mock;
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
   jest.mocked(router.navigate).mockClear();
   mockUseWallpaperFonts.mockReturnValue({});
-  mockExportedWallpaperUri.mockReturnValue(undefined);
   mockWallpaperCanvas.mockImplementation(() => {
     const { View } = require('react-native');
     return <View accessible accessibilityLabel="Wallpaper preview" />;
@@ -97,12 +90,8 @@ test('Home shows a safe retry when favorite synchronization fails', async () => 
   expect(attempts).toBe(2);
 });
 
-test('Home changes the quote and favorite state through accessible controls', async () => {
+test('Home changes the favorite state through accessible controls', async () => {
   render(<HomeScreen />);
-  const initialQuoteId = useAppStore.getState().currentQuoteId;
-
-  fireEvent.press(screen.getByLabelText('Next quote'));
-  expect(useAppStore.getState().currentQuoteId).not.toBe(initialQuoteId);
 
   fireEvent.press(screen.getByLabelText(t('en', 'home.favorite.add.label')));
   await waitFor(() =>
@@ -114,11 +103,10 @@ test('Home changes the quote and favorite state through accessible controls', as
   expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
 });
 
-test('Home reaches every other screen and opens the wallpaper target sheet', () => {
+// Mutation caught: pointing Restyle back at a deleted style route would dead-end the only path to the templates.
+test('Home reaches settings and the presets, and opens the wallpaper target sheet', () => {
   render(<HomeScreen />);
 
-  // Settings sits above the tabs, so it is pushed. Restyle is a tab jump: the
-  // presets carry every style the deleted style screen could report.
   fireEvent.press(screen.getByLabelText(t('en', 'home.settings.label')));
   expect(router.push).toHaveBeenCalledWith('/settings');
   fireEvent.press(screen.getByLabelText(t('en', 'home.restyle.label')));
@@ -127,10 +115,25 @@ test('Home reaches every other screen and opens the wallpaper target sheet', () 
   expect(screen.queryByText('target sheet')).toBeNull();
   fireEvent.press(screen.getByLabelText(t('en', 'home.set.label')));
   expect(screen.getByText('target sheet')).toBeOnTheScreen();
+});
 
-  expect(screen.getByLabelText('Next quote').props.accessibilityHint).toContain(
-    'random',
-  );
+// Mutation caught: leaving the deck on tap-to-advance strands the reader, because the full-bleed card has no visible tap target and no way back.
+test('the deck advances and rewinds through the pager', () => {
+  const advanceDeck = jest.fn().mockResolvedValue(true);
+  const rewindDeck = jest.fn().mockResolvedValue(true);
+  useAppStore.setState({ advanceDeck, rewindDeck });
+  render(<HomeScreen />);
+
+  const deck = screen.getByLabelText(t('en', 'home.deck.next.label'));
+  fireEvent(deck, 'accessibilityAction', {
+    nativeEvent: { actionName: 'activate' },
+  });
+  expect(advanceDeck).toHaveBeenCalledTimes(1);
+
+  fireEvent(deck, 'accessibilityAction', {
+    nativeEvent: { actionName: 'previous' },
+  });
+  expect(rewindDeck).toHaveBeenCalledTimes(1);
 });
 
 test('Home exposes branded loading and a retryable render error without losing state', () => {
@@ -184,18 +187,4 @@ test('Home catches a thrown preview render and retries without changing the quot
   } finally {
     errorSpy.mockRestore();
   }
-});
-
-// Mutation caught: waiting for the typefaces even with an exported wallpaper on
-// disk would hold the spinner through the whole Skia font load at every launch.
-test('Home shows the exported wallpaper before the typefaces load', () => {
-  mockUseWallpaperFonts.mockReturnValue(null);
-  mockExportedWallpaperUri.mockReturnValue(
-    'file:///cache/motivana-exports/applied.png',
-  );
-
-  render(<HomeScreen />);
-
-  expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
-  expect(screen.queryByText(t('en', 'home.loading'))).toBeNull();
 });

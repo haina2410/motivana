@@ -176,7 +176,6 @@ export const en = {
   'tab.rotate': 'Rotate',
   'tab.rotate.hint': 'Opens the automatic wallpaper schedule.',
 
-  'home.today': 'Today',
   'home.restyle.label': 'Restyle',
   'home.restyle.hint':
     'Opens the presets, where a different style can be picked.',
