@@ -16,6 +16,7 @@ interface AppButtonProps {
   onPress: () => void;
   /** `primary` is the amber bar; `outline` is the paired Save / Restyle row. */
   variant?: 'primary' | 'outline';
+  /** The board draws every button as a half-circle pill; `rounded` opts out. */
   shape?: 'rounded' | 'pill';
   icon?: IconName;
   iconColor?: string;
@@ -28,7 +29,7 @@ export function AppButton({
   label,
   onPress,
   variant = 'primary',
-  shape = 'rounded',
+  shape = 'pill',
   icon,
   iconColor,
   hint,
