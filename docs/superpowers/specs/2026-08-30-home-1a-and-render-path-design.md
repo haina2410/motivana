@@ -152,9 +152,9 @@ not to a `SafeAreaView` wrapper.
 direction `1b`'s device and are deleted with their test.
 
 The reference design supersedes `1a` wherever the two disagree: `1a`'s
-horizontal action row, bottom scrim and right-edge segment indicator are all
-replaced by the vertical rail, the full-width pill and the position counter
-below.
+horizontal action row and bottom scrim are replaced by the vertical rail and
+the full-width pill. `1a`'s right-edge segment indicator is dropped outright
+and nothing takes its place.
 
 ### Movement: a vertical pager
 
@@ -205,7 +205,7 @@ where a swipe re-rolls the template too.
 - **Right rail:** three circular glass icons stacked bottom-right — favorite,
   restyle, save to library. The reference draws a fourth, share, which is out
   of scope for this branch.
-- **Bottom left:** an up chevron hinting the swipe, and the position counter.
+- **Bottom left:** an up chevron hinting the swipe. No counter — see below.
 - **Bottom:** the full-width accent `Set wallpaper` pill with a
   `mobile-screen` icon, above the tab bar.
 
@@ -225,16 +225,15 @@ branch: no share service exists, and it would be a new feature rather than
 part of the redesign. The rail is built so a fourth icon can be added later
 without relayout.
 
-### The position counter
+### No position counter
 
-The reference draws `6 / 120`. The deck is random, so this is **not** an index
-into the catalogue. It reads as the reader's position in the deck they have
-travelled — how many pairs deep the session history is — over the size of the
-quote pool for the current content locale.
+The reference draws `6 / 120`. It is dropped. The deck is random and
+effectively endless, so a total is a number the reader cannot act on, and a
+position within a random walk tells them nothing about where they are.
 
-This is an assumption. If you meant an ordered walk of the catalogue instead,
-say so: that is a different deck, it makes `nextQuote` and `previousQuote` the
-right API, and it conflicts with section 3's random template.
+The up chevron stays as the swipe affordance. It is the part that was doing
+work — the gesture has no other visible hint, and a vertical swipe is not
+discoverable on a screen that looks like a still image.
 
 ### One deviation from the board
 
@@ -296,9 +295,9 @@ before `pnpm verify` can pass.
 
 ## Open questions
 
-**What `6 / 120` counts.** Read here as depth in the session history over the
-size of the quote pool. The alternative reading — an index into an ordered
-catalogue walk — would be a different deck, would make `nextQuote` and
-`previousQuote` the right API instead of `randomQuote`, and would conflict
-with the random template in section 3. Worth confirming before the counter is
-built; nothing else in the plan depends on the answer.
+None. The probe closed the one that gated the design, and dropping the counter
+closed the one about what it counted.
+
+`nextQuote`, `previousQuote` and `getAdjacentQuote` are now dead: nothing in
+the application walks the catalogue in order, and the deck's own history
+supplies backward movement. They are deleted with the rest.
