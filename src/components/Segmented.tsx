@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
 import { fonts, typography } from '../theme/typography';
 import { Icon, type IconName } from './Icon';
 
@@ -72,13 +73,15 @@ export function Segmented<Value extends string | number>({
 const styles = StyleSheet.create({
   track: {
     backgroundColor: 'rgba(255, 255, 255, 0.07)',
-    borderRadius: 10,
+    // Track and segment are both half circles, so the selected segment sits
+    // concentric inside the track instead of squaring off against it.
+    borderRadius: spacing.pill,
     flexDirection: 'row',
     padding: 3,
   },
   segment: {
     alignItems: 'center',
-    borderRadius: 7,
+    borderRadius: spacing.pill,
     flex: 1,
     justifyContent: 'center',
     minHeight: 38,
