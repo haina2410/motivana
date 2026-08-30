@@ -350,21 +350,6 @@
     "reviewedReason": "chosen by the product owner; mechanics checked",
     "promotedFrom": ".claude/skills/sourcing-quotes/references/example-owner-supplied.json"
   },
-  "3d785345bf4ae376": {
-    "text": "Cuộc đời là những gam màu đẹp đẽ, mong em luôn vui, đừng buồn vì những chuyện không đáng.",
-    "author": null,
-    "category": "motivation",
-    "sourceKind": "owner-supplied",
-    "providedBy": "product owner",
-    "providedOn": "2026-08-25",
-    "citation": "handed over in the Claude Code session, no source named",
-    "verification": "owner-supplied",
-    "rights": "unknown-author",
-    "englishRendering": "ours",
-    "edit": "none",
-    "reviewedReason": "chosen by the product owner; mechanics checked",
-    "promotedFrom": ".claude/skills/sourcing-quotes/references/example-owner-supplied.json"
-  },
   "869cdd9d6c9d46e6": {
     "text": "Thứ gì cần kết thúc thì hãy để nó kết thúc đi.",
     "author": null,
@@ -463,5 +448,20 @@
     "edit": "none",
     "reviewedReason": "pasted by the owner, no source given",
     "promotedFrom": "docs/quote-candidates/2026-08-30-import-2.json"
+  },
+  "effdce28cd0e915f": {
+    "text": "Cuộc đời là những gam màu đẹp đẽ, mong bạn luôn vui, đừng buồn vì những chuyện không đáng.",
+    "author": null,
+    "category": "motivation",
+    "sourceKind": "owner-supplied",
+    "providedBy": "product owner",
+    "providedOn": "2026-08-25",
+    "citation": "handed over in the Claude Code session, no source named",
+    "verification": "owner-supplied",
+    "rights": "unknown-author",
+    "englishRendering": "ours",
+    "edit": "\"em\" changed to \"bạn\" by the product owner",
+    "reviewedReason": "chosen by the product owner; mechanics checked",
+    "promotedFrom": ".claude/skills/sourcing-quotes/references/example-owner-supplied.json"
   }
 }

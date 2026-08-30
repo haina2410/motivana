@@ -53,7 +53,7 @@ function firstQuoteInLocale(locale: ContentLocale): string {
 }
 
 /** The quotes are written for Vietnamese readers first, so they start there. */
-const DEFAULT_CONTENT_LOCALE: ContentLocale = 'vi';
+export const DEFAULT_CONTENT_LOCALE: ContentLocale = 'vi';
 
 function deviceLocale(): Locale {
   try {

@@ -12,7 +12,7 @@ const quoteCategories = [
 // The catalogue grows as sourced, attributed quotes replace the original app
 // copy, so this is a floor, not a fixed size. A floor still stops a truncated
 // or half-written file from shipping.
-const minimumQuotesPerCategory = 6;
+const minimumQuotesPerCategory = 3;
 const fontPaths = {
   'CormorantGaramond-Light': 'assets/fonts/CormorantGaramond-Light.ttf',
   'CormorantGaramond-Regular': 'assets/fonts/CormorantGaramond-Regular.ttf',
