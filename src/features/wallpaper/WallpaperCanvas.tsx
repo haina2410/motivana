@@ -1,22 +1,14 @@
+import { Canvas, Group, Picture, Skia } from '@shopify/react-native-skia';
+import { useMemo, useState } from 'react';
 import {
-  Canvas,
-  Image as SkiaImage,
-  Skia,
-  type SkImage,
-} from '@shopify/react-native-skia';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  Image as NativeImage,
-  Platform,
+  StyleSheet,
   View,
-  type ImageStyle,
   type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 
 import type { WallpaperComposition } from './composition';
-import { exportedWallpaperUri } from './exportCache';
 import { drawWallpaperScene, measureSkiaComposition } from './scene';
 import {
   useBackgroundImage,
@@ -41,13 +33,6 @@ export function WallpaperCanvas({
     composition.preset.background,
     backgroundVariant,
   );
-  // The wallpaper the reader already applied is on disk as a finished PNG. Using
-  // it skips both the typeface load and the draw, so the card fills the first
-  // frame instead of holding a spinner for the whole font load.
-  const exported = useMemo(
-    () => exportedWallpaperUri(composition.cacheKey),
-    [composition.cacheKey],
-  );
   const [canvasSize, setCanvasSize] = useState<{
     width: number;
     height: number;
@@ -64,100 +49,48 @@ export function WallpaperCanvas({
     () => (fonts ? measureSkiaComposition(composition, fonts) : composition),
     [composition, fonts],
   );
-  const fallbackUri = useMemo(
-    () =>
-      fonts && Platform.OS === 'android' && exported === undefined
-        ? createPreviewDataUri(measuredComposition, fonts, backgroundImage)
-        : null,
-    [backgroundImage, exported, fonts, measuredComposition],
-  );
-  const preview = useMemo(
-    () =>
-      fonts && Platform.OS !== 'android'
-        ? createPreviewImage(measuredComposition, fonts, backgroundImage)
-        : null,
-    [backgroundImage, fonts, measuredComposition],
-  );
-  useEffect(
-    () => () => {
-      preview?.image.dispose?.();
-      preview?.surface.dispose?.();
-    },
-    [preview],
-  );
-
-  if (Platform.OS === 'android') {
-    const source = exported ?? fallbackUri;
-    return source ? (
-      <NativeImage
-        accessible
-        accessibilityLabel="Wallpaper preview"
-        source={{ uri: source }}
-        resizeMode="contain"
-        style={style as StyleProp<ImageStyle>}
-      />
-    ) : (
-      <View accessible accessibilityLabel="Wallpaper preview" style={style} />
+  // A recorded picture carries draw commands, not pixels, so it replays on the
+  // display's own GPU context. An offscreen snapshot cannot cross that
+  // boundary on Android and renders blank.
+  const picture = useMemo(() => {
+    if (!fonts) return null;
+    const recorder = Skia.PictureRecorder();
+    const recording = recorder.beginRecording(
+      Skia.XYWHRect(
+        0,
+        0,
+        measuredComposition.width,
+        measuredComposition.height,
+      ),
     );
-  }
-
-  return (
-    <Canvas
-      style={style}
-      accessible
-      accessibilityLabel="Wallpaper preview"
-      onLayout={onCanvasLayout}
-    >
-      {preview && canvasSize ? (
-        <SkiaImage
-          image={preview.image}
-          x={0}
-          y={0}
-          width={canvasSize.width}
-          height={canvasSize.height}
-          fit="contain"
-        />
-      ) : null}
-    </Canvas>
-  );
-}
-
-export function createPreviewImage(
-  composition: WallpaperComposition,
-  fonts: NonNullable<ReturnType<typeof useWallpaperFonts>>,
-  backgroundImage?: SkImage | null,
-) {
-  const surface = Skia.Surface.MakeOffscreen(
-    composition.width,
-    composition.height,
-  );
-  if (!surface) return null;
-  try {
     drawWallpaperScene(
-      surface.getCanvas(),
-      composition,
+      recording,
+      measuredComposition,
       fonts,
       backgroundImage ?? undefined,
     );
-    surface.flush();
-    return { image: surface.makeImageSnapshot(), surface };
-  } catch (error) {
-    surface.dispose?.();
-    throw error;
-  }
-}
+    return recorder.finishRecordingAsPicture();
+  }, [backgroundImage, fonts, measuredComposition]);
 
-export function createPreviewDataUri(
-  composition: WallpaperComposition,
-  fonts: NonNullable<ReturnType<typeof useWallpaperFonts>>,
-  backgroundImage?: SkImage | null,
-): string | null {
-  const preview = createPreviewImage(composition, fonts, backgroundImage);
-  if (!preview) return null;
-  try {
-    return `data:image/png;base64,${preview.image.encodeToBase64()}`;
-  } finally {
-    preview.image.dispose?.();
-    preview.surface.dispose?.();
-  }
+  // Skia's <Canvas> rejects onLayout on Android, so a plain view measures.
+  return (
+    <View
+      accessible
+      accessibilityLabel="Wallpaper preview"
+      onLayout={onCanvasLayout}
+      style={style}
+    >
+      <Canvas style={StyleSheet.absoluteFill}>
+        {picture && canvasSize ? (
+          <Group
+            transform={[
+              { scale: canvasSize.width / measuredComposition.width },
+            ]}
+          >
+            <Picture picture={picture} />
+          </Group>
+        ) : null}
+      </Canvas>
+    </View>
+  );
 }
