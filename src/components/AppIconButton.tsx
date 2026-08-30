@@ -74,7 +74,10 @@ const styles = StyleSheet.create({
     width: 36,
   },
   glass: {
-    backgroundColor: 'rgba(255, 255, 255, 0.13)',
+    // Dark, not light: the rail floats over a photograph that can be bright
+    // snow or a night sky, and only a dark fill under a light icon holds
+    // contrast against both. A white wash lightens what is already light.
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
     borderColor: colors.border,
     borderRadius: spacing.pill,
     borderWidth: 1,
