@@ -160,11 +160,12 @@ const styles = StyleSheet.create({
     // A horizontal ScrollView stretches its children to the exact height it
     // measured, so a chip's 1px border lands on the clipping edge and the top
     // and bottom of the pill disappear. Centring lets each chip keep its own
-    // height, and the vertical padding gives the border somewhere to sit.
+    // height, and the vertical padding gives the border somewhere to sit --
+    // enough of it that a fractional device pixel cannot reach the edge again.
     alignItems: 'center',
     gap: spacing.x1,
     paddingHorizontal: HORIZONTAL_PADDING,
-    paddingVertical: 2,
+    paddingVertical: 6,
   },
   grid: { gap: GRID_GAP, paddingBottom: spacing.x3 },
   row: { gap: GRID_GAP },
