@@ -3,7 +3,11 @@ import { useAppStore } from '../useAppStore';
 import { setRotationSynchronizer } from '../automationSynchronization';
 
 beforeEach(() => {
-  useAppStore.setState(createDefaultPersistedAppState());
+  useAppStore.setState({
+    ...createDefaultPersistedAppState(),
+    deckHistory: [],
+    deckCursor: -1,
+  });
   setRotationSynchronizer(async () => undefined);
 });
 
@@ -40,4 +44,10 @@ test('a rewind restores both ids of the pair the reader saw', async () => {
 // Mutation caught: rewinding past the first pair would strand the deck on an undefined entry.
 test('refuses to rewind past the start of the trail', async () => {
   expect(await useAppStore.getState().rewindDeck()).toBe(false);
+});
+
+// Mutation caught: a beforeEach that shallow-merges leaves the previous test's trail in place, so deck tests pass without proving isolation.
+test('starts each test with an empty trail', () => {
+  expect(useAppStore.getState().deckHistory).toEqual([]);
+  expect(useAppStore.getState().deckCursor).toBe(-1);
 });
