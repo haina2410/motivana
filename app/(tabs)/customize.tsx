@@ -157,8 +157,14 @@ const styles = StyleSheet.create({
   // chip clipped by the page margin.
   filterRow: { flexGrow: 0, marginHorizontal: -HORIZONTAL_PADDING },
   filters: {
+    // A horizontal ScrollView stretches its children to the exact height it
+    // measured, so a chip's 1px border lands on the clipping edge and the top
+    // and bottom of the pill disappear. Centring lets each chip keep its own
+    // height, and the vertical padding gives the border somewhere to sit.
+    alignItems: 'center',
     gap: spacing.x1,
     paddingHorizontal: HORIZONTAL_PADDING,
+    paddingVertical: 2,
   },
   grid: { gap: GRID_GAP, paddingBottom: spacing.x3 },
   row: { gap: GRID_GAP },
