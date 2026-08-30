@@ -12,6 +12,7 @@ import {
   type ContentLocale,
   type Locale,
 } from '../features/i18n/locale';
+import { getAllTemplates } from '../features/wallpaper/presetRepository';
 import {
   hydrateAppState,
   isValidPresetId,
@@ -57,6 +58,10 @@ export interface AppState extends PersistedAppStateV2 {
   ): Promise<boolean>;
   recordAppliedQuote(quoteId: string): boolean;
   hydrate(): boolean;
+  deckHistory: readonly { quoteId: string; presetId: string }[];
+  deckCursor: number;
+  advanceDeck(): Promise<boolean>;
+  rewindDeck(): Promise<boolean>;
 }
 
 export interface CreateAppStoreOptions {
@@ -136,6 +141,46 @@ function createAppState(
         () => undefined,
       );
       return result;
+    };
+    const randomTemplateId = (currentId: string): string => {
+      const pool = getAllTemplates().filter(
+        (template) => template.id !== currentId,
+      );
+      if (pool.length === 0) return currentId;
+      return pool[Math.floor(random() * pool.length)]!.id;
+    };
+    // Both ids move together through commitAutomation: selectedPresetId is
+    // part of the payload the Kotlin rotation worker reads, and a plain
+    // commit would leave the scheduled wallpaper on the template the reader
+    // swiped past.
+    const applyDeckPair = (pair: {
+      quoteId: string;
+      presetId: string;
+    }): Promise<boolean> =>
+      commitAutomation((state) => ({
+        ...state,
+        currentQuoteId: pair.quoteId,
+        selectedPresetId: pair.presetId,
+      }));
+    // Something outside the deck (selectQuote, a locale switch, hydrate, a
+    // raw setState in a test) can move the on-screen pair without going
+    // through advanceDeck/rewindDeck. When that happens the recorded trail no
+    // longer describes what the reader actually saw, so treat it as a fresh
+    // deck rather than replaying pairs that do not match the screen.
+    const currentDeckTrail = (
+      state: AppState,
+    ): {
+      history: readonly { quoteId: string; presetId: string }[];
+      cursor: number;
+    } => {
+      const onScreen = state.deckHistory[state.deckCursor];
+      const isCurrent =
+        onScreen !== undefined &&
+        onScreen.quoteId === state.currentQuoteId &&
+        onScreen.presetId === state.selectedPresetId;
+      return isCurrent
+        ? { history: state.deckHistory, cursor: state.deckCursor }
+        : { history: [], cursor: -1 };
     };
 
     return {
@@ -283,6 +328,52 @@ function createAppState(
           ? commit({ ...toPersistedState(get()), lastAppliedQuoteId: quoteId })
           : false,
       hydrate: () => commit(hydrateAppState(storage)),
+      // Session state on purpose. The trail exists so a swipe down restores the
+      // exact pair the reader saw, which a random pick cannot reconstruct. It
+      // has no meaning across launches, so it stays out of the persisted schema.
+      deckHistory: [],
+      deckCursor: -1,
+      advanceDeck: async () => {
+        const state = get();
+        const { history, cursor } = currentDeckTrail(state);
+        const replay = history[cursor + 1];
+        if (replay) {
+          const applied = await applyDeckPair(replay);
+          if (applied) set({ deckHistory: history, deckCursor: cursor + 1 });
+          return applied;
+        }
+        const pair = {
+          quoteId: selectRandomQuote({
+            locale: state.contentLocale,
+            previousId: state.currentQuoteId,
+            random,
+          }).id,
+          presetId: randomTemplateId(state.selectedPresetId),
+        };
+        const applied = await applyDeckPair(pair);
+        if (!applied) return false;
+        const trail =
+          cursor === -1
+            ? [
+                {
+                  quoteId: state.currentQuoteId,
+                  presetId: state.selectedPresetId,
+                },
+                pair,
+              ]
+            : [...history.slice(0, cursor + 1), pair];
+        set({ deckHistory: trail, deckCursor: trail.length - 1 });
+        return true;
+      },
+      rewindDeck: async () => {
+        const state = get();
+        const { history, cursor } = currentDeckTrail(state);
+        const previous = history[cursor - 1];
+        if (!previous) return false;
+        const applied = await applyDeckPair(previous);
+        if (applied) set({ deckHistory: history, deckCursor: cursor - 1 });
+        return applied;
+      },
     };
   };
 }
