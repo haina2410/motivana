@@ -64,12 +64,14 @@ export function DeckPager({
       <View
         accessible
         accessibilityLabel={nextLabel}
-        accessibilityHint={nextHint}
+        // One accessible element carries both directions, so it gets one
+        // hint slot for the two sentences. accessibilityValue is for
+        // adjustable ranges and would announce the second hint oddly.
+        accessibilityHint={`${nextHint} ${previousHint}`}
         accessibilityActions={[
           { name: 'activate', label: nextLabel },
           { name: 'previous', label: previousLabel },
         ]}
-        accessibilityValue={{ text: previousHint }}
         onAccessibilityAction={(event) => {
           if (event.nativeEvent.actionName === 'previous') onPrevious();
           else onNext();
