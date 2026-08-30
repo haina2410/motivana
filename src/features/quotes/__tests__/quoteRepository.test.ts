@@ -1,6 +1,5 @@
 import {
   favoriteQuoteText,
-  getAdjacentQuote,
   getAllQuotes,
   getQuoteById,
   quoteInLocale,
@@ -115,17 +114,6 @@ test('looks up a known quote and returns undefined for a missing ID', () => {
   expect(getQuoteById('not-a-quote')).toBeUndefined();
 });
 
-// The ends are read from the catalogue: every harvest renumbers the last ID.
-test('navigates forward and backward with catalog wraparound', () => {
-  const english = getAllQuotes('en');
-  const first = english.at(0)!.id;
-  const last = english.at(-1)!.id;
-
-  expect(getAdjacentQuote(first, 'previous', 'en')?.id).toBe(last);
-  expect(getAdjacentQuote(last, 'next', 'en')?.id).toBe(first);
-  expect(getAdjacentQuote('not-a-quote', 'next', 'en')?.id).toBe(first);
-});
-
 test('selects only from eligible IDs using an injected random value', () => {
   const quote = selectRandomQuote({
     locale: 'en',
@@ -183,15 +171,6 @@ test('offers only quotes that have text for the requested locale', () => {
   expect(vietnamese.length).toBe(
     all.filter((quote) => quote.text.vi !== undefined).length,
   );
-});
-
-// Mutation caught: stepping through the unfiltered catalog would land on a quote with no text in the active language.
-test('steps only through quotes available in the locale', () => {
-  const vietnamese = getAllQuotes('vi');
-  const first = vietnamese[0]!;
-  const next = getAdjacentQuote(first.id, 'next', 'vi');
-
-  expect(next?.text.vi).toBeDefined();
 });
 
 // Mutation caught: ignoring the locale in random selection would apply an untranslated wallpaper during rotation.

@@ -1,6 +1,6 @@
 import { getLocales } from 'expo-localization';
 import { getAllQuotes } from '../../features/quotes/quoteRepository';
-import { createAppStore, useAppStore } from '../useAppStore';
+import { createAppStore } from '../useAppStore';
 import type { PersistedAppStateV2 } from '../schema';
 import type { KeyValueStorage } from '../storage';
 
@@ -57,25 +57,6 @@ function createWriteFailingStorage(
     read: (key) => values.get(key),
   };
 }
-
-// Mutation caught: reversing navigation direction or omitting modulo arithmetic would break catalog wraparound.
-test('moves to adjacent quotes and wraps at both catalog boundaries', () => {
-  const store = createAppStore({ storage: createMemoryStorage() });
-  const quotes = getAllQuotes();
-
-  expect(store.getState().previousQuote()).toBe(true);
-  expect(store.getState().currentQuoteId).toBe(quotes[quotes.length - 1]!.id);
-  expect(store.getState().nextQuote()).toBe(true);
-  expect(store.getState().currentQuoteId).toBe(quotes[0]!.id);
-});
-
-// Mutation caught: binding actions to a separate internal store would make screen consumers observe stale state.
-test('updates the exported Zustand hook state through its actions', () => {
-  const before = useAppStore.getState().currentQuoteId;
-
-  expect(useAppStore.getState().nextQuote()).toBe(true);
-  expect(useAppStore.getState().currentQuoteId).not.toBe(before);
-});
 
 // Mutation caught: passing no previous quote to the catalog selector would permit an immediate random repeat.
 test('selects a random quote without immediately repeating the current quote', () => {

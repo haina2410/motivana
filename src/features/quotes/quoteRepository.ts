@@ -49,26 +49,6 @@ export function quoteInLocale(id: string, locale: ContentLocale): boolean {
   return quote !== undefined && quoteText(quote, locale) !== undefined;
 }
 
-export function getAdjacentQuote(
-  id: string,
-  direction: 'next' | 'previous',
-  locale: ContentLocale,
-): Quote | undefined {
-  const pool = getAllQuotes(locale);
-  if (pool.length === 0) {
-    return undefined;
-  }
-  const currentIndex = pool.findIndex((quote) => quote.id === id);
-  if (currentIndex === -1) {
-    return pool[0];
-  }
-  const nextIndex =
-    direction === 'next'
-      ? (currentIndex + 1) % pool.length
-      : (currentIndex - 1 + pool.length) % pool.length;
-  return pool[nextIndex];
-}
-
 export function selectRandomQuote(options: RandomQuoteOptions): Quote {
   const eligibleQuotes = getAllQuotes(options.locale).filter(
     (quote) => !options.eligibleIds || options.eligibleIds.has(quote.id),

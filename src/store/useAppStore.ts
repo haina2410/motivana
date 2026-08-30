@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
 
 import {
-  getAdjacentQuote,
   getAllQuotes,
   selectRandomQuote,
 } from '../features/quotes/quoteRepository';
@@ -41,8 +40,6 @@ export interface RotationConfiguration {
 }
 
 export interface AppState extends PersistedAppStateV2 {
-  nextQuote(): boolean;
-  previousQuote(): boolean;
   randomQuote(): boolean;
   selectQuote(quoteId: string): boolean;
   toggleFavorite(quoteId: string): Promise<boolean>;
@@ -185,28 +182,6 @@ function createAppState(
 
     return {
       ...hydrateAppState(storage, warn),
-      nextQuote: () => {
-        const state = get();
-        const next = getAdjacentQuote(
-          state.currentQuoteId,
-          'next',
-          state.contentLocale,
-        );
-        return next === undefined
-          ? false
-          : commit({ ...toPersistedState(get()), currentQuoteId: next.id });
-      },
-      previousQuote: () => {
-        const state = get();
-        const previous = getAdjacentQuote(
-          state.currentQuoteId,
-          'previous',
-          state.contentLocale,
-        );
-        return previous === undefined
-          ? false
-          : commit({ ...toPersistedState(get()), currentQuoteId: previous.id });
-      },
       randomQuote: () => {
         const state = get();
         const quote = selectRandomQuote({
