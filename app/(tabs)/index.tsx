@@ -550,6 +550,11 @@ const styles = StyleSheet.create({
     color: colors.dimText,
     letterSpacing: 1.6,
     position: 'absolute',
+    // Same reason as the wordmark: the caption sits on the wallpaper, not on
+    // the app's dark ground, so a dim grey alone disappears over a pale sky.
+    textShadowColor: 'rgba(0, 0, 0, 0.55)',
+    textShadowOffset: { height: 1, width: 0 },
+    textShadowRadius: 4,
     textTransform: 'uppercase',
   },
   footer: {
