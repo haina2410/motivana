@@ -12,7 +12,6 @@ export const iconNames = [
   'arrow-down',
   'chevron-left',
   'chevron-right',
-  'chevron-up',
   'circle-check',
   'circle-info',
   'clock-rotate-left',

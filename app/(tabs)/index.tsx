@@ -15,7 +15,6 @@ import { ActionMessage } from '../../src/components/ActionMessage';
 import { AppButton } from '../../src/components/AppButton';
 import { AppIconButton } from '../../src/components/AppIconButton';
 import { DeckPager } from '../../src/components/DeckPager';
-import { Icon } from '../../src/components/Icon';
 import { SafeAreaGuides } from '../../src/components/SafeAreaGuides';
 import { SetWallpaperSheet } from '../../src/components/SetWallpaperSheet';
 import { Toast } from '../../src/components/Toast';
@@ -297,10 +296,6 @@ export default function HomeScreen() {
             variant="glass"
           />
         </View>
-        {/* The chevron only reports the gesture; the pager owns the action. */}
-        <View pointerEvents="none" style={styles.hint}>
-          <Icon name="chevron-up" size={12} color={colors.dimText} />
-        </View>
         {favoriteFeedback ? (
           <Toast
             duration={favoriteFeedback.retryQuoteId ? 0 : 4000}
@@ -567,7 +562,6 @@ const styles = StyleSheet.create({
     right: 0,
   },
   rail: { alignItems: 'flex-end', alignSelf: 'flex-end', gap: spacing.x1 + 2 },
-  hint: { alignItems: 'flex-start' },
   loading: {
     alignItems: 'center',
     flex: 1,
