@@ -273,6 +273,8 @@ test('the deck drops its neighbours when a restyle leaves the trail behind', () 
   render(<HomeScreen />);
 
   expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(1);
+  // Nor does it warm an image for a card the deck cannot reach.
+  expect(mockGetBackgroundImage).not.toHaveBeenCalled();
 });
 
 // Mutation caught: dropping the busy guard starts a second Skia export on a double tap, and losing the confirmation leaves the reader unsure the file was written.
