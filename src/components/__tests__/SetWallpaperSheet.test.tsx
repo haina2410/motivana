@@ -237,6 +237,56 @@ test('keeps the applied wallpaper reported when the photo copy fails', async () 
   expect(screen.getByText(t('en', 'actions.success.home'))).toBeOnTheScreen();
 });
 
+// Only a pre-API-30 device asks for storage permission at all, and once the user
+// has refused twice Android stops prompting, so the sheet must offer the settings
+// screen instead of a retry that can no longer show a dialog.
+test('offers app settings when the storage permission is refused for good', async () => {
+  useAppStore.setState({ saveToPhotoLibrary: true });
+  mockSaveWallpaper.mockRejectedValueOnce({
+    code: 'PERMISSION_DENIED',
+    canAskAgain: false,
+  });
+  renderSheet();
+  await waitFor(() => expect(applyButton()).toBeEnabled());
+
+  fireEvent.press(applyButton());
+
+  await waitFor(() =>
+    expect(
+      screen.getByText(t('en', 'actions.error.permissionDenied')),
+    ).toBeOnTheScreen(),
+  );
+  expect(screen.getByText(t('en', 'actions.success.home'))).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', {
+      name: t('en', 'actions.appSettings.label'),
+    }),
+  ).toBeOnTheScreen();
+});
+
+test('keeps the settings button away while the prompt can still appear', async () => {
+  useAppStore.setState({ saveToPhotoLibrary: true });
+  mockSaveWallpaper.mockRejectedValueOnce({
+    code: 'PERMISSION_DENIED',
+    canAskAgain: true,
+  });
+  renderSheet();
+  await waitFor(() => expect(applyButton()).toBeEnabled());
+
+  fireEvent.press(applyButton());
+
+  await waitFor(() =>
+    expect(
+      screen.getByText(t('en', 'actions.error.permissionDenied')),
+    ).toBeOnTheScreen(),
+  );
+  expect(
+    screen.queryByRole('button', {
+      name: t('en', 'actions.appSettings.label'),
+    }),
+  ).toBeNull();
+});
+
 test.each([
   [false, 0],
   [true, 1],

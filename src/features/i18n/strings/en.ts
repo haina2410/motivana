@@ -147,7 +147,12 @@ export const en = {
   'actions.retry.label': 'Retry wallpaper action',
   'actions.retry.hint':
     'Repeats the failed action using the same exported wallpaper.',
+  'actions.appSettings.label': 'Open app settings',
+  'actions.appSettings.hint':
+    "Opens this app's Android settings so storage permission can be enabled.",
   'actions.export.failed': 'Export failed: {code}.',
+  'actions.error.permissionDenied':
+    'Storage permission is needed to save this wallpaper.',
   'actions.error.wallpaperNotAllowed':
     'This device does not allow changing the wallpaper.',
   'actions.error.lockUnsupported':
