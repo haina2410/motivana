@@ -75,6 +75,7 @@ export interface AppState extends PersistedAppStateV2 {
   pendingPair: DeckPair | undefined;
   advanceDeck(): Promise<boolean>;
   rewindDeck(): Promise<boolean>;
+  primePendingPair(): void;
 }
 
 /**
@@ -416,6 +417,16 @@ function createAppState(
       deckHistory: [],
       deckCursor: -1,
       pendingPair: undefined,
+      // The first swipe of a session has nothing recorded ahead of it, so
+      // without a candidate the pager clamps and the deck cannot move at all.
+      // Home calls this whenever the forward card is missing. Session state
+      // only: rolling a candidate persists nothing and tells native nothing,
+      // because only committing it does.
+      primePendingPair: () => {
+        const state = get();
+        if (currentPendingPair(state)) return;
+        set({ pendingPair: rollPair(state) });
+      },
       // Both moves read the trail and write it back without awaiting in
       // between, so two swipes in flight cannot both act on the same cursor
       // and drop the pair the first one recorded.

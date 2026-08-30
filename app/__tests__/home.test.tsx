@@ -162,7 +162,9 @@ test('Home changes the favorite state through accessible controls', async () => 
     ),
   );
 
-  expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
+  // The deck always mounts a card ahead of the reader, so the live one is
+  // the first of several previews rather than the only one.
+  expect(screen.getAllByLabelText('Wallpaper preview')[0]).toBeOnTheScreen();
 });
 
 // Mutation caught: pointing Restyle back at a deleted style route would dead-end the only path to the templates.
@@ -278,7 +280,7 @@ test('Home catches a thrown preview render and retries without changing the quot
       screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
     );
 
-    expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
+    expect(screen.getAllByLabelText('Wallpaper preview')[0]).toBeOnTheScreen();
     expect(useAppStore.getState().currentQuoteId).toBe(before.currentQuoteId);
     expect(useAppStore.getState().selectedPresetId).toBe(
       before.selectedPresetId,
@@ -345,7 +347,7 @@ test('the deck shows a next neighbour at the head of the trail, before advancing
 });
 
 // Mutation caught: reading deckHistory raw would show a neighbour the store then refuses to move to, so the drag snaps back with nothing changed.
-test('the deck drops its neighbours when a restyle leaves the trail behind', () => {
+test('the deck drops its neighbours when a restyle leaves the trail behind', async () => {
   const quotes = getAllQuotes();
   const presets = getAllTemplates();
   useAppStore.setState({
@@ -361,9 +363,10 @@ test('the deck drops its neighbours when a restyle leaves the trail behind', () 
   useAppStore.setState({ selectedPresetId: presets[2]!.id });
   render(<HomeScreen />);
 
-  expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(1);
-  // Nor does it warm an image for a card the deck cannot reach.
-  expect(mockGetBackgroundImage).not.toHaveBeenCalled();
+  // The stale trail is dropped, so nothing sits behind the reader: the live
+  // card and the freshly rolled card ahead of it are all that remain.
+  expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(2);
+  await expect(useAppStore.getState().rewindDeck()).resolves.toBe(false);
 });
 
 // Mutation caught: dropping the busy guard starts a second Skia export on a double tap, and losing the confirmation leaves the reader unsure the file was written.
@@ -647,5 +650,16 @@ test('warms the decode for a pending photographic background at the head of the 
       (photograph.background as { asset: string }).asset,
       'full',
     ),
+  );
+});
+
+// Mutation caught: without a primed candidate the pager clamps the upward drag,
+// so a session that has never swiped cannot move the deck at all.
+test('rolls a card ahead of the very first swipe', async () => {
+  render(<HomeScreen />);
+
+  await waitFor(() => expect(useAppStore.getState().pendingPair).toBeDefined());
+  expect(useAppStore.getState().pendingPair!.quoteId).not.toBe(
+    useAppStore.getState().currentQuoteId,
   );
 });

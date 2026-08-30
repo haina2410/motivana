@@ -34,5 +34,7 @@ test('renders the deck header and the live wallpaper card', () => {
   render(<HomeScreen />);
 
   expect(screen.getByText('MOTIVANA')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Wallpaper preview')).toBeOnTheScreen();
+  // The deck mounts a card ahead of the reader too, so the live wallpaper is
+  // the first preview rather than the only one.
+  expect(screen.getAllByLabelText('Wallpaper preview')[0]).toBeOnTheScreen();
 });

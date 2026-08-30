@@ -166,6 +166,12 @@ export default function HomeScreen() {
   // photograph costs nothing a later swipe would not have paid anyway. Reads
   // nextPair, already dropped when the trail cannot be replayed, so this never
   // warms a card the deck could not actually swipe to.
+  // Without a card ahead of the reader the pager clamps the upward drag, so
+  // a fresh session could not swipe at all until one was rolled.
+  const primePendingPair = state.primePendingPair;
+  useEffect(() => {
+    if (!nextPair) primePendingPair();
+  }, [nextPair, primePendingPair]);
   useEffect(() => {
     const background = nextPair
       ? getPresetById(nextPair.presetId)?.background
