@@ -70,7 +70,7 @@ export const en = {
   'automation.lastQuote.fallback': 'saved quote',
   'automation.targetName.home': 'Home screen',
   'automation.targetName.lock': 'Lock screen',
-  'automation.targetName.both': 'both screens',
+  'automation.targetName.both': 'Both screens',
   'automation.recovery.emptyFavorites':
     'Rotation needs at least one saved favorite.',
   'automation.recovery.noEligibleQuotes':
