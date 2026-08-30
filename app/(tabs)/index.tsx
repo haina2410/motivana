@@ -250,6 +250,7 @@ export default function HomeScreen() {
             label={translate('home.settings.label')}
             hint={translate('home.settings.hint')}
             onPress={() => router.push('/settings')}
+            variant="glass"
           />
         </View>
       </View>
@@ -527,7 +528,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.x2 + 2,
     paddingTop: spacing.x1,
   },
-  wordmark: { ...typography.tab, color: colors.dimText, letterSpacing: 2.4 },
+  wordmark: {
+    ...typography.tab,
+    color: colors.dimText,
+    letterSpacing: 2.4,
+    // The wordmark floats over a photograph that can be a pale sky, where a
+    // dim light grey vanishes. The shadow costs nothing on a dark wallpaper
+    // and keeps the mark readable on a bright one.
+    textShadowColor: 'rgba(0, 0, 0, 0.55)',
+    textShadowOffset: { height: 1, width: 0 },
+    textShadowRadius: 4,
+  },
   rule: {
     backgroundColor: colors.border,
     height: 1,
