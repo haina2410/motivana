@@ -157,6 +157,13 @@ export default function HomeScreen() {
   // deckHistory raw would show a card that rewindDeck then refuses, because
   // selectPreset moves the on-screen pair without recording a step.
   const { history, cursor } = currentDeckTrail(state);
+  const currentPair = useMemo(
+    () => ({
+      presetId: state.selectedPresetId,
+      quoteId: state.currentQuoteId,
+    }),
+    [state.currentQuoteId, state.selectedPresetId],
+  );
   const previousPair = history[cursor - 1];
   // At the head of the trail there is nothing recorded yet to swipe forward
   // into, so the pair advanceDeck would commit next -- rolled ahead of the
@@ -218,13 +225,23 @@ export default function HomeScreen() {
           }
         >
           {previewReady ? (
-            <>
-              <LiveFace composition={composition} />
-              {state.showSafeGuides ? <SafeAreaGuides /> : null}
-            </>
+            <DeckFace
+              pair={currentPair}
+              size={dimensions}
+              locale={state.contentLocale}
+            />
           ) : null}
         </DeckPager>
+        {/* The pager holds the landed card in the middle slot while the store
+            catches up, which only reads as one card if both slots render the
+            same component. A card the deck cannot build at all still has to
+            reach the boundary, so it throws from here instead. */}
+        {composition ? null : <UnrenderableWallpaper />}
       </PreviewErrorBoundary>
+      {/* Over the deck, not inside a card: the guides describe where the
+          launcher furniture sits on the screen, so they stay put while a
+          card travels past them. */}
+      {previewReady && state.showSafeGuides ? <SafeAreaGuides /> : null}
       {/* A missing typeface asset never resolves, so the wait has to become the
           same error and retry an unrenderable card gets. */}
       {fontsFailed ? (
@@ -342,21 +359,9 @@ export default function HomeScreen() {
  * The wallpaper the reader is on. It raises an unresolvable pair inside the
  * boundary, so the render error and its retry replace the card.
  */
-function LiveFace({
-  composition,
-}: {
-  composition: WallpaperComposition | undefined;
-}) {
-  if (!composition) {
-    throw new Error('The selected wallpaper data is unavailable.');
-  }
-  return (
-    <WallpaperCanvas
-      composition={composition}
-      fit="cover"
-      style={StyleSheet.absoluteFill}
-    />
-  );
+/** Raises the card the deck cannot build for the boundary above it to catch. */
+function UnrenderableWallpaper(): never {
+  throw new Error('The selected wallpaper data is unavailable.');
 }
 
 /**

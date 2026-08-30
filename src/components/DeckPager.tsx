@@ -1,4 +1,4 @@
-import { useLayoutEffect, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -77,22 +77,44 @@ export function DeckPager({
   // the very first swipe of a session.
   const hasNext = next !== undefined;
   const hasPrevious = previous !== undefined;
-  const settle = (moved: boolean) => {
-    // The deck refused the move, so the card that travelled a whole viewport
-    // has to come back. Re-anchoring is left to the layout effect, which only
-    // runs when the content actually changed.
-    if (moved) return;
-    offset.value = withSpring(0, SETTLE);
-    settling.value = false;
-  };
-  const commitForward = () => void onNext().then(settle);
-  const commitBack = () => void onPrevious().then(settle);
+  // The card that just landed, and the content it landed on top of. Re-anchoring
+  // the stack and swapping the trail cannot be made to happen in the same frame
+  // -- one is a UI-thread write, the other a React commit -- so instead the
+  // landed card is drawn in the middle slot as well, and both steps become
+  // changes that move no pixels whenever they land.
+  const [hold, setHold] = useState<{
+    direction: 'next' | 'previous';
+    key: string;
+  }>();
+  // Derived, never cleared by an effect: the hold has to end in the very render
+  // that brings the new content, or that render draws the card past the one the
+  // reader swiped to -- which is the flick this exists to remove.
+  const holding = hold?.key === contentKey ? hold.direction : undefined;
+  const committing = useRef(false);
   useLayoutEffect(() => {
-    // React has swapped the content: the card that travelled is now the middle
-    // slot, so the stack re-anchors to 0 in this same commit and the swap is
-    // invisible. Re-anchoring any earlier shows the outgoing card again; any
-    // later shows the card past the incoming one.
+    if (!holding || committing.current) return;
+    committing.current = true;
+    // Both slots draw the landed card now, so the stack can re-anchor without
+    // changing a pixel. Only then is it safe to let the trail move.
     offset.value = 0;
+    const move = holding === 'next' ? onNext : onPrevious;
+    void move().then((moved) => {
+      committing.current = false;
+      // Refused. There is nothing to swap to, so the deck goes back to the
+      // card it started on -- a jump, but it comes with an error of its own.
+      if (!moved) {
+        setHold(undefined);
+        settling.value = false;
+      }
+    });
+  }, [holding, offset, onNext, onPrevious, settling]);
+  useLayoutEffect(() => {
+    // The trail moved, so the hold is over and the deck takes gestures again.
+    // Reanimated shared values are mutable by design; the React Compiler lint
+    // rule does not know that convention.
+    // eslint-disable-next-line react-hooks/immutability
+    offset.value = 0;
+    // eslint-disable-next-line react-hooks/immutability
     settling.value = false;
   }, [contentKey, offset, settling]);
   const pan = Gesture.Pan()
@@ -136,11 +158,10 @@ export function DeckPager({
       // eslint-disable-next-line react-hooks/immutability
       settling.value = true;
       const target = direction === 'next' ? -height.value : height.value;
-      const commit = direction === 'next' ? commitForward : commitBack;
       offset.value = withSpring(target, SETTLE, (finished) => {
         // An interrupted spring never reached the neighbour, so nothing is
         // committed and the deck goes back to taking gestures.
-        if (finished) runOnJS(commit)();
+        if (finished) runOnJS(setHold)({ direction, key: contentKey });
         else settling.value = false;
       });
     });
@@ -183,7 +204,13 @@ export function DeckPager({
           <Animated.View style={[styles.neighbour, above]}>
             {previous}
           </Animated.View>
-          <View style={styles.card}>{children}</View>
+          <View style={styles.card}>
+            {holding === 'next'
+              ? next
+              : holding === 'previous'
+                ? previous
+                : children}
+          </View>
           <Animated.View style={[styles.neighbour, below]}>
             {next}
           </Animated.View>
