@@ -177,6 +177,14 @@ export const vi: Record<keyof typeof en, string> = {
   'home.set.label': 'Đặt hình nền',
   'home.set.hint': 'Chọn màn hình nào nhận hình nền này.',
   'home.save.label': 'Lưu',
+  'home.save.hint': 'Lưu hình nền này vào thư viện ảnh.',
+  'home.saveToLibrary.label': 'Lưu vào ảnh',
+  'home.deck.next.label': 'Hình nền tiếp theo',
+  'home.deck.next.hint': 'Vuốt lên để lấy câu và kiểu mới.',
+  'home.deck.previous.label': 'Hình nền trước',
+  'home.deck.previous.hint': 'Vuốt xuống để trở lại.',
+  'home.saved.confirmation': 'Đã lưu vào thư viện ảnh.',
+  'home.saved.error': 'Không lưu được vào thư viện ảnh.',
   'home.font.label': 'Kiểu chữ: {name}',
 
   'presets.subtitle':
