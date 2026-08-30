@@ -61,7 +61,7 @@ function createWriteFailingStorage(
 // Mutation caught: reversing navigation direction or omitting modulo arithmetic would break catalog wraparound.
 test('moves to adjacent quotes and wraps at both catalog boundaries', () => {
   const store = createAppStore({ storage: createMemoryStorage() });
-  const quotes = getAllQuotes();
+  const quotes = getAllQuotes('vi');
 
   expect(store.getState().previousQuote()).toBe(true);
   expect(store.getState().currentQuoteId).toBe(quotes[quotes.length - 1]!.id);

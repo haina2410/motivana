@@ -2,9 +2,9 @@
   {
     "id": "motivation-001",
     "category": "motivation",
-    "sourceLocale": "vi",
+    "sourceLocale": "en",
     "text": {
-      "vi": "Hôm nay bạn chỉ cần tốt hơn phiên bản của chính mình hôm qua."
+      "en": "Make progress visible enough that tomorrow wants to continue it."
     }
   },
   {
@@ -12,52 +12,11 @@
     "category": "motivation",
     "sourceLocale": "en",
     "text": {
-      "en": "A small honest start can pull a whole day into motion."
-    }
-  },
-  {
-    "id": "motivation-003",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Give the next useful action more attention than the perfect plan."
-    }
-  },
-  {
-    "id": "motivation-004",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Your energy often arrives after you invite it with movement."
-    }
-  },
-  {
-    "id": "motivation-005",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Make progress visible enough that tomorrow wants to continue it."
-    }
-  },
-  {
-    "id": "motivation-006",
-    "category": "motivation",
-    "sourceLocale": "en",
-    "text": {
       "en": "The day changes direction when you do one thing on purpose."
     }
   },
   {
-    "id": "motivation-007",
-    "category": "motivation",
-    "sourceLocale": "vi",
-    "author": "Hồ Chí Minh",
-    "text": {
-      "vi": "Không có việc gì khó, chỉ sợ lòng không bền. Đào núi và lấp biển, quyết chí ắt làm nên."
-    }
-  },
-  {
-    "id": "motivation-008",
+    "id": "motivation-003",
     "category": "motivation",
     "sourceLocale": "vi",
     "text": {
@@ -65,40 +24,15 @@
     }
   },
   {
-    "id": "motivation-009",
+    "id": "motivation-004",
     "category": "motivation",
     "sourceLocale": "vi",
     "text": {
-      "vi": "Kiến tha lâu đầy lỗ."
+      "vi": "Cuộc đời là những gam màu đẹp đẽ, mong bạn luôn vui, đừng buồn vì những chuyện không đáng."
     }
   },
   {
-    "id": "motivation-010",
-    "category": "motivation",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Góp gió làm bão."
-    }
-  },
-  {
-    "id": "motivation-011",
-    "category": "motivation",
-    "sourceLocale": "vi",
-    "author": "Nguyễn Bá Học",
-    "text": {
-      "vi": "Đường đi khó không khó vì ngăn sông cách núi mà khó vì lòng người ngại núi e sông."
-    }
-  },
-  {
-    "id": "motivation-012",
-    "category": "motivation",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Cuộc đời là những gam màu đẹp đẽ, mong em luôn vui, đừng buồn vì những chuyện không đáng."
-    }
-  },
-  {
-    "id": "motivation-013",
+    "id": "motivation-005",
     "category": "motivation",
     "sourceLocale": "en",
     "text": {
@@ -118,7 +52,7 @@
     "category": "discipline",
     "sourceLocale": "en",
     "text": {
-      "en": "A routine becomes powerful when it survives an unremarkable day."
+      "en": "A routine becomes more powerful when it survives today."
     }
   },
   {
@@ -142,27 +76,11 @@
     "category": "discipline",
     "sourceLocale": "en",
     "text": {
-      "en": "Consistency is a quiet skill that gets stronger every time you use it."
-    }
-  },
-  {
-    "id": "discipline-006",
-    "category": "discipline",
-    "sourceLocale": "en",
-    "text": {
       "en": "Protect the habits that protect your attention."
     }
   },
   {
-    "id": "discipline-007",
-    "category": "discipline",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Gắng công mài sắt, chầy ngày nên kim."
-    }
-  },
-  {
-    "id": "discipline-008",
+    "id": "discipline-006",
     "category": "discipline",
     "sourceLocale": "vi",
     "author": "Nguyễn Bá Học",
@@ -171,32 +89,7 @@
     }
   },
   {
-    "id": "discipline-009",
-    "category": "discipline",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Hái củi ba năm thiêu một giờ."
-    }
-  },
-  {
-    "id": "discipline-010",
-    "category": "discipline",
-    "sourceLocale": "vi",
-    "author": "Nguyễn Bá Học",
-    "text": {
-      "vi": "Việc phải dù tính mạng cũng không từ, việc phi nghĩa dù phú quý cũng không tưởng."
-    }
-  },
-  {
     "id": "focus-001",
-    "category": "focus",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Làm một việc trong tĩnh lặng thường rõ ràng hơn làm mười việc vội vàng."
-    }
-  },
-  {
-    "id": "focus-002",
     "category": "focus",
     "sourceLocale": "en",
     "text": {
@@ -204,7 +97,7 @@
     }
   },
   {
-    "id": "focus-003",
+    "id": "focus-002",
     "category": "focus",
     "sourceLocale": "en",
     "text": {
@@ -212,7 +105,7 @@
     }
   },
   {
-    "id": "focus-004",
+    "id": "focus-003",
     "category": "focus",
     "sourceLocale": "en",
     "text": {
@@ -220,7 +113,7 @@
     }
   },
   {
-    "id": "focus-005",
+    "id": "focus-004",
     "category": "focus",
     "sourceLocale": "en",
     "text": {
@@ -228,31 +121,7 @@
     }
   },
   {
-    "id": "focus-006",
-    "category": "focus",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Make your environment vote for concentration."
-    }
-  },
-  {
-    "id": "focus-007",
-    "category": "focus",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Việc người thì sáng, việc mình thì quáng."
-    }
-  },
-  {
-    "id": "focus-008",
-    "category": "focus",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Mạnh dùng sức, yếu dùng chước."
-    }
-  },
-  {
-    "id": "focus-009",
+    "id": "focus-005",
     "category": "focus",
     "sourceLocale": "vi",
     "text": {
@@ -272,7 +141,7 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "You are allowed to learn in public and improve in private."
+      "en": "Speak to yourself with the patience you offer a determined beginner."
     }
   },
   {
@@ -280,7 +149,7 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "Speak to yourself with the patience you offer a determined beginner."
+      "en": "Capability is often quieter than the fear that questions it."
     }
   },
   {
@@ -288,27 +157,11 @@
     "category": "confidence",
     "sourceLocale": "en",
     "text": {
-      "en": "Capability is often quieter than the fear that questions it."
-    }
-  },
-  {
-    "id": "confidence-005",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Let preparation carry more weight than self-doubt."
-    }
-  },
-  {
-    "id": "confidence-006",
-    "category": "confidence",
-    "sourceLocale": "en",
-    "text": {
       "en": "You can be uncertain and still be ready for the next step."
     }
   },
   {
-    "id": "confidence-007",
+    "id": "confidence-005",
     "category": "confidence",
     "sourceLocale": "vi",
     "text": {
@@ -316,15 +169,7 @@
     }
   },
   {
-    "id": "confidence-008",
-    "category": "confidence",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Lòng ta ta đã chắc rồi, dễ ai giục đứng giục ngồi mà nao."
-    }
-  },
-  {
-    "id": "confidence-009",
+    "id": "confidence-006",
     "category": "confidence",
     "sourceLocale": "vi",
     "author": "Nguyễn Bá Học",
@@ -333,16 +178,7 @@
     }
   },
   {
-    "id": "confidence-010",
-    "category": "confidence",
-    "sourceLocale": "vi",
-    "author": "Nguyễn Công Trứ",
-    "text": {
-      "vi": "Đã mang tiếng ở trong trời đất, phải có danh gì với núi sông."
-    }
-  },
-  {
-    "id": "confidence-011",
+    "id": "confidence-007",
     "category": "confidence",
     "sourceLocale": "vi",
     "text": {
@@ -350,7 +186,7 @@
     }
   },
   {
-    "id": "confidence-012",
+    "id": "confidence-008",
     "category": "confidence",
     "sourceLocale": "vi",
     "text": {
@@ -370,7 +206,7 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "A better question can change the direction of an entire effort."
+      "en": "Let feedback become information before it becomes identity."
     }
   },
   {
@@ -378,7 +214,7 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "Let feedback become information before it becomes identity."
+      "en": "The beginner’s version of you deserves a fair chance to practice."
     }
   },
   {
@@ -386,45 +222,11 @@
     "category": "growth",
     "sourceLocale": "en",
     "text": {
-      "en": "The beginner’s version of you deserves a fair chance to practice."
-    }
-  },
-  {
-    "id": "growth-005",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
       "en": "Growth often feels ordinary while it is happening."
     }
   },
   {
-    "id": "growth-006",
-    "category": "growth",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Keep a record of lessons so difficulty can become reusable wisdom."
-    }
-  },
-  {
-    "id": "growth-007",
-    "category": "growth",
-    "sourceLocale": "vi",
-    "author": "Phan Bội Châu",
-    "text": {
-      "vi": "Đời đã mới, người càng nên đổi mới."
-    }
-  },
-  {
-    "id": "growth-008",
-    "category": "growth",
-    "sourceLocale": "vi",
-    "author": "Nguyễn Du",
-    "text": {
-      "vi": "Có tài mà cậy chi tài, chữ tài liền với chữ tai một vần."
-    }
-  },
-  {
-    "id": "growth-009",
+    "id": "growth-005",
     "category": "growth",
     "sourceLocale": "vi",
     "text": {
@@ -432,24 +234,7 @@
     }
   },
   {
-    "id": "growth-010",
-    "category": "growth",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Gần mực thì đen, gần đèn thì sáng."
-    }
-  },
-  {
-    "id": "growth-011",
-    "category": "growth",
-    "sourceLocale": "vi",
-    "author": "Nguyễn Du",
-    "text": {
-      "vi": "Thiện căn ở tại lòng ta, chữ tâm kia mới bằng ba chữ tài."
-    }
-  },
-  {
-    "id": "growth-012",
+    "id": "growth-006",
     "category": "growth",
     "sourceLocale": "vi",
     "text": {
@@ -457,7 +242,7 @@
     }
   },
   {
-    "id": "growth-013",
+    "id": "growth-007",
     "category": "growth",
     "sourceLocale": "vi",
     "text": {
@@ -465,7 +250,7 @@
     }
   },
   {
-    "id": "growth-014",
+    "id": "growth-008",
     "category": "growth",
     "sourceLocale": "vi",
     "author": "Haruki Murakami",
@@ -474,7 +259,7 @@
     }
   },
   {
-    "id": "growth-015",
+    "id": "growth-009",
     "category": "growth",
     "sourceLocale": "vi",
     "author": "Haruki Murakami",
@@ -485,9 +270,9 @@
   {
     "id": "success-001",
     "category": "success",
-    "sourceLocale": "vi",
+    "sourceLocale": "en",
     "text": {
-      "vi": "Thành công bền vững bắt đầu từ những cam kết nhỏ mà bạn giữ trọn."
+      "en": "A meaningful result usually begins as a modest commitment."
     }
   },
   {
@@ -495,7 +280,7 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "A meaningful result usually begins as a modest commitment."
+      "en": "Let your standards guide the work after applause has left the room."
     }
   },
   {
@@ -503,7 +288,7 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "Build outcomes from actions you can repeat with integrity."
+      "en": "Celebrate the milestone, then make space for the next careful step."
     }
   },
   {
@@ -511,43 +296,11 @@
     "category": "success",
     "sourceLocale": "en",
     "text": {
-      "en": "Let your standards guide the work after applause has left the room."
-    }
-  },
-  {
-    "id": "success-005",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
-      "en": "Celebrate the milestone, then make space for the next careful step."
-    }
-  },
-  {
-    "id": "success-006",
-    "category": "success",
-    "sourceLocale": "en",
-    "text": {
       "en": "Results improve when your effort has a direction and a measure."
     }
   },
   {
-    "id": "success-007",
-    "category": "success",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Hùm chết để da, người ta chết để tiếng."
-    }
-  },
-  {
-    "id": "success-008",
-    "category": "success",
-    "sourceLocale": "vi",
-    "text": {
-      "vi": "Đói cho sạch, rách cho thơm."
-    }
-  },
-  {
-    "id": "success-009",
+    "id": "success-005",
     "category": "success",
     "sourceLocale": "vi",
     "text": {
@@ -555,7 +308,7 @@
     }
   },
   {
-    "id": "success-010",
+    "id": "success-006",
     "category": "success",
     "sourceLocale": "vi",
     "text": {
