@@ -3,6 +3,7 @@ import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
 
 import {
   getAllQuotes,
+  quoteInLocale,
   selectRandomQuote,
 } from '../features/quotes/quoteRepository';
 import {
@@ -68,6 +69,10 @@ export interface AppState extends PersistedAppStateV2 {
   hydrate(): boolean;
   deckHistory: readonly DeckPair[];
   deckCursor: number;
+  // The pair a swipe up would commit, rolled ahead of time so the incoming
+  // card has a wallpaper to show while the reader's finger is still moving it
+  // into view, rather than only once the swipe completes.
+  pendingPair: DeckPair | undefined;
   advanceDeck(): Promise<boolean>;
   rewindDeck(): Promise<boolean>;
 }
@@ -98,6 +103,31 @@ export function currentDeckTrail(
   return isCurrent
     ? { history: state.deckHistory, cursor: state.deckCursor }
     : { history: [], cursor: -1 };
+}
+
+/**
+ * The pending pair only if it still describes what a swipe up would actually
+ * commit.
+ *
+ * Something outside the deck can move currentQuoteId or contentLocale out
+ * from under it (selectQuote, a locale switch, hydrate, a raw setState in a
+ * test) without going through advanceDeck. When that happens the pending
+ * card would either repeat the quote already on screen or hold text the
+ * current content language cannot show, so treat it as gone rather than
+ * showing -- or committing -- a pair the deck would not actually serve.
+ *
+ * Exported for the same reason as currentDeckTrail: Home draws the forward
+ * neighbour from this, so it never shows a card advanceDeck would refuse to
+ * commit as-is.
+ */
+export function currentPendingPair(
+  state: Pick<AppState, 'pendingPair' | 'currentQuoteId' | 'contentLocale'>,
+): DeckPair | undefined {
+  const pending = state.pendingPair;
+  if (!pending) return undefined;
+  if (pending.quoteId === state.currentQuoteId) return undefined;
+  if (!quoteInLocale(pending.quoteId, state.contentLocale)) return undefined;
+  return pending;
 }
 
 /**
@@ -193,6 +223,21 @@ function createAppState(
       if (pool.length === 0) return currentId;
       return pool[Math.floor(random() * pool.length)]!.id;
     };
+    // A fresh candidate pair, rolled from whatever the reader is currently
+    // looking at. No persistence, no native sync -- rolling a candidate is
+    // only ever a read, committing it is the side-effecting step.
+    const rollPair = (from: {
+      contentLocale: ContentLocale;
+      currentQuoteId: string;
+      selectedPresetId: string;
+    }): DeckPair => ({
+      quoteId: selectRandomQuote({
+        locale: from.contentLocale,
+        previousId: from.currentQuoteId,
+        random,
+      }).id,
+      presetId: randomTemplateId(from.selectedPresetId),
+    });
     // The deck's native round trip, coalesced.
     //
     // selectedPresetId is part of the payload the Kotlin rotation worker
@@ -370,6 +415,7 @@ function createAppState(
       // has no meaning across launches, so it stays out of the persisted schema.
       deckHistory: [],
       deckCursor: -1,
+      pendingPair: undefined,
       // Both moves read the trail and write it back without awaiting in
       // between, so two swipes in flight cannot both act on the same cursor
       // and drop the pair the first one recorded.
@@ -382,14 +428,11 @@ function createAppState(
           if (applied) set({ deckHistory: history, deckCursor: cursor + 1 });
           return applied;
         }
-        const pair = {
-          quoteId: selectRandomQuote({
-            locale: state.contentLocale,
-            previousId: state.currentQuoteId,
-            random,
-          }).id,
-          presetId: randomTemplateId(state.selectedPresetId),
-        };
+        // At the head of the trail the pair to commit was already rolled
+        // ahead of the swipe, so the incoming card had a wallpaper to track
+        // the finger with. Commit that exact pair -- re-rolling here would
+        // show the reader one card while dragging and commit a different one.
+        const pair = currentPendingPair(state) ?? rollPair(state);
         const applied = applyDeckPair(pair);
         if (!applied) return false;
         const trail =
@@ -402,7 +445,17 @@ function createAppState(
                 pair,
               ]
             : [...history.slice(0, cursor + 1), pair];
-        set({ deckHistory: trail, deckCursor: trail.length - 1 });
+        // Roll the next candidate immediately, from the pair that is now on
+        // screen, so the following swipe up has a card to track with too.
+        set({
+          deckHistory: trail,
+          deckCursor: trail.length - 1,
+          pendingPair: rollPair({
+            contentLocale: state.contentLocale,
+            currentQuoteId: pair.quoteId,
+            selectedPresetId: pair.presetId,
+          }),
+        });
         return true;
       },
       rewindDeck: async () => {

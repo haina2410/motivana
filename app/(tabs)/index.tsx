@@ -35,7 +35,11 @@ import { useTranslate } from '../../src/features/i18n/useTranslate';
 import { WallpaperCanvas } from '../../src/features/wallpaper/WallpaperCanvas';
 import { useWallpaperFonts } from '../../src/features/wallpaper/useWallpaperFonts';
 import { saveWallpaper } from '../../src/services/mediaLibrary';
-import { currentDeckTrail, useAppStore } from '../../src/store/useAppStore';
+import {
+  currentDeckTrail,
+  currentPendingPair,
+  useAppStore,
+} from '../../src/store/useAppStore';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -153,7 +157,11 @@ export default function HomeScreen() {
   // selectPreset moves the on-screen pair without recording a step.
   const { history, cursor } = currentDeckTrail(state);
   const previousPair = history[cursor - 1];
-  const nextPair = history[cursor + 1];
+  // At the head of the trail there is nothing recorded yet to swipe forward
+  // into, so the pair advanceDeck would commit next -- rolled ahead of the
+  // swipe -- stands in, and the incoming card tracks the finger instead of
+  // rendering empty until release.
+  const nextPair = history[cursor + 1] ?? currentPendingPair(state);
   // The decode cache holds several full backgrounds, so warming the next
   // photograph costs nothing a later swipe would not have paid anyway. Reads
   // nextPair, already dropped when the trail cannot be replayed, so this never

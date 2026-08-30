@@ -13,6 +13,7 @@ beforeEach(() => {
     ...createDefaultPersistedAppState(),
     deckHistory: [],
     deckCursor: -1,
+    pendingPair: undefined,
     advanceDeck,
     rewindDeck,
   });

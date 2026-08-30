@@ -110,6 +110,7 @@ beforeEach(() => {
     ...createDefaultPersistedAppState(),
     deckHistory: [],
     deckCursor: -1,
+    pendingPair: undefined,
     advanceDeck,
     rewindDeck,
   });
@@ -312,6 +313,34 @@ test('the deck mounts the previous and the next wallpaper around the live one', 
     `face:${trail[0]!.quoteId}/${trail[0]!.presetId}`,
     `face:${trail[1]!.quoteId}/${trail[1]!.presetId}`,
     `face:${trail[2]!.quoteId}/${trail[2]!.presetId}`,
+  ]);
+});
+
+// Mutation caught: rolling the next pair only at commit time leaves the
+// forward neighbour undefined at the head of the trail, so DeckFace renders
+// nothing and the incoming card is empty until the swipe completes -- the
+// reported defect. Fails against the pre-fix store, which has no pendingPair
+// for advanceDeck to show ahead of the commit.
+test('the deck shows a next neighbour at the head of the trail, before advancing', () => {
+  const quotes = getAllQuotes('vi');
+  const presets = getAllTemplates();
+  const seen = { quoteId: quotes[0]!.id, presetId: presets[0]!.id };
+  const pending = { quoteId: quotes[1]!.id, presetId: presets[1]!.id };
+  useAppStore.setState({
+    currentQuoteId: seen.quoteId,
+    selectedPresetId: seen.presetId,
+    deckHistory: [seen],
+    deckCursor: 0,
+    pendingPair: pending,
+  });
+  render(<HomeScreen />);
+
+  expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(2);
+  expect(
+    screen.getAllByText(/^face:/).map((node) => node.props.children as string),
+  ).toEqual([
+    `face:${seen.quoteId}/${seen.presetId}`,
+    `face:${pending.quoteId}/${pending.presetId}`,
   ]);
 });
 
@@ -582,6 +611,33 @@ test('warms the decode for the next photographic background', async () => {
       },
     ],
     deckCursor: 0,
+  });
+
+  render(<HomeScreen />);
+
+  await waitFor(() =>
+    expect(mockGetBackgroundImage).toHaveBeenCalledWith(
+      (photograph.background as { asset: string }).asset,
+      'full',
+    ),
+  );
+});
+
+// Mutation caught: the prefetch effect keys off nextPair, so a next drawn
+// from pendingPair instead of the recorded trail has to warm the same way --
+// otherwise the very first swipe up of a session decodes the photograph
+// mid-drag instead of ahead of it.
+test('warms the decode for a pending photographic background at the head of the trail', async () => {
+  const photograph = getAllTemplates().find(
+    (template) => template.background.kind === 'image',
+  )!;
+  const quotes = getAllQuotes('vi');
+  useAppStore.setState({
+    currentQuoteId: quotes[0]!.id,
+    selectedPresetId: 'midnight-focus',
+    deckHistory: [{ quoteId: quotes[0]!.id, presetId: 'midnight-focus' }],
+    deckCursor: 0,
+    pendingPair: { quoteId: quotes[1]!.id, presetId: photograph.id },
   });
 
   render(<HomeScreen />);

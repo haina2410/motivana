@@ -1,6 +1,10 @@
 import { getLocales } from 'expo-localization';
-import { getAllQuotes } from '../../features/quotes/quoteRepository';
-import { createAppStore } from '../useAppStore';
+import {
+  getAllQuotes,
+  quoteInLocale,
+} from '../../features/quotes/quoteRepository';
+import { getAllTemplates } from '../../features/wallpaper/presetRepository';
+import { createAppStore, currentPendingPair } from '../useAppStore';
 import type { PersistedAppStateV2 } from '../schema';
 import type { KeyValueStorage } from '../storage';
 
@@ -528,4 +532,79 @@ test('keeps the deck trail out of the persisted payload', async () => {
   >;
   expect(persisted).not.toHaveProperty('deckHistory');
   expect(persisted).not.toHaveProperty('deckCursor');
+  expect(persisted).not.toHaveProperty('pendingPair');
+});
+
+// Mutation caught: re-rolling at commit time would show the reader one card
+// while dragging and land them on a different one, which is the original bug
+// -- the incoming card only tracked the finger by coincidence of timing.
+test('advanceDeck commits the pending pair it already showed, not a fresh roll', async () => {
+  const storage = createMemoryStorage();
+  // random always picks the first candidate, so a re-roll at commit time
+  // would land on getAllQuotes('vi')[1] -- provably not the pending pair
+  // set up below, which points at the last quote in the pool instead.
+  const store = createAppStore({ storage, random: () => 0 });
+  const quotes = getAllQuotes(store.getState().contentLocale);
+  const templates = getAllTemplates();
+  const pending = {
+    quoteId: quotes[quotes.length - 1]!.id,
+    presetId: templates[templates.length - 1]!.id,
+  };
+  store.setState({ pendingPair: pending });
+
+  expect(await store.getState().advanceDeck()).toBe(true);
+
+  expect(store.getState().currentQuoteId).toBe(pending.quoteId);
+  expect(store.getState().selectedPresetId).toBe(pending.presetId);
+});
+
+// Mutation caught: rolling the next candidate is a plain read of the catalog,
+// not a store write -- if it persisted or reached the rotation worker, a
+// reader who drags partway and lets go without committing would still push a
+// wallpaper change to the native side for a card they never actually chose.
+test('rolling a pending pair does not persist or reach the rotation worker', async () => {
+  const storage = createMemoryStorage();
+  const setSpy = jest.spyOn(storage, 'set');
+  const synchronizeRotation = jest.fn(async () => undefined);
+  const store = createAppStore({ storage, synchronizeRotation });
+  store.setState({ rotationEnabled: true });
+  setSpy.mockClear();
+  synchronizeRotation.mockClear();
+
+  expect(await store.getState().advanceDeck()).toBe(true);
+
+  // One commit -> one storage write and, once the debounce elsewhere fires,
+  // one native sync. advanceDeck also rolls the next pending pair in the same
+  // call, which must not add a second write of either kind.
+  expect(setSpy).toHaveBeenCalledTimes(1);
+  expect(synchronizeRotation).not.toHaveBeenCalled();
+});
+
+// Mutation caught: committing a pending pair whose quote now matches the
+// screen would show the same quote twice in a row -- once live, once as the
+// "new" card a swipe up lands on.
+test('a pending pair that now matches the on-screen quote is treated as stale', () => {
+  const state = {
+    currentQuoteId: 'same-quote',
+    contentLocale: 'vi' as const,
+    pendingPair: { quoteId: 'same-quote', presetId: 'midnight-focus' },
+  };
+
+  expect(currentPendingPair(state)).toBeUndefined();
+});
+
+// Mutation caught: a pending pair rolled before a locale switch can hold a
+// quote with no text in the new language, so leaving it valid would swipe
+// the reader into a blank or mis-rendered card.
+test('a pending pair whose quote has no text in the current content locale is stale', () => {
+  const quotes = getAllQuotes('vi');
+  const viOnly = quotes.find((quote) => !quoteInLocale(quote.id, 'en'));
+  expect(viOnly).toBeDefined();
+  const state = {
+    currentQuoteId: 'something-else',
+    contentLocale: 'en' as const,
+    pendingPair: { quoteId: viOnly!.id, presetId: 'midnight-focus' },
+  };
+
+  expect(currentPendingPair(state)).toBeUndefined();
 });

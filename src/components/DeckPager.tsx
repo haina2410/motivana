@@ -42,9 +42,19 @@ export function DeckPager({
 }: DeckPagerProps) {
   const offset = useSharedValue(0);
   const height = useSharedValue(0);
+  // A missing neighbour means there is nothing recorded to swipe to -- the
+  // very start of the trail, or (briefly, before a pending pair has been
+  // rolled) the very first swipe of a session. Dragging that direction would
+  // otherwise slide the stack over empty background before onEnd finds out
+  // there is nothing to commit to, so the drag itself is clamped at 0.
+  const hasNext = next !== undefined;
+  const hasPrevious = previous !== undefined;
   const pan = Gesture.Pan()
     .onChange((event) => {
-      offset.value += event.changeY;
+      const proposed = offset.value + event.changeY;
+      if (proposed < 0 && !hasNext) offset.value = 0;
+      else if (proposed > 0 && !hasPrevious) offset.value = 0;
+      else offset.value = proposed;
     })
     .onEnd(() => {
       const threshold = height.value * COMMIT_RATIO;

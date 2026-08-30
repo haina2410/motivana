@@ -49,6 +49,14 @@ test('exposes both directions as accessibility actions', () => {
   expect(onPrevious).toHaveBeenCalledTimes(1);
 });
 
+// The drag clamp that keeps a missing neighbour from opening a void (no
+// `next`/`previous` prop -> offset stays pinned at 0) lives inside the Pan
+// gesture's worklet callbacks. jestSetup's gesture-handler mock does not run
+// a real pan and cannot dispatch changeY events into those callbacks, and
+// the offset itself is an unread Reanimated shared value, so there is no
+// RNTL-observable effect to assert on here. The clamp is exercised by the
+// human visual check this branch's other changes call for instead.
+
 // Mutation caught: an else that runs for any unrecognised action name moves the
 // reader forward on a VoiceOver escape or a magic tap.
 test('ignores an accessibility action it does not name', () => {
