@@ -98,6 +98,14 @@
     }
   },
   {
+    "id": "motivation-013",
+    "category": "motivation",
+    "sourceLocale": "en",
+    "text": {
+      "en": "We stress too much for a life that can end at anytime. Make sure to live."
+    }
+  },
+  {
     "id": "discipline-001",
     "category": "discipline",
     "sourceLocale": "vi",
@@ -454,6 +462,24 @@
     "sourceLocale": "vi",
     "text": {
       "vi": "Đôi khi sự đổ vỡ lại là cơ hội để chúng ta sắp xếp lại cuộc đời mình."
+    }
+  },
+  {
+    "id": "growth-014",
+    "category": "growth",
+    "sourceLocale": "vi",
+    "author": "Haruki Murakami",
+    "text": {
+      "vi": "Khi cơn bão đã chấm dứt, mày sẽ không nhớ mình đã làm thế nào mà vượt qua được nó, làm thế nào mà mình đã sống sót."
+    }
+  },
+  {
+    "id": "growth-015",
+    "category": "growth",
+    "sourceLocale": "vi",
+    "author": "Haruki Murakami",
+    "text": {
+      "vi": "Khi mày ra khỏi cơn bão, mày sẽ không còn là con người đã dấn bước vào nó."
     }
   },
   {

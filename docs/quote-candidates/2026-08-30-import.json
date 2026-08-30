@@ -1,0 +1,48 @@
+{
+  "candidates": [
+    {
+      "text": {
+        "vi": "Khi cơn bão đã chấm dứt, mày sẽ không nhớ mình đã làm thế nào mà vượt qua được nó, làm thế nào mà mình đã sống sót."
+      },
+      "sourceLocale": "vi",
+      "author": "Haruki Murakami",
+      "category": "growth",
+      "provenance": {
+        "sourceKind": "owner-supplied",
+        "providedBy": "owner",
+        "sourceTitle": "Kafka bên bờ biển (bản dịch tiếng Việt)",
+        "verification": "owner-supplied",
+        "rights": "in-copyright",
+        "englishRendering": "none",
+        "edit": "dropped the leading conjunction \"Và \" so the sentence stands alone"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "pasted by the owner",
+        "category": "growth"
+      }
+    },
+    {
+      "text": {
+        "vi": "Khi mày ra khỏi cơn bão, mày sẽ không còn là con người đã dấn bước vào nó."
+      },
+      "sourceLocale": "vi",
+      "author": "Haruki Murakami",
+      "category": "growth",
+      "provenance": {
+        "sourceKind": "owner-supplied",
+        "providedBy": "owner",
+        "sourceTitle": "Kafka bên bờ biển (bản dịch tiếng Việt)",
+        "verification": "owner-supplied",
+        "rights": "in-copyright",
+        "englishRendering": "none",
+        "edit": "none"
+      },
+      "review": {
+        "verdict": "approve",
+        "reason": "pasted by the owner",
+        "category": "growth"
+      }
+    }
+  ]
+}

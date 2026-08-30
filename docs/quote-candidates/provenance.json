@@ -422,5 +422,46 @@
     "edit": "removed the quotation marks that wrapped the paste; wording, punctuation and diacritics unchanged",
     "reviewedReason": "pasted by the owner",
     "promotedFrom": "docs/quote-candidates/2026-08-27-import.json"
+  },
+  "8c0cd2a6bc6503ad": {
+    "text": "Khi cơn bão đã chấm dứt, mày sẽ không nhớ mình đã làm thế nào mà vượt qua được nó, làm thế nào mà mình đã sống sót.",
+    "author": "Haruki Murakami",
+    "category": "growth",
+    "sourceKind": "owner-supplied",
+    "providedBy": "owner",
+    "sourceTitle": "Kafka bên bờ biển (bản dịch tiếng Việt)",
+    "verification": "owner-supplied",
+    "rights": "in-copyright",
+    "englishRendering": "none",
+    "edit": "dropped the leading conjunction \"Và \" so the sentence stands alone",
+    "reviewedReason": "pasted by the owner",
+    "promotedFrom": "docs/quote-candidates/2026-08-30-import.json"
+  },
+  "f6e4b4dfc078e0d5": {
+    "text": "Khi mày ra khỏi cơn bão, mày sẽ không còn là con người đã dấn bước vào nó.",
+    "author": "Haruki Murakami",
+    "category": "growth",
+    "sourceKind": "owner-supplied",
+    "providedBy": "owner",
+    "sourceTitle": "Kafka bên bờ biển (bản dịch tiếng Việt)",
+    "verification": "owner-supplied",
+    "rights": "in-copyright",
+    "englishRendering": "none",
+    "edit": "none",
+    "reviewedReason": "pasted by the owner",
+    "promotedFrom": "docs/quote-candidates/2026-08-30-import.json"
+  },
+  "fa86b52eaa38d65b": {
+    "text": "We stress too much for a life that can end at anytime. Make sure to live.",
+    "author": null,
+    "category": "motivation",
+    "sourceKind": "owner-supplied",
+    "providedBy": "owner",
+    "verification": "owner-supplied",
+    "rights": "unknown-author",
+    "englishRendering": "none",
+    "edit": "none",
+    "reviewedReason": "pasted by the owner, no source given",
+    "promotedFrom": "docs/quote-candidates/2026-08-30-import-2.json"
   }
 }
