@@ -151,8 +151,15 @@ const styles = StyleSheet.create({
     paddingTop: spacing.x1,
   },
   feedback: { gap: spacing.x1 },
-  filterRow: { flexGrow: 0 },
-  filters: { gap: spacing.x1, paddingRight: spacing.x2 },
+  // The row scrolls edge to edge: it cancels the body's padding and carries
+  // it inside instead, so the first chip still lines up with the grid while a
+  // chip that runs off the screen reads as "there is more" rather than as a
+  // chip clipped by the page margin.
+  filterRow: { flexGrow: 0, marginHorizontal: -HORIZONTAL_PADDING },
+  filters: {
+    gap: spacing.x1,
+    paddingHorizontal: HORIZONTAL_PADDING,
+  },
   grid: { gap: GRID_GAP, paddingBottom: spacing.x3 },
   row: { gap: GRID_GAP },
   slot: { flex: 1 },
