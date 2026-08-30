@@ -473,6 +473,41 @@ function expectedCaptionPosition(
   };
 }
 
+// Derived from the catalogue, never named: a test pinned to a quote id fails
+// the day that quote is culled rather than the day the caption moves. An
+// attributed quote is the case that matters here, because its author line sits
+// under the quote block and is the thing a caption drifts onto.
+const attributedQuotes = getAllQuotes().filter((quote) => quote.author);
+
+/** The worst case for a caption: the most text to clear, plus an author line. */
+const captionQuote = attributedQuotes.reduce((longest, quote) =>
+  quoteLength(quote) > quoteLength(longest) ? quote : longest,
+);
+
+/**
+ * The catalogue attributes only its Vietnamese quotes, so the language follows
+ * the quote. Reading it in a language it does not carry leaves nothing to draw.
+ */
+const CAPTION_LOCALE = captionQuote.sourceLocale;
+
+/**
+ * The most text in the catalogue, which is what clamps and truncates first.
+ * Unattributed on purpose: an author line reserves height a squat window has
+ * none of, and truncation is what this subject is for.
+ */
+const longestQuote = getAllQuotes().reduce((longest, quote) =>
+  !quote.author && quoteLength(quote) > quoteLength(longest) ? quote : longest,
+);
+
+const LONGEST_LOCALE = longestQuote.sourceLocale;
+
+function quoteLength(quote: { text: Partial<Record<string, string>> }) {
+  return Object.values(quote.text).reduce(
+    (longest, text) => Math.max(longest, text?.length ?? 0),
+    0,
+  );
+}
+
 function captionStyle() {
   const label = screen.getByText(
     t(
@@ -491,13 +526,12 @@ function captionStyle() {
 // an attributed quote once the in-flow tab bar shortens that box, landing it
 // on the author line or the footer rail instead of under the quote.
 test('positions the preset name from the measured viewport box, not the window', () => {
-  const growthQuote = getAllQuotes().find(
-    (quote) => quote.id === 'growth-014',
-  )!;
+  const quote = captionQuote;
   useAppStore.setState({
-    currentQuoteId: growthQuote.id,
+    contentLocale: CAPTION_LOCALE,
+    currentQuoteId: quote.id,
     selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: growthQuote.id, presetId: 'midnight-focus' }],
+    deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
     deckCursor: 0,
   });
   render(<HomeScreen />);
@@ -512,7 +546,7 @@ test('positions the preset name from the measured viewport box, not the window',
     nativeEvent: { layout: { x: 0, y: 0, ...box } },
   });
 
-  const expected = expectedCaptionPosition('growth-014', 'midnight-focus', box);
+  const expected = expectedCaptionPosition(quote.id, 'midnight-focus', box);
   const style = captionStyle();
   expect(style.left).toBeCloseTo(expected.left, 5);
   expect(style.top).toBeCloseTo(expected.top, 5);
@@ -522,10 +556,12 @@ test('positions the preset name from the measured viewport box, not the window',
 // author line, still passes a "top > 0" check while the label sits on top
 // of the author's name for the catalogue's longest quote.
 test('keeps the preset name below the longest catalogue quote without crossing the author line', () => {
+  const quote = captionQuote;
   useAppStore.setState({
-    currentQuoteId: 'confidence-012',
+    contentLocale: CAPTION_LOCALE,
+    currentQuoteId: quote.id,
     selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: 'confidence-012', presetId: 'midnight-focus' }],
+    deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
     deckCursor: 0,
   });
   render(<HomeScreen />);
@@ -535,11 +571,7 @@ test('keeps the preset name below the longest catalogue quote without crossing t
     nativeEvent: { layout: { x: 0, y: 0, ...box } },
   });
 
-  const expected = expectedCaptionPosition(
-    'confidence-012',
-    'midnight-focus',
-    box,
-  );
+  const expected = expectedCaptionPosition(quote.id, 'midnight-focus', box);
   const style = captionStyle();
   expect(style.left).toBeCloseTo(expected.left, 5);
   expect(style.top).toBeCloseTo(expected.top, 5);
@@ -561,10 +593,12 @@ test('keeps the preset name below the longest catalogue quote without crossing t
 // instead of below the clamped block.
 test('keeps the preset name below a truncated quote block', () => {
   const originalWindow = Dimensions.get('window');
+  const quote = longestQuote;
   useAppStore.setState({
-    currentQuoteId: 'confidence-012',
+    contentLocale: LONGEST_LOCALE,
+    currentQuoteId: quote.id,
     selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: 'confidence-012', presetId: 'midnight-focus' }],
+    deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
     deckCursor: 0,
   });
   // Squat enough that fitText clamps to the minimum size and truncates --
@@ -582,11 +616,7 @@ test('keeps the preset name below a truncated quote block', () => {
       nativeEvent: { layout: { x: 0, y: 0, ...box } },
     });
 
-    const expected = expectedCaptionPosition(
-      'confidence-012',
-      'midnight-focus',
-      box,
-    );
+    const expected = expectedCaptionPosition(quote.id, 'midnight-focus', box);
     expect(expected.composition.truncated).toBe(true);
     const style = captionStyle();
     expect(style.left).toBeCloseTo(expected.left, 5);

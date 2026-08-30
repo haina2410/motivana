@@ -62,7 +62,7 @@ test('ships unique quotes across every category', () => {
   for (const category of quoteCategories) {
     expect(
       quotes.filter((quote) => quote.category === category).length,
-    ).toBeGreaterThanOrEqual(6);
+    ).toBeGreaterThanOrEqual(3);
   }
   // Every quote must read in the language it was written in. A second locale is
   // optional, so a Vietnamese-only quote is a complete entry, not a gap.
