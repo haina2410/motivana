@@ -164,8 +164,6 @@ export const vi: Record<keyof typeof en, string> = {
     'Chọn nền, kiểu chữ và cách dàn trang trong một lần chạm.',
   'tab.saved': 'Đã lưu',
   'tab.saved.hint': 'Mở những câu bạn đã lưu.',
-  'tab.rotate': 'Tự đổi',
-  'tab.rotate.hint': 'Mở lịch tự đổi hình nền.',
 
   'home.restyle.label': 'Đổi kiểu',
   'home.restyle.hint': 'Mở mục kiểu nền, nơi có thể chọn kiểu khác.',
@@ -221,6 +219,12 @@ export const vi: Record<keyof typeof en, string> = {
   'rotation.source.label': 'Nguồn',
   'rotation.source.saved': 'Câu đã lưu',
   'rotation.source.all': 'Tất cả',
+
+  'settings.wallpaper.label': 'Hình nền',
+  'settings.rotation.label': 'Đổi hình nền tự động',
+  'settings.rotation.hint': 'Mở lịch tự đổi hình nền.',
+  'settings.rotation.on': 'Bật',
+  'settings.rotation.off': 'Tắt',
 
   'settings.export.label': 'Xuất ảnh',
   'settings.resolution.label': 'Độ phân giải',

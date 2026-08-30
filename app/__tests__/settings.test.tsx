@@ -15,8 +15,29 @@ import { t } from '../../src/features/i18n/t';
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
+  jest.mocked(router.navigate).mockClear();
   useAppStore.setState(createDefaultPersistedAppState());
   setRotationSynchronizer(async () => undefined);
+});
+
+// Mutation caught: inlining the rotation controls here would offer the same
+// preference on two screens with two save behaviours; the row has to open the
+// rotation screen instead of standing in for it.
+test('opens the rotation screen from the settings row', () => {
+  render(<SettingsScreen />);
+
+  fireEvent.press(screen.getByLabelText(t('en', 'settings.rotation.label')));
+
+  expect(router.navigate).toHaveBeenCalledWith('/automation');
+});
+
+// Mutation caught: a fixed value would report rotation as off while it runs.
+test('reports whether rotation is on', () => {
+  useAppStore.setState({ rotationEnabled: true });
+
+  render(<SettingsScreen />);
+
+  expect(screen.getByText(t('en', 'settings.rotation.on'))).toBeOnTheScreen();
 });
 
 // Mutation caught: leaving a rotation control here would offer the same

@@ -5,7 +5,7 @@ import {
   waitFor,
 } from '@testing-library/react-native';
 
-import AutomationScreen from '../(tabs)/automation';
+import AutomationScreen from '../automation';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { useAppStore } from '../../src/store/useAppStore';

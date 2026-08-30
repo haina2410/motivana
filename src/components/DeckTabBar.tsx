@@ -36,12 +36,6 @@ const tabs: readonly TabDefinition[] = [
     labelKey: 'tab.saved',
     hintKey: 'tab.saved.hint',
   },
-  {
-    name: 'automation',
-    icon: 'clock-rotate-left',
-    labelKey: 'tab.rotate',
-    hintKey: 'tab.rotate.hint',
-  },
 ];
 
 /**

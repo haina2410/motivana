@@ -1,7 +1,9 @@
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   PixelRatio,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionMessage } from '../src/components/ActionMessage';
 import { Choice } from '../src/components/Choice';
+import { Icon } from '../src/components/Icon';
 import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Toggle } from '../src/components/Toggle';
 import {
@@ -79,6 +82,25 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <ScreenHeader back title={translate('settings.title')} />
+
+        <Text allowFontScaling style={typography.sectionLabel}>
+          {translate('settings.wallpaper.label')}
+        </Text>
+        <View style={styles.list}>
+          {/* Rotation is a screen of its own, not a row of switches: it saves
+              as a set and it can fail, so it keeps its own Save button and its
+              own recovery messages. Settings only opens it. */}
+          <LinkRow
+            label={translate('settings.rotation.label')}
+            hint={translate('settings.rotation.hint')}
+            value={translate(
+              state.rotationEnabled
+                ? 'settings.rotation.on'
+                : 'settings.rotation.off',
+            )}
+            onPress={() => router.navigate('/automation')}
+          />
+        </View>
 
         <Text allowFontScaling style={typography.sectionLabel}>
           {translate('settings.export.label')}
@@ -214,6 +236,38 @@ export default function SettingsScreen() {
   );
 }
 
+function LinkRow({
+  label,
+  hint,
+  value,
+  onPress,
+}: {
+  label: string;
+  hint: string;
+  value: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={hint}
+      onPress={onPress}
+      style={styles.infoRow}
+    >
+      <Text allowFontScaling style={typography.rowLabel}>
+        {label}
+      </Text>
+      <View style={styles.linkValue}>
+        <Text allowFontScaling style={styles.infoValue}>
+          {value}
+        </Text>
+        <Icon name="chevron-right" size={12} color={colors.dimText} />
+      </View>
+    </Pressable>
+  );
+}
+
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
@@ -255,6 +309,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'right',
   },
+  linkValue: { alignItems: 'center', flexDirection: 'row', gap: spacing.x1 },
   description: { ...typography.caption, fontSize: 12 },
   choices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.x1 },
   about: { ...typography.caption, fontSize: 11, marginTop: spacing.x1 },

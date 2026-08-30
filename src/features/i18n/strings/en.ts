@@ -169,8 +169,6 @@ export const en = {
   'tab.presets.hint': 'Chooses a background, typeface and layout in one tap.',
   'tab.saved': 'Saved',
   'tab.saved.hint': 'Opens the quotes you saved.',
-  'tab.rotate': 'Rotate',
-  'tab.rotate.hint': 'Opens the automatic wallpaper schedule.',
 
   'home.restyle.label': 'Restyle',
   'home.restyle.hint':
@@ -225,6 +223,12 @@ export const en = {
   'rotation.source.label': 'Source',
   'rotation.source.saved': 'Saved quotes',
   'rotation.source.all': 'All quotes',
+
+  'settings.wallpaper.label': 'Wallpaper',
+  'settings.rotation.label': 'Rotation',
+  'settings.rotation.hint': 'Opens the automatic wallpaper schedule.',
+  'settings.rotation.on': 'On',
+  'settings.rotation.off': 'Off',
 
   'settings.export.label': 'Export',
   'settings.resolution.label': 'Resolution',

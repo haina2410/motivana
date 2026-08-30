@@ -4,7 +4,7 @@ import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { DeckTabBar } from '../DeckTabBar';
 import { t } from '../../features/i18n/t';
 
-const routeNames = ['index', 'customize', 'favorites', 'automation'];
+const routeNames = ['index', 'customize', 'favorites'];
 
 /**
  * The navigator hands the bar its own state. Only the parts the bar reads are
@@ -41,14 +41,9 @@ test('jumps to a tab by route name and ignores the current one', () => {
 
   fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.presets') }));
   fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.saved') }));
-  fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.rotate') }));
-  expect(navigate.mock.calls).toEqual([
-    ['customize'],
-    ['favorites'],
-    ['automation'],
-  ]);
+  expect(navigate.mock.calls).toEqual([['customize'], ['favorites']]);
 
   // Re-tapping the open tab would push the reader nowhere, so it does nothing.
   fireEvent.press(screen.getByRole('tab', { name: t('en', 'tab.deck') }));
-  expect(navigate).toHaveBeenCalledTimes(3);
+  expect(navigate).toHaveBeenCalledTimes(2);
 });
