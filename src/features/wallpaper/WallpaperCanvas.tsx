@@ -83,8 +83,16 @@ export function WallpaperCanvas({
       <Canvas style={StyleSheet.absoluteFill}>
         {picture && canvasSize ? (
           <Group
+            // The smaller of the two ratios preserves the contain behaviour
+            // the previous <SkiaImage fit="contain"> gave: a box whose aspect
+            // ratio differs from the wallpaper's letterboxes rather than crops.
             transform={[
-              { scale: canvasSize.width / measuredComposition.width },
+              {
+                scale: Math.min(
+                  canvasSize.width / measuredComposition.width,
+                  canvasSize.height / measuredComposition.height,
+                ),
+              },
             ]}
           >
             <Picture picture={picture} />
