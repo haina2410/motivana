@@ -4,10 +4,11 @@ import { Text } from 'react-native';
 import { DeckPager } from '../DeckPager';
 
 function renderPager(overrides: Partial<Parameters<typeof DeckPager>[0]> = {}) {
-  const onNext = jest.fn();
-  const onPrevious = jest.fn();
+  const onNext = jest.fn().mockResolvedValue(true);
+  const onPrevious = jest.fn().mockResolvedValue(true);
   render(
     <DeckPager
+      contentKey="quote-1:preset-1"
       onNext={onNext}
       onPrevious={onPrevious}
       nextLabel="Next wallpaper"

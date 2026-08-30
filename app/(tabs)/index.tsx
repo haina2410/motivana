@@ -147,9 +147,11 @@ export default function HomeScreen() {
   // at either end of the trail, and "there is nothing before this" is the
   // normal answer, not a failure.
   const advanceDeck = async () => {
-    if (!(await state.advanceDeck())) {
-      setFavoriteFeedback({ message: translate('home.deck.error') });
-    }
+    const moved = await state.advanceDeck();
+    if (!moved) setFavoriteFeedback({ message: translate('home.deck.error') });
+    // The pager holds the committed card a viewport away until this answers,
+    // so a refusal has to travel back rather than be swallowed here.
+    return moved;
   };
   // The neighbours come from the trail the store would actually replay. Reading
   // deckHistory raw would show a card that rewindDeck then refuses, because
@@ -191,8 +193,11 @@ export default function HomeScreen() {
           label and the retry button would never reach a screen reader. */}
       <PreviewErrorBoundary>
         <DeckPager
-          onNext={() => void advanceDeck()}
-          onPrevious={() => void state.rewindDeck()}
+          // The cursor moves on every commit, so a pair that happens to repeat
+          // still reads as a new card and the stack re-anchors.
+          contentKey={`${cursor}:${state.currentQuoteId}:${state.selectedPresetId}`}
+          onNext={advanceDeck}
+          onPrevious={state.rewindDeck}
           nextLabel={translate('home.deck.next.label')}
           nextHint={translate('home.deck.next.hint')}
           previousLabel={translate('home.deck.previous.label')}
