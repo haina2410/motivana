@@ -24,6 +24,8 @@ export interface WallpaperComposition extends WallpaperCompositionInput {
   cacheKey: string;
   quoteBounds: { x: number; y: number; width: number; height: number };
   authorY: number;
+  /** The rendered height of the author line at `authorY`, zero when the quote is unattributed. */
+  authorLineHeight: number;
   quoteFontSize: number;
   authorFontSize: number;
   maxQuoteLines: number;
@@ -115,6 +117,7 @@ export function createComposition(
       height: fit.measuredHeight,
     }),
     authorY: quoteY + fit.measuredHeight + authorGap,
+    authorLineHeight,
     quoteFontSize: fit.fontSize,
     authorFontSize,
     maxQuoteLines: fit.maxLines,

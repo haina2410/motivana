@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-import { StyleSheet } from 'react-native';
+import { Dimensions, PixelRatio, StyleSheet } from 'react-native';
 import {
   fireEvent,
   render,
@@ -10,12 +10,21 @@ import {
 import { router } from 'expo-router';
 
 import HomeScreen from '../(tabs)/index';
-import { getAllQuotes } from '../../src/features/quotes/quoteRepository';
-import { getAllTemplates } from '../../src/features/wallpaper/presetRepository';
+import { createComposition } from '../../src/features/wallpaper/composition';
+import { wallpaperPixelDimensions } from '../../src/features/wallpaper/dimensions';
+import {
+  getAllQuotes,
+  getQuoteById,
+} from '../../src/features/quotes/quoteRepository';
+import {
+  getAllTemplates,
+  getPresetById,
+} from '../../src/features/wallpaper/presetRepository';
 import { useAppStore } from '../../src/store/useAppStore';
 import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { t, type StringKey } from '../../src/features/i18n/t';
+import { spacing } from '../../src/theme/spacing';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => ({
   WallpaperCanvas: jest.fn(),
@@ -332,18 +341,174 @@ test('Home offers the render error and a retry when the typefaces fail to load',
   expect(retryFonts).toHaveBeenCalledTimes(1);
 });
 
-// Mutation caught: placing the label at a fixed offset instead of under the measured text overlaps long quotes.
-test('places the preset name below the measured quote block', () => {
-  render(<HomeScreen />);
+/**
+ * Reconstructs the same position PresetCaption in app/(tabs)/index.tsx
+ * derives, independently of that file, so the test fails if either the
+ * scale or the anchor drifts from what it actually does. `box` stands in
+ * for the measured viewport -- the same box WallpaperCanvas contain-fits
+ * the composition into -- not the window.
+ */
+function expectedCaptionPosition(
+  quoteId: string,
+  presetId: string,
+  box: { width: number; height: number },
+) {
+  const state = useAppStore.getState();
+  const window = Dimensions.get('window');
+  const dimensions = wallpaperPixelDimensions(
+    window.width,
+    window.height,
+    PixelRatio.get(),
+  );
+  const composition = createComposition({
+    quote: getQuoteById(quoteId)!,
+    preset: getPresetById(presetId)!,
+    width: dimensions.width,
+    height: dimensions.height,
+    locale: state.contentLocale,
+  });
+  const scale = Math.min(
+    box.width / composition.width,
+    box.height / composition.height,
+  );
+  // The lower of the quote block and the author line: an attributed quote's
+  // author sits close enough under the quote that quoteBounds alone is not
+  // a safe anchor.
+  const contentBottom = Math.max(
+    composition.quoteBounds.y + composition.quoteBounds.height,
+    composition.authorY + composition.authorLineHeight,
+  );
+  return {
+    composition,
+    left: composition.quoteBounds.x * scale,
+    top: contentBottom * scale + spacing.x3 + 1 + spacing.x2,
+  };
+}
 
+function captionStyle() {
   const label = screen.getByText(
     t(
       'en',
       `preset.${useAppStore.getState().selectedPresetId}.name` as StringKey,
     ),
   );
-  const style = StyleSheet.flatten(label.props.style) as { top?: number };
-  expect(style.top).toBeGreaterThan(0);
+  return StyleSheet.flatten(label.props.style) as {
+    top?: number;
+    left?: number;
+  };
+}
+
+// Mutation caught: scaling the caption against the window instead of the
+// measured viewport box (or scaling by width or height alone) drifts it off
+// an attributed quote once the in-flow tab bar shortens that box, landing it
+// on the author line or the footer rail instead of under the quote.
+test('positions the preset name from the measured viewport box, not the window', () => {
+  const growthQuote = getAllQuotes().find(
+    (quote) => quote.id === 'growth-014',
+  )!;
+  useAppStore.setState({
+    currentQuoteId: growthQuote.id,
+    selectedPresetId: 'midnight-focus',
+    deckHistory: [{ quoteId: growthQuote.id, presetId: 'midnight-focus' }],
+    deckCursor: 0,
+  });
+  render(<HomeScreen />);
+
+  // Deliberately wider (relative to its height) than the composition's own
+  // aspect ratio, so the height-driven ratio is the smaller of the two --
+  // catching a width-only scale, not just a wrong baseline -- and not
+  // proportional to the window either, so a baseline mistake also predicts a
+  // different left or top than this box's own contain-fit.
+  const box = { width: 390, height: 600 };
+  fireEvent(screen.getByTestId('wallpaper-viewport'), 'layout', {
+    nativeEvent: { layout: { x: 0, y: 0, ...box } },
+  });
+
+  const expected = expectedCaptionPosition('growth-014', 'midnight-focus', box);
+  const style = captionStyle();
+  expect(style.left).toBeCloseTo(expected.left, 5);
+  expect(style.top).toBeCloseTo(expected.top, 5);
+});
+
+// Mutation caught: an anchor read from quoteBounds alone, ignoring the
+// author line, still passes a "top > 0" check while the label sits on top
+// of the author's name for the catalogue's longest quote.
+test('keeps the preset name below the longest catalogue quote without crossing the author line', () => {
+  useAppStore.setState({
+    currentQuoteId: 'confidence-012',
+    selectedPresetId: 'midnight-focus',
+    deckHistory: [{ quoteId: 'confidence-012', presetId: 'midnight-focus' }],
+    deckCursor: 0,
+  });
+  render(<HomeScreen />);
+
+  const box = { width: 390, height: 760 };
+  fireEvent(screen.getByTestId('wallpaper-viewport'), 'layout', {
+    nativeEvent: { layout: { x: 0, y: 0, ...box } },
+  });
+
+  const expected = expectedCaptionPosition(
+    'confidence-012',
+    'midnight-focus',
+    box,
+  );
+  const style = captionStyle();
+  expect(style.left).toBeCloseTo(expected.left, 5);
+  expect(style.top).toBeCloseTo(expected.top, 5);
+  const scale = Math.min(
+    box.width / expected.composition.width,
+    box.height / expected.composition.height,
+  );
+  expect(style.top!).toBeGreaterThanOrEqual(
+    (expected.composition.quoteBounds.y +
+      expected.composition.quoteBounds.height) *
+      scale,
+  );
+  expect(style.top!).toBeGreaterThanOrEqual(
+    (expected.composition.authorY + expected.composition.authorLineHeight) *
+      scale,
+  );
+});
+
+// Mutation caught: an anchor that stops applying once fitText clamps to its
+// minimum size and truncates would leave the caption sitting mid-quote
+// instead of below the clamped block.
+test('keeps the preset name below a truncated quote block', () => {
+  const originalWindow = Dimensions.get('window');
+  useAppStore.setState({
+    currentQuoteId: 'confidence-012',
+    selectedPresetId: 'midnight-focus',
+    deckHistory: [{ quoteId: 'confidence-012', presetId: 'midnight-focus' }],
+    deckCursor: 0,
+  });
+  // Squat enough that fitText clamps to the minimum size and truncates --
+  // verified against composition.truncated below, not assumed.
+  Dimensions.set({
+    window: { width: 1500, height: 60, scale: 2, fontScale: 1 },
+  });
+  const { unmount } = render(<HomeScreen />);
+  try {
+    // Not proportional to the truncating window itself, and picks the
+    // height-driven ratio, so this still tells a wrong baseline or a
+    // width-only scale from the right answer.
+    const box = { width: 2400, height: 80 };
+    fireEvent(screen.getByTestId('wallpaper-viewport'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, ...box } },
+    });
+
+    const expected = expectedCaptionPosition(
+      'confidence-012',
+      'midnight-focus',
+      box,
+    );
+    expect(expected.composition.truncated).toBe(true);
+    const style = captionStyle();
+    expect(style.left).toBeCloseTo(expected.left, 5);
+    expect(style.top).toBeCloseTo(expected.top, 5);
+  } finally {
+    unmount();
+    Dimensions.set({ window: originalWindow });
+  }
 });
 
 // Mutation caught: without a prefetch the first swipe onto an undecoded photograph shows the fallback band colour instead of the picture.

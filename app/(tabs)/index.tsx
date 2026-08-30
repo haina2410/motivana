@@ -7,6 +7,7 @@ import {
   Text,
   View,
   useWindowDimensions,
+  type LayoutChangeEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -54,6 +55,24 @@ export default function HomeScreen() {
   const [favoriteFeedback, setFavoriteFeedback] = useState<
     { message: string; retryQuoteId?: string } | undefined
   >();
+  // The tab bar is an in-flow sibling below this screen (DeckTabBar in
+  // app/(tabs)/_layout.tsx), not an overlay, so the screen's own box is
+  // shorter than the window. WallpaperCanvas contain-fits the composition
+  // into that same box (measured the same way, on a wrapping View, since
+  // Skia's <Canvas> rejects onLayout on Android); the caption has to use the
+  // identical box and ratio or it drifts off the quote as the tab bar grows.
+  const [containerSize, setContainerSize] = useState<{
+    width: number;
+    height: number;
+  }>();
+  const onContainerLayout = (event: LayoutChangeEvent) => {
+    const { width: boxWidth, height: boxHeight } = event.nativeEvent.layout;
+    setContainerSize((current) =>
+      current?.width === boxWidth && current?.height === boxHeight
+        ? current
+        : { width: boxWidth, height: boxHeight },
+    );
+  };
   const updateFavorite = async (quoteId: string) => {
     if (favoriteBusy) return;
     const wasFavorite = state.favoriteQuoteIds.includes(quoteId);
@@ -141,7 +160,11 @@ export default function HomeScreen() {
   }, [nextPair]);
 
   return (
-    <View style={styles.screen}>
+    <View
+      onLayout={onContainerLayout}
+      style={styles.screen}
+      testID="wallpaper-viewport"
+    >
       {/* The boundary sits outside the pager: the pager's viewport is one
           `accessible` element, so anything inside it collapses into the deck
           label and the retry button would never reach a screen reader. */}
@@ -209,16 +232,15 @@ export default function HomeScreen() {
         </View>
       </View>
       {/* Sits outside the padded chrome box, at the screen's own top-left, so
-          quoteBounds -- measured in full-screen coordinates -- lands exactly
-          where it says without insets.top shifting it a second time. The
-          style changes on every swipe, so this is the only way to tell which
-          preset is on screen. */}
-      {composition && preset ? (
+          quoteBounds -- measured in the same box WallpaperCanvas contain-fits
+          into -- lands exactly where it says without insets.top shifting it a
+          second time. The style changes on every swipe, so this is the only
+          way to tell which preset is on screen. */}
+      {composition && preset && containerSize ? (
         <PresetCaption
           composition={composition}
+          containerSize={containerSize}
           name={presetDisplayName(preset, translate)}
-          screenWidth={width}
-          screenHeight={height}
         />
       ) : null}
       <View pointerEvents="box-none" style={styles.footer}>
@@ -315,28 +337,39 @@ function LiveFace({
 
 /**
  * The preset's name, positioned from the composition's own measurements
- * rather than a guessed constant. `quoteBounds` is in wallpaper pixels; the
- * preview fills the screen, so one scale factor maps the measured text
- * block's bottom edge onto it -- a long, six-line quote pushes the label
- * down with it instead of the label overlapping the text.
+ * rather than a guessed constant. `quoteBounds` is in wallpaper pixels;
+ * WallpaperCanvas contain-fits the composition into `containerSize` with
+ * `Math.min(boxWidth / compWidth, boxHeight / compHeight)`, anchored at the
+ * box's own top-left (no centering translate -- see WallpaperCanvas.tsx's
+ * Group transform). The caption uses that identical box and ratio, so a
+ * long, six-line quote pushes the label down with it instead of the label
+ * overlapping the text, and the label cannot drift from the quote when the
+ * tab bar's height changes.
+ *
+ * The anchor is the lower of the quote block and the author line (zero
+ * height when the quote is unattributed): an attributed quote's author sits
+ * close enough under the quote that a caption placed from quoteBounds alone
+ * lands inside the author's own line, not below it.
  */
 function PresetCaption({
   composition,
+  containerSize,
   name,
-  screenWidth,
-  screenHeight,
 }: {
   composition: WallpaperComposition;
+  containerSize: { width: number; height: number };
   name: string;
-  screenWidth: number;
-  screenHeight: number;
 }) {
-  const left = (composition.quoteBounds.x / composition.width) * screenWidth;
-  const quoteBottom =
-    ((composition.quoteBounds.y + composition.quoteBounds.height) /
-      composition.height) *
-    screenHeight;
-  const ruleTop = quoteBottom + spacing.x3;
+  const scale = Math.min(
+    containerSize.width / composition.width,
+    containerSize.height / composition.height,
+  );
+  const contentBottom = Math.max(
+    composition.quoteBounds.y + composition.quoteBounds.height,
+    composition.authorY + composition.authorLineHeight,
+  );
+  const left = composition.quoteBounds.x * scale;
+  const ruleTop = contentBottom * scale + spacing.x3;
   const nameTop = ruleTop + 1 + spacing.x2;
   return (
     <View pointerEvents="none">
