@@ -24,6 +24,11 @@ jest.mock('../../src/components/SetWallpaperSheet', () => ({
 jest.mock('../../src/features/wallpaper/exportWallpaper', () => ({
   exportWallpaper: jest.fn(),
 }));
+// The next-card prefetch reaches Skia, which needs the native module.
+jest.mock('../../src/features/wallpaper/useBackgroundImage', () => ({
+  useBackgroundImage: () => null,
+  getBackgroundImage: jest.fn().mockResolvedValue(undefined),
+}));
 
 test('renders the deck header and the live wallpaper card', () => {
   render(<HomeScreen />);

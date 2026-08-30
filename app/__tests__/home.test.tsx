@@ -28,6 +28,11 @@ jest.mock('../../src/features/wallpaper/exportWallpaper', () => ({
 jest.mock('../../src/services/mediaLibrary', () => ({
   saveWallpaper: jest.fn(),
 }));
+const mockGetBackgroundImage = jest.fn().mockResolvedValue(undefined);
+jest.mock('../../src/features/wallpaper/useBackgroundImage', () => ({
+  useBackgroundImage: () => null,
+  getBackgroundImage: (...args: unknown[]) => mockGetBackgroundImage(...args),
+}));
 jest.mock('../../src/services/wallpaperNative', () => ({
   getWallpaperCapabilities: jest.fn(async () => ({
     supportsHome: true,
@@ -322,4 +327,33 @@ test('Home offers the render error and a retry when the typefaces fail to load',
     screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
   );
   expect(retryFonts).toHaveBeenCalledTimes(1);
+});
+
+// Mutation caught: without a prefetch the first swipe onto an undecoded photograph shows the fallback band colour instead of the picture.
+test('warms the decode for the next photographic background', async () => {
+  const photograph = getAllTemplates().find(
+    (template) => template.background.kind === 'image',
+  )!;
+  useAppStore.setState({
+    deckHistory: [
+      {
+        quoteId: useAppStore.getState().currentQuoteId,
+        presetId: 'midnight-focus',
+      },
+      {
+        quoteId: useAppStore.getState().currentQuoteId,
+        presetId: photograph.id,
+      },
+    ],
+    deckCursor: 0,
+  });
+
+  render(<HomeScreen />);
+
+  await waitFor(() =>
+    expect(mockGetBackgroundImage).toHaveBeenCalledWith(
+      (photograph.background as { asset: string }).asset,
+      'full',
+    ),
+  );
 });

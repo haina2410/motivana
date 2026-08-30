@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Component, type ReactNode, useMemo, useState } from 'react';
+import { Component, type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   PixelRatio,
@@ -23,6 +23,7 @@ import { createComposition } from '../../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../../src/features/wallpaper/composition';
 import { wallpaperPixelDimensions } from '../../src/features/wallpaper/dimensions';
 import { exportWallpaper } from '../../src/features/wallpaper/exportWallpaper';
+import { getBackgroundImage } from '../../src/features/wallpaper/useBackgroundImage';
 import { getPresetById } from '../../src/features/wallpaper/presetRepository';
 import type { ContentLocale } from '../../src/features/i18n/locale';
 import { useTranslate } from '../../src/features/i18n/useTranslate';
@@ -120,6 +121,18 @@ export default function HomeScreen() {
   const { history, cursor } = currentDeckTrail(state);
   const previousPair = history[cursor - 1];
   const nextPair = history[cursor + 1];
+  // The decode cache lives for the application's lifetime, so warming the next
+  // photograph costs nothing a later swipe would not have paid anyway. Reads
+  // nextPair, already dropped when the trail cannot be replayed, so this never
+  // warms a card the deck could not actually swipe to.
+  useEffect(() => {
+    const background = nextPair
+      ? getPresetById(nextPair.presetId)?.background
+      : undefined;
+    if (background?.kind === 'image') {
+      void getBackgroundImage(background.asset, 'full');
+    }
+  }, [nextPair]);
 
   return (
     <View style={styles.screen}>
