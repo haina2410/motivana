@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   PixelRatio,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,6 +18,7 @@ import { Choice } from '../src/components/Choice';
 import { Icon } from '../src/components/Icon';
 import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Toggle } from '../src/components/Toggle';
+import { canSaveToPhotoLibrary } from '../src/services/mediaLibrary';
 import {
   readRunningUpdate,
   runningUpdateSummary,
@@ -116,21 +118,28 @@ export default function SettingsScreen() {
               .map((locale) => translate(`language.${locale}` as StringKey))
               .join(' · ')}
           />
-          <View style={styles.divider} />
-          <Toggle
-            label={translate('settings.saveToLibrary.label')}
-            description={translate('settings.saveToLibrary.description')}
-            value={state.saveToPhotoLibrary}
-            onValueChange={(value) => {
-              const saved = state.setSaveToPhotoLibrary(value);
-              setFeedback({
-                message: saved
-                  ? translate('settings.saveToLibrary.updated')
-                  : translate('settings.error'),
-                tone: saved ? 'default' : 'error',
-              });
-            }}
-          />
+          {/* Android 10 alone can neither use the modern MediaStore insert nor
+              the legacy file copy this app's target SDK forbids, so the switch
+              would only ever lead to a failed save. */}
+          {canSaveToPhotoLibrary(Number(Platform.Version)) ? (
+            <>
+              <View style={styles.divider} />
+              <Toggle
+                label={translate('settings.saveToLibrary.label')}
+                description={translate('settings.saveToLibrary.description')}
+                value={state.saveToPhotoLibrary}
+                onValueChange={(value) => {
+                  const saved = state.setSaveToPhotoLibrary(value);
+                  setFeedback({
+                    message: saved
+                      ? translate('settings.saveToLibrary.updated')
+                      : translate('settings.error'),
+                    tone: saved ? 'default' : 'error',
+                  });
+                }}
+              />
+            </>
+          ) : null}
           <View style={styles.divider} />
           <Toggle
             label={translate('settings.safeGuides.label')}

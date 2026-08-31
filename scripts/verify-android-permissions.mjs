@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 
-// The app only writes one rendered PNG to the gallery. On Android 11+ that write
-// goes through a plain MediaStore insert, which needs no runtime permission, so
-// the app declares no media permission at all.
+// The app only writes one rendered PNG to the gallery, and never reads one, so
+// no READ_MEDIA_* permission is ever justified. WRITE_EXTERNAL_STORAGE is absent
+// from both lists on purpose: expo-media-library's pre-API-30 save path needs it,
+// and Android caps it at API 32 by itself.
 const required = ['android.permission.SET_WALLPAPER'];
 const forbidden = [
   'android.permission.READ_MEDIA_IMAGES',
@@ -10,12 +11,11 @@ const forbidden = [
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.READ_MEDIA_VISUAL_USER_SELECTED',
   'android.permission.READ_EXTERNAL_STORAGE',
-  'android.permission.WRITE_EXTERNAL_STORAGE',
   'android.permission.VIBRATE',
 ];
-// A permission-free gallery write needs the modern MediaStore path, which
-// expo-media-library selects only from this API level up.
-const minSdkVersion = 30;
+// The Expo SDK 57 default. Pinned rather than left implicit so a toolchain
+// bump cannot move the floor without this check failing first.
+const minSdkVersion = 24;
 const config = JSON.parse(
   readFileSync(
     process.env.MOTIVANA_CONFIG_PATH ?? new URL('../app.json', import.meta.url),

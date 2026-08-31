@@ -18,10 +18,21 @@ function withManifest(body: string, assert: (path: string) => void) {
 
 const wallpaper =
   '<uses-permission android:name="android.permission.SET_WALLPAPER" />';
-const minSdk = '<uses-sdk android:minSdkVersion="30" />';
+const minSdk = '<uses-sdk android:minSdkVersion="24" />';
 
 test('accepts a merged manifest with only the wallpaper permission', () => {
   withManifest(`${minSdk}${wallpaper}`, (manifest) => {
+    expect(() => execFileSync('node', [script, manifest])).not.toThrow();
+  });
+});
+
+// Below API 30 expo-media-library's legacy factory demands this permission to
+// save the exported PNG, so it is allowed to appear. It is a write permission
+// and Android caps it at API 32, unlike READ_MEDIA_IMAGES below.
+test('accepts the write-storage permission the legacy save path needs', () => {
+  const write =
+    '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />';
+  withManifest(`${minSdk}${wallpaper}${write}`, (manifest) => {
     expect(() => execFileSync('node', [script, manifest])).not.toThrow();
   });
 });
@@ -44,12 +55,12 @@ test('fails when the wallpaper permission is missing from a merged manifest', ()
   });
 });
 
-test('fails when the merged manifest does not raise the minimum SDK', () => {
+test('fails when the merged manifest does not pin the minimum SDK', () => {
   withManifest(
-    `<uses-sdk android:minSdkVersion="24" />${wallpaper}`,
+    `<uses-sdk android:minSdkVersion="21" />${wallpaper}`,
     (manifest) => {
       expect(() => execFileSync('node', [script, manifest])).toThrow(
-        'Merged manifest does not declare minSdkVersion 30',
+        'Merged manifest does not declare minSdkVersion 24',
       );
     },
   );

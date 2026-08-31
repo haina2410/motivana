@@ -1,7 +1,9 @@
 import { Paths } from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import { Platform } from 'react-native';
 
 export type WallpaperServiceErrorCode =
+  | 'PERMISSION_DENIED'
   | 'FILE_NOT_FOUND'
   | 'SAVE_FAILED'
   | 'INVALID_TARGET'
@@ -23,6 +25,7 @@ export type WallpaperServiceErrorCode =
   | 'SYSTEM_FAILED';
 
 const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
+  PERMISSION_DENIED: 'Storage permission is needed to save this wallpaper.',
   FILE_NOT_FOUND:
     'The exported wallpaper is unavailable. Render it again and retry.',
   SAVE_FAILED: 'Could not save the wallpaper.',
@@ -50,14 +53,42 @@ const errorMessages: Readonly<Record<WallpaperServiceErrorCode, string>> = {
 };
 
 export class WallpaperServiceError extends Error {
-  constructor(readonly code: WallpaperServiceErrorCode) {
+  readonly canAskAgain?: boolean;
+
+  constructor(
+    readonly code: WallpaperServiceErrorCode,
+    options?: { canAskAgain?: boolean },
+  ) {
     super(errorMessages[code]);
     this.name = 'WallpaperServiceError';
+    this.canAskAgain = options?.canAskAgain;
   }
+}
+
+// expo-media-library picks AssetModernFactory, which inserts through MediaStore
+// and needs no permission, only from this level up. Below it AssetLegacyFactory
+// starts with requireWritePermissions() and throws without WRITE_EXTERNAL_STORAGE.
+const modernMediaStoreApiLevel = 30;
+// Android 10 enforces scoped storage by target SDK, and this app targets 36, so
+// the legacy factory's direct file copy into shared storage is refused whatever
+// the user answers. API 29 is the single level where no save path works.
+const scopedStorageOnlyApiLevel = 29;
+
+export function canSaveToPhotoLibrary(apiLevel: number): boolean {
+  return apiLevel !== scopedStorageOnlyApiLevel;
+}
+
+export function requiresWritePermission(apiLevel: number): boolean {
+  return apiLevel < modernMediaStoreApiLevel;
 }
 
 export interface MediaLibrarySaveDependencies {
   appCacheUri: string;
+  apiLevel: number;
+  requestWritePermission(): Promise<{
+    granted: boolean;
+    canAskAgain: boolean;
+  }>;
   createAsset(uri: string): Promise<{ id: string }>;
 }
 
@@ -76,6 +107,22 @@ export function createMediaLibrarySaver(
     if (!isAppOwnedWallpaperUri(uri, dependencies.appCacheUri)) {
       throw new WallpaperServiceError('FILE_NOT_FOUND');
     }
+    if (!canSaveToPhotoLibrary(dependencies.apiLevel)) {
+      throw new WallpaperServiceError('SAVE_FAILED');
+    }
+    if (requiresWritePermission(dependencies.apiLevel)) {
+      let permission: { granted: boolean; canAskAgain: boolean };
+      try {
+        permission = await dependencies.requestWritePermission();
+      } catch {
+        throw new WallpaperServiceError('SAVE_FAILED');
+      }
+      if (!permission.granted) {
+        throw new WallpaperServiceError('PERMISSION_DENIED', {
+          canAskAgain: permission.canAskAgain,
+        });
+      }
+    }
     try {
       const asset = await dependencies.createAsset(uri);
       return { assetId: asset.id };
@@ -85,11 +132,15 @@ export function createMediaLibrarySaver(
   };
 }
 
-// No permission request precedes the write. From Android 11 the library adds
-// the asset with a MediaStore insert, which needs no permission, and the app
-// declares none. The minimum SDK is pinned to 30 to keep that path the only one.
+// The request is write-only. Passing granularPermissions alongside writeOnly
+// would be dead weight: MediaLibraryModule drops the granular list whenever
+// writeOnly is set, so ['photo'] only ever added READ_MEDIA_IMAGES to the
+// manifest without the app asking for or using it.
 const mediaLibraryDependencies: MediaLibrarySaveDependencies = {
   appCacheUri: Paths.cache.uri,
+  apiLevel: Number(Platform.Version),
+  requestWritePermission: async () =>
+    MediaLibrary.requestPermissionsAsync(true),
   createAsset: (uri) => MediaLibrary.Asset.create(uri),
 };
 

@@ -5,6 +5,7 @@ import {
   waitFor,
 } from '@testing-library/react-native';
 import { router } from 'expo-router';
+import { Platform } from 'react-native';
 
 import appJson from '../../app.json';
 import SettingsScreen from '../settings';
@@ -109,6 +110,33 @@ test('Settings exposes one control per setting', () => {
     screen.getByLabelText(t('en', 'settings.saveToLibrary.label')).props
       .accessibilityHint,
   ).toContain('keeps a copy in your photos');
+});
+
+// Android 10 has no working save path: the modern MediaStore insert starts at
+// API 30, and the legacy file copy is blocked by the scoped storage this app's
+// target SDK enforces. Offering the switch there would only promise a failure.
+test.each([
+  [28, true],
+  [29, false],
+  [30, true],
+  [36, true],
+])('offers the photo-library switch on API %s: %s', (version, offered) => {
+  const original = Object.getOwnPropertyDescriptor(Platform, 'Version');
+  Object.defineProperty(Platform, 'Version', {
+    configurable: true,
+    value: version,
+  });
+  try {
+    render(<SettingsScreen />);
+
+    const toggle = screen.queryByLabelText(
+      t('en', 'settings.saveToLibrary.label'),
+    );
+    if (offered) expect(toggle).toBeOnTheScreen();
+    else expect(toggle).toBeNull();
+  } finally {
+    if (original) Object.defineProperty(Platform, 'Version', original);
+  }
 });
 
 // Mutation caught: a settings switch that only moves locally would leave the
