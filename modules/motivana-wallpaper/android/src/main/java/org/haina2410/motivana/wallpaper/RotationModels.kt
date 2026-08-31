@@ -57,8 +57,12 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
       val interval = json.requiredExactInt("intervalHours") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
       val targetValue = json.requiredString("target") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
       val preset = json.requiredString("selectedPresetId") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      val favorites = json.requiredStringArray("favoriteQuoteIds") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-      if (favorites.distinct().size != favorites.size) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      val stored = json.requiredStringArray("favoriteQuoteIds") ?: return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      if (stored.distinct().size != stored.size) return RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+      // Culling the catalogue renumbers its quote IDs, so an upgraded reader holds
+      // favourites it no longer has. Dropping the unknown ones keeps the rest of
+      // the reader's choices; rejecting the snapshot stops their rotation.
+      val favorites = stored.filter { catalog.quote(it) != null }
       // contentLocale stays optional. Snapshots that the shipped app already saved have
       // no such key. A required key would stop rotation for every user after an upgrade.
       val locale = json.optionalString("contentLocale")?.takeIf { it in RotationLocales.settingValues } ?: RotationLocales.DEFAULT
@@ -66,15 +70,22 @@ data class RotationSnapshot(val enabled: Boolean, val intervalHours: Int, val ta
       // the shipped app already saved has no such key, and a required one would stop
       // rotation for every reader after an upgrade.
       val anchor = json.requiredExactInt("anchorHour")
-      val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, json.optionalString("lastQuoteId"), json.optionalString("lastPresetId"), locale, anchor)
+      // lastQuoteId and lastPresetId are bookkeeping the selector uses to avoid an
+      // immediate repeat, never a reader's choice. The catalogue renumbers its IDs
+      // when entries are culled, so an upgraded reader holds values the new
+      // catalogue no longer has. A stale one is dropped here; rejecting the whole
+      // snapshot would stop rotation for that reader with INVALID_CONFIGURATION.
+      val lastQuote = json.optionalString("lastQuoteId")?.takeIf { catalog.quote(it) != null }
+      val lastPreset = json.optionalString("lastPresetId")?.takeIf { catalog.preset(it) != null }
+      val snapshot = RotationSnapshot(enabled, interval, WallpaperTarget.parse(targetValue), preset, randomize, favorites, favoritesOnly, lastQuote, lastPreset, locale, anchor)
       when {
         // Six hours is no longer offered, but a snapshot the shipped app saved still
         // holds it. Rejecting it here would stop rotation for that reader until they
         // happened to open the schedule screen and press Save.
         snapshot.intervalHours !in setOf(1, 6, 12, 24) -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
         snapshot.anchorHour?.let { it !in 0..23 } == true -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-        catalog.preset(snapshot.selectedPresetId) == null -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
-        favorites.any { catalog.quote(it) == null } || snapshot.lastQuoteId?.let { catalog.quote(it) == null } == true || snapshot.lastPresetId?.let { catalog.preset(it) == null } == true -> RotationSnapshotResult.Invalid("INVALID_CONFIGURATION")
+        // A selected preset the catalogue dropped is not rejected either: the
+        // selector falls back to a random preset and the run heals the snapshot.
         snapshot.favoriteQuotesOnly && favorites.isEmpty() -> RotationSnapshotResult.Invalid("EMPTY_FAVORITES")
         else -> RotationSnapshotResult.Valid(snapshot)
       }

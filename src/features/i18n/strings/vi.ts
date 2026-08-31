@@ -63,7 +63,6 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.target.both': 'Áp dụng cho cả hai màn hình',
   'automation.favoritesOnly.label': 'Chỉ dùng câu yêu thích',
   'automation.favoritesOnly.description': 'Chỉ dùng các câu bạn đã lưu.',
-  'automation.save': 'Lưu tùy chọn tự động',
   'automation.run': 'Đổi nền ngay',
   'automation.lastQuote': 'Câu gần nhất: {text}',
   'automation.lastQuote.fallback': 'câu đã lưu',
@@ -79,9 +78,9 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.recovery.lockUnsupported':
     'Thiết bị này không đặt được hình cho màn hình đó.',
   'automation.recovery.assetInvalid':
-    'Dữ liệu tự động đổi có vấn đề. Hãy xem lại tùy chọn tự động đổi.',
+    'Dữ liệu ứng dụng cần cho việc đổi nền bị lỗi. Hãy cập nhật hoặc cài lại ứng dụng.',
   'automation.recovery.fontMissing':
-    'Thiếu một phông chữ cần thiết. Hãy xem lại tùy chọn tự động đổi.',
+    'Thiếu một phông chữ cần cho việc đổi nền. Hãy cập nhật hoặc cài lại ứng dụng.',
   'automation.recovery.assetIo':
     'Dữ liệu tự động đổi tạm thời không đọc được. Hãy thử lại.',
   'automation.recovery.systemFailed':
@@ -92,8 +91,6 @@ export const vi: Record<keyof typeof en, string> = {
     'Android không đặt được hình nền đã lên lịch. Hãy thử lại.',
   'automation.recovery.unknown':
     'Tự động đổi chưa hoàn thành. Hãy xem lại tùy chọn và thử lại.',
-  'automation.recovery.correct.label': 'Sửa tùy chọn tự động đổi',
-  'automation.recovery.correct.hint': 'Lưu lại tùy chọn tự động đổi đã sửa.',
   'automation.recovery.retryNow.label': 'Thử đổi lại',
   'automation.recovery.retryNow.hint':
     'Chạy lần đổi ngay trong bản gỡ lỗi này.',
@@ -101,8 +98,8 @@ export const vi: Record<keyof typeof en, string> = {
   'automation.recovery.reschedule.hint':
     'Lưu tùy chọn hiện tại để Android lên lịch cho lần chạy sau.',
   'automation.status.lastApplied': 'Lần áp dụng gần nhất: {date}',
-  'automation.favoritesOnly.error':
-    'Hãy thêm một câu yêu thích trước khi chỉ dùng câu yêu thích.',
+  'automation.favoritesOnly.empty':
+    'Hãy lưu một câu vào yêu thích để dùng nguồn này.',
   'automation.save.error':
     'Không cập nhật được việc đổi nền. Hãy xem lại tùy chọn và thử lại.',
   'automation.save.enabled': 'Đã lên lịch đổi nền.',

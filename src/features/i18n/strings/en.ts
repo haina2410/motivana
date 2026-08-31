@@ -46,7 +46,7 @@ export const en = {
     'Rotation uses saved quotes only, so the last one has to stay.',
 
   'automation.eyebrow': 'AUTOMATION',
-  'automation.title': 'Rotation',
+  'automation.title': 'Auto wallpaper rotation',
   'automation.available.message':
     'Rotation runs at an approximate interval; Android may defer work to preserve battery.',
   'automation.attention.title': 'Rotation needs attention',
@@ -64,7 +64,6 @@ export const en = {
   'automation.favoritesOnly.label': 'Use favorite quotes only',
   'automation.favoritesOnly.description':
     'Rotation will use only your saved quotes.',
-  'automation.save': 'Save automation preferences',
   'automation.run': 'Run rotation now',
   'automation.lastQuote': 'Last quote: {text}',
   'automation.lastQuote.fallback': 'saved quote',
@@ -80,9 +79,9 @@ export const en = {
   'automation.recovery.lockUnsupported':
     'This device cannot apply rotation to that screen.',
   'automation.recovery.assetInvalid':
-    'Rotation resources need attention. Review the rotation preferences.',
+    'The app data rotation needs is damaged. Update or reinstall the app.',
   'automation.recovery.fontMissing':
-    'A required rotation font is unavailable. Review the rotation preferences.',
+    'A typeface rotation needs is missing. Update or reinstall the app.',
   'automation.recovery.assetIo':
     'Rotation resources are temporarily unavailable. Try again.',
   'automation.recovery.systemFailed':
@@ -93,8 +92,6 @@ export const en = {
     'Android could not apply the scheduled wallpaper. Try again.',
   'automation.recovery.unknown':
     'Rotation did not complete. Review the rotation preferences and try again.',
-  'automation.recovery.correct.label': 'Correct rotation preferences',
-  'automation.recovery.correct.hint': 'Saves corrected rotation preferences.',
   'automation.recovery.retryNow.label': 'Retry rotation',
   'automation.recovery.retryNow.hint':
     'Runs the rotation immediately in this debug build.',
@@ -102,8 +99,8 @@ export const en = {
   'automation.recovery.reschedule.hint':
     'Saves the current rotation preferences so Android schedules a future run.',
   'automation.status.lastApplied': 'Last applied: {date}',
-  'automation.favoritesOnly.error':
-    'Add a favorite before using favorites-only rotation.',
+  'automation.favoritesOnly.empty':
+    'Save a quote to your favorites to use this source.',
   'automation.save.error':
     'Could not update rotation. Review the preferences and retry.',
   'automation.save.enabled': 'Rotation scheduled.',
@@ -230,7 +227,7 @@ export const en = {
   'rotation.source.all': 'All quotes',
 
   'settings.wallpaper.label': 'Wallpaper',
-  'settings.rotation.label': 'Rotation',
+  'settings.rotation.label': 'Auto wallpaper rotation',
   'settings.rotation.hint': 'Opens the automatic wallpaper schedule.',
   'settings.rotation.on': 'On',
   'settings.rotation.off': 'Off',

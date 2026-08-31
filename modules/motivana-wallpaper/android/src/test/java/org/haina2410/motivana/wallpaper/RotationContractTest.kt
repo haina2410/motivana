@@ -22,10 +22,48 @@ class RotationContractTest {
     ),
   )
 
-  @Test fun snapshotRejectsUnknownIdsAndEmptyFavoriteOnly() {
+  // A setting the app could never have written stays a rejection. A reference the
+  // catalogue merely no longer holds does not: see the repair tests below.
+  @Test fun snapshotRejectsAnUnwritableIntervalAndEmptyFavoriteOnly() {
     assertFalse(RotationSnapshot.parse("""{"enabled":true,"intervalHours":8,"target":"home","selectedPresetId":"first","randomizePreset":false,"favoriteQuoteIds":[],"favoriteQuotesOnly":false}""", catalog).isValid)
-    assertFalse(RotationSnapshot.parse("""{"enabled":true,"intervalHours":6,"target":"home","selectedPresetId":"gone","randomizePreset":false,"favoriteQuoteIds":[],"favoriteQuotesOnly":false}""", catalog).isValid)
     assertFalse(RotationSnapshot.parse("""{"enabled":true,"intervalHours":6,"target":"home","selectedPresetId":"first","randomizePreset":false,"favoriteQuoteIds":[],"favoriteQuotesOnly":true}""", catalog).isValid)
+  }
+
+  // Mutation caught: the catalogue renumbers its quote IDs when entries are
+  // culled, so a reader who upgrades holds a lastQuoteId the new catalogue no
+  // longer has. That value is bookkeeping the selector uses to avoid an
+  // immediate repeat, never a reader's choice, so a stale one is dropped. A
+  // rejection here stops rotation for every upgraded reader with
+  // INVALID_CONFIGURATION.
+  @Test fun aStaleLastSelectionFromAnEarlierCatalogueIsDroppedRatherThanRejected() {
+    val parsed = RotationSnapshot.parse("""{"enabled":true,"intervalHours":24,"target":"home","selectedPresetId":"first","randomizePreset":false,"favoriteQuoteIds":[],"favoriteQuotesOnly":false,"lastQuoteId":"confidence-010","lastPresetId":"retired-08"}""", catalog)
+    assertTrue(parsed.isValid)
+    val snapshot = (parsed as RotationSnapshotResult.Valid).snapshot
+    assertNull(snapshot.lastQuoteId)
+    assertNull(snapshot.lastPresetId)
+  }
+
+  // Mutation caught: culling the catalogue renumbers its quote IDs, so an
+  // upgraded reader holds favourites the catalogue no longer has. Rejecting the
+  // snapshot stops their rotation; the unknown ones are dropped and the rest of
+  // the reader's choices are kept.
+  @Test fun favouritesTheCatalogueNoLongerHoldsAreDroppedRatherThanRejected() {
+    val parsed = RotationSnapshot.parse("""{"enabled":true,"intervalHours":24,"target":"home","selectedPresetId":"first","randomizePreset":false,"favoriteQuoteIds":["one","gone"],"favoriteQuotesOnly":true}""", catalog)
+    assertEquals(listOf("one"), (parsed as RotationSnapshotResult.Valid).snapshot.favoriteQuoteIds)
+  }
+
+  // With every favourite gone the reader has a choice to make, so this stays a
+  // reported state. EMPTY_FAVORITES is the one the screen can act on.
+  @Test fun favouritesOnlyWithNoSurvivingFavouriteReportsEmptyFavorites() {
+    val parsed = RotationSnapshot.parse("""{"enabled":true,"intervalHours":24,"target":"home","selectedPresetId":"first","randomizePreset":false,"favoriteQuoteIds":["gone"],"favoriteQuotesOnly":true}""", catalog)
+    assertEquals("EMPTY_FAVORITES", (parsed as RotationSnapshotResult.Invalid).code)
+  }
+
+  // Mutation caught: a curated preset can leave the catalogue. The reader who
+  // chose it keeps a snapshot naming it, and rejecting that snapshot stops their
+  // rotation. The selector falls back to a random preset instead.
+  @Test fun aSelectedPresetTheCatalogueNoLongerHoldsStillSchedules() {
+    assertTrue(RotationSnapshot.parse("""{"enabled":true,"intervalHours":24,"target":"home","selectedPresetId":"retired","randomizePreset":false,"favoriteQuoteIds":[],"favoriteQuotesOnly":false}""", catalog).isValid)
   }
 
   // A reader who chose six-hour rotation on the shipped app still has that
