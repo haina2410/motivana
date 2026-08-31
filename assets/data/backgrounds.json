@@ -1,23 +1,5 @@
 [
   {
-    "id": "midnight-focus",
-    "fontFamily": "CormorantGaramond",
-    "fontWeight": "Light",
-    "textAlign": "center",
-    "quotePositionY": 0.43,
-    "textColor": "#FFFFFF",
-    "authorColor": "#C9D2E8",
-    "preferredFontSizeRatio": 0.064,
-    "minimumFontSizeRatio": 0.036,
-    "lineHeight": 1.36,
-    "background": {
-      "kind": "linear-gradient",
-      "startColor": "#1B1F2E",
-      "endColor": "#0A0B12",
-      "angleDegrees": 158
-    }
-  },
-  {
     "id": "sunrise-drive",
     "fontFamily": "DancingScript",
     "fontWeight": "Medium",
@@ -32,24 +14,6 @@
       "kind": "linear-gradient",
       "startColor": "#D8B487",
       "endColor": "#C08F53",
-      "angleDegrees": 158
-    }
-  },
-  {
-    "id": "forest-discipline",
-    "fontFamily": "BeVietnamPro",
-    "fontWeight": "Light",
-    "textAlign": "center",
-    "quotePositionY": 0.46,
-    "textColor": "#FFFFFF",
-    "authorColor": "#9FD8C7",
-    "preferredFontSizeRatio": 0.061,
-    "minimumFontSizeRatio": 0.034,
-    "lineHeight": 1.48,
-    "background": {
-      "kind": "linear-gradient",
-      "startColor": "#0F5E4E",
-      "endColor": "#07231D",
       "angleDegrees": 158
     }
   },
@@ -83,40 +47,6 @@
     "background": {
       "kind": "solid",
       "color": "#EDE6DA"
-    }
-  },
-  {
-    "id": "ocean-success",
-    "fontFamily": "BeVietnamPro",
-    "fontWeight": "Light",
-    "textAlign": "center",
-    "quotePositionY": 0.45,
-    "textColor": "#FFFFFF",
-    "authorColor": "#A9AEBC",
-    "preferredFontSizeRatio": 0.063,
-    "minimumFontSizeRatio": 0.035,
-    "lineHeight": 1.46,
-    "background": {
-      "kind": "solid",
-      "color": "#16171C"
-    }
-  },
-  {
-    "id": "ember-action",
-    "fontFamily": "CormorantGaramond",
-    "fontWeight": "Regular",
-    "textAlign": "right",
-    "quotePositionY": 0.41,
-    "textColor": "#FFFFFF",
-    "authorColor": "#E8C4B4",
-    "preferredFontSizeRatio": 0.066,
-    "minimumFontSizeRatio": 0.038,
-    "lineHeight": 1.4,
-    "background": {
-      "kind": "linear-gradient",
-      "startColor": "#7A2E1E",
-      "endColor": "#1E0F0A",
-      "angleDegrees": 158
     }
   },
   {

@@ -45,7 +45,7 @@ export type WallpaperBackground =
 export interface WallpaperPreset {
   id: string;
   /**
-   * Groups photographic backgrounds in the picker. Absent on the eight curated
+   * Groups photographic backgrounds in the picker. Absent on the four curated
    * presets, which are their own group.
    */
   category?: string;

@@ -19,7 +19,24 @@
         },
         "author": "Motivana"
       },
-      "preset": "midnight-focus",
+      "preset": {
+        "id": "golden-cormorant-light-center",
+        "fontFamily": "CormorantGaramond",
+        "fontWeight": "Light",
+        "textAlign": "center",
+        "quotePositionY": 0.43,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.064,
+        "minimumFontSizeRatio": 0.036,
+        "lineHeight": 1.36,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 1080,
         "height": 2400
@@ -56,7 +73,24 @@
         },
         "author": null
       },
-      "preset": "sunrise-drive",
+      "preset": {
+        "id": "golden-dancingscript-medium-left",
+        "fontFamily": "DancingScript",
+        "fontWeight": "Medium",
+        "textAlign": "left",
+        "quotePositionY": 0.4,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.062,
+        "minimumFontSizeRatio": 0.035,
+        "lineHeight": 1.5,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 1080,
         "height": 1920
@@ -93,7 +127,24 @@
         },
         "author": "Motivana"
       },
-      "preset": "ember-action",
+      "preset": {
+        "id": "golden-cormorant-regular-right",
+        "fontFamily": "CormorantGaramond",
+        "fontWeight": "Regular",
+        "textAlign": "right",
+        "quotePositionY": 0.41,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.066,
+        "minimumFontSizeRatio": 0.038,
+        "lineHeight": 1.4,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 1080,
         "height": 1920
@@ -130,7 +181,24 @@
         },
         "author": "Motivana"
       },
-      "preset": "ember-action",
+      "preset": {
+        "id": "golden-cormorant-regular-right",
+        "fontFamily": "CormorantGaramond",
+        "fontWeight": "Regular",
+        "textAlign": "right",
+        "quotePositionY": 0.41,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.066,
+        "minimumFontSizeRatio": 0.038,
+        "lineHeight": 1.4,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 720,
         "height": 1280
@@ -167,7 +235,24 @@
         },
         "author": "Motivana"
       },
-      "preset": "ember-action",
+      "preset": {
+        "id": "golden-cormorant-regular-right",
+        "fontFamily": "CormorantGaramond",
+        "fontWeight": "Regular",
+        "textAlign": "right",
+        "quotePositionY": 0.41,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.066,
+        "minimumFontSizeRatio": 0.038,
+        "lineHeight": 1.4,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 1440,
         "height": 2560
@@ -204,7 +289,24 @@
         },
         "author": "Motivana"
       },
-      "preset": "forest-discipline",
+      "preset": {
+        "id": "golden-bevietnampro-light-center",
+        "fontFamily": "BeVietnamPro",
+        "fontWeight": "Light",
+        "textAlign": "center",
+        "quotePositionY": 0.46,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.061,
+        "minimumFontSizeRatio": 0.034,
+        "lineHeight": 1.48,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 720,
         "height": 1280
@@ -212,7 +314,7 @@
       "expected": {
         "quoteBox": {
           "x": 57.6,
-          "y": 128.0,
+          "y": 128,
           "width": 604.8,
           "height": 959.04
         },
@@ -240,7 +342,22 @@
           "vi": "Mỗi lựa chọn nhỏ hôm nay quyết định điều bạn giữ được ngày mai."
         }
       },
-      "preset": "paper-confidence",
+      "preset": {
+        "id": "golden-lora-regular-left",
+        "fontFamily": "Lora",
+        "fontWeight": "Regular",
+        "textAlign": "left",
+        "quotePositionY": 0.39,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.066,
+        "minimumFontSizeRatio": 0.038,
+        "lineHeight": 1.42,
+        "background": {
+          "kind": "solid",
+          "color": "#FAF9F6"
+        }
+      },
       "dimensions": {
         "width": 1080,
         "height": 2400
@@ -277,7 +394,24 @@
           "vi": "Mỗi lựa chọn nhỏ hôm nay quyết định điều bạn giữ được ngày mai."
         }
       },
-      "preset": "ember-action",
+      "preset": {
+        "id": "golden-cormorant-regular-right",
+        "fontFamily": "CormorantGaramond",
+        "fontWeight": "Regular",
+        "textAlign": "right",
+        "quotePositionY": 0.41,
+        "textColor": "#2A2622",
+        "authorColor": "#5A5148",
+        "preferredFontSizeRatio": 0.066,
+        "minimumFontSizeRatio": 0.038,
+        "lineHeight": 1.4,
+        "background": {
+          "kind": "linear-gradient",
+          "startColor": "#F4DCD6",
+          "endColor": "#EDE6DA",
+          "angleDegrees": 158
+        }
+      },
       "dimensions": {
         "width": 1080,
         "height": 2400

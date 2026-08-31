@@ -28,7 +28,7 @@ test('configures native rotation before a caller can persist UI state', async ()
     intervalHours: 12,
     anchorHour: 6,
     target: 'home',
-    selectedPresetId: 'midnight-focus',
+    selectedPresetId: 'violet-growth',
     randomizePreset: false,
     favoriteQuoteIds: [],
     favoriteQuotesOnly: false,

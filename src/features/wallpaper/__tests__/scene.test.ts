@@ -1,5 +1,6 @@
 import { createComposition } from '../composition';
 import { getPresetById } from '../presetRepository';
+import { parseWallpaperPresetCatalog } from '../types';
 import { drawWallpaperScene, measureSkiaComposition } from '../scene';
 import { quoteText, type Quote } from '../../quotes/types';
 import type { Locale } from '../../i18n/locale';
@@ -9,7 +10,7 @@ const goldenFixture =
     layoutTolerance: number;
     cases: {
       quote: Quote;
-      preset: string;
+      preset: unknown;
       dimensions: { width: number; height: number };
       locale?: Locale;
       expected: {
@@ -22,6 +23,16 @@ const goldenFixture =
       };
     }[];
   };
+
+/**
+ * Each golden case carries its own typography rather than a catalogue id, so a
+ * recorded measurement stays valid when the shipped catalogue gains or loses a
+ * preset. The colours are irrelevant to layout; only the faces, ratios,
+ * alignment and line height decide the geometry these numbers record.
+ */
+function goldenPreset(entry: unknown) {
+  return parseWallpaperPresetCatalog([entry])[0]!;
+}
 
 const paragraphStyles: Record<string, unknown>[] = [];
 const gradientCalls: {
@@ -139,8 +150,8 @@ test('renders when Skia paragraph handles are lifecycle-managed by the native bo
 // real Skia shaping result for wide glyphs, silently dropping an untruncated
 // quote. Only an exhausted minimum-size fit may install a cap/ellipsis.
 test.each([
-  ['midnight-focus', 1080, 1920],
-  ['forest-discipline', 1080, 2400],
+  ['violet-growth', 1080, 1920],
+  ['mono-clarity', 1080, 2400],
   ['paper-confidence', 1440, 2560],
 ])(
   'does not cap a non-truncated %s quote paragraph at %ix%i',
@@ -179,11 +190,11 @@ test('matches the recorded bundled-font Skia foreground fixture', () => {
   for (const golden of goldenFixture.cases) {
     const expected = golden.expected;
     const locale = golden.locale ?? 'en';
+    const preset = goldenPreset(golden.preset);
     const key = `${quoteText(golden.quote, locale)}|${expected.fontSize}`;
     for (
       let fontSize = Math.round(
-        golden.dimensions.width *
-          getPresetById(golden.preset)!.preferredFontSizeRatio,
+        golden.dimensions.width * preset.preferredFontSizeRatio,
       );
       fontSize > expected.fontSize;
       fontSize -= 1
@@ -218,7 +229,7 @@ test('matches the recorded bundled-font Skia foreground fixture', () => {
     const measured = measureSkiaComposition(
       createComposition({
         quote: golden.quote,
-        preset: getPresetById(golden.preset)!,
+        preset,
         ...golden.dimensions,
         locale,
       }),
@@ -260,7 +271,7 @@ test.each([
   (text) => {
     const input = createComposition({
       quote: { ...quote, text: { en: text } },
-      preset: getPresetById('midnight-focus')!,
+      preset: getPresetById('violet-growth')!,
       width: 1080,
       height: 2400,
       locale: 'en',
@@ -280,8 +291,8 @@ test.each([
 
 // Mutation caught: omitting the preset weight silently renders every bundled family with fallback typography.
 test.each([
-  ['midnight-focus', 300],
-  ['ember-action', 400],
+  ['mono-clarity', 300],
+  ['violet-growth', 400],
   ['sunrise-drive', 500],
 ])('passes the %s font weight to Skia', (presetId, weight) => {
   const composition = createComposition({
@@ -304,7 +315,7 @@ test.each([
 // Mutation caught: treating every gradient as top-left to bottom-right ignores the
 // configured screen-space angle and reverses native Canvas gradient direction.
 test('uses the configured 90-degree gradient axis in screen coordinates', () => {
-  const preset = getPresetById('midnight-focus')!;
+  const preset = getPresetById('violet-growth')!;
   const composition = createComposition({
     quote,
     preset: {
@@ -332,7 +343,7 @@ test('uses the configured 90-degree gradient axis in screen coordinates', () => 
 });
 
 const imagePreset = () => ({
-  ...getPresetById('midnight-focus')!,
+  ...getPresetById('violet-growth')!,
   quotePositionY: 0.52,
   background: {
     kind: 'image' as const,

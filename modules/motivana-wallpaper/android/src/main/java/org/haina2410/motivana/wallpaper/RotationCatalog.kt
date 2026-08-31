@@ -61,7 +61,7 @@ object RotationCatalogValidator {
   fun validate(catalog: RotationCatalog) {
     fun invalid(): Nothing = throw CatalogException("INVALID_CATALOG")
     // The catalogue grows as photographs are sourced, so it holds no fixed
-    // number of presets. scripts/verify-data.mjs keeps the eight stable ids in
+    // number of presets. scripts/verify-data.mjs keeps the four stable ids in
     // the file; here an empty set is what would break the selector.
     if (catalog.presets.isEmpty() || catalog.presets.map { it.id }.toSet().size != catalog.presets.size) invalid()
     if (catalog.quotes.map { it.id }.toSet().size != catalog.quotes.size) invalid()

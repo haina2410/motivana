@@ -4,7 +4,7 @@ import { parseWallpaperPresetCatalog, type WallpaperPreset } from './types';
 
 /**
  * One catalogue, two kinds of entry. A photographic background carries a
- * category; a plain preset -- the eight curated colours and gradients -- does
+ * category; a plain preset -- the four light colours and gradients -- does
  * not. That one field is what the picker's "Plain" filter reads, and what the
  * sourcing skill uses to leave the presets alone when it rewrites the file.
  */
@@ -40,7 +40,7 @@ export function getPresetById(id: string): WallpaperPreset | undefined {
 }
 
 /**
- * The eight curated presets each have a written name. A photograph takes its
+ * The four curated presets each have a written name. A photograph takes its
  * name from its category and number, so a new background needs no new string.
  * One naming path, shared by the preset picker and the on-screen label.
  */

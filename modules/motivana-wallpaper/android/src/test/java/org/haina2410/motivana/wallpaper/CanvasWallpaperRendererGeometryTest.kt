@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.graphics.Bitmap
 import java.io.File
 import kotlin.math.round
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -155,7 +156,10 @@ class CanvasWallpaperRendererGeometryTest {
       val expectedBox = expected.getJSONObject("quoteBox")
       val actual = renderer.layout(
         quote,
-        requireNotNull(catalog.preset(item.getString("preset"))),
+        // Each golden case carries its own typography rather than a catalogue
+        // id, so a recorded measurement stays valid when the shipped catalogue
+        // gains or loses a preset.
+        RotationCatalogLoader.parsePresets(JSONArray().put(item.getJSONObject("preset")).toString()).first(),
         dimensions.getInt("width"),
         dimensions.getInt("height"),
       )
@@ -170,7 +174,7 @@ class CanvasWallpaperRendererGeometryTest {
   @Test fun gradientsUseTheirConfiguredAngleAndOverlayAndAccentLeaveVisiblePixels() {
     val catalog = authoritativeCatalog()
     val gradients = catalog.presets.filter { it.background is RotationBackground.Gradient }
-    assertTrue(gradients.size >= 2)
+    assertTrue(gradients.isNotEmpty())
     val renderer = CanvasWallpaperRenderer(catalog, actualFonts(catalog))
     val first = gradients[0].background as RotationBackground.Gradient
     assertTrue(!renderer.gradientCoordinates(first.angle, 720, 1280).contentEquals(renderer.gradientCoordinates(first.angle + 90.0, 720, 1280)))
@@ -179,8 +183,11 @@ class CanvasWallpaperRendererGeometryTest {
     assertEquals(-180f, vertical[1], .01f)
     assertEquals(540f, vertical[2], .01f)
     assertEquals(1620f, vertical[3], .01f)
+    // One gradient preset is enough: the second render turns its axis, which is
+    // the part of the gradient path that a wrong angle would break.
+    val turned = gradients[0].copy(background = RotationBackground.Gradient(first.start, first.end, first.angle + 90.0))
     val one = renderer.render(catalog.quotes.first().resolve(RotationLocales.DEFAULT), gradients[0], 720, 1280)
-    val two = renderer.render(catalog.quotes.first().resolve(RotationLocales.DEFAULT), gradients[1], 720, 1280)
+    val two = renderer.render(catalog.quotes.first().resolve(RotationLocales.DEFAULT), turned, 720, 1280)
     assertTrue(!one.isRecycled && !two.isRecycled)
     one.recycle(); two.recycle()
   }
@@ -190,7 +197,7 @@ class CanvasWallpaperRendererGeometryTest {
   @Test fun layoutOnlySetsMaxLinesAfterActualMinimumSizeTruncation() {
     val catalog = authoritativeCatalog()
     val renderer = CanvasWallpaperRenderer(catalog, actualFonts(catalog))
-    val preset = requireNotNull(catalog.preset("midnight-focus"))
+    val preset = requireNotNull(catalog.preset("violet-growth"))
     listOf(
       "ＭＷ".repeat(40),
       "pneumonoultramicroscopicsilicovolcanoconiosis".repeat(3),

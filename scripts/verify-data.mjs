@@ -22,13 +22,9 @@ const fontPaths = {
   'Lora-SemiBold': 'assets/fonts/Lora-SemiBold.ttf',
 };
 const expectedPresetIds = [
-  'midnight-focus',
   'sunrise-drive',
-  'forest-discipline',
   'violet-growth',
   'paper-confidence',
-  'ocean-success',
-  'ember-action',
   'mono-clarity',
 ];
 
