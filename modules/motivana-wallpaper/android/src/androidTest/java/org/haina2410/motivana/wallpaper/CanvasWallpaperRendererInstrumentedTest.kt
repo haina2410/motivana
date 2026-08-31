@@ -2,6 +2,7 @@ package org.haina2410.motivana.wallpaper
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -35,7 +36,7 @@ class CanvasWallpaperRendererInstrumentedTest {
       val item = cases.getJSONObject(index)
       val quoteJson = item.getJSONObject("quote")
       val quote = RotationQuote(quoteJson.getString("id"), soleFixtureText(quoteJson), if (quoteJson.isNull("author")) null else quoteJson.getString("author"), quoteJson.getString("category"))
-      val preset = requireNotNull(catalog.preset(item.getString("preset")))
+      val preset = goldenPreset(item)
       val dimensions = item.getJSONObject("dimensions")
       val width = dimensions.getInt("width")
       val height = dimensions.getInt("height")
@@ -81,7 +82,7 @@ class CanvasWallpaperRendererInstrumentedTest {
     val assets = InstrumentationRegistry.getInstrumentation().targetContext.assets
     val catalog = RotationCatalogLoader.load(assets)
     val renderer = CanvasWallpaperRenderer(catalog, emptyMap(), assets)
-    val preset = requireNotNull(catalog.preset("midnight-focus"))
+    val preset = requireNotNull(catalog.preset("violet-growth"))
     listOf("ＭＷ".repeat(40), "pneumonoultramicroscopicsilicovolcanoconiosis".repeat(3)).forEach { text ->
       val quote = catalog.quotes.first().resolve(RotationLocales.DEFAULT).copy(text = text, author = "Author")
       val geometry = renderer.layout(quote, preset, 1080, 2400)
@@ -94,6 +95,14 @@ class CanvasWallpaperRendererInstrumentedTest {
     val staticLayout = renderer.staticQuoteLayout(unicodeStress, preset, 1080, 2400)
     assertTrue((0 until staticLayout.lineCount).any { staticLayout.getEllipsisCount(it) > 0 })
   }
+
+  /**
+   * Each golden case carries its own typography rather than a catalogue id, so
+   * a recorded measurement stays valid when the shipped catalogue gains or
+   * loses a preset.
+   */
+  private fun goldenPreset(item: JSONObject): RotationPreset =
+    RotationCatalogLoader.parsePresets(JSONArray().put(item.getJSONObject("preset")).toString()).first()
 
   /** Each golden case holds one language only. Read that single value. */
   private fun soleFixtureText(quoteJson: JSONObject): String {

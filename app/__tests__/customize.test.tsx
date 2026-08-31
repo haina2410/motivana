@@ -34,13 +34,9 @@ beforeEach(() => {
 });
 
 test.each([
-  ['midnight-focus', 'Midnight'],
   ['sunrise-drive', 'Sand'],
-  ['forest-discipline', 'Jade'],
   ['violet-growth', 'Blush'],
   ['paper-confidence', 'Linen'],
-  ['ocean-success', 'Slate'],
-  ['ember-action', 'Ember'],
   ['mono-clarity', 'Paper'],
 ])(
   'selecting %s persists it and returns Home',

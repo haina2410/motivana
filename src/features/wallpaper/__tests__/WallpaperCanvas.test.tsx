@@ -61,7 +61,7 @@ const quote: Quote = {
 const composition = () =>
   createComposition({
     quote,
-    preset: getPresetById('midnight-focus')!,
+    preset: getPresetById('violet-growth')!,
     width: 270,
     height: 600,
     locale: 'en',

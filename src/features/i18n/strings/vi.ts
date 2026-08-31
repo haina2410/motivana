@@ -257,12 +257,8 @@ export const vi: Record<keyof typeof en, string> = {
   'preset.face.DancingScript': 'Dancing Script',
   'preset.face.Lora': 'Lora',
 
-  'preset.midnight-focus.name': 'Nửa đêm',
   'preset.sunrise-drive.name': 'Cát',
-  'preset.forest-discipline.name': 'Ngọc bích',
   'preset.violet-growth.name': 'Hồng phấn',
   'preset.paper-confidence.name': 'Vải lanh',
-  'preset.ocean-success.name': 'Đá xám',
-  'preset.ember-action.name': 'Than hồng',
   'preset.mono-clarity.name': 'Giấy',
 } as const;

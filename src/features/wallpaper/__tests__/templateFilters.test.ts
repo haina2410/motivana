@@ -66,7 +66,7 @@ test('the plain filter is absent when every template is a photograph', () => {
 
 describe('filtering', () => {
   const templates = [
-    template('midnight-focus'),
+    template('violet-growth'),
     template('sky-1', 'sky'),
     template('ocean-1', 'ocean'),
   ];
@@ -77,7 +77,7 @@ describe('filtering', () => {
 
   test('plain returns only the templates with no category', () => {
     expect(filterTemplates(templates, PLAIN_FILTER).map((t) => t.id)).toEqual([
-      'midnight-focus',
+      'violet-growth',
     ]);
   });
 

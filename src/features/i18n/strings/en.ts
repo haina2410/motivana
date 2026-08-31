@@ -262,12 +262,8 @@ export const en = {
   'preset.face.DancingScript': 'Dancing Script',
   'preset.face.Lora': 'Lora',
 
-  'preset.midnight-focus.name': 'Midnight',
   'preset.sunrise-drive.name': 'Sand',
-  'preset.forest-discipline.name': 'Jade',
   'preset.violet-growth.name': 'Blush',
   'preset.paper-confidence.name': 'Linen',
-  'preset.ocean-success.name': 'Slate',
-  'preset.ember-action.name': 'Ember',
   'preset.mono-clarity.name': 'Paper',
 } as const;

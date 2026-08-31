@@ -526,8 +526,8 @@ test('positions the preset name from the measured viewport box, not the window',
   useAppStore.setState({
     contentLocale: CAPTION_LOCALE,
     currentQuoteId: quote.id,
-    selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
+    selectedPresetId: 'violet-growth',
+    deckHistory: [{ quoteId: quote.id, presetId: 'violet-growth' }],
     deckCursor: 0,
   });
   renderWithToasts(<HomeScreen />);
@@ -542,7 +542,7 @@ test('positions the preset name from the measured viewport box, not the window',
     nativeEvent: { layout: { x: 0, y: 0, ...box } },
   });
 
-  const expected = expectedCaptionPosition(quote.id, 'midnight-focus', box);
+  const expected = expectedCaptionPosition(quote.id, 'violet-growth', box);
   const style = captionStyle();
   expect(style.left).toBeCloseTo(expected.left, 5);
   expect(style.top).toBeCloseTo(expected.top, 5);
@@ -556,8 +556,8 @@ test('keeps the preset name below the longest catalogue quote without crossing t
   useAppStore.setState({
     contentLocale: CAPTION_LOCALE,
     currentQuoteId: quote.id,
-    selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
+    selectedPresetId: 'violet-growth',
+    deckHistory: [{ quoteId: quote.id, presetId: 'violet-growth' }],
     deckCursor: 0,
   });
   renderWithToasts(<HomeScreen />);
@@ -567,7 +567,7 @@ test('keeps the preset name below the longest catalogue quote without crossing t
     nativeEvent: { layout: { x: 0, y: 0, ...box } },
   });
 
-  const expected = expectedCaptionPosition(quote.id, 'midnight-focus', box);
+  const expected = expectedCaptionPosition(quote.id, 'violet-growth', box);
   const style = captionStyle();
   expect(style.left).toBeCloseTo(expected.left, 5);
   expect(style.top).toBeCloseTo(expected.top, 5);
@@ -593,8 +593,8 @@ test('keeps the preset name below a truncated quote block', () => {
   useAppStore.setState({
     contentLocale: LONGEST_LOCALE,
     currentQuoteId: quote.id,
-    selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
+    selectedPresetId: 'violet-growth',
+    deckHistory: [{ quoteId: quote.id, presetId: 'violet-growth' }],
     deckCursor: 0,
   });
   // Squat enough that fitText clamps to the minimum size and truncates --
@@ -612,7 +612,7 @@ test('keeps the preset name below a truncated quote block', () => {
       nativeEvent: { layout: { x: 0, y: 0, ...box } },
     });
 
-    const expected = expectedCaptionPosition(quote.id, 'midnight-focus', box);
+    const expected = expectedCaptionPosition(quote.id, 'violet-growth', box);
     expect(expected.composition.truncated).toBe(true);
     const style = captionStyle();
     expect(style.left).toBeCloseTo(expected.left, 5);
@@ -629,10 +629,13 @@ test('warms the decode for the next photographic background', async () => {
     (template) => template.background.kind === 'image',
   )!;
   useAppStore.setState({
+    // The trail only replays while its card matches the selection, so the
+    // recorded preset and selectedPresetId have to name the same one.
+    selectedPresetId: 'violet-growth',
     deckHistory: [
       {
         quoteId: useAppStore.getState().currentQuoteId,
-        presetId: 'midnight-focus',
+        presetId: 'violet-growth',
       },
       {
         quoteId: useAppStore.getState().currentQuoteId,
@@ -663,8 +666,8 @@ test('warms the decode for a pending photographic background at the head of the 
   const quotes = getAllQuotes('vi');
   useAppStore.setState({
     currentQuoteId: quotes[0]!.id,
-    selectedPresetId: 'midnight-focus',
-    deckHistory: [{ quoteId: quotes[0]!.id, presetId: 'midnight-focus' }],
+    selectedPresetId: 'violet-growth',
+    deckHistory: [{ quoteId: quotes[0]!.id, presetId: 'violet-growth' }],
     deckCursor: 0,
     pendingPair: { quoteId: quotes[1]!.id, presetId: photograph.id },
   });

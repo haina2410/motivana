@@ -19,13 +19,9 @@ const categories = [
   'success',
 ];
 const presetIds = [
-  'midnight-focus',
   'sunrise-drive',
-  'forest-discipline',
   'violet-growth',
   'paper-confidence',
-  'ocean-success',
-  'ember-action',
   'mono-clarity',
 ];
 const presetFonts = [
@@ -91,7 +87,7 @@ function runVerifier(files: Record<string, string | Buffer>) {
 const backgroundIds = ['sky-01', 'mountain-01'];
 
 function plainPresets() {
-  return Array.from({ length: 8 }, (_, index) => ({
+  return Array.from({ length: presetIds.length }, (_, index) => ({
     ...validPreset,
     id: presetIds[index],
     ...presetFonts[index % presetFonts.length],
@@ -105,7 +101,7 @@ function plainPresets() {
 function serializedCatalogFiles(): Record<string, string | Buffer> {
   return {
     'assets/data/quotes.json': JSON.stringify(validQuotes()),
-    // One file, both kinds of entry: the eight plain presets first, then the
+    // One file, both kinds of entry: the four plain presets first, then the
     // photographs, exactly as the shipped catalogue is laid out.
     'assets/data/backgrounds.json': JSON.stringify([
       ...plainPresets(),
@@ -256,20 +252,20 @@ test('rejects invalid preset ratios with a precise data path', () => {
 
 /**
  * presetRepository.ts splits the picker's "Plain" filter on the category alone,
- * so a photograph that lost its category would join the eight presets and be
+ * so a photograph that lost its category would join the four presets and be
  * offered as a colour swatch that renders a photograph.
  */
 test('rejects a photograph that carries no category', () => {
   const files = serializedCatalogFiles();
   const templates = JSON.parse(String(files['assets/data/backgrounds.json']));
-  delete templates[8].category;
+  delete templates[presetIds.length].category;
   files['assets/data/backgrounds.json'] = JSON.stringify(templates);
 
   const result = runVerifier(files);
 
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(
-    'assets/data/backgrounds.json: templates[8].category',
+    `assets/data/backgrounds.json: templates[${presetIds.length}].category`,
   );
 });
 

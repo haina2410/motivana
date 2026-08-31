@@ -41,7 +41,7 @@ const exportUri =
 
 function compositionFor(quoteId: string): WallpaperComposition {
   return {
-    cacheKey: `forest-discipline-${quoteId}-1080x2400`,
+    cacheKey: `mono-clarity-${quoteId}-1080x2400`,
     width: 1080,
     height: 2400,
     quote: {

@@ -24,22 +24,18 @@ const validPreset = {
   },
 };
 
-test('ships eight valid and visually distinct presets', () => {
+test('ships four valid and visually distinct presets', () => {
   const presets = getAllPresets();
 
-  expect(presets).toHaveLength(8);
-  expect(new Set(presets.map((preset) => preset.id))).toHaveProperty('size', 8);
+  expect(presets).toHaveLength(4);
+  expect(new Set(presets.map((preset) => preset.id))).toHaveProperty('size', 4);
   expect(
     new Set(presets.map((preset) => JSON.stringify(preset.background))),
-  ).toHaveProperty('size', 8);
+  ).toHaveProperty('size', 4);
   expect(presets.map((preset) => preset.id)).toEqual([
-    'midnight-focus',
     'sunrise-drive',
-    'forest-discipline',
     'violet-growth',
     'paper-confidence',
-    'ocean-success',
-    'ember-action',
     'mono-clarity',
   ]);
 });
@@ -48,7 +44,7 @@ test('returns a readonly preset catalog that cannot alter later reads', () => {
   const presets = getAllPresets() as WallpaperPreset[];
 
   expect(() => presets.pop()).toThrow();
-  expect(getAllPresets()).toHaveLength(8);
+  expect(getAllPresets()).toHaveLength(4);
 });
 
 test('looks up a preset by stable ID and handles missing IDs', () => {

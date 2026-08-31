@@ -3,8 +3,8 @@ import { t } from '../t';
 
 // Mutation caught: dropping the interpolation would show a literal placeholder on the rotation screen.
 test('fills placeholders from the parameters', () => {
-  expect(t('en', 'preset.thumbnail.label', { name: 'Midnight' })).toBe(
-    'Use Midnight preset',
+  expect(t('en', 'preset.thumbnail.label', { name: 'Paper' })).toBe(
+    'Use Paper preset',
   );
 });
 

@@ -80,7 +80,7 @@ const composition = createComposition({
     text: { en: 'Success is the sum of small efforts repeated every day.' },
     author: 'Robert Collier',
   } satisfies Quote,
-  preset: getPresetById('midnight-focus')!,
+  preset: getPresetById('violet-growth')!,
   width: 1080,
   height: 2400,
   locale: 'en',
@@ -279,7 +279,7 @@ const imageComposition = () =>
       author: 'Robert Collier',
     } satisfies Quote,
     preset: {
-      ...getPresetById('midnight-focus')!,
+      ...getPresetById('violet-growth')!,
       background: {
         kind: 'image',
         asset: 'backgrounds/mountain-01.webp',

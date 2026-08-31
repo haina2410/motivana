@@ -46,7 +46,7 @@ describe('backgrounds catalogue', () => {
    */
   it('splits the shared file into photographs and plain presets', () => {
     expect(parsed.every((preset) => preset.category !== undefined)).toBe(true);
-    expect(getAllPresets().length).toBe(8);
+    expect(getAllPresets().length).toBe(4);
     expect(
       getAllPresets().every(
         (preset) =>

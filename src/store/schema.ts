@@ -71,7 +71,7 @@ export function createDefaultPersistedAppState(): PersistedAppStateV3 {
     contentLocale: DEFAULT_CONTENT_LOCALE,
     favoriteQuoteIds: [],
     currentQuoteId: firstQuoteInLocale(DEFAULT_CONTENT_LOCALE),
-    selectedPresetId: 'midnight-focus',
+    selectedPresetId: 'mono-clarity',
     randomizePreset: false,
     favoriteQuotesOnly: false,
     rotationEnabled: false,

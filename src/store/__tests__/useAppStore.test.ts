@@ -95,7 +95,7 @@ test('keeps state and persisted preferences unchanged when a storage write fails
     version: 1,
     favoriteQuoteIds: [],
     currentQuoteId: getAllQuotes()[0]!.id,
-    selectedPresetId: 'midnight-focus',
+    selectedPresetId: 'violet-growth',
     randomizePreset: false,
     favoriteQuotesOnly: false,
     rotationEnabled: false,
@@ -243,7 +243,7 @@ test('hydrates repaired persisted preferences through the store action', () => {
   expect(store.getState()).toMatchObject({
     currentQuoteId: quoteId,
     favoriteQuoteIds: [quoteId],
-    selectedPresetId: 'midnight-focus',
+    selectedPresetId: 'mono-clarity',
   });
 });
 
@@ -306,7 +306,7 @@ test('rolls back a worker-visible preference when native synchronization rejects
   await expect(store.getState().selectPreset('sunrise-drive')).resolves.toBe(
     false,
   );
-  expect(store.getState().selectedPresetId).toBe('midnight-focus');
+  expect(store.getState().selectedPresetId).toBe('mono-clarity');
   expect(storage.read('motivana.app-state')).toBeUndefined();
 });
 
@@ -316,7 +316,7 @@ test('restores the native snapshot when local persistence rejects a synchronized
     version: 1,
     favoriteQuoteIds: [],
     currentQuoteId: getAllQuotes()[0]!.id,
-    selectedPresetId: 'midnight-focus',
+    selectedPresetId: 'violet-growth',
     randomizePreset: false,
     favoriteQuotesOnly: false,
     rotationEnabled: true,
@@ -337,9 +337,9 @@ test('restores the native snapshot when local persistence rejects a synchronized
   );
   expect(snapshots.map((snapshot) => snapshot.selectedPresetId)).toEqual([
     'sunrise-drive',
-    'midnight-focus',
+    'violet-growth',
   ]);
-  expect(store.getState().selectedPresetId).toBe('midnight-focus');
+  expect(store.getState().selectedPresetId).toBe('violet-growth');
 });
 
 // Mutation caught: reconfiguring native work for ordinary disabled preferences would create work despite automation being off.
@@ -587,7 +587,7 @@ test('a pending pair that now matches the on-screen quote is treated as stale', 
   const state = {
     currentQuoteId: 'same-quote',
     contentLocale: 'vi' as const,
-    pendingPair: { quoteId: 'same-quote', presetId: 'midnight-focus' },
+    pendingPair: { quoteId: 'same-quote', presetId: 'violet-growth' },
   };
 
   expect(currentPendingPair(state)).toBeUndefined();
@@ -603,7 +603,7 @@ test('a pending pair whose quote has no text in the current content locale is st
   const state = {
     currentQuoteId: 'something-else',
     contentLocale: 'en' as const,
-    pendingPair: { quoteId: viOnly!.id, presetId: 'midnight-focus' },
+    pendingPair: { quoteId: viOnly!.id, presetId: 'violet-growth' },
   };
 
   expect(currentPendingPair(state)).toBeUndefined();
