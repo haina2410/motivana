@@ -9,6 +9,7 @@ import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Segmented } from '../src/components/Segmented';
 import { Toggle } from '../src/components/Toggle';
 import { useAppStore } from '../src/store/useAppStore';
+import type { RotationConfiguration } from '../src/store/useAppStore';
 import { showToast } from '../src/store/useToastStore';
 import {
   getWallpaperAutomationAvailability,
@@ -30,10 +31,7 @@ import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { typography } from '../src/theme/typography';
 import type { WallpaperTarget } from '../src/store/schema';
-import {
-  rotationSchedules,
-  type RotationSchedule,
-} from '../src/features/rotation/schedule';
+import { rotationSchedules } from '../src/features/rotation/schedule';
 
 const targetKeys: Record<WallpaperTarget, StringKey> = {
   home: 'automation.targetName.home',
@@ -84,37 +82,38 @@ export default function AutomationScreen() {
       active = false;
     };
   }, [persistedTarget]);
-  const [schedule, setSchedule] = useState<RotationSchedule>(
-    state.rotationSchedule,
-  );
-  const [favoritesOnly, setFavoritesOnly] = useState(state.favoriteQuotesOnly);
-  const [randomizePreset, setRandomizePreset] = useState(state.randomizePreset);
-  const [enabled, setEnabled] = useState(state.rotationEnabled);
   const refresh = () =>
     getWallpaperAutomationAvailability()
       .then(setAvailability)
       .catch(() => setAvailability(wallpaperAutomationFallback));
-  const save = async (nextFavoritesOnly = favoritesOnly) => {
-    if (nextFavoritesOnly && state.favoriteQuoteIds.length === 0) {
-      showToast(translate('automation.favoritesOnly.error'), 'error');
-      return;
-    }
+  /**
+   * Commits one control's change straight away. The store is the only copy of
+   * these preferences, so a change native refuses leaves it untouched and the
+   * control shows the stored value again without any rollback here.
+   *
+   * Only the on/off change reports a toast. It decides whether rotation runs at
+   * all; a toast for every tap on a screen of toggles would bury it.
+   */
+  const apply = async (patch: Partial<RotationConfiguration>) => {
     const saved = await state.setRotationConfiguration({
-      enabled,
-      schedule,
+      enabled: state.rotationEnabled,
+      schedule: state.rotationSchedule,
       target,
-      favoriteQuotesOnly: nextFavoritesOnly,
-      randomizePreset,
+      favoriteQuotesOnly: state.favoriteQuotesOnly,
+      randomizePreset: state.randomizePreset,
+      ...patch,
     });
     if (!saved) {
       showToast(translate('automation.save.error'), 'error');
       return;
     }
-    showToast(
-      translate(
-        enabled ? 'automation.save.enabled' : 'automation.save.disabled',
-      ),
-    );
+    if (patch.enabled !== undefined) {
+      showToast(
+        translate(
+          patch.enabled ? 'automation.save.enabled' : 'automation.save.disabled',
+        ),
+      );
+    }
     refresh();
   };
   const runNow = async () => {
@@ -129,24 +128,15 @@ export default function AutomationScreen() {
   const statusRecovery = getRotationStatusRecovery(
     availability?.status.errorCode,
   );
+  // A control appears only where retrying is the answer. Every other code is a
+  // fault no preference can correct, so the card carries the message alone.
   const statusRecoveryControl = statusRecovery
     ? getRotationStatusRecoveryControl(statusRecovery, __DEV__)
     : undefined;
-  const recoverFromStatusFailure = () => {
-    if (
-      availability?.status.errorCode === 'EMPTY_FAVORITES' ||
-      availability?.status.errorCode === 'NO_ELIGIBLE_QUOTES'
-    ) {
-      setFavoritesOnly(false);
-      void save(false);
-      return;
-    }
-    if (statusRecoveryControl?.operation === 'run-now') {
-      void runNow();
-      return;
-    }
-    void save();
-  };
+  const recover = () =>
+    statusRecoveryControl?.operation === 'run-now' ? void runNow() : void apply({});
+  const loading = !availability;
+  const hasFavorites = state.favoriteQuoteIds.length > 0;
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
@@ -158,9 +148,10 @@ export default function AutomationScreen() {
 
         <View style={styles.card}>
           <Toggle
+            disabled={loading}
             label={translate('automation.enable.label')}
-            value={enabled}
-            onValueChange={setEnabled}
+            value={state.rotationEnabled}
+            onValueChange={(enabled) => void apply({ enabled })}
           />
         </View>
 
@@ -168,22 +159,26 @@ export default function AutomationScreen() {
           {translate('automation.schedule.label')}
         </Text>
         <Segmented
-          onSelect={setSchedule}
+          onSelect={(schedule) => void apply({ schedule })}
           options={rotationSchedules.map((value) => ({
             value,
             label: translate(`rotation.schedule.${value}` as StringKey),
             accessibilityLabel: translate(
               `automation.schedule.${value}` as StringKey,
             ),
+            disabled: loading,
           }))}
-          selected={schedule}
+          selected={state.rotationSchedule}
         />
 
         <Text allowFontScaling style={typography.sectionLabel}>
           {translate('automation.target.label')}
         </Text>
         <Segmented
-          onSelect={setTarget}
+          onSelect={(value) => {
+            setTarget(value);
+            void apply({ target: value });
+          }}
           options={(['home', 'lock', 'both'] as const).map((value) => ({
             value,
             label: translate(targetKeys[value]),
@@ -205,15 +200,22 @@ export default function AutomationScreen() {
             accessibilityHint={translate(
               'automation.favoritesOnly.description',
             )}
+            disabled={loading || !hasFavorites}
             label={translate('rotation.source.saved')}
-            onPress={() => setFavoritesOnly(true)}
-            selected={favoritesOnly}
+            onPress={() => void apply({ favoriteQuotesOnly: true })}
+            selected={state.favoriteQuotesOnly}
           />
           <RadioRow
+            disabled={loading}
             label={translate('rotation.source.all')}
-            onPress={() => setFavoritesOnly(false)}
-            selected={!favoritesOnly}
+            onPress={() => void apply({ favoriteQuotesOnly: false })}
+            selected={!state.favoriteQuotesOnly}
           />
+          {hasFavorites ? null : (
+            <Text allowFontScaling style={styles.hint}>
+              {translate('automation.favoritesOnly.empty')}
+            </Text>
+          )}
         </View>
 
         <Text allowFontScaling style={typography.sectionLabel}>
@@ -221,10 +223,11 @@ export default function AutomationScreen() {
         </Text>
         <View style={styles.card}>
           <Toggle
+            disabled={loading}
             label={translate('rotation.randomize.label')}
             description={translate('rotation.randomize.description')}
-            value={randomizePreset}
-            onValueChange={setRandomizePreset}
+            value={state.randomizePreset}
+            onValueChange={(randomizePreset) => void apply({ randomizePreset })}
           />
         </View>
 
@@ -235,25 +238,20 @@ export default function AutomationScreen() {
             message={translate(statusRecovery.messageKey)}
           />
         ) : null}
-        <AppButton
-          disabled={!availability}
-          label={translate('automation.save')}
-          onPress={() => void save()}
-        />
-        {__DEV__ ? (
+        {statusRecoveryControl ? (
           <AppButton
-            disabled={!availability || !enabled}
-            label={translate('automation.run')}
-            onPress={runNow}
+            hint={translate(statusRecoveryControl.hintKey)}
+            icon="rotate-right"
+            label={translate(statusRecoveryControl.labelKey)}
+            onPress={recover}
             variant="outline"
           />
         ) : null}
-        {statusRecovery ? (
+        {__DEV__ ? (
           <AppButton
-            hint={translate(statusRecoveryControl!.hintKey)}
-            icon="rotate-right"
-            label={translate(statusRecoveryControl!.labelKey)}
-            onPress={recoverFromStatusFailure}
+            disabled={loading || !state.rotationEnabled}
+            label={translate('automation.run')}
+            onPress={runNow}
             variant="outline"
           />
         ) : null}
@@ -279,4 +277,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   sources: { gap: spacing.x1 },
+  hint: { color: colors.faintText, fontSize: 13, lineHeight: 18 },
 });

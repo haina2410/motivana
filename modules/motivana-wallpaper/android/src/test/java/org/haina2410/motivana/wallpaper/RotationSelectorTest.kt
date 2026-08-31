@@ -4,6 +4,7 @@ import java.util.Random
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RotationSelectorTest {
@@ -22,5 +23,13 @@ class RotationSelectorTest {
   @Test fun preferredPresetIsStableAndEmptyEligibilityDoesNotFallback() {
     assertEquals("first", RotationSelector(Random(1)).select(catalog, listOf("one"), null, null, false, "first", RotationLocales.DEFAULT).preset.id)
     assertThrows(SelectionException::class.java) { RotationSelector(Random(1)).select(catalog, listOf("gone"), null, null, false, "first", RotationLocales.DEFAULT) }
+  }
+
+  // Mutation caught: a curated preset can leave the catalogue, and the reader who
+  // chose it still holds its id. Throwing here stops that reader's rotation for
+  // good. Any preset is a better answer than none.
+  @Test fun aPresetTheCatalogueNoLongerHoldsFallsBackToARandomOne() {
+    val value = RotationSelector(Random(3)).select(catalog, null, null, null, false, "retired", RotationLocales.DEFAULT)
+    assertTrue(catalog.presets.any { it.id == value.preset.id })
   }
 }

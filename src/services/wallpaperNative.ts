@@ -100,9 +100,23 @@ export async function configureRotation(
   }
 }
 
+/**
+ * Drops the keys the native map sends as null. Kotlin writes every optional
+ * field of the status into one map, so a run that carries no error sends
+ * `errorCode: null` rather than no key at all. RotationStatus declares those
+ * fields optional, and a reader of an optional field treats null as a value:
+ * getRotationStatusRecovery would read a successful run as an unknown failure
+ * and show an error card.
+ */
+function withoutNullFields(status: RotationStatus): RotationStatus {
+  return Object.fromEntries(
+    Object.entries(status).filter(([, value]) => value !== null),
+  ) as RotationStatus;
+}
+
 export async function getRotationStatus(): Promise<RotationStatus> {
   try {
-    return await nativeWallpaperModule.getRotationStatus();
+    return withoutNullFields(await nativeWallpaperModule.getRotationStatus());
   } catch (error) {
     throw normalizeWallpaperServiceError(error);
   }

@@ -27,7 +27,11 @@ class RotationPipeline(
       bitmap = renderer.render(selection.quote, selection.preset)
       applier.apply(bitmap, snapshot.target)
       val now = clock()
-      if (!store.saveSnapshot(snapshot.copy(lastQuoteId = selection.quote.id, lastPresetId = selection.preset.id)) || !store.saveStatus(RotationStatus(true, RotationState.SUCCEEDED, now, now, selection.quote.id, selection.preset.id))) RotationWorkResult.RETRY else RotationWorkResult.SUCCESS
+      // A preset the catalogue dropped is replaced by the one the run fell back to,
+      // so the snapshot stops naming a choice that no longer exists. A live choice
+      // is the reader's own and is never rewritten.
+      val choice = if (catalog.preset(snapshot.selectedPresetId) == null) selection.preset.id else snapshot.selectedPresetId
+      if (!store.saveSnapshot(snapshot.copy(selectedPresetId = choice, lastQuoteId = selection.quote.id, lastPresetId = selection.preset.id)) || !store.saveStatus(RotationStatus(true, RotationState.SUCCEEDED, now, now, selection.quote.id, selection.preset.id))) RotationWorkResult.RETRY else RotationWorkResult.SUCCESS
     } catch (e: PermanentRotationException) { record(true, RotationState.FAILED, e.code, RotationWorkResult.FAILURE) }
       catch (_: TransientRotationException) { record(true, RotationState.FAILED, "SYSTEM_FAILED", RotationWorkResult.RETRY) }
       catch (_: OutOfMemoryError) { record(true, RotationState.FAILED, "RENDER_FAILED", RotationWorkResult.RETRY) }

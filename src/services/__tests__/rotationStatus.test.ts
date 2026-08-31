@@ -66,8 +66,15 @@ test.each(locales)(
       expect(t(locale, recovery.messageKey)).not.toHaveLength(0);
       for (const isDebug of [false, true]) {
         const control = getRotationStatusRecoveryControl(recovery, isDebug);
-        expect(t(locale, control.labelKey)).not.toHaveLength(0);
-        expect(t(locale, control.hintKey)).not.toHaveLength(0);
+        // A `correct` code carries no control: the screen saves every change as
+        // it is made, so there is nothing left to commit and these faults are
+        // not the reader's to repair.
+        if (recovery.action === 'correct') {
+          expect(control).toBeUndefined();
+          continue;
+        }
+        expect(t(locale, control!.labelKey)).not.toHaveLength(0);
+        expect(t(locale, control!.hintKey)).not.toHaveLength(0);
       }
     }
   },

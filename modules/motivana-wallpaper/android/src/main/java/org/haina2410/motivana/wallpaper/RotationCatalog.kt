@@ -55,9 +55,6 @@ object RotationCatalogValidator {
   private val categories = setOf("motivation", "discipline", "focus", "confidence", "growth", "success")
   private val fonts = setOf("CormorantGaramond-Light", "CormorantGaramond-Regular", "BeVietnamPro-Light", "DancingScript-Medium", "Lora-Regular", "Lora-SemiBold")
   private val color = Regex("#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?")
-  // The catalogue has no fixed size: it grows as sourced quotes replace the
-  // original app copy. The worker holds the same floor as scripts/verify-data.mjs.
-  private const val MINIMUM_QUOTES_PER_CATEGORY = 6
   fun validate(catalog: RotationCatalog) {
     fun invalid(): Nothing = throw CatalogException("INVALID_CATALOG")
     // The catalogue grows as photographs are sourced, so it holds no fixed
@@ -65,7 +62,10 @@ object RotationCatalogValidator {
     // the file; here an empty set is what would break the selector.
     if (catalog.presets.isEmpty() || catalog.presets.map { it.id }.toSet().size != catalog.presets.size) invalid()
     if (catalog.quotes.map { it.id }.toSet().size != catalog.quotes.size) invalid()
-    if (categories.any { category -> catalog.quotes.count { it.category == category } < MINIMUM_QUOTES_PER_CATEGORY }) invalid()
+    // How many quotes a category holds is not checked here. scripts/verify-data.mjs
+    // owns that floor, and a second copy of the number drifts: the JS gate was
+    // lowered to three while this one stayed at six, which failed every rotation
+    // with ASSET_INVALID while the repository stayed green.
     if (catalog.quotes.any { quote -> quote.id.isBlank() || quote.category !in categories || quote.sourceLocale !in RotationLocales.supported || quote.text.keys.any { it !in RotationLocales.supported } || quote.sourceLocale !in quote.text || quote.text.values.any { it.trim().length < 12 || it.length > 160 } } || catalog.quotes.map { it.category }.toSet() != categories) invalid()
     catalog.presets.forEach { p ->
       if ("${p.family}-${p.weight}" !in fonts || p.align !in setOf("left", "center", "right") || p.quotePositionY !in .1..0.9 || p.minimumRatio <= 0 || p.preferredRatio < p.minimumRatio || p.lineHeight !in 1.0..2.0 || !color.matches(p.textColor) || !color.matches(p.authorColor) || (p.overlay != null && !color.matches(p.overlay))) invalid()
@@ -84,7 +84,7 @@ class RotationSelector(private val random: java.util.Random) {
       ?: catalog.quotes.filter { it.hasLocale(locale) }
     if (eligible.isEmpty()) throw SelectionException("NO_ELIGIBLE_QUOTES")
     val quoteChoices = eligible.filter { it.id != previousQuoteId }.ifEmpty { eligible }
-    val presets = if (randomizePreset) catalog.presets.filter { it.id != previousPresetId }.ifEmpty { catalog.presets } else listOfNotNull(catalog.preset(preferredPresetId))
+    val presets = if (randomizePreset) catalog.presets.filter { it.id != previousPresetId }.ifEmpty { catalog.presets } else listOfNotNull(catalog.preset(preferredPresetId)).ifEmpty { catalog.presets }
     if (presets.isEmpty()) throw SelectionException("INVALID_CONFIGURATION")
     return RotationSelection(quoteChoices[random.nextInt(quoteChoices.size)].resolve(locale), presets[random.nextInt(presets.size)])
   }

@@ -10,7 +10,7 @@ export interface RotationStatusRecovery {
 export interface RotationStatusRecoveryControl {
   labelKey: StringKey;
   hintKey: StringKey;
-  operation: 'run-now' | 'reschedule' | 'correct';
+  operation: 'run-now' | 'reschedule';
 }
 
 /**
@@ -72,17 +72,19 @@ export function getRotationStatusRecovery(
   return statusRecoveryByCode[code] ?? unknownStatusRecovery;
 }
 
+/**
+ * The control the screen offers beside a failure message, or none.
+ *
+ * A `correct` action has no control: the screen saves every change as the
+ * reader makes it, so there are no held preferences left to commit, and the
+ * codes that carry that action are faults no preference can repair. Offering a
+ * button there re-ran the same save and repeated the same failure.
+ */
 export function getRotationStatusRecoveryControl(
   recovery: RotationStatusRecovery,
   isDebug: boolean,
-): RotationStatusRecoveryControl {
-  if (recovery.action === 'correct') {
-    return {
-      labelKey: 'automation.recovery.correct.label',
-      hintKey: 'automation.recovery.correct.hint',
-      operation: 'correct',
-    };
-  }
+): RotationStatusRecoveryControl | undefined {
+  if (recovery.action === 'correct') return undefined;
   if (isDebug) {
     return {
       labelKey: 'automation.recovery.retryNow.label',

@@ -1,4 +1,5 @@
 import {
+  getRotationStatus,
   getWallpaperCapabilities,
   normalizeWallpaperServiceError,
   setWallpaper,
@@ -27,6 +28,7 @@ const nativeModule = jest.requireMock(
 ) as {
   getCapabilities: jest.Mock;
   setWallpaper: jest.Mock;
+  getRotationStatus: jest.Mock;
 };
 
 beforeEach(() => jest.clearAllMocks());
@@ -85,4 +87,28 @@ test('does not expose arbitrary native exception text', () => {
     code: 'APPLY_FAILED',
     message: 'Could not apply the wallpaper.',
   });
+});
+
+// The Kotlin module writes every optional field into one map, so a run that
+// carries no error sends errorCode as null, not as a missing key. RotationStatus
+// declares those fields optional, and getRotationStatusRecovery reads an absent
+// code as "no error". A null that reaches it shows the reader an error card
+// after a rotation that succeeded.
+test('reads a successful native status with no error code as an absent one', async () => {
+  nativeModule.getRotationStatus.mockResolvedValueOnce({
+    enabled: true,
+    state: 'succeeded',
+    lastAppliedAt: 1788200560038,
+    lastQuoteId: 'discipline-002',
+    lastPresetId: 'botanical-08',
+    errorCode: null,
+    intervalHours: null,
+    anchorHour: null,
+    target: null,
+  });
+  const status = await getRotationStatus();
+  expect(status.errorCode).toBeUndefined();
+  expect('errorCode' in status).toBe(false);
+  expect(status.state).toBe('succeeded');
+  expect(status.lastQuoteId).toBe('discipline-002');
 });
