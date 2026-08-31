@@ -8,6 +8,7 @@ import { resolveAppliedQuoteId } from '../src/features/quotes/appliedQuote';
 import { rotationSchedulePlan } from '../src/features/rotation/schedule';
 import { useUpdateLog } from '../src/services/updateStatus';
 import { configureRotation } from '../src/services/wallpaperNative';
+import { ToastHost } from '../src/components/ToastHost';
 import { setRotationSynchronizer } from '../src/store/automationSynchronization';
 import { useAppStore } from '../src/store/useAppStore';
 import { colors } from '../src/theme/colors';
@@ -72,6 +73,9 @@ export default function RootLayout() {
           } as const),
         }}
       />
+      {/* Above the navigator, so a result message outlives the screen that
+          raised it and reads the same on every screen. */}
+      <ToastHost />
     </GestureHandlerRootView>
   );
 }

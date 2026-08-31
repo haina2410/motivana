@@ -65,7 +65,9 @@ test('falls back from a future persisted version and emits a safe warning', () =
     (message) => warnings.push(message),
   );
 
-  expect(state.currentQuoteId).toBe(getAllQuotes(DEFAULT_CONTENT_LOCALE)[0]!.id);
+  expect(state.currentQuoteId).toBe(
+    getAllQuotes(DEFAULT_CONTENT_LOCALE)[0]!.id,
+  );
   expect(warnings).toEqual([
     'Motivana preferences were reset because the stored version is unsupported.',
   ]);

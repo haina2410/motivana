@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,7 +6,6 @@ import { ActionMessage } from '../../src/components/ActionMessage';
 import { AppButton } from '../../src/components/AppButton';
 import { AppIconButton } from '../../src/components/AppIconButton';
 import { ScreenHeader } from '../../src/components/ScreenHeader';
-import { Toast } from '../../src/components/Toast';
 import {
   favoriteQuoteText,
   getQuoteById,
@@ -16,6 +14,7 @@ import type { Quote } from '../../src/features/quotes/types';
 import type { ContentLocale } from '../../src/features/i18n/locale';
 import { useTranslate } from '../../src/features/i18n/useTranslate';
 import { useAppStore } from '../../src/store/useAppStore';
+import { showToast } from '../../src/store/useToastStore';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -28,10 +27,6 @@ import { typography } from '../../src/theme/typography';
 export default function FavoritesScreen() {
   const state = useAppStore();
   const translate = useTranslate();
-  const [feedback, setFeedback] = useState<{
-    message: string;
-    tone: 'default' | 'error';
-  }>();
   const favorites = state.favoriteQuoteIds.flatMap((id) => {
     const quote = getQuoteById(id);
     return quote ? [quote] : [];
@@ -41,10 +36,9 @@ export default function FavoritesScreen() {
   // nothing happen.
   const removeFavorite = async (quoteId: string) => {
     const removed = await state.toggleFavorite(quoteId);
-    setFeedback(
-      removed
-        ? { message: translate('favorites.removed'), tone: 'default' }
-        : { message: translate('favorites.remove.error'), tone: 'error' },
+    showToast(
+      translate(removed ? 'favorites.removed' : 'favorites.remove.error'),
+      removed ? 'default' : 'error',
     );
   };
   return (
@@ -84,24 +78,15 @@ export default function FavoritesScreen() {
             ))}
           </ScrollView>
         )}
-        <View style={styles.foot}>
-          {feedback ? (
-            <Toast
-              message={feedback.message}
-              onDismiss={() => setFeedback(undefined)}
-              tone={feedback.tone}
-            />
-          ) : null}
-          {favorites.length > 0 ? (
-            <AppButton
-              hint={translate('saved.rotate.hint')}
-              icon="shuffle"
-              label={translate('saved.rotate.label')}
-              onPress={() => router.navigate('/automation')}
-              shape="pill"
-            />
-          ) : null}
-        </View>
+        {favorites.length > 0 ? (
+          <AppButton
+            hint={translate('saved.rotate.hint')}
+            icon="shuffle"
+            label={translate('saved.rotate.label')}
+            onPress={() => router.navigate('/automation')}
+            shape="pill"
+          />
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -182,7 +167,6 @@ const styles = StyleSheet.create({
     width: 3,
   },
   rowCopy: { flex: 1, gap: 6 },
-  foot: { position: 'relative' },
   quote: { ...typography.rowLabel, lineHeight: 23 },
   author: { ...typography.caption, color: colors.faintText },
   pressed: { opacity: 0.72 },

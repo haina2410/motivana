@@ -11,6 +11,7 @@ import { setRotationSynchronizer } from '../../src/store/automationSynchronizati
 import { useAppStore } from '../../src/store/useAppStore';
 import { t } from '../../src/features/i18n/t';
 import { rotationSchedulePlan } from '../../src/features/rotation/schedule';
+import { renderWithToasts } from '../../src/testing/renderWithToasts';
 
 jest.mock('../../src/services/wallpaperNative', () => ({
   getWallpaperCapabilities: jest.fn(async () => ({
@@ -93,7 +94,7 @@ test('disables Save while capability support is still loading', () => {
 });
 
 test('Automation validates favorites-only scheduling while clearly reporting unavailable native status', async () => {
-  render(<AutomationScreen />);
+  renderWithToasts(<AutomationScreen />);
 
   await waitFor(() =>
     expect(
@@ -220,4 +221,23 @@ test('falls back to the best supported target when the saved one is unavailable'
       expect.objectContaining({ selected: true }),
     ),
   );
+});
+
+// Mutation caught: a save that reports nothing leaves the reader tapping Save
+// again to find out whether the first tap landed.
+test('reports a saved rotation with a toast that outlives the screen', async () => {
+  renderWithToasts(<AutomationScreen />);
+  await waitFor(() =>
+    expect(
+      screen.getByRole('button', { name: t('en', 'automation.save') }),
+    ).toBeEnabled(),
+  );
+
+  fireEvent.press(
+    screen.getByRole('button', { name: t('en', 'automation.save') }),
+  );
+
+  expect(
+    await screen.findByText(t('en', 'automation.save.disabled')),
+  ).toBeOnTheScreen();
 });

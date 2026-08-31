@@ -13,6 +13,7 @@ import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { useAppStore } from '../../src/store/useAppStore';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { t } from '../../src/features/i18n/t';
+import { renderWithToasts } from '../../src/testing/renderWithToasts';
 
 beforeEach(() => {
   jest.mocked(router.push).mockClear();
@@ -142,7 +143,7 @@ test.each([
 // Mutation caught: a settings switch that only moves locally would leave the
 // preview and the applied wallpaper disagreeing after a restart.
 test('Settings persists the two preview and export options', () => {
-  render(<SettingsScreen />);
+  renderWithToasts(<SettingsScreen />);
 
   fireEvent.press(
     screen.getByLabelText(t('en', 'settings.saveToLibrary.label')),
@@ -167,4 +168,17 @@ test('offers every language for the quotes only', async () => {
 
   await waitFor(() => expect(useAppStore.getState().contentLocale).toBe('all'));
   expect(useAppStore.getState().appLocale).toBe('en');
+});
+
+// Mutation caught: a language change that reports nothing leaves the reader
+// unsure whether the tap landed, since the quote language changes no label on
+// this screen.
+test('reports a language change with a toast', async () => {
+  renderWithToasts(<SettingsScreen />);
+
+  fireEvent.press(screen.getByLabelText('Quote language: Tiếng Việt'));
+
+  expect(
+    await screen.findByText(t('en', 'settings.language.updated')),
+  ).toBeOnTheScreen();
 });

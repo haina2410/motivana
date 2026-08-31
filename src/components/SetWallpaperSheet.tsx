@@ -25,13 +25,14 @@ import {
   setWallpaper,
 } from '../services/wallpaperNative';
 import { useAppStore } from '../store/useAppStore';
+import { showToast } from '../store/useToastStore';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { AppButton } from './AppButton';
 import { AppIconButton } from './AppIconButton';
 import { Icon, type IconName } from './Icon';
-import { Toast } from './Toast';
+import { ActionMessage } from './ActionMessage';
 import { useTranslate } from '../features/i18n/useTranslate';
 import type { StringKey } from '../features/i18n/t';
 
@@ -160,17 +161,25 @@ export function SetWallpaperSheet({
       await setWallpaper(rendered.uri, target);
       appState.recordAppliedQuote(composition.quote.id);
       retryExport.current = undefined;
-      setMessage(successMessage(target, translate));
       // The copy in the photo library is a separate promise. The wallpaper is
-      // already applied, so a failure here is reported beside the success
-      // rather than replacing it.
+      // already applied, so a failure here holds the sheet open and is reported
+      // beside the success rather than replacing it. A clean apply has nothing
+      // left to read here, so it hands the confirmation to the toast over the
+      // deck and closes.
+      let libraryFailed = false;
       if (appState.saveToPhotoLibrary) {
         try {
           await saveWallpaper(rendered.uri);
         } catch (caught) {
+          libraryFailed = true;
+          setMessage(successMessage(target, translate));
           setError(errorMessage(caught, translate));
           setPermissionDeniedPermanently(deniedForGood(caught));
         }
+      }
+      if (!libraryFailed) {
+        showToast(successMessage(target, translate));
+        onClose();
       }
     } catch (caught) {
       const code =
@@ -265,8 +274,8 @@ export function SetWallpaperSheet({
             onPress={() => void apply()}
             shape="pill"
           />
-          {message ? <Toast message={message} onDismiss={onClose} /> : null}
-          {error ? <Toast duration={0} message={error} tone="error" /> : null}
+          {message ? <ActionMessage message={message} /> : null}
+          {error ? <ActionMessage message={error} tone="error" /> : null}
           {canRetry ? (
             <AppButton
               disabled={busy}

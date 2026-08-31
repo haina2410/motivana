@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 import { Dimensions, PixelRatio, StyleSheet } from 'react-native';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import HomeScreen from '../(tabs)/index';
@@ -25,6 +20,7 @@ import { createDefaultPersistedAppState } from '../../src/store/schema';
 import { setRotationSynchronizer } from '../../src/store/automationSynchronization';
 import { t, type StringKey } from '../../src/features/i18n/t';
 import { spacing } from '../../src/theme/spacing';
+import { renderWithToasts } from '../../src/testing/renderWithToasts';
 
 jest.mock('../../src/features/wallpaper/WallpaperCanvas', () => ({
   WallpaperCanvas: jest.fn(),
@@ -135,7 +131,7 @@ test('Home shows a safe retry when favorite synchronization fails', async () => 
     if (attempts === 1) throw new Error('native secret');
   });
   useAppStore.setState({ rotationEnabled: true });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   fireEvent.press(screen.getByLabelText(t('en', 'home.favorite.add.label')));
   await waitFor(() =>
@@ -153,7 +149,7 @@ test('Home shows a safe retry when favorite synchronization fails', async () => 
 });
 
 test('Home changes the favorite state through accessible controls', async () => {
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   fireEvent.press(screen.getByLabelText(t('en', 'home.favorite.add.label')));
   await waitFor(() =>
@@ -169,7 +165,7 @@ test('Home changes the favorite state through accessible controls', async () => 
 
 // Mutation caught: pointing Restyle back at a deleted style route would dead-end the only path to the templates.
 test('Home reaches settings and the presets, and opens the wallpaper target sheet', () => {
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   fireEvent.press(screen.getByLabelText(t('en', 'home.settings.label')));
   expect(router.push).toHaveBeenCalledWith('/settings');
@@ -186,7 +182,7 @@ test('the deck advances and rewinds through the pager', () => {
   const advanceDeck = jest.fn().mockResolvedValue(true);
   const rewindDeck = jest.fn().mockResolvedValue(true);
   useAppStore.setState({ advanceDeck, rewindDeck });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   const deck = screen.getByLabelText(t('en', 'home.deck.next.label'));
   fireEvent(deck, 'accessibilityAction', {
@@ -208,7 +204,7 @@ test('Home reports a refused swipe up, and stays quiet at the start of the trail
     advanceDeck: jest.fn().mockResolvedValue(false),
     rewindDeck: jest.fn().mockResolvedValue(false),
   });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
   const deck = screen.getByLabelText(t('en', 'home.deck.next.label'));
 
   // A swipe down at the start of the trail is a normal no-op, not a failure.
@@ -234,7 +230,7 @@ test('Home exposes branded loading and a retryable render error without losing s
     failed: false,
     retry: retryFonts,
   });
-  const { unmount } = render(<HomeScreen />);
+  const { unmount } = renderWithToasts(<HomeScreen />);
   expect(screen.getByText(t('en', 'home.loading'))).toBeOnTheScreen();
   unmount();
 
@@ -246,7 +242,7 @@ test('Home exposes branded loading and a retryable render error without losing s
   useAppStore.setState({ currentQuoteId: 'missing-quote' });
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   try {
-    render(<HomeScreen />);
+    renderWithToasts(<HomeScreen />);
     expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
     fireEvent.press(
       screen.getByRole('button', { name: t('en', 'home.preview.retry.label') }),
@@ -272,7 +268,7 @@ test('Home catches a thrown preview render and retries without changing the quot
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
   try {
-    render(<HomeScreen />);
+    renderWithToasts(<HomeScreen />);
     expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
 
     shouldThrow = false;
@@ -305,7 +301,7 @@ test('the deck mounts the previous and the next wallpaper around the live one', 
     deckHistory: trail,
     deckCursor: 1,
   });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(3);
   // DeckPager draws previous, then the live card, then next.
@@ -335,7 +331,7 @@ test('the deck shows a next neighbour at the head of the trail, before advancing
     deckCursor: 0,
     pendingPair: pending,
   });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   expect(screen.getAllByLabelText('Wallpaper preview')).toHaveLength(2);
   expect(
@@ -361,7 +357,7 @@ test('the deck drops its neighbours when a restyle leaves the trail behind', asy
   });
   // What /customize does: the preset moves, the trail does not.
   useAppStore.setState({ selectedPresetId: presets[2]!.id });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   // The stale trail is dropped, so nothing sits behind the reader: the live
   // card and the freshly rolled card ahead of it are all that remain.
@@ -373,7 +369,7 @@ test('the deck drops its neighbours when a restyle leaves the trail behind', asy
 test('Home saves the wallpaper to the photo library one time per tap', async () => {
   mockExportWallpaper.mockResolvedValue({ uri: 'file:///exports/a.png' });
   mockSaveWallpaper.mockResolvedValue({ assetId: 'asset-1' });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   const save = screen.getByLabelText(t('en', 'home.saveToLibrary.label'));
   fireEvent.press(save);
@@ -391,7 +387,7 @@ test('Home saves the wallpaper to the photo library one time per tap', async () 
 // Mutation caught: swallowing the save failure tells the reader the wallpaper reached their photos when it did not.
 test('Home reports a failed save without leaving the button stuck', async () => {
   mockExportWallpaper.mockRejectedValue(new Error('no surface'));
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   fireEvent.press(screen.getByLabelText(t('en', 'home.saveToLibrary.label')));
 
@@ -413,7 +409,7 @@ test('Home offers the render error and a retry when the typefaces fail to load',
     failed: true,
     retry: retryFonts,
   });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   expect(screen.queryByText(t('en', 'home.loading'))).toBeNull();
   expect(screen.getByText(t('en', 'home.preview.error'))).toBeOnTheScreen();
@@ -534,7 +530,7 @@ test('positions the preset name from the measured viewport box, not the window',
     deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
     deckCursor: 0,
   });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   // Deliberately wider (relative to its height) than the composition's own
   // aspect ratio, so the height-driven ratio is the larger of the two --
@@ -564,7 +560,7 @@ test('keeps the preset name below the longest catalogue quote without crossing t
     deckHistory: [{ quoteId: quote.id, presetId: 'midnight-focus' }],
     deckCursor: 0,
   });
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   const box = { width: 390, height: 760 };
   fireEvent(screen.getByTestId('wallpaper-viewport'), 'layout', {
@@ -606,7 +602,7 @@ test('keeps the preset name below a truncated quote block', () => {
   Dimensions.set({
     window: { width: 1500, height: 60, scale: 2, fontScale: 1 },
   });
-  const { unmount } = render(<HomeScreen />);
+  const { unmount } = renderWithToasts(<HomeScreen />);
   try {
     // Not proportional to the truncating window itself, and cover picks the
     // width-driven ratio here, so this still tells a wrong baseline or a
@@ -646,7 +642,7 @@ test('warms the decode for the next photographic background', async () => {
     deckCursor: 0,
   });
 
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   await waitFor(() =>
     expect(mockGetBackgroundImage).toHaveBeenCalledWith(
@@ -673,7 +669,7 @@ test('warms the decode for a pending photographic background at the head of the 
     pendingPair: { quoteId: quotes[1]!.id, presetId: photograph.id },
   });
 
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   await waitFor(() =>
     expect(mockGetBackgroundImage).toHaveBeenCalledWith(
@@ -686,7 +682,7 @@ test('warms the decode for a pending photographic background at the head of the 
 // Mutation caught: without a primed candidate the pager clamps the upward drag,
 // so a session that has never swiped cannot move the deck at all.
 test('rolls a card ahead of the very first swipe', async () => {
-  render(<HomeScreen />);
+  renderWithToasts(<HomeScreen />);
 
   await waitFor(() => expect(useAppStore.getState().pendingPair).toBeDefined());
   expect(useAppStore.getState().pendingPair!.quoteId).not.toBe(

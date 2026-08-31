@@ -9,6 +9,7 @@ import { ScreenHeader } from '../src/components/ScreenHeader';
 import { Segmented } from '../src/components/Segmented';
 import { Toggle } from '../src/components/Toggle';
 import { useAppStore } from '../src/store/useAppStore';
+import { showToast } from '../src/store/useToastStore';
 import {
   getWallpaperAutomationAvailability,
   isWallpaperTargetAvailable,
@@ -89,19 +90,13 @@ export default function AutomationScreen() {
   const [favoritesOnly, setFavoritesOnly] = useState(state.favoriteQuotesOnly);
   const [randomizePreset, setRandomizePreset] = useState(state.randomizePreset);
   const [enabled, setEnabled] = useState(state.rotationEnabled);
-  const [message, setMessage] = useState<
-    { text: string; tone: 'default' | 'error' } | undefined
-  >();
   const refresh = () =>
     getWallpaperAutomationAvailability()
       .then(setAvailability)
       .catch(() => setAvailability(wallpaperAutomationFallback));
   const save = async (nextFavoritesOnly = favoritesOnly) => {
     if (nextFavoritesOnly && state.favoriteQuoteIds.length === 0) {
-      setMessage({
-        text: translate('automation.favoritesOnly.error'),
-        tone: 'error',
-      });
+      showToast(translate('automation.favoritesOnly.error'), 'error');
       return;
     }
     const saved = await state.setRotationConfiguration({
@@ -112,27 +107,23 @@ export default function AutomationScreen() {
       randomizePreset,
     });
     if (!saved) {
-      setMessage({ text: translate('automation.save.error'), tone: 'error' });
+      showToast(translate('automation.save.error'), 'error');
       return;
     }
-    setMessage({
-      text: enabled
-        ? translate('automation.save.enabled')
-        : translate('automation.save.disabled'),
-      tone: 'default',
-    });
+    showToast(
+      translate(
+        enabled ? 'automation.save.enabled' : 'automation.save.disabled',
+      ),
+    );
     refresh();
   };
   const runNow = async () => {
     try {
       await runRotationNow();
-      setMessage({
-        text: translate('automation.run.success'),
-        tone: 'default',
-      });
+      showToast(translate('automation.run.success'));
       refresh();
     } catch {
-      setMessage({ text: translate('automation.run.error'), tone: 'error' });
+      showToast(translate('automation.run.error'), 'error');
     }
   };
   const statusRecovery = getRotationStatusRecovery(
@@ -265,9 +256,6 @@ export default function AutomationScreen() {
             onPress={recoverFromStatusFailure}
             variant="outline"
           />
-        ) : null}
-        {message ? (
-          <ActionMessage tone={message.tone} message={message.text} />
         ) : null}
       </ScrollView>
     </SafeAreaView>

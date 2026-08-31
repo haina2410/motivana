@@ -17,7 +17,6 @@ import { AppIconButton } from '../../src/components/AppIconButton';
 import { DeckPager } from '../../src/components/DeckPager';
 import { SafeAreaGuides } from '../../src/components/SafeAreaGuides';
 import { SetWallpaperSheet } from '../../src/components/SetWallpaperSheet';
-import { Toast } from '../../src/components/Toast';
 import { getQuoteById } from '../../src/features/quotes/quoteRepository';
 import { createComposition } from '../../src/features/wallpaper/composition';
 import type { WallpaperComposition } from '../../src/features/wallpaper/composition';
@@ -39,6 +38,7 @@ import {
   currentPendingPair,
   useAppStore,
 } from '../../src/store/useAppStore';
+import { showToast } from '../../src/store/useToastStore';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -56,9 +56,10 @@ export default function HomeScreen() {
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [saveBusy, setSaveBusy] = useState(false);
   const [targetSheetOpen, setTargetSheetOpen] = useState(false);
-  const [favoriteFeedback, setFavoriteFeedback] = useState<
-    { message: string; retryQuoteId?: string } | undefined
-  >();
+  // A failed favourite write is the one result on this screen with an action
+  // attached, so it stays in the layout beside its retry rather than leaving
+  // with a toast the reader may not have read yet.
+  const [favoriteRetryId, setFavoriteRetryId] = useState<string>();
   // The tab bar is an in-flow sibling below this screen (DeckTabBar in
   // app/(tabs)/_layout.tsx), not an overlay, so the screen's own box is
   // shorter than the window. WallpaperCanvas cover-fits the composition into
@@ -81,20 +82,15 @@ export default function HomeScreen() {
     if (favoriteBusy) return;
     const wasFavorite = state.favoriteQuoteIds.includes(quoteId);
     setFavoriteBusy(true);
-    setFavoriteFeedback(undefined);
+    setFavoriteRetryId(undefined);
     const saved = await state.toggleFavorite(quoteId);
     setFavoriteBusy(false);
-    setFavoriteFeedback(
-      saved
-        ? {
-            message: wasFavorite
-              ? translate('home.favorite.removed')
-              : translate('home.favorite.added'),
-          }
-        : {
-            message: translate('home.favorite.error'),
-            retryQuoteId: quoteId,
-          },
+    if (!saved) {
+      setFavoriteRetryId(quoteId);
+      return;
+    }
+    showToast(
+      translate(wasFavorite ? 'home.favorite.removed' : 'home.favorite.added'),
     );
   };
   const dimensions = wallpaperPixelDimensions(width, height, PixelRatio.get());
@@ -130,13 +126,12 @@ export default function HomeScreen() {
   const saveToLibrary = async () => {
     if (saveBusy || !fonts || !composition) return;
     setSaveBusy(true);
-    setFavoriteFeedback(undefined);
     try {
       const rendered = await exportWallpaper(composition, fonts);
       await saveWallpaper(rendered.uri);
-      setFavoriteFeedback({ message: translate('home.saved.confirmation') });
+      showToast(translate('home.saved.confirmation'));
     } catch {
-      setFavoriteFeedback({ message: translate('home.saved.error') });
+      showToast(translate('home.saved.error'), 'error');
     } finally {
       setSaveBusy(false);
     }
@@ -148,7 +143,7 @@ export default function HomeScreen() {
   // normal answer, not a failure.
   const advanceDeck = async () => {
     const moved = await state.advanceDeck();
-    if (!moved) setFavoriteFeedback({ message: translate('home.deck.error') });
+    if (!moved) showToast(translate('home.deck.error'), 'error');
     // The pager holds the committed card a viewport away until this answers,
     // so a refusal has to travel back rather than be swallowed here.
     return moved;
@@ -318,21 +313,19 @@ export default function HomeScreen() {
             variant="glass"
           />
         </View>
-        {favoriteFeedback ? (
-          <Toast
-            duration={favoriteFeedback.retryQuoteId ? 0 : 4000}
-            message={favoriteFeedback.message}
-            onDismiss={() => setFavoriteFeedback(undefined)}
-            tone={favoriteFeedback.retryQuoteId ? 'error' : 'default'}
-          />
-        ) : null}
-        {favoriteFeedback?.retryQuoteId ? (
-          <AppButton
-            hint={translate('home.favorite.retry.hint')}
-            label={translate('home.favorite.retry.label')}
-            onPress={() => void updateFavorite(favoriteFeedback.retryQuoteId!)}
-            variant="outline"
-          />
+        {favoriteRetryId ? (
+          <>
+            <ActionMessage
+              tone="error"
+              message={translate('home.favorite.error')}
+            />
+            <AppButton
+              hint={translate('home.favorite.retry.hint')}
+              label={translate('home.favorite.retry.label')}
+              onPress={() => void updateFavorite(favoriteRetryId)}
+              variant="outline"
+            />
+          </>
         ) : null}
         <AppButton
           disabled={!fonts || !composition}

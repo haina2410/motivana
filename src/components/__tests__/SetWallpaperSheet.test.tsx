@@ -1,10 +1,4 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 import { SetWallpaperSheet } from '../SetWallpaperSheet';
 import { getAllQuotes } from '../../features/quotes/quoteRepository';
@@ -12,6 +6,7 @@ import type { WallpaperComposition } from '../../features/wallpaper/composition'
 import { createDefaultPersistedAppState } from '../../store/schema';
 import { useAppStore } from '../../store/useAppStore';
 import { t } from '../../features/i18n/t';
+import { renderWithToasts } from '../../testing/renderWithToasts';
 
 jest.mock('../../features/wallpaper/exportWallpaper', () => ({
   exportWallpaper: jest.fn(),
@@ -62,7 +57,7 @@ const composition = compositionFor('composition-quote');
 const fontProvider = {} as never;
 
 function renderSheet(target = composition) {
-  return render(
+  return renderWithToasts(
     <SetWallpaperSheet
       composition={target}
       fontProvider={fontProvider}
@@ -305,3 +300,50 @@ test.each([
     expect(mockSaveWallpaper).toHaveBeenCalledTimes(expectedSaves);
   },
 );
+
+// Mutation caught: a sheet that stays open on a clean apply hides the wallpaper
+// the reader just asked for behind the controls that applied it.
+test('closes on a clean apply and reports the result over the deck', async () => {
+  const onClose = jest.fn();
+  renderWithToasts(
+    <SetWallpaperSheet
+      composition={composition}
+      fontProvider={fontProvider}
+      onClose={onClose}
+      visible
+    />,
+  );
+  await waitFor(() => expect(applyButton()).toBeEnabled());
+
+  fireEvent.press(applyButton());
+
+  expect(
+    await screen.findByText(t('en', 'actions.success.home')),
+  ).toBeOnTheScreen();
+  expect(onClose).toHaveBeenCalledTimes(1);
+});
+
+// Mutation caught: closing while the photo copy failed drops the only report of
+// that failure, so the reader believes the copy is in their library.
+test('holds the sheet open when the photo copy fails', async () => {
+  useAppStore.setState({ saveToPhotoLibrary: true });
+  mockSaveWallpaper.mockRejectedValueOnce({ code: 'PERMISSION_DENIED' });
+  const onClose = jest.fn();
+  renderWithToasts(
+    <SetWallpaperSheet
+      composition={composition}
+      fontProvider={fontProvider}
+      onClose={onClose}
+      visible
+    />,
+  );
+  await waitFor(() => expect(applyButton()).toBeEnabled());
+
+  fireEvent.press(applyButton());
+
+  expect(
+    await screen.findByText(t('en', 'actions.error.permissionDenied')),
+  ).toBeOnTheScreen();
+  expect(screen.getByText(t('en', 'actions.success.home'))).toBeOnTheScreen();
+  expect(onClose).not.toHaveBeenCalled();
+});

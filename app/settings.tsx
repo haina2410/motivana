@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActionMessage } from '../src/components/ActionMessage';
 import { Choice } from '../src/components/Choice';
 import { Icon } from '../src/components/Icon';
 import { ScreenHeader } from '../src/components/ScreenHeader';
@@ -24,6 +23,7 @@ import {
   runningUpdateSummary,
 } from '../src/services/updateStatus';
 import { useAppStore } from '../src/store/useAppStore';
+import { showToast } from '../src/store/useToastStore';
 import { wallpaperPixelDimensions } from '../src/features/wallpaper/dimensions';
 import { contentLocales, locales } from '../src/features/i18n/locale';
 import { useTranslate } from '../src/features/i18n/useTranslate';
@@ -47,14 +47,6 @@ export default function SettingsScreen() {
   const { width, height } = useWindowDimensions();
   const exportSize = wallpaperPixelDimensions(width, height, PixelRatio.get());
   const [pending, setPending] = useState<'app' | 'content'>();
-  const [feedback, setFeedback] = useState<{
-    message: string;
-    tone: 'default' | 'error';
-  }>();
-  const [languageMessage, setLanguageMessage] = useState<{
-    text: string;
-    tone: 'default' | 'error';
-  }>();
   // Takes the write itself, because only the quote language accepts `all`.
   const updateLanguage = async (
     kind: 'app' | 'content',
@@ -62,8 +54,6 @@ export default function SettingsScreen() {
   ) => {
     if (pending !== undefined) return;
     setPending(kind);
-    setFeedback(undefined);
-    setLanguageMessage(undefined);
     // finally, so a rejected write cannot leave every control disabled.
     let saved: boolean;
     try {
@@ -71,10 +61,11 @@ export default function SettingsScreen() {
     } finally {
       setPending(undefined);
     }
-    setLanguageMessage(
-      saved
-        ? { text: translate('settings.language.updated'), tone: 'default' }
-        : { text: translate('settings.language.error'), tone: 'error' },
+    showToast(
+      translate(
+        saved ? 'settings.language.updated' : 'settings.language.error',
+      ),
+      saved ? 'default' : 'error',
     );
   };
   return (
@@ -130,12 +121,14 @@ export default function SettingsScreen() {
                 value={state.saveToPhotoLibrary}
                 onValueChange={(value) => {
                   const saved = state.setSaveToPhotoLibrary(value);
-                  setFeedback({
-                    message: saved
-                      ? translate('settings.saveToLibrary.updated')
-                      : translate('settings.error'),
-                    tone: saved ? 'default' : 'error',
-                  });
+                  showToast(
+                    translate(
+                      saved
+                        ? 'settings.saveToLibrary.updated'
+                        : 'settings.error',
+                    ),
+                    saved ? 'default' : 'error',
+                  );
                 }}
               />
             </>
@@ -147,19 +140,15 @@ export default function SettingsScreen() {
             value={state.showSafeGuides}
             onValueChange={(value) => {
               const saved = state.setShowSafeGuides(value);
-              setFeedback({
-                message: saved
-                  ? translate('settings.safeGuides.updated')
-                  : translate('settings.error'),
-                tone: saved ? 'default' : 'error',
-              });
+              showToast(
+                translate(
+                  saved ? 'settings.safeGuides.updated' : 'settings.error',
+                ),
+                saved ? 'default' : 'error',
+              );
             }}
           />
         </View>
-
-        {feedback ? (
-          <ActionMessage message={feedback.message} tone={feedback.tone} />
-        ) : null}
 
         <Text allowFontScaling style={typography.sectionLabel}>
           {translate('settings.appLanguage.label')}
@@ -207,12 +196,6 @@ export default function SettingsScreen() {
             />
           ))}
         </View>
-        {languageMessage ? (
-          <ActionMessage
-            message={languageMessage.text}
-            tone={languageMessage.tone}
-          />
-        ) : null}
 
         <Text allowFontScaling style={typography.sectionLabel}>
           {translate('settings.about.label')}
