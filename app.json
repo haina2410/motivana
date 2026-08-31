@@ -15,6 +15,7 @@
         "android.permission.READ_MEDIA_AUDIO",
         "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
         "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
@@ -42,7 +43,10 @@
         "expo-build-properties",
         {
           "android": {
-            "minSdkVersion": 24
+            "minSdkVersion": 30,
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "# The wallpaper module: R8 must not rename it. The Expo bridge finds the\n# module and its record fields by name, and WorkManager makes the worker\n# from the class name in the saved work request.\n-keep class org.haina2410.motivana.wallpaper.** { *; }\n\n# WorkManager makes each worker by reflection.\n-keep class * extends androidx.work.ListenableWorker { public <init>(...); }\n"
           }
         }
       ]
