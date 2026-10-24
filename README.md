@@ -21,6 +21,52 @@ rotation snapshot stay on the device.
 
 ## Setup and run
 
+### Windows (PowerShell)
+
+For local Android builds, install [Android Studio](https://developer.android.com/studio)
+and JDK 17. Android Studio provides the SDK Manager and Device Manager; you can
+continue editing this repository in your preferred editor. The SDK command-line
+tools can also be installed separately, so the IDE itself is optional.
+Expo Go cannot run this app's custom wallpaper module.
+
+1. In Android Studio's SDK Manager, install Android SDK Platform 36,
+   Build-Tools 36.0.0, Android SDK Platform-Tools, and Android SDK Command-line
+   Tools (latest). For an emulator, also install Android Emulator and an
+   appropriate system image, then create and start a device in Device Manager.
+   A physical Android phone with USB debugging enabled can replace the emulator.
+2. Set `JAVA_HOME` to your JDK 17 installation. The helper below uses the default
+   SDK location, `%LOCALAPPDATA%\Android\Sdk`; set `ANDROID_HOME` if yours differs.
+   It also detects JDK 17 installations under `%USERPROFILE%\.jdks` when
+   `JAVA_HOME` is unset.
+3. From this repository, run:
+
+```powershell
+# Use Node 22.13.1 when available (.nvmrc); the recorded QA also used Node 24.
+pnpm install --frozen-lockfile
+pnpm --dir ota/worker install --frozen-lockfile
+. .\scripts\android-env.ps1
+adb devices
+pnpm android
+```
+
+`pnpm android` generates the native project on the first run, builds and installs
+the debug app, and starts Metro. Keep Metro running while developing. No local
+environment file or cloud account is needed for ordinary app development.
+`pnpm verify` checks the JavaScript code and Worker; native checks additionally
+need the generated Android project and configured SDK.
+
+The repository uses pnpm's hoisted dependency layout (`.npmrc`) to keep native
+CMake paths short on Windows. The first Android build can download additional
+SDK/NDK packages through Gradle after the SDK licenses have been accepted.
+
+The Bash-based emulator smoke suite requires a POSIX environment; a native
+PowerShell test run without `bash` fails that suite. Run those smoke checks in
+the macOS/Linux QA environment. Windows Git checkouts using `core.autocrlf=true`
+can also trigger Prettier's LF checks; `pnpm exec prettier --check . --end-of-line auto`
+can distinguish line-ending warnings from other formatting issues.
+
+### macOS / Bash
+
 Use the pinned Node version, install exactly the lockfile, then load the
 repository-local Android paths. The helper changes only the current shell.
 

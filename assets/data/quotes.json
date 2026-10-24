@@ -230,7 +230,7 @@
     "category": "growth",
     "sourceLocale": "vi",
     "text": {
-      "vi": "Bảy mươi học bảy mươi mốt."
+      "vi": "Thứ gì cần kết thúc thì hãy để nó kết thúc đi."
     }
   },
   {
@@ -238,19 +238,11 @@
     "category": "growth",
     "sourceLocale": "vi",
     "text": {
-      "vi": "Thứ gì cần kết thúc thì hãy để nó kết thúc đi."
-    }
-  },
-  {
-    "id": "growth-007",
-    "category": "growth",
-    "sourceLocale": "vi",
-    "text": {
       "vi": "Đôi khi sự đổ vỡ lại là cơ hội để chúng ta sắp xếp lại cuộc đời mình."
     }
   },
   {
-    "id": "growth-008",
+    "id": "growth-007",
     "category": "growth",
     "sourceLocale": "vi",
     "author": "Haruki Murakami",
@@ -259,7 +251,7 @@
     }
   },
   {
-    "id": "growth-009",
+    "id": "growth-008",
     "category": "growth",
     "sourceLocale": "vi",
     "author": "Haruki Murakami",
